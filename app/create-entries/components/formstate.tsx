@@ -1,0 +1,110 @@
+export interface AwbFormState {
+  awbNumber: string;
+  editAwbNumber: boolean;
+  customer: string;
+  company: string;
+  editCompany: boolean;
+  origin: string;
+  originZone: string;
+  destination: string;
+  destinationZone: string;
+  product: string;
+  bookingDate: string;
+  service: string;
+  vendor: string;
+  editVendor: boolean;
+  masterCode: string;
+  forwardingNumber: string;
+  forwardingNumber2: string;
+  referenceNumber: string;
+  shipmentValue: string;
+  shipmentCurrency: string;
+  invoiceDate: string;
+  invoiceNumber: string;
+  editInvoice: boolean;
+  content: string;
+  contractId: string;
+  rateContractCustomer: string;
+  rateContractVendor: string;
+  cftContractCustomer: string;
+  cftContractVendor: string;
+  tatCustomer: string;
+  tatVendor: string;
+  originHub: string;
+  editOriginHub: boolean;
+  duty: string;
+
+  shipperSaveToAddressBook: boolean;
+  shipperSearchAddressBook: string;
+  shipperCode: string;
+  shipperUpdateAddressBook: boolean;
+  shipperCompany: string;
+  shipperPersonName: string;
+  shipperAddress1: string;
+  shipperAddress2: string;
+  shipperAddress3: string;
+  shipperZipCode: string;
+  shipperCity: string;
+  shipperState: string;
+  shipperCountry: string;
+  shipperPhone: string;
+  shipperEmail: string;
+  shipperKycType: string;
+  shipperKycNumber: string;
+
+  consigneeSaveToAddressBook: boolean;
+  consigneeSearchAddressBook: string;
+  consigneeCode: string;
+  consigneeUpdateAddressBook: boolean;
+  consigneeCompany: string;
+  consigneePersonName: string;
+  consigneeAddress1: string;
+  consigneeAddress2: string;
+  consigneeAddress3: string;
+  consigneeZipCode: string;
+  consigneeCity: string;
+  consigneeState: string;
+  consigneeCountry: string;
+  consigneePhone: string;
+  consigneeEmail: string;
+
+  pcs: number;
+  actualWeight: string;
+  volumetricWeight: string;
+  consignerWeight: string;
+  addWeight: string;
+  chargeableWeight: string;
+  boxNo: string;
+  parcelActualWt: string;
+  parcelL: string;
+  parcelB: string;
+  parcelH: string;
+  parcelVolumetricWt: string;
+  parcelChargeableWt: string;
+  parcelCtn: string;
+
+  createShipmentInvoice: boolean;
+  invoiceType: string;
+  invoiceCurrency: string;
+  incoterms: string;
+  invoiceNote: string;
+  invoiceDeclaration: string;
+}
+export type AwbFormErrors = Record<string, string>;
+export interface InvoiceItem {
+  id: number;
+  boxNo: string;
+  srNo: string;
+  description: string;
+  hsCode: string;
+  unitType: string;
+  quantity: string;
+  unitWeight: string;
+  igst: string;
+  unitRates: string;
+  amount: string;
+}
+export interface ToastState {
+  message: string;
+  type: "success" | "info";
+}
