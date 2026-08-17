@@ -7,7 +7,7 @@ import LowStockAlerts from "../components/LowStockAlerts";
 import RevenueFilter from "../components/RevenueFilter";
 import Button from "../button/Button";
 import {
-  stats,
+  statsCards as stats,
   tabs,
   orders,
   products,
@@ -42,8 +42,14 @@ export default function Dashboard(): React.JSX.Element {
 
         {stats.slice(0, 3).map((stat) => (
           <StatCard
-            key={stat.title}
-            {...stat}
+            key={stat.id}
+            title={stat.label}
+            value={stat.count}
+            change={stat.trend}
+            positive={stat.isIncrease}
+            icon={stat.icon}
+            iconBg={stat.iconBgColor}
+            iconColor={stat.iconTextColor}
           />
         ))}
       </div>
@@ -51,8 +57,14 @@ export default function Dashboard(): React.JSX.Element {
       <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.slice(3).map((stat) => (
           <StatCard
-            key={stat.title}
-            {...stat}
+            key={stat.id}
+            title={stat.label}
+            value={stat.count}
+            change={stat.trend}
+            positive={stat.isIncrease}
+            icon={stat.icon}
+            iconBg={stat.iconBgColor}
+            iconColor={stat.iconTextColor}
           />
         ))}
       </div>

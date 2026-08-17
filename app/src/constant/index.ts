@@ -772,3 +772,128 @@ export const quickActions = [
     arrowColor: "text-amber-500",
   },
 ];
+
+export const timeFilterOptions = [
+  { label: "Today", value: "today" },
+  { label: "This Week", value: "week" },
+  { label: "This Month", value: "month" },
+  { label: "This Year", value: "year" },
+  { label: "Select Date", value: "date" },
+  { label: "Select Day", value: "day" },
+];
+
+export const years = [
+  { label: "2024", value: 2024 },
+  { label: "2025", value: 2025 },
+  { label: "2026", value: 2026 },
+  { label: "2027", value: 2027 },
+];
+
+export const months = [
+  { label: "January", value: 1 },
+  { label: "February", value: 2 },
+  { label: "March", value: 3 },
+  { label: "April", value: 4 },
+  { label: "May", value: 5 },
+  { label: "June", value: 6 },
+  { label: "July", value: 7 },
+  { label: "August", value: 8 },
+  { label: "September", value: 9 },
+  { label: "October", value: 10 },
+  { label: "November", value: 11 },
+  { label: "December", value: 12 },
+];
+
+export const days = [
+  { label: "Monday", value: "Monday" },
+  { label: "Tuesday", value: "Tuesday" },
+  { label: "Wednesday", value: "Wednesday" },
+  { label: "Thursday", value: "Thursday" },
+  { label: "Friday", value: "Friday" },
+  { label: "Saturday", value: "Saturday" },
+  { label: "Sunday", value: "Sunday" },
+];
+
+export interface Order {
+  id: string;
+  date: string;
+  type: "B2B" | "B2C";
+  status: string;
+  amount?: string;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  type: "B2B" | "B2C";
+  growth: string;
+  price?: string;
+}
+
+export interface Analytics {
+  id: string;
+  metric: string;
+  growth: string;
+  status: string;
+}
+
+export const orderColumns = [
+  { key: "id", label: "Order ID" },
+  { key: "date", label: "Date" },
+  { key: "type", label: "Type" },
+  { key: "amount", label: "Amount" },
+  { key: "status", label: "Status" },
+  { key: "action", label: "Action", align: "center" as const },
+];
+
+export const productColumns = [
+  { key: "id", label: "Product ID" },
+  { key: "name", label: "Name" },
+  { key: "type", label: "Type" },
+  { key: "price", label: "Price" },
+  { key: "growth", label: "Growth" },
+];
+
+export const analyticsColumns = [
+  { key: "metric", label: "Metric" },
+  { key: "growth", label: "Growth" },
+  { key: "status", label: "Status" },
+];
+
+export const typeOptions = [
+  { label: "All", value: "All" },
+  { label: "B2B", value: "B2B" },
+  { label: "B2C", value: "B2C" },
+];
+
+export const statusOptions = [
+  { label: "All", value: "All" },
+  { label: "Pending", value: "Pending" },
+  { label: "Completed", value: "Completed" },
+  { label: "Cancelled", value: "Cancelled" },
+];
+
+export const tabs = [
+  { id: "recent", label: "Recent Orders", icon: FileText },
+  { id: "top", label: "Top Products", icon: BarChart3 },
+  { id: "analytics", label: "Analytics", icon: Database },
+];
+
+export const orders: Order[] = [
+  { id: "#ORD-001", date: "2026-08-17", type: "B2B", status: "Completed", amount: "$1,200.00" },
+  { id: "#ORD-002", date: "2026-08-16", type: "B2C", status: "Pending", amount: "$150.00" },
+  { id: "#ORD-003", date: "2026-08-15", type: "B2B", status: "Completed", amount: "$2,400.00" },
+  { id: "#ORD-004", date: "2026-08-15", type: "B2C", status: "Cancelled", amount: "$45.00" }
+];
+
+export const products: Product[] = [
+  { id: "PROD-1", name: "Premium Plan", type: "B2B", growth: "+15%", price: "$299.00" },
+  { id: "PROD-2", name: "Basic Plan", type: "B2C", growth: "+5%", price: "$29.00" },
+  { id: "PROD-3", name: "Enterprise Plan", type: "B2B", growth: "+22%", price: "$999.00" }
+];
+
+export const analytics: Analytics[] = [
+  { id: "A1", metric: "Conversion Rate", growth: "+2.4%", status: "Good" },
+  { id: "A2", metric: "Bounce Rate", growth: "-1.2%", status: "Good" },
+  { id: "A3", metric: "Active Users", growth: "+12%", status: "Excellent" }
+];

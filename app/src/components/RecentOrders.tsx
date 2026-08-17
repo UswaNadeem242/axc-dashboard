@@ -9,35 +9,14 @@ import {
   analyticsColumns,
   typeOptions,
   statusOptions,
+  Order,
+  Product,
+  Analytics,
 } from "../constant";
 interface Tab {
   id: string;
   label: string;
   icon: React.ElementType;
-}
-interface Order {
-  id: string;
-  customer: string;
-  type: "B2B" | "B2C";
-  amount: string;
-  date: string;
-  status: "Completed" | "Processing" | "Pending" | "Cancel";
-}
-interface Product {
-  product: string;
-  category: string;
-  type: "B2B" | "B2C";
-  units: string;
-  revenue: string;
-  growth: string;
-}
-interface Analytics {
-  metric: string;
-  total: string;
-  b2b: string;
-  b2c: string;
-  growth: string;
-  status: "Increasing" | "Stable" | "Improving" | "Low";
 }
 interface RecentOrdersProps {
   tabs: Tab[];
