@@ -52,7 +52,7 @@ export default function Home() {
       </div>
 
       {/* ROW 1: CARDS */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6 gap-4">
         {statsCards?.map((card) => {
           const Icon = card.icon;
           const TrendIcon = card.isIncrease ? ArrowUpRight : ArrowDownRight;
@@ -88,7 +88,7 @@ export default function Home() {
       {/* ROW 2: ANALYTICS (WIDE) & QUICK LINKS (SMALL) */}
       <div className="grid grid-cols-12 gap-6">
         {/* Analytics (Left, Wide) */}
-        <div className="col-span-12 lg:col-span-8">
+        <div className="col-span-12 lg:col-span-9">
           <Card title="AWB & Billing Performance" icon={TrendingUp} className="rounded-2xl p-6">
             <div className="h-[300px] w-full">
               <ChartArea />
@@ -97,7 +97,7 @@ export default function Home() {
         </div>
 
         {/* Quick Links (Right, Small) */}
-        <div className="col-span-12 lg:col-span-4">
+        <div className="col-span-12 lg:col-span-3">
           <Card title="Quick Actions" icon={Package} className="rounded-2xl p-6">
             <div className="flex flex-col gap-3">
               {quickActions?.slice(0, 4).map((action, index) => {

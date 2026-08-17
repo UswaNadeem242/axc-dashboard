@@ -23,7 +23,7 @@ export default function DashboardLayout({
 
         <div className="flex h-screen flex-col border-l border-axc-border overflow-hidden">
           <Header />
-          <section className="flex-1 overflow-y-auto bg-axc-light-bg p-4">
+          <section className="flex-1 overflow-y-auto bg-axc-light-bg lg:p-12 p-4">
             {children}
           </section>
         </div>
