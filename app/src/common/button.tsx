@@ -21,7 +21,7 @@ interface ButtonProps {
 
 const variantClasses = {
     primary:
-        "bg-axc-navy text-white hover:bg-axc-navy/80",
+        "bg-axc-navy text-white",
 
     secondary:
         "bg-axc-red text-white hover:bg-axc-red/80",

@@ -30,10 +30,7 @@ export function FileUploadField({
     <label className="flex items-center gap-2 border border-axc-gray rounded px-2 py-2.5 text-[11px] text-gray-500 bg-white cursor-pointer hover:bg-gray-50 transition">
       <span className="px-2 py-1 bg-gray-100 rounded text-[10px] font-bold text-gray-600 shrink-0">CHOOSE FILE</span>
       <span className={`truncate ${fileName ? "text-gray-700 font-medium" : "text-gray-400"}`}>{fileName || placeholder}</span>
-      <input
-        type="file"
-        className="hidden"
-        onChange={(e) => {
+      <input type="file" className="hidden" onChange={(e) => {
           const f = e.target.files?.[0] || null;
           setFileName(f ? f.name : "");
           onFileChange?.(f);
@@ -43,18 +40,12 @@ export function FileUploadField({
   );
 }
 export function EditIconButton({
-  active,
-  onToggle,
-  title = "Edit",
+  active,  onToggle, title = "Edit",
 }: {
-  active: boolean;
-  onToggle: () => void;
-  title?: string;
+  active: boolean; onToggle: () => void; title?: string;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onToggle}
+    <button type="button" onClick={onToggle}
       title={title}
       aria-pressed={active}
       className={`flex items-center justify-center h-8 w-8 shrink-0 rounded border transition ${

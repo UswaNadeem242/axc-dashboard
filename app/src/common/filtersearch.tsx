@@ -21,13 +21,13 @@ export default function FilterSearch({
   placeholder = "Search",
 }: FilterSearchProps) {
   return (
-    <div className="flex h-11 items-center overflow-hidden rounded-lg border border-axc-border bg-white shadow-sm transition  ">
+    <div className="flex h-11 items-center overflow-hidden rounded-md border border-axc-border bg-white  transition ">
       {/* Select Dropdown */}
       <div className="relative flex h-full items-center bg-transparent">
         <select
           value={selectedOption}
           onChange={(e) => onOptionChange(e.target.value)}
-          className="h-full cursor-pointer appearance-none bg-transparent pl-3 pr-8 text-sm text-gray-500 focus:outline-none"
+          className="h-full cursor-pointer appearance-none bg-transparent pl-3 pr-8 text-sm text-axc-gray focus:outline-none"
         >
           {options.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -37,12 +37,12 @@ export default function FilterSearch({
         </select>
         <ChevronDown
           size={14}
-          className="pointer-events-none absolute right-2.5 text-gray-300"
+          className="pointer-events-none absolute right-2.5 text-gray-400"
         />
       </div>
 
       {/* Vertical Divider */}
-      <div className="h-5 w-px bg-gray-200"></div>
+      <div className="h-5 w-px bg-gray-300"></div>
 
       {/* Search Input */}
       <input
@@ -56,7 +56,7 @@ export default function FilterSearch({
           }
         }}
         placeholder={placeholder}
-        className="h-full w-full min-w-[250px] bg-transparent px-3 text-sm text-gray-700 placeholder-gray-400 focus:outline-none"
+        className="h-full w-full min-w-[250px] bg-transparent px-3 text-sm text-gray-700 placeholder-axc-gray focus:outline-none"
       />
     </div>
   );

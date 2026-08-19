@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Sidebar from "./sidebar";
 import Header from "./header";
+import { usePathname } from "next/navigation";
 
 export default function DashboardLayout({
   children,
@@ -10,12 +11,28 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const pathname = usePathname();
+
+  const formatTitle = (path: string) => {
+    if (!path || path === "/") return "Dashboard";
+    
+    if (path.includes("awb-entries")) return "AWB Management";
+    
+    return path
+      .split("/")
+      .filter(Boolean)
+      .pop()
+      ?.replace(/-/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase()) || "Dashboard";
+  };
+
+  const title = formatTitle(pathname || "/");
+  const breadcrumb = pathname?.includes("awb-entries") ? "AWB Entries" : title;
 
   return (
     <main className="min-h-screen bg-axc-light-bg">
-      <div className={`grid min-h-screen transition-all duration-355 ${
-        isSidebarCollapsed ? "grid-cols-[80px_minmax(0,1fr)]" : "grid-cols-[280px_minmax(0,1fr)]"
-      }`}>
+      <div className={`grid min-h-screen transition-all duration-355 ${isSidebarCollapsed ? "grid-cols-[80px_minmax(0,1fr)]" : "grid-cols-[280px_minmax(0,1fr)]"
+        }`}>
         <Sidebar
           isCollapsed={isSidebarCollapsed}
           onToggle={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
@@ -23,7 +40,19 @@ export default function DashboardLayout({
 
         <div className="flex h-screen flex-col border-l border-axc-border overflow-hidden">
           <Header />
-          <section className="flex-1 overflow-y-auto bg-axc-light-bg p-4">
+          <section className="flex-1 overflow-y-auto bg-axc-light-bg lg:p-6 p-4 scrollbar-none">
+            <div className="mb-6">
+              <h1 className="text-2xl font-bold text-axc-navy">{title}</h1>
+              {pathname === "/" ? (
+                <p className="mt-0.5 text-xs text-axc-gray font-medium">
+                  Welcome back, Admin! Here's what's happening today.
+                </p>
+              ) : (
+                <p className="mt-0.5 text-xs text-axc-gray font-medium">
+                  Home {pathname !== "/" && ` > ${breadcrumb}`}
+                </p>
+              )}
+            </div>
             {children}
           </section>
         </div>
