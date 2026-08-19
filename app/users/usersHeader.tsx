@@ -42,7 +42,7 @@ export default function UsersHeader() {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative shrink-0 px-4 py-4 text-[12px] font-semibold whitespace-nowrap transition-colors duration-150 ${
+                className={`relative shrink-0 px-4 py-4 text-[12px] font-semibold whitespace-nowrap transition-colors duration-150  cursor-pointer ${
                   isActive ? "text-axc-blue" : "text-axc-gray hover:text-axc-blue"
                 }`}
               >
@@ -57,7 +57,7 @@ export default function UsersHeader() {
           })}
         </div>
       </div>
-      <div className="mt-3 h-[calc(100vh-170px)] overflow-y-auto rounded-lg border border-axc-border bg-white px-[10px] py-[20px]">
+      <div className="mt-3 h-[calc(100vh-170px)] overflow-y-auto rounded-lg border border-axc-border bg-white px-8 py-[20px]">
         {renderContent()}
       </div>
     </div>

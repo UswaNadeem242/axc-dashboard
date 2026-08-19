@@ -220,7 +220,7 @@ export default function UserTab() {
         <button
           type="button"
           onClick={() => setIsAddUserOpen(true)}
-          className="flex h-[38px] items-center gap-2 rounded-md bg-axc-blue px-4 text-[12px] font-semibold text-white hover:bg-axc-blue-dark"
+          className="flex h-[38px] cursor-pointer items-center gap-2 rounded-md bg-axc-blue px-4 text-[12px] font-semibold text-white"
         >
           <Plus className="h-4 w-4" />
           Add User

@@ -114,7 +114,7 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
       <div className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"}`} onClick={handleClose} />
 
       <div
-        className={`fixed top-0 right-0 z-50 h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl transition-transform duration-300 ${visible ? "translate-x-0" : "translate-x-full"
+        className={`fixed top-0 right-0 z-50 h-full w-full max-w-5xl overflow-y-auto bg-white shadow-2xl transition-transform duration-300 ${visible ? "translate-x-0" : "translate-x-full"
           }`}
       >
         <div className="sticky top-0 flex items-center justify-between border-b border-axc-border bg-white px-6 py-4">
@@ -275,11 +275,11 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
             <button
               type="button"
               onClick={handleClose}
-              className="h-[38px] flex-1 rounded-md border border-axc-border bg-white px-4 text-[12px] font-semibold text-axc-dark-gray hover:bg-axc-light-bg"
+              className="p-3 cursor-pointer flex-1 rounded-md border border-axc-border bg-white px-4 text-[12px] font-semibold text-axc-dark-gray hover:bg-axc-light-bg"
             >
               Cancel
             </button>
-            <button type="submit" className="h-[38px] flex-1 rounded-md bg-axc-blue px-4 text-[12px] font-semibold text-white hover:bg-axc-blue-dark">
+            <button type="submit" className="p-3 cursor-pointer flex-1 rounded-md bg-axc-blue px-4 text-[12px] font-semibold text-white hover:bg-axc-blue-dark">
               Create User
             </button>
           </div>
