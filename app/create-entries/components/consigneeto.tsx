@@ -66,7 +66,7 @@ export default function ConsigneeToForm({ form, setForm, errors, onReset, showTo
           <FieldLabel>Post / Zip Code</FieldLabel>
           <div className="flex gap-2">
             <input type="text" value={form.consigneeZipCode} onChange={(e) => setForm({ ...form, consigneeZipCode: e.target.value })} className={`${inputClass} flex-1`} />
-            <button type="button" onClick={() => showToast(`Searching zip code: ${form.consigneeZipCode || "—"}`)} className="px-3 py-1 bg-axc-yellow hover:bg-axc-yellow/80 text-white rounded text-[10px] font-bold whitespace-nowrap">SEARCH</button>
+            <button type="button" onClick={() => showToast(`Searching zip code: ${form.consigneeZipCode || "—"}`)} className="px-3 py-1 bg-axc-yellow hover:bg-axc-yellow/80 text-white rounded text-xs  font-medium whitespace-nowrap">SEARCH</button>
           </div>
         </div>
         <div className="flex flex-col gap-1">
