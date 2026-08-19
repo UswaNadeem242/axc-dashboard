@@ -157,10 +157,10 @@ const CommonTable = ({
 
                               {value.length > 8 && (
                                 <div
-                                  className="invisible absolute left-1/2 top-full z-50 mt-2 w-max max-w-xs -translate-x-1/2 rounded-lg bg-axc-gray px-3 py-2 text-xs text-white shadow-xl opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100"
+                                  className="invisible absolute left-1/2 top-full z-50 mt-2 w-max max-w-xs -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-xs text-black shadow-xl opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100"
                                 >
                                   {value}
-                                  <div className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-axc-gray"></div>
+                                  <div className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-gray-900"></div>
                                 </div>
                               )}
                             </div>
