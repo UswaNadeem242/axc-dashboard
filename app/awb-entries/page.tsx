@@ -1,16 +1,8 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import {
-  Search,
-  RotateCcw,
-  Plus,
-  Download,
-  MoreHorizontal,
-  ChevronRight,
-  ChevronsRight,
   X,
+  PlusCircle,
 } from "lucide-react";
 import CommonTable from "../src/common/table";
 import { AwbEntryheading, AwbEntry, initialData } from "../src/constant";
@@ -206,16 +198,11 @@ export default function AwbEntriesPage() {
   }, [searchQuery]);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-2">
-        {/* Title & Breadcrumbs */}
-        <div>
-          <h1 className="text-3xl font-bold text-axc-navy">AWB Entries</h1>
-          
-        </div>
+    <div className="flex flex-col gap-6 h-[calc(100vh-100px)] sm:h-[calc(100vh-160px)]">
+      {/* Reusable Common Table Component */}
+      <div className="flex-1 flex flex-col bg-white p-4 rounded-xl border border-axc-border shadow-sm min-h-0">
 
-        {/* Search & Action Button */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
           <FilterSearch
             options={[
               { label: "Select", value: "" },
@@ -230,63 +217,63 @@ export default function AwbEntriesPage() {
             placeholder="Search"
           />
           <Button
+            icon={PlusCircle}
             label="Create Entry"
             href="/create-entries"
             variant="primary"
           />
         </div>
-      </div>
 
-      {/* Render Active Badges */}
-      {activeTags.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2 mb-2">
-          {activeTags.map((tag, idx) => {
-            const colors = [
-              "border-slate-200 bg-slate-50 text-slate-700",
-              "border-red-200 bg-red-50 text-red-700",
-              "border-amber-200 bg-amber-50 text-amber-700",
-              "border-green-200 bg-green-50 text-green-700",
-              "border-blue-200 bg-blue-50 text-blue-700",
-              "border-indigo-200 bg-indigo-50 text-indigo-700",
-              "border-purple-200 bg-purple-50 text-purple-700",
-              "border-pink-200 bg-pink-50 text-pink-700",
-            ];
-            const colorClass = colors[idx % colors.length];
+        {/* Render Active Badges */}
+        {activeTags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mb-4">
+            {activeTags.map((tag, idx) => {
+              const colors = [
+                "border-slate-200 bg-slate-50 text-slate-700",
+                "border-red-200 bg-red-50 text-red-700",
+                "border-amber-200 bg-amber-50 text-amber-700",
+                "border-green-200 bg-green-50 text-green-700",
+                "border-blue-200 bg-blue-50 text-blue-700",
+                "border-indigo-200 bg-indigo-50 text-indigo-700",
+                "border-purple-200 bg-purple-50 text-purple-700",
+                "border-pink-200 bg-pink-50 text-pink-700",
+              ];
+              const colorClass = colors[idx % colors.length];
 
-            return (
-              <span
-                key={tag}
-                className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-medium transition ${colorClass}`}
-              >
-                {tag}
-                <X
-                  size={14}
-                  className="cursor-pointer hover:opacity-70 transition-opacity"
-                  onClick={() => removeTag(tag)}
-                />
-              </span>
-            );
-          })}
+              return (
+                <span
+                  key={tag}
+                  className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-medium transition ${colorClass}`}>
+                  {tag}
+                  <X
+                    size={14}
+                    className="cursor-pointer hover:opacity-70 transition-opacity"
+                    onClick={() => removeTag(tag)}
+                  />
+                </span>
+              );
+            })}
+          </div>
+        )}
+        <div className="overflow-auto flex-1 scrollbar-none border border-axc-border rounded-lg">
+          <CommonTable
+            headings={AwbEntryheading}
+            data={filteredData}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+
+            currentPage={page}
+            totalPages={totalPages}
+
+            onPageChange={(page) => {
+              setPage(page);
+            }}
+
+            itemsPerPage={itemsPerPage}
+          />
         </div>
-      )}
-      {/* Reusable Common Table Component */}
-      <div className="overflow-x-auto rounded-xl border border-axc-border bg-white  shadow-sm">
-        <CommonTable
-          headings={AwbEntryheading}
-          data={filteredData}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-
-          currentPage={page}
-          totalPages={totalPages}
-
-          onPageChange={(page) => {
-            setPage(page);
-          }}
-
-          itemsPerPage={itemsPerPage}
-        />
       </div>
+
     </div>
   );
 }

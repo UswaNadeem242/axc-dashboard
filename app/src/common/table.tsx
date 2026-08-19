@@ -65,7 +65,7 @@ const CommonTable = ({
         {/* <table className="w-full min-w-[700px] border-collapse text-left text-xs"> */}
         <table className="w-max min-w-full border-collapse text-left text-sm  ">
           <thead>
-            <tr className="bg-axc-navy text-white">
+            <tr className="bg-axc-navy/20 text-axc-navy">
               {headings.map((heading, index) => (
                 <th
                   key={heading.key}
