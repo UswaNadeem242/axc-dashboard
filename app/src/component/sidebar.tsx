@@ -16,6 +16,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
   const pathname = usePathname();
   const [isAwbOpen, setIsAwbOpen] = useState<boolean>(true); // Default open to showcase the dropdown
   const [isInvoiceOpen, setIsInvoiceOpen] = useState<boolean>(false);
+  const [isManifestOpen, setIsManifestOpen] = useState<boolean>(false); // NEW
 
   const handleItemClick = (item: MenuItem) => {
     if (item.hasDropdown) {
@@ -23,6 +24,8 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
         setIsAwbOpen(!isAwbOpen);
       } else if (item.id === "invoice") {
         setIsInvoiceOpen(!isInvoiceOpen);
+      } else if (item.id === "manifest") { // NEW
+        setIsManifestOpen(!isManifestOpen); // NEW
       }
     }
   };
@@ -33,7 +36,6 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
       {/* Brand Logo + Burger Toggle */}
       <div className="mb-3 flex border-b border-gray-100 pb-1">
         {isCollapsed ? (
-          // Collapsed: show only the burger button centred
           <div className="flex w-full justify-center">
             <button
               type="button"
@@ -45,7 +47,6 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
             </button>
           </div>
         ) : (
-          // Expanded: logo on the left, burger button on the right
           <div className="flex w-full items-center justify-between">
             <Image src={logo} width={70} height={70} alt="logo" />
             <button
@@ -73,7 +74,14 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
               (sub.id === "awb-entries" && pathname === "/create-entries")
             )
           );
-          const isDropdownOpen = item.id === "awb-management" ? isAwbOpen : isInvoiceOpen;
+          const isDropdownOpen =
+            item.id === "awb-management"
+              ? isAwbOpen
+              : item.id === "invoice"
+              ? isInvoiceOpen
+              : item.id === "manifest"       // NEW
+              ? isManifestOpen               // NEW
+              : false;                       // NEW (replaces old ternary)
           const isActive = isMainActive || hasActiveSubItem;
 
           const buttonClass = `flex w-full items-center transition-all duration-150 mb-3 cursor-pointer ${isCollapsed ? "justify-center rounded-lg p-2.5" : "justify-between rounded-lg px-3 py-2"
@@ -167,7 +175,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
         })}
       </nav>
 
-      {/* Quick AWB Entry Card (amber styling matching the reference image) */}
+      {/* Quick AWB Entry Card */}
       {isCollapsed ? (
         <div className="mt-4 flex justify-center py-2">
           <button
