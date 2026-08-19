@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { showToast } from "./toast";
 import {
   Eye,
@@ -62,6 +62,15 @@ const CommonTable = ({
   sortDirection,
   onSort,
 }: CommonTableProps) => {
+  const [rowToDelete, setRowToDelete] = useState<any | null>(null);
+
+  const confirmDelete = () => {
+    if (rowToDelete && onDelete) {
+      onDelete(rowToDelete);
+    }
+    setRowToDelete(null);
+  };
+
   const computedTotalPages =
     propTotalPages ??
     Math.max(1, Math.ceil(data.length / itemsPerPage));
@@ -252,9 +261,9 @@ const CommonTable = ({
                             <button
                               type="button"
                               onClick={() =>
-                                onDelete(row)
+                                setRowToDelete(row)
                               }
-                              className="text-axc-red-dark hover:opacity-70 transition"
+                              className="text-axc-red-dark hover:opacity-70 transition cursor-pointer"
                               title="Delete"
                             >
                               <Trash2 size={16} />
@@ -269,6 +278,7 @@ const CommonTable = ({
                           <Copy size={16} />
                         </button>
                       </div>
+                      )
                     ) : (
 
                       /* =====================================
