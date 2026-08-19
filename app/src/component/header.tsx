@@ -4,10 +4,10 @@ import { useState } from "react";
 import {
   Bell,
   ChevronDown,
-  Search,
   User,
 } from "lucide-react";
 import SearchInput from "../common/search";
+import Link from "next/link";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
@@ -23,9 +23,9 @@ export default function Header() {
         <SearchInput value={searchQuery} onChange={setSearchQuery} />
       </div>
 
-      {/* Right Side: Notifications, Profile */}
+      {/* Right Side */}
       <div className="flex items-center gap-5">
-        {/* Quick Actions */}
+        {/* Notifications */}
         <div className="flex items-center gap-4 border-r border-gray-100 pr-5">
           <button
             type="button"
@@ -50,10 +50,10 @@ export default function Header() {
               <User size={20} />
             </div>
 
-            <div>
-              <p className="text-sm font-bold text-axc-dark-gray leading-none">
-                Admin User
-              </p>
+              <div>
+                <p className="text-sm font-bold text-axc-dark-gray leading-none">
+                  Admin User
+                </p>
 
               <p className="mt-1 text-[11px] text-axc-gray font-medium leading-none">
                 Administrator
