@@ -13,10 +13,18 @@ interface NewUserData {
   userType: string;
   password: string;
   autoGeneratePassword: boolean;
+  confirmPassword: string;
   assignedHub: string;
   awbServiceType: string;
   status: boolean;
   emailNotification: boolean;
+  birthDate: string;
+  joiningDate: string;
+  kycType: string;
+  kycDoc: File | null;
+  profilePhoto: File | null;
+  leaveUser: string;
+  manageSubscription: boolean;
 }
 
 interface AddUserModalProps {
@@ -33,10 +41,18 @@ const initialForm: NewUserData = {
   userType: "B2B",
   password: "",
   autoGeneratePassword: false,
+  confirmPassword: "",
   assignedHub: "",
   awbServiceType: "",
   status: true,
   emailNotification: false,
+  birthDate: "",
+  joiningDate: "",
+  kycType: "",
+  kycDoc: null,
+  profilePhoto: null,
+  leaveUser: "",
+  manageSubscription: false,
 };
 
 export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalProps) {
@@ -67,7 +83,14 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
     setError("");
   };
 
-  const handleToggle = (field: "status" | "emailNotification" | "autoGeneratePassword") => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, files } = event.target;
+    if (files && files.length > 0) {
+      setFormData((previous) => ({ ...previous, [name]: files[0] }));
+    }
+  };
+
+  const handleToggle = (field: "status" | "emailNotification" | "autoGeneratePassword" | "manageSubscription") => {
     setFormData((previous) => ({ ...previous, [field]: !previous[field] }));
   };
 
@@ -91,9 +114,8 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
       <div className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"}`} onClick={handleClose} />
 
       <div
-        className={`fixed top-0 right-0 z-50 h-full w-full max-w-md overflow-y-auto bg-white shadow-2xl transition-transform duration-300 ${
-          visible ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed top-0 right-0 z-50 h-full w-full max-w-2xl overflow-y-auto bg-white shadow-2xl transition-transform duration-300 ${visible ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         <div className="sticky top-0 flex items-center justify-between border-b border-axc-border bg-white px-6 py-4">
           <h2 className="text-[18px] font-semibold text-axc-dark-gray">Add New User</h2>
@@ -114,8 +136,8 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
               <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="Enter email address" className="form-input" />
             </FormField>
 
-            <FormField label="Phone Number" required>
-              <input name="contactNo" value={formData.contactNo} onChange={handleInputChange} placeholder="Enter phone number" className="form-input" />
+            <FormField label="Contact No" required>
+              <input name="contactNo" value={formData.contactNo} onChange={handleInputChange} placeholder="Enter contact no" className="form-input" />
             </FormField>
 
             <FormField label="User Type">
@@ -125,7 +147,7 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
               </select>
             </FormField>
 
-            <FormField label="Role Assignment" required>
+            <FormField label="Role" required>
               <select name="role" value={formData.role} onChange={handleInputChange} className="form-input">
                 <option value="">Select role</option>
                 <option value="Super Admin">Super Admin</option>
@@ -136,9 +158,42 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
               </select>
             </FormField>
 
-            <FormField label="Assigned Hub">
+            <FormField label="Birth Date">
+              <input type="date" name="birthDate" value={formData.birthDate} onChange={handleInputChange} className="form-input" />
+            </FormField>
+
+            <FormField label="Joining Date">
+              <input type="date" name="joiningDate" value={formData.joiningDate} onChange={handleInputChange} className="form-input" />
+            </FormField>
+
+            <FormField label="KYC Type">
+              <select name="kycType" value={formData.kycType} onChange={handleInputChange} className="form-input">
+                <option value="">Select KYC Type</option>
+                <option value="ID Card">ID Card</option>
+                <option value="Passport">Passport</option>
+                <option value="Driving License">Driving License</option>
+              </select>
+            </FormField>
+
+            <FormField label="KYC Document">
+              <input type="file" name="kycDoc" onChange={handleFileChange} className="form-input pt-1.5" />
+            </FormField>
+
+            <FormField label="Profile Photo">
+              <input type="file" name="profilePhoto" onChange={handleFileChange} accept="image/*" className="form-input pt-1.5" />
+            </FormField>
+
+            <FormField label="Leave User">
+              <select name="leaveUser" value={formData.leaveUser} onChange={handleInputChange} className="form-input">
+                <option value="">Select...</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </select>
+            </FormField>
+
+            <FormField label="User Assigned Hub">
               <select name="assignedHub" value={formData.assignedHub} onChange={handleInputChange} className="form-input">
-                <option value="">Select hub</option>
+                <option value="">Select...</option>
                 <option value="Lahore">Lahore</option>
                 <option value="Islamabad">Islamabad</option>
                 <option value="Karachi">Karachi</option>
@@ -148,11 +203,33 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
               </select>
             </FormField>
 
+            <FormField label="AWB Service Type">
+              <select name="awbServiceType" value={formData.awbServiceType} onChange={handleInputChange} className="form-input">
+                <option value="">SELECT AWB SERVICE TYPE..</option>
+                <option value="Standard">Standard</option>
+                <option value="Express">Express</option>
+                <option value="Overnight">Overnight</option>
+              </select>
+            </FormField>
+
             <div className="col-span-2">
               <FormField label="Password" required>
                 <input
                   type="password"
                   name="password"
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  placeholder="Enter password"
+                  disabled={formData.autoGeneratePassword}
+                  className="form-input disabled:bg-axc-light-bg disabled:text-axc-gray"
+                />
+              </FormField>
+            </div>
+            <div className="col-span-2">
+              <FormField label="Confirm Password" required>
+                <input
+                  type="password"
+                  name="Cpassword"
                   value={formData.password}
                   onChange={handleInputChange}
                   placeholder="Enter password"
@@ -172,19 +249,19 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
           <div className="border-t border-axc-border pt-4">
             <h3 className="mb-4 text-[14px] font-semibold text-axc-dark-gray">Access Settings</h3>
 
-            <FormField label="Account Status">
-              <select
-                name="status"
-                value={formData.status ? "Active" : "Inactive"}
-                onChange={(event) => setFormData((previous) => ({ ...previous, status: event.target.value === "Active" }))}
-                className="form-input"
-              >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </FormField>
-
-            <div className="mt-4">
+            <div className="space-y-4">
+              <ToggleRow
+                title="Status"
+                description="Active or inactive account."
+                checked={formData.status}
+                onChange={() => handleToggle("status")}
+              />
+              <ToggleRow
+                title="Manage Subscription"
+                description="Enable or disable subscription management."
+                checked={formData.manageSubscription}
+                onChange={() => handleToggle("manageSubscription")}
+              />
               <ToggleRow
                 title="Email Notification"
                 description="Receive account activity emails."
