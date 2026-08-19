@@ -69,14 +69,27 @@ export default function Header() {
 
 
           {isOpen && (
-            <div className="absolute right-0 mt-2 w-48 rounded-lg  border-axc-border border bg-white shadow-lg z-50">
-              <button className="w-full px-4 py-2 text-left hover:bg-gray-100 rounded-t-lg text-sm font-medium">
+            <div className="absolute right-0 z-50 mt-2 w-48 rounded-lg border border-axc-border bg-white shadow-lg">
+              
+              {/* Profile */}
+              <button className="w-full cursor-pointer rounded-t-lg px-4 py-2 text-left text-sm font-medium hover:bg-gray-100">
                 Profile
               </button>
 
-              <button className="w-full px-4 py-2 text-left text-red-600 hover:bg-red-50 rounded-b-lg text-sm font-medium">
+              {/* Users Page */}
+              <Link
+                href="/users"
+                onClick={() => setIsOpen(false)}
+                className="block w-full px-4 py-2 text-left text-sm font-medium hover:bg-gray-100"
+              >
+                Users
+              </Link>
+
+              {/* Sign Out */}
+              <button className="w-full cursor-pointer rounded-b-lg px-4 py-2 text-left text-sm font-medium text-red-600 hover:bg-red-50">
                 Sign Out
               </button>
+
             </div>
           )}
         </div>
