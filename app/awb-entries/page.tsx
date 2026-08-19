@@ -134,9 +134,7 @@ export default function AwbEntriesPage() {
   };
 
   const handleDelete = (row: AwbEntry) => {
-    if (confirm(`Are you sure you want to delete AWB ${row.awbNumber}?`)) {
-      setData((prev) => prev.filter((item) => item.awbNumber !== row.awbNumber));
-    }
+    setData((prev) => prev.filter((item) => item.awbNumber !== row.awbNumber));
   };
 
   const handleTrack = (row: AwbEntry) => {

@@ -43,13 +43,7 @@ import { ChartPie } from "./src/component/analytic/donet";
 export default function Home() {
   return (
     <div className="flex flex-col gap-6">
-      {/* Title section */}
-      {/* <div>
-        <h1 className="text-2xl font-bold text-axc-navy">Dashboard</h1>
-        <p className="mt-0.5 text-xs text-axc-gray font-medium">
-          Welcome back, Admin! Here's what's happening today.
-        </p>
-      </div> */}
+      {/* Title section handled by DashboardLayout */}
 
       {/* ROW 1: CARDS */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6 gap-4">

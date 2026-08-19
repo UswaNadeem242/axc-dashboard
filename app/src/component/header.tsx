@@ -7,37 +7,16 @@ import {
   Search,
   User,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
 import SearchInput from "../common/search";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const pathname = usePathname();
-
-  const formatTitle = (path: string) => {
-    if (!path || path === "/") return "Dashboard";
-    
-    if (path.includes("awb-entries")) return "AWB Management";
-    
-    return path
-      .split("/")
-      .filter(Boolean)
-      .pop()
-      ?.replace(/-/g, " ")
-      .replace(/\b\w/g, (c) => c.toUpperCase()) || "Dashboard";
-  };
-
-  const title = formatTitle(pathname || "/");
-  const breadcrumb = pathname?.includes("awb-entries") ? "AWB Entries" : title;
 
   return (
     <header className="flex w-full items-center justify-between gap-5 border-b border-axc-border bg-white px-6 py-2">
-      {/* Left Side: Heading */}
-      <div className="flex-1">
-        <h1 className="text-2xl font-bold text-axc-navy">{title}</h1>
-        <p className="text-xs text-axc-gray mt-1">Home {pathname !== "/" && ` > ${breadcrumb}`}</p>
-      </div>
+      {/* Left Side: Empty space since heading was moved */}
+      <div className="flex-1"></div>
 
       {/* Center: Search Bar */}
       <div className="w-64 hidden md:block">

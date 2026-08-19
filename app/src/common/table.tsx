@@ -36,9 +36,18 @@ const CommonTable = ({
   onPageChange,
   itemsPerPage = 10,
 }: CommonTableProps) => {
+  const [rowToDelete, setRowToDelete] = useState<any | null>(null);
+
   const computedTotalPages = propTotalPages ?? Math.max(1, Math.ceil(data.length / itemsPerPage));
   const activePage = Math.min(Math.max(1, currentPage), computedTotalPages);
   const paginatedData = data.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
+
+  const confirmDelete = () => {
+    if (rowToDelete && onDelete) {
+      onDelete(rowToDelete);
+    }
+    setRowToDelete(null);
+  };
 
   const copyRow = async (row: any) => {
     await navigator.clipboard.writeText(JSON.stringify(row, null, 2));
@@ -116,20 +125,20 @@ const CommonTable = ({
                         </button>
 
                         <button
-                          onClick={() => onDelete?.(row)}
-                          className="text-axc-red-dark"
+                          onClick={() => setRowToDelete(row)}
+                          className="text-axc-red-dark cursor-pointer"
                           title="Delete"
                         >
                           <Trash2 size={16} />
                         </button>
 
-                        <button
+                        {/* <button
                           onClick={() => copyRow(row)}
                           className="text-axc-dark-gray"
                           title="Copy"
                         >
                           <Copy size={16} />
-                        </button>
+                        </button> */}
                       </div>
                     ) : (
                       (() => {
@@ -177,9 +186,35 @@ const CommonTable = ({
           onPageChange={onPageChange ?? (() => { })}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      {rowToDelete && (
+        <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/50 p-4 transition-opacity">
+          <div className="w-full max-w-lg rounded-xl bg-white p-8 shadow-2xl flex flex-col min-h-[240px]">
+            <div className="flex-1">
+              <h3 className="mb-4 text-xl font-semibold text-gray-900">Confirm Deletion</h3>
+              <p className="text-base text-gray-500 leading-relaxed">
+                Are you sure you want to delete this row? This action cannot be undone and will permanently remove the data from the system.
+              </p>
+            </div>
+            <div className="flex justify-end gap-4 mt-8">
+              <button
+                onClick={() => setRowToDelete(null)}
+                className="rounded-lg px-6 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-100 transition border border-gray-200"
+              >
+                Cancel 
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="rounded-lg bg-red-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-red-700 transition shadow-sm cursor-pointer"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-
-
   );
 };
 
