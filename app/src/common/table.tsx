@@ -28,8 +28,6 @@ interface CommonTableProps {
   onView?: (row: any) => void;
   onEdit?: (row: any) => void;
   onDelete?: (row: any) => void;
-
-  // New actions
   onBagging?: (row: any) => void;
   onPdf?: (row: any) => void;
 
@@ -75,10 +73,6 @@ const CommonTable = ({
     (activePage - 1) * itemsPerPage,
     activePage * itemsPerPage
   );
-
-  // =========================================================
-  // COPY ROW
-  // =========================================================
   const copyRow = async (row: any) => {
     await navigator.clipboard.writeText(
       JSON.stringify(row, null, 2)
@@ -89,10 +83,6 @@ const CommonTable = ({
       message: "Row copied.",
     });
   };
-
-  // =========================================================
-  // TRUNCATE
-  // =========================================================
   const truncateText = (
     text: string,
     maxLength = 8
@@ -108,10 +98,6 @@ const CommonTable = ({
     <div>
       <div className="overflow-x-auto scrollbar-none">
         <table className="w-max min-w-full border-collapse text-left text-sm">
-
-          {/* =================================================
-              HEADER
-          ================================================== */}
           <thead>
             <tr className="bg-axc-navy text-white">
 
@@ -157,10 +143,6 @@ const CommonTable = ({
 
             </tr>
           </thead>
-
-          {/* =================================================
-              BODY
-          ================================================== */}
           <tbody className="divide-y divide-gray-100">
 
             {paginatedData.map((row, index) => (
@@ -175,10 +157,6 @@ const CommonTable = ({
                     key={heading.key}
                     className="px-4 py-3"
                   >
-
-                    {/* =======================================
-                        STATUS
-                    ======================================== */}
                     {heading.key === "status" ? (
 
                       <span
@@ -195,9 +173,6 @@ const CommonTable = ({
 
                     ) : heading.key === "action" ? (
 
-                      /* =====================================
-                         ACTIONS
-                      ====================================== */
                       renderActions ? (
 
                         renderActions(row)
@@ -206,7 +181,6 @@ const CommonTable = ({
 
                         <div className="flex items-center gap-3">
 
-                          {/* VIEW */}
                           {onView && (
                             <button
                               type="button"
@@ -220,7 +194,6 @@ const CommonTable = ({
                             </button>
                           )}
 
-                          {/* EDIT */}
                           {onEdit && (
                             <button
                               type="button"
@@ -233,8 +206,6 @@ const CommonTable = ({
                               <Pencil size={16} />
                             </button>
                           )}
-
-                          {/* BAGGING */}
                           {onBagging && (
                             <button
                               type="button"
@@ -247,8 +218,6 @@ const CommonTable = ({
                               <PackageCheck size={17} />
                             </button>
                           )}
-
-                          {/* DELETE */}
                           {onDelete && (
                             <button
                               type="button"
@@ -261,8 +230,6 @@ const CommonTable = ({
                               <Trash2 size={16} />
                             </button>
                           )}
-
-                          {/* COPY */}
                           <button
                             type="button"
                             onClick={() =>
@@ -273,8 +240,6 @@ const CommonTable = ({
                           >
                             <Copy size={16} />
                           </button>
-
-                          {/* PDF */}
                           {onPdf && (
                             <button
                               type="button"
@@ -293,9 +258,6 @@ const CommonTable = ({
 
                     ) : (
 
-                      /* =====================================
-                         NORMAL CELL
-                      ====================================== */
                       (() => {
                         const value =
                           row[heading.key];
@@ -361,10 +323,6 @@ const CommonTable = ({
 
         </table>
       </div>
-
-      {/* =====================================================
-          PAGINATION
-      ====================================================== */}
       {computedTotalPages >= 1 && (
         <CommonPagination
           currentPage={activePage}
