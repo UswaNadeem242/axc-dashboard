@@ -270,13 +270,13 @@ const CommonTable = ({
                             </button>
                           )}
 
-                        <button
+                        {/* <button
                           onClick={() => copyRow(row)}
                           className="text-axc-dark-gray"
                           title="Copy"
                         >
                           <Copy size={16} />
-                        </button>
+                        </button> */}
                       </div>
                       )
                     ) : (
