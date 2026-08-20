@@ -198,7 +198,9 @@ export default function AwbEntriesPage() {
   return (
     <div className="flex flex-col gap-6 h-[calc(100vh-100px)] sm:h-[calc(100vh-160px)]">
       {/* Reusable Common Table Component */}
-      <div className="flex-1 flex flex-col bg-white p-4 rounded-xl border border-axc-border shadow-sm min-h-0">
+
+      <div className="flex-1 flex flex-col bg-white p-8 rounded-xl border border-axc-border shadow-sm min-h-0">
+
 
         <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
           <FilterSearch
