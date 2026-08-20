@@ -78,9 +78,10 @@ export default function RolesTab() {
   };
 
   return (
-    <div className="relative">
+    <div className="relative flex flex-col gap-6 py-2">
       {toast && <Toast msg={toast} />}
-      <div className="mb-4 flex items-center justify-between">
+
+      <div className="flex items-center justify-between">
         <div>
           <h3 className="text-[16px] font-semibold text-axc-dark-gray">Role management</h3>
         </div>
@@ -96,63 +97,68 @@ export default function RolesTab() {
           Add Role
         </button>
       </div>
-      {roles.length === 0 ? (
-        <div className="flex h-40 flex-col items-center justify-center gap-2 text-[13px] text-axc-gray">
-          <Shield className="h-10 w-10 text-axc-gray" />
-          <span>No roles found</span>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {roles.map((role, index) => {
-            const style = CARD_STYLES[index % CARD_STYLES.length];
-            return (
-              <div key={role.id} className={`rounded-lg border-2 p-4 transition-shadow hover:shadow-md ${style.bg} ${style.border}`}>
-                <div className="mb-3 flex items-start justify-between">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-axc-border bg-white">
-                    <Shield className={`h-6 w-6 ${style.icon}`} />
+
+      {/* Outer div — holds only the role cards */}
+      <div className="bg-white rounded-xl border border-axc-border shadow-sm p-4 w-full">
+        {roles.length === 0 ? (
+          <div className="flex h-40 flex-col items-center justify-center gap-2 text-[13px] text-axc-gray">
+            <Shield className="h-10 w-10 text-axc-gray" />
+            <span>No roles found</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {roles.map((role, index) => {
+              const style = CARD_STYLES[index % CARD_STYLES.length];
+              return (
+                <div key={role.id} className={`rounded-lg border-2 p-4 transition-shadow hover:shadow-md ${style.bg} ${style.border}`}>
+                  <div className="mb-3 flex items-start justify-between">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-axc-border bg-white">
+                      <Shield className={`h-6 w-6 ${style.icon}`} />
+                    </div>
+                    <div className="flex gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setFormOpen({ open: true, role })}
+                        className="rounded-md p-1.5 transition-colors hover:bg-white/60"
+                        title="Edit Role"
+                      >
+                        <Pencil className="h-4 w-4 text-axc-dark-gray" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteRole(role)}
+                        className="rounded-md p-1.5 transition-colors hover:bg-white/60"
+                        title="Delete Role"
+                      >
+                        <Trash2 className="h-4 w-4 text-axc-red" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex gap-1">
+
+                  <h4 className="mb-1 text-[16px] font-semibold text-axc-dark-gray">{role.name}</h4>
+                  <p className="mb-4 text-[12px] text-axc-gray">{role.description}</p>
+
+                  <div className="flex items-center justify-between border-t-2 border-axc-border pt-3">
+                    <div className="flex items-center gap-1 text-[12px] text-axc-gray">
+                      <Users className="h-3.5 w-3.5" />
+                      <span>{role.users} users</span>
+                    </div>
                     <button
                       type="button"
-                      onClick={() => setFormOpen({ open: true, role })}
-                      className="rounded-md p-1.5 transition-colors hover:bg-white/60"
-                      title="Edit Role"
+                      onClick={() => handlePermissions(role)}
+                      className="flex items-center gap-1 text-[12px] font-medium text-axc-blue"
                     >
-                      <Pencil className="h-4 w-4 text-axc-dark-gray" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDeleteRole(role)}
-                      className="rounded-md p-1.5 transition-colors hover:bg-white/60"
-                      title="Delete Role"
-                    >
-                      <Trash2 className="h-4 w-4 text-axc-red" />
+                      <Eye className="h-4 w-4" />
+                      <span>View Permissions</span>
                     </button>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
-                <h4 className="mb-1 text-[16px] font-semibold text-axc-dark-gray">{role.name}</h4>
-                <p className="mb-4 text-[12px] text-axc-gray">{role.description}</p>
-
-                <div className="flex items-center justify-between border-t-2 border-axc-border pt-3">
-                  <div className="flex items-center gap-1 text-[12px] text-axc-gray">
-                    <Users className="h-3.5 w-3.5" />
-                    <span>{role.users} users</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => handlePermissions(role)}
-                    className="flex items-center gap-1 text-[12px] font-medium text-axc-blue"
-                  >
-                    <Eye className="h-4 w-4" />
-                    <span>View Permissions</span>
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
       {formOpen.open && (
         <RoleFormPanel
           role={formOpen.role}

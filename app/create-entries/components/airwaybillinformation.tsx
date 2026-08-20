@@ -18,8 +18,7 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
         title="Air Waybill Information"
         right={<span className="bg-white/10 text-white text-[10px] px-2 py-0.5 rounded font-medium">BALANCE: WAIT...</span>}
       />
-      <div className="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-4 gap-y-3 text-xs">
-        {/* AWB Number is auto-generated — value stays masked until EDIT is toggled */}
+      <div className="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3 text-xs">
         <div className="flex flex-col gap-1">
           <FieldLabel required>AWB Number</FieldLabel>
           <div className="flex items-center gap-2">
@@ -45,7 +44,7 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
         <div className="flex flex-col gap-1">
           <FieldLabel>Company</FieldLabel>
           <div className="flex items-center gap-2">
-            <CommonDropdown value={form.company} onChange={(val) => setForm({ ...form, company: val })} className="flex-1 bg-gray-50 focus:bg-white" placeholder="SELECT COMPANY..." options={[{ value: "company1", label: "Company A" }, { value: "company2", label: "Company B" }]} />
+            <CommonDropdown value={form.company} onChange={(val) => setForm({ ...form, company: val })} className="flex-1 bg-gray-50 focus:bg-white border-axc-border" placeholder="SELECT COMPANY..." options={[{ value: "company1", label: "Company A" }, { value: "company2", label: "Company B" }]} />
             <EditIconButton active={form.editCompany} onToggle={() => setForm({ ...form, editCompany: !form.editCompany })} title="Edit Company" />
           </div>
         </div>
@@ -70,7 +69,7 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
 
         <div className="flex flex-col gap-1">
           <FieldLabel required>Product</FieldLabel>
-          <CommonDropdown value={form.product} onChange={(val) => setForm({ ...form, product: val })} options={[{ value: "NONDOX", label: "NONDOX" }, { value: "DOX", label: "DOX" }]} />
+          <CommonDropdown value={form.product} onChange={(val) => setForm({ ...form, product: val })} className="border-axc-border" options={[{ value: "NONDOX", label: "NONDOX" }, { value: "DOX", label: "DOX" }]} />
         </div>
 
         <div className="flex flex-col gap-1">
@@ -80,13 +79,13 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
 
         <div className="flex flex-col gap-1">
           <FieldLabel required>Service</FieldLabel>
-          <CommonDropdown value={form.service} onChange={(val) => setForm({ ...form, service: val })} options={[{ value: "FEDEX IP EX NEW YORK - INDIA", label: "FEDEX IP EX NEW YORK - INDIA" }, { value: "FEDEX IE EX", label: "FEDEX IE EX" }]} />
+          <CommonDropdown value={form.service} onChange={(val) => setForm({ ...form, service: val })} className="border-axc-border" options={[{ value: "FEDEX IP EX NEW YORK - INDIA", label: "FEDEX IP EX NEW YORK - INDIA" }, { value: "FEDEX IE EX", label: "FEDEX IE EX" }]} />
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Vendor</FieldLabel>
           <div className="flex items-center gap-2">
-            <CommonDropdown value={form.vendor} onChange={(val) => setForm({ ...form, vendor: val })} className="flex-1" options={[{ value: "FEDEX IP EX NEW YORK - INDIA 210588750", label: "FEDEX IP EX NEW YORK - INDIA 210588750" }]} />
+            <CommonDropdown value={form.vendor} onChange={(val) => setForm({ ...form, vendor: val })} className="flex-1 border-axc-border" options={[{ value: "FEDEX IP EX NEW YORK - INDIA 210588750", label: "FEDEX IP EX NEW YORK - INDIA 210588750" }]} />
             <EditIconButton active={form.editVendor} onToggle={() => setForm({ ...form, editVendor: !form.editVendor })} title="Edit Vendor" />
           </div>
         </div>
@@ -127,7 +126,7 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
           <input type="text" value={form.invoiceNumber} onChange={(e) => setForm({ ...form, invoiceNumber: e.target.value })} className={inputClass} />
         </div>
 
-        <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-4">
+        <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">
           <label className="font-bold text-gray-600 uppercase">Content</label>
           <textarea rows={2} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} className={`${inputClass} text-xs focus:ring-1 focus:ring-blue-500 outline-none`} />
         </div>
@@ -137,29 +136,29 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
           <input type="text" value={form.contractId} onChange={(e) => setForm({ ...form, contractId: e.target.value })} className={inputClass} />
         </div>
 
-        <div className="mt-2 border rounded-lg overflow-hidden sm:col-span-2 xl:col-span-4">
+        <div className="mt-2 border border-axc-border rounded-lg overflow-hidden sm:col-span-2 xl:col-span-3">
           <table className="w-full text-[10px] text-center border-collapse">
             <thead>
-              <tr className="bg-gray-100 border-b">
-                <th className="py-1 border-r text-axc-dark-gray font-bold"></th>
-                <th className="py-1 border-r text-axc-dark-gray font-bold">Customer</th>
+              <tr className="bg-gray-100 border-b border-axc-border">
+                <th className="py-1 border-r border-axc-border text-axc-dark-gray font-bold"></th>
+                <th className="py-1 border-r border-axc-border text-axc-dark-gray font-bold">Customer</th>
                 <th className="py-1 text-axc-dark-gray font-bold">Vendor</th>
               </tr>
             </thead>
             <tbody>
-              <tr className="border-b">
-                <td className="py-1 px-2 border-r bg-gray-50 text-left font-bold text-gray-600">RATE CONTRACT</td>
-                <td className="border-r"><input type="text" value={form.rateContractCustomer} onChange={(e) => setForm({ ...form, rateContractCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
+              <tr className="border-b border-axc-border">
+                <td className="py-1 px-2 border-r border-axc-border bg-gray-50 text-left font-bold text-gray-600">RATE CONTRACT</td>
+                <td className="border-r border-axc-border"><input type="text" value={form.rateContractCustomer} onChange={(e) => setForm({ ...form, rateContractCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
                 <td><input type="text" value={form.rateContractVendor} onChange={(e) => setForm({ ...form, rateContractVendor: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
               </tr>
-              <tr className="border-b">
-                <td className="py-1 px-2 border-r bg-gray-50 text-left font-bold text-gray-600">CFT CONTRACT</td>
-                <td className="border-r"><input type="text" value={form.cftContractCustomer} onChange={(e) => setForm({ ...form, cftContractCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
+              <tr className="border-b border-axc-border">
+                <td className="py-1 px-2 border-r border-axc-border bg-gray-50 text-left font-bold text-gray-600">CFT CONTRACT</td>
+                <td className="border-r border-axc-border"><input type="text" value={form.cftContractCustomer} onChange={(e) => setForm({ ...form, cftContractCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
                 <td><input type="text" value={form.cftContractVendor} onChange={(e) => setForm({ ...form, cftContractVendor: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
               </tr>
               <tr>
-                <td className="py-1 px-2 border-r bg-gray-50 text-left font-bold text-gray-600">TAT</td>
-                <td className="border-r"><input type="text" value={form.tatCustomer} onChange={(e) => setForm({ ...form, tatCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
+                <td className="py-1 px-2 border-r border-axc-border bg-gray-50 text-left font-bold text-gray-600">TAT</td>
+                <td className="border-r border-axc-border"><input type="text" value={form.tatCustomer} onChange={(e) => setForm({ ...form, tatCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
                 <td><input type="text" value={form.tatVendor} onChange={(e) => setForm({ ...form, tatVendor: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
               </tr>
             </tbody>
@@ -169,14 +168,14 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
         <div className="flex flex-col gap-1 mt-2">
           <FieldLabel>Origin Hub</FieldLabel>
           <div className="flex items-center gap-2">
-            <CommonDropdown value={form.originHub} onChange={(val) => setForm({ ...form, originHub: val })} className="flex-1" placeholder="SELECT..." options={[]} />
+            <CommonDropdown value={form.originHub} onChange={(val) => setForm({ ...form, originHub: val })} className="flex-1 border-axc-border" placeholder="SELECT..." options={[]} />
             <EditIconButton active={form.editOriginHub} onToggle={() => setForm({ ...form, editOriginHub: !form.editOriginHub })} title="Edit Origin Hub" />
           </div>
         </div>
 
         <div className="flex flex-col gap-1 mt-2">
           <FieldLabel>Duty</FieldLabel>
-          <CommonDropdown value={form.duty} onChange={(val) => setForm({ ...form, duty: val })} placeholder="SELECT..." options={[]} />
+          <CommonDropdown value={form.duty} onChange={(val) => setForm({ ...form, duty: val })} className="border-axc-border" placeholder="SELECT..." options={[]} />
         </div>
       </div>
     </div>
