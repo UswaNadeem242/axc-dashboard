@@ -108,7 +108,6 @@ export interface ToastState {
   message: string;
   type: "success" | "info";
 }
-
 export interface ChargeLine {
   checked: boolean;
   value: string;
@@ -141,7 +140,6 @@ export interface SalesBillingCharges {
   residentialSurchargeManual: ChargeLine;
 }
 export type ChargeKey = keyof SalesBillingCharges;
-
 export interface SalesBillingFormState {
   salesCurrency: string;
   vatType: string;
@@ -175,7 +173,6 @@ export interface SalesBillingFormState {
   grandTotal: string;
   editTotal: boolean;
 }
-
 export interface PaymentDetailsFormState {
   paidAmount: string;
   balanceAmount: string;
@@ -185,21 +182,18 @@ export interface PaymentDetailsFormState {
   pastInvoiceNo: string;
   creditDebitNote: string;
 }
-
 export interface InvoiceRemarksFormState {
   invoiceRemarks1: string;
   invoiceRemarks2: string;
   invoiceRemarks3: string;
   invoiceRemarks4: string;
 }
-
 export interface RefundDetailsFormState {
   refundAmount: string;
   refundDate: string;
   refundReason: string;
   refundRemarks: string;
 }
-
 export interface PurchaseBillingCharges {
   additionalHandling: ChargeLine;
   additionalHandlingCharge: ChargeLine;
@@ -223,7 +217,6 @@ export interface PurchaseBillingCharges {
   residentialSurchargeManual: ChargeLine;
 }
 export type PurchaseChargeKey = keyof PurchaseBillingCharges;
-
 export function emptyPurchaseCharges(): PurchaseBillingCharges {
   return {
     additionalHandling: emptyCharge(),
@@ -324,7 +317,6 @@ export function defaultPurchaseBilling(): PurchaseBillingFormState {
     editTotal: false,
   };
 }
-
 export interface VendorWeightRow {
   id: string;
   actualWeight: string;
@@ -334,7 +326,6 @@ export interface VendorWeightRow {
   volumetricWeight: string;
   chargeableWeight: string;
 }
-
 export interface VendorDetailsFormState {
   editVendorDetails: boolean;
   product: string;
@@ -355,7 +346,6 @@ export interface VendorDetailsFormState {
   volumeWeight: string;
   chargeableWeight: string;
 }
-
 export function defaultVendorDetails(): VendorDetailsFormState {
   return {
     editVendorDetails: false,
@@ -375,7 +365,6 @@ export function defaultVendorDetails(): VendorDetailsFormState {
     chargeableWeight: "0",
   };
 }
-
 export interface VendorInvoiceFormState {
   pastVendorInvoice: string;
   vendorInvoice1: string;
@@ -387,7 +376,6 @@ export interface VendorInvoiceFormState {
   vendorInvoice4: string;
   invoiceRemarks4: string;
 }
-
 export function defaultVendorInvoice(): VendorInvoiceFormState {
   return {
     pastVendorInvoice: "",
@@ -399,5 +387,122 @@ export function defaultVendorInvoice(): VendorInvoiceFormState {
     invoiceRemarks3: "",
     vendorInvoice4: "",
     invoiceRemarks4: "",
+  };
+}
+export interface DeliveryFormState {
+  forwardingNumber: string;
+  forwardingNumber2: string;
+
+  expectedDeliveryDateCustomer: string;
+  expectedDeliveryDateVendor: string;
+  actualTatCustomer: string;
+  actualTatVendor: string;
+  crossedEddDaysCustomer: string;
+  crossedEddDaysVendor: string;
+
+  expectedDate: string;
+  editExpectedDate: boolean;
+  expectedTime: string;
+
+  deliveryDate: string;
+  deliveryTime: string;
+
+  apiCrossedEddDays: string;
+
+  connectionDate: string;
+  editConnectionDate: boolean;
+  connectionTime: string;
+
+  appointmentDate: string;
+  appointmentTime: string;
+
+  podUploadedDate: string;
+  podUploadedTime: string;
+
+  deliveryCost: string;
+  receiverName: string;
+  receiverMobile: string;
+  receiverEmail: string;
+  remarks: string;
+
+  awbStatusCode: string;
+  awbStatusName: string;
+  reasonForStatus: string;
+
+  codAmount: string;
+  codAmountCollected: string;
+  codAmountCollectedChecked: boolean;
+  podHardCopy: boolean;
+
+  totalPcs: number;
+  totalPickupScanParcels: number;
+  totalInscanParcels: number;
+}
+export function defaultDelivery(): DeliveryFormState {
+  return {
+    forwardingNumber: "",
+    forwardingNumber2: "",
+    expectedDeliveryDateCustomer: "",
+    expectedDeliveryDateVendor: "",
+    actualTatCustomer: "0",
+    actualTatVendor: "0",
+    crossedEddDaysCustomer: "",
+    crossedEddDaysVendor: "",
+    expectedDate: "",
+    editExpectedDate: false,
+    expectedTime: "",
+    deliveryDate: "",
+    deliveryTime: "",
+    apiCrossedEddDays: "",
+    connectionDate: "",
+    editConnectionDate: false,
+    connectionTime: "",
+    appointmentDate: "",
+    appointmentTime: "",
+    podUploadedDate: "",
+    podUploadedTime: "",
+    deliveryCost: "",
+    receiverName: "",
+    receiverMobile: "",
+    receiverEmail: "",
+    remarks: "",
+    awbStatusCode: "",
+    awbStatusName: "",
+    reasonForStatus: "",
+    codAmount: "",
+    codAmountCollected: "",
+    codAmountCollectedChecked: false,
+    podHardCopy: false,
+    totalPcs: 0,
+    totalPickupScanParcels: 0,
+    totalInscanParcels: 0,
+  };
+}
+export interface TrackingEvent {
+  id: string;
+  eventDateTime: string;
+  eventDescription: string;
+  eventLocation: string;
+  eventType: "SYSTEM" | "MANUAL";
+  eventState: string;
+  eventRemark: string;
+  createdDate: string;
+  createdBy: string;
+  isNew?: boolean;
+  editable?: boolean;
+}
+export function emptyTrackingEvent(): TrackingEvent {
+  return {
+    id: crypto.randomUUID(),
+    eventDateTime: "",
+    eventDescription: "",
+    eventLocation: "",
+    eventType: "MANUAL",
+    eventState: "",
+    eventRemark: "",
+    createdDate: "",
+    createdBy: "",
+    isNew: true,
+    editable: true,
   };
 }

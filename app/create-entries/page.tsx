@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { ArrowLeft, CheckCircle, RotateCcw, User, ChevronDown } from "lucide-react";
+import { ArrowLeft, CheckCircle, RotateCcw, User, ChevronDown, Paperclip, Truck, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import AirWaybillInformation from "./components/airwaybillinformation";
 import ConsigneeToForm from "./components/consigneeto";
@@ -10,12 +10,16 @@ import WeightsAndDimensions from "./components/weightanddimensions";
 import { useAwbEntryForm } from "./components/handles";
 import { AwbSalesBillingTab } from "./components/awbsalesbillings";
 import { AwbPurchaseBillingTab } from "./components/awbpurchase";
+import { AwbDeliveryTab } from "./components/awbdelivery";
 
 type TabItem = { id: string; label: string; icon?: React.ReactNode };
 const tabs: TabItem[] = [
   { id: "awb-details", label: "AWB Details", icon: <User size={14} /> },
   { id: "sales-billing", label: "Sales Billing", icon: <span className="text-[12px] font-bold">₹</span> },
   { id: "purchase-billing", label: "Purchase Billing", icon: <span className="text-[12px] font-bold">₹</span> },
+  { id: "attachment", label: "Attachment", icon: <Paperclip size={14} /> },
+  { id: "delivery", label: "Delivery", icon: <Truck size={14} /> },
+  { id: "kyc", label: "KYC", icon: <ShieldCheck size={14} /> },
   { id: "extra", label: "Extra", icon: <ChevronDown size={14} /> },
 ];
 
@@ -102,7 +106,6 @@ export default function CreateEntriesPage() {
           </div>
         )}
 
-        {/* SINGLE scroll container — sara tab content isi ke andar scroll hoga */}
         <div className="flex-1 min-h-0 overflow-y-auto mt-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {activeTab === "awb-details" && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full pb-2">
@@ -142,14 +145,21 @@ export default function CreateEntriesPage() {
 
           {activeTab === "purchase-billing" && <AwbPurchaseBillingTab />}
 
-          {activeTab !== "awb-details" && activeTab !== "sales-billing" && activeTab !== "purchase-billing" && (
-            <div className="rounded-[32px] border border-axc-border bg-white p-12 text-center text-axc-dark-gray shadow-sm w-full">
-              <p className="text-xs font-bold text-axc-gray uppercase tracking-wider mb-2">
-                {tabs.find((t) => t.id === activeTab)?.label}
-              </p>
-              <p className="text-xs text-axc-gray font-medium">This section is currently under development.</p>
-            </div>
+          {activeTab === "delivery" && (
+            <AwbDeliveryTab awbTrackingNo={form.awbNumber} />
           )}
+
+          {activeTab !== "awb-details" &&
+            activeTab !== "sales-billing" &&
+            activeTab !== "purchase-billing" &&
+            activeTab !== "delivery" && (
+              <div className="rounded-[32px] border border-axc-border bg-white p-12 text-center text-axc-dark-gray shadow-sm w-full">
+                <p className="text-xs font-bold text-axc-gray uppercase tracking-wider mb-2">
+                  {tabs.find((t) => t.id === activeTab)?.label}
+                </p>
+                <p className="text-xs text-axc-gray font-medium">This section is currently under development.</p>
+              </div>
+            )}
         </div>
       </div>
     </div>
