@@ -42,7 +42,7 @@ export default function CreateEntriesPage() {
   } = useAwbEntryForm();
 
   return (
-    <div className="flex flex-col gap-4 w-full h-screen [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="flex flex-col gap-4 w-full h-full min-h-0 overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {toast && (
         <div
           className={`fixed top-5 right-5 z-50 rounded-lg px-4 py-3 text-xs font-bold shadow-lg text-white animate-in fade-in slide-in-from-top-2 duration-200 ${
@@ -91,7 +91,7 @@ export default function CreateEntriesPage() {
         </div>
       </div>
 
-      <div className="relative bg-white p-3 rounded-[8px] border border-gray-200 w-full flex-1 min-h-0 flex flex-col ">
+      <div className="relative bg-white p-3 rounded-[8px] border border-gray-200 w-full flex-1 min-h-0 flex flex-col overflow-hidden">
         {success && (
           <div className="flex items-center gap-3 rounded-2xl bg-axc-green/10 border border-axc-green/30 p-4 text-axc-dark-green animate-in fade-in slide-in-from-top-4 duration-300 shrink-0 mt-0">
             <CheckCircle className="h-5 w-5 text-axc-dark-green shrink-0" />
@@ -102,6 +102,7 @@ export default function CreateEntriesPage() {
           </div>
         )}
 
+        {/* SINGLE scroll container — sara tab content isi ke andar scroll hoga */}
         <div className="flex-1 min-h-0 overflow-y-auto mt-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {activeTab === "awb-details" && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full pb-2">

@@ -33,7 +33,7 @@ export function AwbSalesBillingTab({
   return (
     <div className="flex flex-col gap-6 w-full pb-2">
       <div className="flex flex-col xl:flex-row gap-6 items-start w-full">
-        <div className="flex flex-col gap-6 w-full xl:w-[360px] xl:shrink-0">
+        <div className="flex flex-col gap-6 w-full xl:w-[360px] xl:shrink-0 xl:sticky xl:top-6 xl:self-start">
           <AwbWeightSummary form={form} />
           <PaymentDetailsPanel
             payment={payment}
