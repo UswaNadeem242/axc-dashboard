@@ -7,6 +7,7 @@ import ConsigneeToForm from "./components/consigneeto";
 import ShipmentInvoiceSection from "./components/shipmentinvoice";
 import ShipperFromForm from "./components/shipperfrom";
 import WeightsAndDimensions from "./components/weightanddimensions";
+import PurchaseBillingSection from "./purchasebilling/purchasebilling";
 import { useAwbEntryForm } from "./components/handles";
 type TabItem = { id: string; label: string; icon?: React.ReactNode };
 const tabs: TabItem[] = [
@@ -126,6 +127,8 @@ export default function CreateEntriesPage() {
             </button>
           </div>
         </form>
+      ) : activeTab === "purchase-billing" ? (
+        <PurchaseBillingSection />
       ) : (
         <div className="rounded-[32px] border border-axc-border bg-white p-12 text-center text-axc-dark-gray shadow-sm w-full">
           <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
