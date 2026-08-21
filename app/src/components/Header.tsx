@@ -6,9 +6,9 @@ export default function Header() {
       <div className="flex h-full items-center justify-between px-8">
         <div>
           <h1 className="text-[24px] font-semibold leading-none text-white">
-            Dashboard
+            AWB Entries
           </h1>
-          <p className="mt-1 text-[12px] text-[#DCE8FF]">Home</p>
+          <p className="mt-1 text-[12px] text-[#DCE8FF]">Home &gt; AWB Entries</p>
         </div>
         <div className="flex items-center gap-5">
           <button className="flex h-10 w-10 items-center justify-center rounded-full bg-[#5A8FE8] transition-all duration-200 hover:bg-[#6A9AF0]">

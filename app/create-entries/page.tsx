@@ -7,6 +7,7 @@ import ConsigneeToForm from "./components/consigneeto";
 import ShipmentInvoiceSection from "./components/shipmentinvoice";
 import ShipperFromForm from "./components/shipperfrom";
 import WeightsAndDimensions from "./components/weightanddimensions";
+import PurchaseBillingSection from "./purchasebilling/purchasebilling";
 import { useAwbEntryForm } from "./components/handles";
 import { AwbSalesBillingTab } from "./components/awbsalesbillings";
 
