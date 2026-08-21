@@ -14,9 +14,9 @@ interface SidebarProps {
 
 export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps) {
   const pathname = usePathname();
-  const [isAwbOpen, setIsAwbOpen] = useState<boolean>(true); // Default open to showcase the dropdown
+  const [isAwbOpen, setIsAwbOpen] = useState<boolean>(true); 
   const [isInvoiceOpen, setIsInvoiceOpen] = useState<boolean>(false);
-  const [isManifestOpen, setIsManifestOpen] = useState<boolean>(false); // NEW
+  const [isManifestOpen, setIsManifestOpen] = useState<boolean>(false);
 
   const handleItemClick = (item: MenuItem) => {
     if (item.hasDropdown) {
@@ -24,8 +24,8 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
         setIsAwbOpen(!isAwbOpen);
       } else if (item.id === "invoice") {
         setIsInvoiceOpen(!isInvoiceOpen);
-      } else if (item.id === "manifest") { // NEW
-        setIsManifestOpen(!isManifestOpen); // NEW
+      } else if (item.id === "manifest") { 
+        setIsManifestOpen(!isManifestOpen); 
       }
     }
   };
@@ -33,7 +33,6 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
   return (
     <aside className={`flex h-screen w-full flex-col border-r border-axc-border bg-white pt-1.5 pb-5 font-sans transition-all duration-300 ${isCollapsed ? "max-w-[80px] px-2" : "max-w-[280px] px-4"
       }`}>
-      {/* Brand Logo + Burger Toggle */}
       <div className="mb-3 flex border-b border-gray-100 pb-1">
         {isCollapsed ? (
           <div className="flex w-full justify-center">
@@ -60,8 +59,6 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
           </div>
         )}
       </div>
-
-      {/* Navigation Menu */}
       <nav className="flex-1 overflow-y-auto pr-1 space-y-1 scrollbar-none">
         {menuItems.map((item) => {
           const isMainActive = item.href
@@ -79,12 +76,12 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
               ? isAwbOpen
               : item.id === "invoice"
               ? isInvoiceOpen
-              : item.id === "manifest"       // NEW
-              ? isManifestOpen               // NEW
-              : false;                       // NEW (replaces old ternary)
+              : item.id === "manifest"       
+              ? isManifestOpen               
+              : false;                      
           const isActive = isMainActive || hasActiveSubItem;
 
-          const buttonClass = `flex w-full items-center transition-all duration-150 mb-3 cursor-pointer ${isCollapsed ? "justify-center rounded-lg p-2.5" : "justify-between rounded-lg px-3 py-2"
+          const buttonClass = `flex w-full flex-nowrap items-center transition-all duration-150 mb-3 cursor-pointer ${isCollapsed ? "justify-center rounded-lg p-2.5" : "justify-between rounded-lg px-3 py-2"
             } ${isActive
               ? "bg-axc-navy text-white shadow-sm"
               : "text-gray-700 hover:bg-axc-navy/10"
@@ -92,15 +89,17 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
 
           const itemContent = (
             <>
-              <div className={`flex items-center ${isCollapsed ? "justify-center" : "gap-3"}`}>
+              <div className={`flex items-center min-w-0 ${isCollapsed ? "justify-center" : "gap-3"}`}>
                 <item.icon
                   size={18}
-                  className={isActive ? "text-white" : "text-gray-500"}
+                  className={`shrink-0 ${isActive ? "text-white" : "text-gray-500"}`}
                 />
-                {!isCollapsed && <span className="text-base font-medium">{item.label}</span>}
+                {!isCollapsed && (
+                  <span className="text-base font-medium whitespace-nowrap">{item.label}</span>
+                )}
               </div>
               {!isCollapsed && item.hasDropdown && (
-                <span>
+                <span className="shrink-0">
                   {isDropdownOpen ? (
                     <ChevronDown
                       size={14}
@@ -137,8 +136,6 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                   {itemContent}
                 </button>
               )}
-
-              {/* Sub-menu (Dropdown items) */}
               {!isCollapsed && item.hasDropdown && isDropdownOpen && item.subItems && (
                 <div className="ml-6 mt-0.5 border-l border-axc-gray/30 pl-2 space-y-1.5">
                   {item.subItems.map((sub) => {
@@ -149,7 +146,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                         (sub.id === "awb-entries" && pathname === "/create-entries")
                       )
                       : false;
-                    const subClass = `block w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-all duration-150 cursor-pointer ${isSubActive
+                    const subClass = `block w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-all duration-150 cursor-pointer whitespace-nowrap ${isSubActive
                       ? "bg-axc-navy/10 text-axc-navy"
                       : "text-gray-500 hover:bg-gray-50 hover:text-axc-dark-gray"
                       }`;
@@ -174,8 +171,6 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
           );
         })}
       </nav>
-
-      {/* Quick AWB Entry Card */}
       {isCollapsed ? (
         <div className="mt-4 flex justify-center py-2">
           <button

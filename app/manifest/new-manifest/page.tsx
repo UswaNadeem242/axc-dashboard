@@ -67,7 +67,7 @@ export default function ManifestPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 py-2">
+    <div className="flex flex-col gap-4 w-full h-screen overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 
       {toast && (
         <div
@@ -80,7 +80,9 @@ export default function ManifestPage() {
           {toast.message}
         </div>
       )}
-      <div className="flex items-center justify-between">
+
+      {/* Header — shrink-0, same as AWB create page */}
+      <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
 
           <Link
@@ -111,7 +113,9 @@ export default function ManifestPage() {
           {loading ? "CREATING…" : "CREATE MANIFEST"}
         </button>
       </div>
-      <div className="sticky top-0 z-20 bg-white border border-axc-border rounded-[8px] px-5 pb-0 shadow-sm">
+
+      {/* Tabs — shrink-0 */}
+      <div className="bg-white border border-axc-border rounded-[8px] px-5 pb-0 shrink-0">
         <div className="flex gap-0">
 
           {tabs.map((t) => (
@@ -141,43 +145,48 @@ export default function ManifestPage() {
 
         </div>
       </div>
-      {tab === "entry" ? (
-        <div className="flex flex-col gap-6 w-full">
-          <ManifestSummary
-            form={form}
-            updateField={handleUpdateField}
-            toggleEdit={handleToggleEdit}
-          />
-          <ManifestInformation
-            form={form}
-            errors={errors}
-            updateField={handleUpdateField}
-            toggleEdit={handleToggleEdit}
-            handleSearchAwb={handleSearchAwb}
-            handleBagging={handleBagging}
-          />
-          <BagDetails
-            rows={rows}
-            updateRow={updateRow}
-            addRow={addRow}
-            removeRow={removeRow}
-            selectAll={selectAll}
-          />
 
+      {/* Same containment div as AWB create page — only this scrolls */}
+      <div className="relative bg-white p-3 rounded-[8px] w-full flex-1 min-h-0 flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex-1 overflow-y-auto mt-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {tab === "entry" ? (
+            <div className="flex flex-col gap-6 w-full pb-2">
+              <ManifestSummary
+                form={form}
+                updateField={handleUpdateField}
+                toggleEdit={handleToggleEdit}
+              />
+              <ManifestInformation
+                form={form}
+                errors={errors}
+                updateField={handleUpdateField}
+                toggleEdit={handleToggleEdit}
+                handleSearchAwb={handleSearchAwb}
+                handleBagging={handleBagging}
+              />
+              <BagDetails
+                rows={rows}
+                updateRow={updateRow}
+                addRow={addRow}
+                removeRow={removeRow}
+                selectAll={selectAll}
+              />
+            </div>
+          ) : (
+            <div className="rounded-[8px] border border-axc-border bg-white p-12 text-center text-axc-dark-gray shadow-sm w-full">
+
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                Billing
+              </p>
+
+              <p className="text-xs text-gray-400 font-medium">
+                Billing details go here.
+              </p>
+
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="rounded-[8px] border border-axc-border bg-white p-12 text-center text-axc-dark-gray shadow-sm w-full">
-
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-            Billing
-          </p>
-
-          <p className="text-xs text-gray-400 font-medium">
-            Billing details go here.
-          </p>
-
-        </div>
-      )}
+      </div>
     </div>
   );
 }

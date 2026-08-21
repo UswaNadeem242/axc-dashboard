@@ -17,7 +17,7 @@ export default function ConsigneeToForm({ form, setForm, errors, onReset, showTo
         title="Consignee / Receiver / To"
         right={
           <div className="flex items-center gap-3">
-            <button type="button" onClick={onReset} className="text-white/70 hover:text-white transition" title="Reset Consignee Form">
+            <button type="button" onClick={onReset} className="text-white/70 hover:text-white transition cursor-pointer" title="Reset Consignee Form">
               <RotateCcw size={14} />
             </button>
             <label className="flex items-center gap-1 text-[10px] text-white/90 cursor-pointer normal-case font-medium">
@@ -26,8 +26,8 @@ export default function ConsigneeToForm({ form, setForm, errors, onReset, showTo
           </div>
         }
       />
-      <div className="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-4 gap-y-2.5 text-xs">
-        <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-4">
+      <div className="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-2.5 text-xs">
+        <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">
           <FieldLabel>Search Address Book</FieldLabel>
           <input type="text" value={form.consigneeSearchAddressBook} onChange={(e) => setForm({ ...form, consigneeSearchAddressBook: e.target.value })} className={inputClass} />
         </div>
@@ -35,8 +35,8 @@ export default function ConsigneeToForm({ form, setForm, errors, onReset, showTo
           <FieldLabel>Code</FieldLabel>
           <div className="flex items-center gap-2">
             <input type="text" value={form.consigneeCode} onChange={(e) => setForm({ ...form, consigneeCode: e.target.value })} className={`${inputClass} flex-1`} />
-            <label className="flex items-center gap-1 text-[10px] text-axc-dark-gray cursor-pointer whitespace-nowrap">
-              <input type="checkbox" checked={form.consigneeUpdateAddressBook} onChange={(e) => setForm({ ...form, consigneeUpdateAddressBook: e.target.checked })} /> UPDATE?
+            <label className="flex items-center gap-1.5 text-[10px] text-axc-dark-gray cursor-pointer whitespace-nowrap">
+              <input type="checkbox" checked={form.consigneeUpdateAddressBook} onChange={(e) => setForm({ ...form, consigneeUpdateAddressBook: e.target.checked })} className="w-4 h-4" /> UPDATE?
             </label>
           </div>
         </div>
@@ -66,7 +66,7 @@ export default function ConsigneeToForm({ form, setForm, errors, onReset, showTo
           <FieldLabel>Post / Zip Code</FieldLabel>
           <div className="flex gap-2">
             <input type="text" value={form.consigneeZipCode} onChange={(e) => setForm({ ...form, consigneeZipCode: e.target.value })} className={`${inputClass} flex-1`} />
-            <button type="button" onClick={() => showToast(`Searching zip code: ${form.consigneeZipCode || "—"}`)} className="px-3 py-1 bg-axc-yellow hover:bg-axc-yellow/80 text-white rounded text-xs  font-medium whitespace-nowrap">SEARCH</button>
+            <button type="button" onClick={() => showToast(`Searching zip code: ${form.consigneeZipCode || "—"}`)} className="px-3 py-1 bg-axc-yellow hover:bg-axc-yellow/80 text-white rounded text-sm font-normal whitespace-nowrap shadow-none cursor-pointer">SEARCH</button>
           </div>
         </div>
         <div className="flex flex-col gap-1">
