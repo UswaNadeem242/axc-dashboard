@@ -11,6 +11,8 @@ import { useAwbEntryForm } from "./components/handles";
 import { AwbSalesBillingTab } from "./components/awbsalesbillings";
 import { AwbPurchaseBillingTab } from "./components/awbpurchase";
 import { AwbDeliveryTab } from "./components/awbdelivery";
+import { AwbAttachmentsTab } from "./components/awbattachments";
+import { AwbKycTab } from "./components/awbkyc";
 
 type TabItem = { id: string; label: string; icon?: React.ReactNode };
 const tabs: TabItem[] = [
@@ -145,14 +147,22 @@ export default function CreateEntriesPage() {
 
           {activeTab === "purchase-billing" && <AwbPurchaseBillingTab />}
 
+          {activeTab === "attachment" && (
+            <AwbAttachmentsTab awbTrackingNo={form.awbNumber} showToast={showToast} />
+          )}
+
           {activeTab === "delivery" && (
             <AwbDeliveryTab awbTrackingNo={form.awbNumber} />
           )}
 
+          {activeTab === "kyc" && <AwbKycTab showToast={showToast} />}
+
           {activeTab !== "awb-details" &&
             activeTab !== "sales-billing" &&
             activeTab !== "purchase-billing" &&
-            activeTab !== "delivery" && (
+            activeTab !== "attachment" &&
+            activeTab !== "delivery" &&
+            activeTab !== "kyc" && (
               <div className="rounded-[32px] border border-axc-border bg-white p-12 text-center text-axc-dark-gray shadow-sm w-full">
                 <p className="text-xs font-bold text-axc-gray uppercase tracking-wider mb-2">
                   {tabs.find((t) => t.id === activeTab)?.label}

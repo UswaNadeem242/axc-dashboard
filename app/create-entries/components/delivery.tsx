@@ -3,6 +3,14 @@ import React from "react";
 import { DeliveryFormState, TrackingEvent } from "./formstate";
 import { PanelHeader } from "./form";
 import { TrackingEventsPanel } from "./tracking";
+import CommonTable from "../../src/common/table";
+
+interface DeliverySummaryRow {
+  label: string;
+  customer: string;
+  vendor: string;
+  highlight: boolean;
+}
 
 export function DeliveryPanel({
   delivery,
@@ -32,6 +40,56 @@ export function DeliveryPanel({
 }) {
   const inputClass =
     "w-full h-9 px-2.5 rounded-md border border-axc-border text-xs text-axc-dark-gray focus:outline-none focus:ring-1 focus:ring-axc-navy disabled:bg-gray-50 disabled:text-gray-400";
+
+  const deliverySummaryData: DeliverySummaryRow[] = [
+    {
+      label: "Expected Delivery Date",
+      customer: delivery.expectedDeliveryDateCustomer || "-",
+      vendor: delivery.expectedDeliveryDateVendor || "-",
+      highlight: false,
+    },
+    {
+      label: "Actual TAT",
+      customer: delivery.actualTatCustomer || "-",
+      vendor: delivery.actualTatVendor || "-",
+      highlight: true,
+    },
+    {
+      label: "Crossed EDD Days",
+      customer: delivery.crossedEddDaysCustomer || "-",
+      vendor: delivery.crossedEddDaysVendor || "-",
+      highlight: false,
+    },
+  ];
+
+  const deliverySummaryHeadings = [
+    {
+      label: "",
+      key: "label",
+      render: (row: DeliverySummaryRow) => (
+        <span className="font-bold text-axc-dark-gray">{row.label}</span>
+      ),
+    },
+    {
+      label: "Customer",
+      key: "customer",
+      render: (row: DeliverySummaryRow) => (
+        <span className={row.highlight ? "text-axc-navy font-semibold" : "text-axc-gray"}>
+          {row.customer}
+        </span>
+      ),
+    },
+    {
+      label: "Vendor",
+      key: "vendor",
+      render: (row: DeliverySummaryRow) => (
+        <span className={row.highlight ? "text-axc-navy font-semibold" : "text-axc-gray"}>
+          {row.vendor}
+        </span>
+      ),
+    },
+  ];
+
   return (
     <div className="flex flex-col xl:flex-row gap-6 items-start w-full">
       <div className="flex flex-col gap-6 w-full xl:w-[360px] xl:shrink-0 xl:sticky xl:top-6 xl:self-start">
@@ -68,51 +126,13 @@ export function DeliveryPanel({
             </button>
           </div>
 
-          <div className="border-t border-axc-border mx-4 mb-4 rounded-md overflow-hidden border overflow-x-auto">
-            <table className="w-full text-[11px] min-w-[280px]">
-              <thead>
-                <tr className="bg-axc-navy text-white">
-                  <th className="text-left font-bold px-2 py-2"></th>
-                  <th className="text-left font-bold px-2 py-2">Customer</th>
-                  <th className="text-left font-bold px-2 py-2">Vendor</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="border-t border-axc-border">
-                  <td className="px-2 py-2 font-bold text-axc-dark-gray">
-                    Expected Delivery Date
-                  </td>
-                  <td className="px-2 py-2 text-axc-gray">
-                    {delivery.expectedDeliveryDateCustomer || "-"}
-                  </td>
-                  <td className="px-2 py-2 text-axc-gray">
-                    {delivery.expectedDeliveryDateVendor || "-"}
-                  </td>
-                </tr>
-                <tr className="border-t border-axc-border">
-                  <td className="px-2 py-2 font-bold text-axc-dark-gray">
-                    Actual TAT
-                  </td>
-                  <td className="px-2 py-2 text-axc-navy font-semibold">
-                    {delivery.actualTatCustomer}
-                  </td>
-                  <td className="px-2 py-2 text-axc-navy font-semibold">
-                    {delivery.actualTatVendor}
-                  </td>
-                </tr>
-                <tr className="border-t border-axc-border">
-                  <td className="px-2 py-2 font-bold text-axc-dark-gray">
-                    Crossed EDD Days
-                  </td>
-                  <td className="px-2 py-2 text-axc-gray">
-                    {delivery.crossedEddDaysCustomer || "-"}
-                  </td>
-                  <td className="px-2 py-2 text-axc-gray">
-                    {delivery.crossedEddDaysVendor || "-"}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+          <div className="border-t border-axc-border mx-4 mb-4">
+            <CommonTable
+              headings={deliverySummaryHeadings}
+              data={deliverySummaryData}
+              rowKey="label"
+              itemsPerPage={deliverySummaryData.length}
+            />
           </div>
         </div>
       </div>
