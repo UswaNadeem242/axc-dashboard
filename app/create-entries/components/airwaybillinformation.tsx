@@ -45,7 +45,6 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
           <FieldLabel>Company</FieldLabel>
           <div className="flex items-center gap-2">
             <CommonDropdown value={form.company} onChange={(val) => setForm({ ...form, company: val })} className="flex-1 bg-gray-50 focus:bg-white border-axc-border" placeholder="SELECT COMPANY..." options={[{ value: "company1", label: "Company A" }, { value: "company2", label: "Company B" }]} />
-            <EditIconButton active={form.editCompany} onToggle={() => setForm({ ...form, editCompany: !form.editCompany })} title="Edit Company" />
           </div>
         </div>
 
