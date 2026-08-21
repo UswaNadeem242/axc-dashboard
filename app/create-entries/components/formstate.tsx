@@ -199,3 +199,205 @@ export interface RefundDetailsFormState {
   refundReason: string;
   refundRemarks: string;
 }
+
+export interface PurchaseBillingCharges {
+  additionalHandling: ChargeLine;
+  additionalHandlingCharge: ChargeLine;
+  addressCorrectionFees: ChargeLine;
+  ahsWeight: ChargeLine;
+  brandCharges: ChargeLine;
+  collectionCharges: ChargeLine;
+  dasCharges: ChargeLine;
+  ddpCadCharges: ChargeLine;
+  deliveryAreaSurcharge: ChargeLine;
+  deliveryAreaSurchargeExtended: ChargeLine;
+  dropOffCharges: ChargeLine;
+  eForm: ChargeLine;
+  extraCharges: ChargeLine;
+  oversized: ChargeLine;
+  peakSurcharge: ChargeLine;
+  pickupCharges: ChargeLine;
+  remoteArea: ChargeLine;
+  remoteAreaSurcharge: ChargeLine;
+  residentialSurcharge: ChargeLine;
+  residentialSurchargeManual: ChargeLine;
+}
+export type PurchaseChargeKey = keyof PurchaseBillingCharges;
+
+export function emptyPurchaseCharges(): PurchaseBillingCharges {
+  return {
+    additionalHandling: emptyCharge(),
+    additionalHandlingCharge: emptyCharge(),
+    addressCorrectionFees: emptyCharge(),
+    ahsWeight: emptyCharge(),
+    brandCharges: emptyCharge(),
+    collectionCharges: emptyCharge(),
+    dasCharges: emptyCharge(),
+    ddpCadCharges: emptyCharge(),
+    deliveryAreaSurcharge: emptyCharge(),
+    deliveryAreaSurchargeExtended: emptyCharge(),
+    dropOffCharges: emptyCharge(),
+    eForm: emptyCharge(),
+    extraCharges: emptyCharge(),
+    oversized: emptyCharge(),
+    peakSurcharge: emptyCharge(),
+    pickupCharges: emptyCharge(),
+    remoteArea: emptyCharge(),
+    remoteAreaSurcharge: emptyCharge(),
+    residentialSurcharge: emptyCharge(),
+    residentialSurchargeManual: emptyCharge(),
+  };
+}
+
+export interface PurchaseBillingFormState {
+  company: string;
+  purchaseCurrency: string;
+  vatType: string;
+  vatApplicable: boolean;
+  editVat: boolean;
+
+  freight: string;
+  editFreightAmount: boolean;
+  freightPerKg: string;
+  searchCharge: string;
+
+  charges: PurchaseBillingCharges;
+
+  totalOtherCharges: string;
+  adjustmentAmount: string;
+
+  fscPercent: string;
+  editFscPercent: boolean;
+  fsc: string;
+  editFsc: boolean;
+
+  discountPercent: string;
+  discountAmount: string;
+  totalDiscount: string;
+
+  freightAfterDiscount: string;
+  subtotal: string;
+  nonTaxableAmount: string;
+  taxableAmount: string;
+  vatPercent: string;
+
+  cgst: string;
+  editCgst: boolean;
+  sgst: string;
+  editSgst: boolean;
+
+  grandTotal: string;
+  editTotal: boolean;
+}
+
+export function defaultPurchaseBilling(): PurchaseBillingFormState {
+  return {
+    company: "",
+    purchaseCurrency: "",
+    vatType: "GST",
+    vatApplicable: false,
+    editVat: false,
+    freight: "0",
+    editFreightAmount: false,
+    freightPerKg: "",
+    searchCharge: "",
+    charges: emptyPurchaseCharges(),
+    totalOtherCharges: "0",
+    adjustmentAmount: "",
+    fscPercent: "",
+    editFscPercent: false,
+    fsc: "0",
+    editFsc: false,
+    discountPercent: "",
+    discountAmount: "",
+    totalDiscount: "0",
+    freightAfterDiscount: "0",
+    subtotal: "0",
+    nonTaxableAmount: "0",
+    taxableAmount: "0",
+    vatPercent: "0",
+    cgst: "0",
+    editCgst: false,
+    sgst: "0",
+    editSgst: false,
+    grandTotal: "0",
+    editTotal: false,
+  };
+}
+
+export interface VendorWeightRow {
+  id: string;
+  actualWeight: string;
+  length: string;
+  breadth: string;
+  height: string;
+  volumetricWeight: string;
+  chargeableWeight: string;
+}
+
+export interface VendorDetailsFormState {
+  editVendorDetails: boolean;
+  product: string;
+  service: string;
+  vendor: string;
+  originZone: string;
+  destinationZone: string;
+  pcs: string;
+
+  weightRows: VendorWeightRow[];
+  actualWeight: string;
+
+  cftId: string;
+  cftValue: string;
+  vendorContractId: string;
+  tat: string;
+
+  volumeWeight: string;
+  chargeableWeight: string;
+}
+
+export function defaultVendorDetails(): VendorDetailsFormState {
+  return {
+    editVendorDetails: false,
+    product: "",
+    service: "",
+    vendor: "",
+    originZone: "",
+    destinationZone: "",
+    pcs: "",
+    weightRows: [],
+    actualWeight: "",
+    cftId: "",
+    cftValue: "1",
+    vendorContractId: "",
+    tat: "",
+    volumeWeight: "",
+    chargeableWeight: "0",
+  };
+}
+
+export interface VendorInvoiceFormState {
+  pastVendorInvoice: string;
+  vendorInvoice1: string;
+  invoiceRemarks1: string;
+  vendorInvoice2: string;
+  invoiceRemarks2: string;
+  vendorInvoice3: string;
+  invoiceRemarks3: string;
+  vendorInvoice4: string;
+  invoiceRemarks4: string;
+}
+
+export function defaultVendorInvoice(): VendorInvoiceFormState {
+  return {
+    pastVendorInvoice: "",
+    vendorInvoice1: "",
+    invoiceRemarks1: "",
+    vendorInvoice2: "",
+    invoiceRemarks2: "",
+    vendorInvoice3: "",
+    invoiceRemarks3: "",
+    vendorInvoice4: "",
+    invoiceRemarks4: "",
+  };
+}

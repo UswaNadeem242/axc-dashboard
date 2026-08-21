@@ -67,7 +67,7 @@ export default function ManifestPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4 w-full h-screen overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="flex flex-col gap-4 w-full  [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 
       {toast && (
         <div
@@ -81,7 +81,6 @@ export default function ManifestPage() {
         </div>
       )}
 
-      {/* Header — shrink-0, same as AWB create page */}
       <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
 
@@ -114,7 +113,6 @@ export default function ManifestPage() {
         </button>
       </div>
 
-      {/* Tabs — shrink-0 */}
       <div className="bg-white border border-axc-border rounded-[8px] px-5 pb-0 shrink-0">
         <div className="flex gap-0">
 
@@ -145,8 +143,6 @@ export default function ManifestPage() {
 
         </div>
       </div>
-
-      {/* Same containment div as AWB create page — only this scrolls */}
       <div className="relative bg-white p-3 rounded-[8px] w-full flex-1 min-h-0 flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex-1 overflow-y-auto mt-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {tab === "entry" ? (
