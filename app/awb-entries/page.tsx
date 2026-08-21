@@ -1,15 +1,8 @@
 "use client";
-
 import React, { useState, useEffect } from "react";
 import {
-  Search,
-  RotateCcw,
-  Plus,
-  Download,
-  MoreHorizontal,
-  ChevronRight,
-  ChevronsRight,
   X,
+  PlusCircle,
 } from "lucide-react";
 import CommonTable from "../src/common/table";
 import { AwbEntryheading, AwbEntry, initialData } from "../src/constant";
@@ -63,11 +56,12 @@ export default function AwbEntriesPage() {
   }, [data]);
 
   const handleDelete = (row: AwbEntry) => {
+ 
     if (confirm(`Are you sure you want to delete AWB ${row.awbNumber}?`)) {
       setData((prev) => prev.filter((item) => item.awbNumber !== row.awbNumber));
       setSelectedIds((prev) => prev.filter((id) => id !== row.awbNumber));
     }
-  };
+
 
   const handleTrack = (row: AwbEntry) => console.log("Track AWB", row.awbNumber);
   const handleMail = (row: AwbEntry) => console.log("Email AWB", row.awbNumber);
@@ -109,6 +103,7 @@ export default function AwbEntriesPage() {
   }, [searchQuery]);
 
   return (
+
     <div className="relative bg-white p-3 rounded-[8px] w-full h-[calc(100vh-160px)] flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
         <div>
@@ -116,6 +111,7 @@ export default function AwbEntriesPage() {
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
+
           <FilterSearch
             options={[
               { label: "Select", value: "" },
@@ -131,7 +127,6 @@ export default function AwbEntriesPage() {
           />
           <Button label="Create Entry" href="/create-entries" variant="primary" />
         </div>
-      </div>
 
       {activeTags.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 mb-2 shrink-0">
