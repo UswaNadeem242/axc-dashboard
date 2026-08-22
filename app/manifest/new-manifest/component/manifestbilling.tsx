@@ -17,12 +17,38 @@ interface ManifestBillingProps {
 const inputClass =
   "w-full h-8 px-2 rounded-md border border-axc-border text-xs text-axc-dark-gray focus:outline-none focus:ring-1 focus:ring-axc-navy";
 
+const TYPE_OPTIONS = ["SALE", "PURCHASE"];
+const CO_LOADER_OPTIONS: string[] = [];
+const VENDOR_OPTIONS: string[] = [];
+const COMPANY_OPTIONS: string[] = [];
+const CHARGE_OPTIONS: string[] = [];
+
 export default function ManifestBilling({
   charges,
   addCharge,
   updateCharge,
   removeCharge,
 }: ManifestBillingProps) {
+  const selectCell = (
+    row: ManifestChargeRow,
+    field: keyof ManifestChargeRow,
+    options: string[],
+    placeholder: string
+  ) => (
+    <select
+      className={inputClass}
+      value={row[field]}
+      onChange={(e) => updateCharge(row.id, field, e.target.value)}
+    >
+      <option value="">{placeholder}</option>
+      {options.map((option) => (
+        <option key={option} value={option}>
+          {option}
+        </option>
+      ))}
+    </select>
+  );
+
   const textCell = (row: ManifestChargeRow, field: keyof ManifestChargeRow) => (
     <input
       className={inputClass}
@@ -31,14 +57,53 @@ export default function ManifestBilling({
     />
   );
 
+  const textareaCell = (row: ManifestChargeRow, field: keyof ManifestChargeRow) => (
+    <textarea
+      className={`${inputClass} h-8 resize-y`}
+      rows={1}
+      value={row[field]}
+      onChange={(e) => updateCharge(row.id, field, e.target.value)}
+    />
+  );
+
   const headings = [
-    { label: "Type", key: "type", truncate: false, render: (row: ManifestChargeRow) => textCell(row, "type") },
-    { label: "Co-Loader", key: "coLoader", truncate: false, render: (row: ManifestChargeRow) => textCell(row, "coLoader") },
-    { label: "Vendor", key: "vendor", truncate: false, render: (row: ManifestChargeRow) => textCell(row, "vendor") },
-    { label: "Company", key: "company", truncate: false, render: (row: ManifestChargeRow) => textCell(row, "company") },
-    { label: "Charge", key: "charge", truncate: false, render: (row: ManifestChargeRow) => textCell(row, "charge") },
+    {
+      label: "Type",
+      key: "type",
+      truncate: false,
+      render: (row: ManifestChargeRow) =>
+        selectCell(row, "type", TYPE_OPTIONS, "SELECT..."),
+    },
+    {
+      label: "Co-Loader",
+      key: "coLoader",
+      truncate: false,
+      render: (row: ManifestChargeRow) =>
+        selectCell(row, "coLoader", CO_LOADER_OPTIONS, "SELECT CO-LOADER..."),
+    },
+    {
+      label: "Vendor",
+      key: "vendor",
+      truncate: false,
+      render: (row: ManifestChargeRow) =>
+        selectCell(row, "vendor", VENDOR_OPTIONS, "SELECT VENDOR..."),
+    },
+    {
+      label: "Company",
+      key: "company",
+      truncate: false,
+      render: (row: ManifestChargeRow) =>
+        selectCell(row, "company", COMPANY_OPTIONS, "SELECT..."),
+    },
+    {
+      label: "Charge",
+      key: "charge",
+      truncate: false,
+      render: (row: ManifestChargeRow) =>
+        selectCell(row, "charge", CHARGE_OPTIONS, "SELECT..."),
+    },
     { label: "Amount", key: "amount", truncate: false, render: (row: ManifestChargeRow) => textCell(row, "amount") },
-    { label: "Remark", key: "remark", truncate: false, render: (row: ManifestChargeRow) => textCell(row, "remark") },
+    { label: "Remark", key: "remark", truncate: false, render: (row: ManifestChargeRow) => textareaCell(row, "remark") },
     {
       label: "Action",
       key: "action",
