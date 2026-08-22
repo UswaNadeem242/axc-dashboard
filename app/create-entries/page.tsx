@@ -59,7 +59,7 @@ export default function CreateEntriesPage() {
         </div>
       )}
 
-      <div className="flex items-center justify-between shrink-0">
+      {/* <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <Link
             href="/awb-entries"
@@ -72,7 +72,7 @@ export default function CreateEntriesPage() {
             <p className="text-xs text-axc-gray font-medium">Add a new shipment detail to your database</p>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="bg-white border border-axc-border rounded-[8px] px-5 pb-0 shrink-0">
         <div className="flex gap-0 overflow-x-auto scrollbar-none">
