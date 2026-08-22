@@ -7,6 +7,7 @@ import { ArrowLeft, User, FileText } from "lucide-react";
 import ManifestSummary from "./component/manifestsummary";
 import ManifestInformation from "./component/manifest-information";
 import BagDetails from "./component/bag-detail";
+import ManifestBilling from "./component/manifestbilling";
 import { useManifestForm } from "./component/manifestform";
 
 type TabItem = {
@@ -41,6 +42,10 @@ export default function ManifestPage() {
     addRow,
     removeRow,
     selectAll,
+    charges,
+    updateCharge,
+    addCharge,
+    removeCharge,
     loading,
     toast,
     handleCreateManifest,
@@ -80,11 +85,8 @@ export default function ManifestPage() {
           {toast.message}
         </div>
       )}
-
-      {/* Header — shrink-0, same as AWB create page */}
       <div className="flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
-
           <Link
             href="/manifest/all-manifest"
             className="flex h-9 w-9 items-center justify-center rounded-lg bg-white border border-axc-border text-gray-600 hover:bg-gray-50 transition shadow-sm"
@@ -103,7 +105,6 @@ export default function ManifestPage() {
           </div>
 
         </div>
-
         <button
           type="button"
           onClick={handleCreateManifest}
@@ -113,8 +114,6 @@ export default function ManifestPage() {
           {loading ? "CREATING…" : "CREATE MANIFEST"}
         </button>
       </div>
-
-      {/* Tabs — shrink-0 */}
       <div className="bg-white border border-axc-border rounded-[8px] px-5 pb-0 shrink-0">
         <div className="flex gap-0">
 
@@ -132,7 +131,6 @@ export default function ManifestPage() {
               {t.icon}
 
               {t.label}
-
               <span
                 className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-t transition-all duration-200 ${
                   tab === t.id
@@ -145,8 +143,6 @@ export default function ManifestPage() {
 
         </div>
       </div>
-
-      {/* Same containment div as AWB create page — only this scrolls */}
       <div className="relative bg-white p-3 rounded-[8px] w-full flex-1 min-h-0 flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex-1 min-h-0 overflow-y-auto mt-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {tab === "entry" ? (
@@ -173,17 +169,12 @@ export default function ManifestPage() {
               />
             </div>
           ) : (
-            <div className="rounded-[8px] border border-axc-border bg-white p-12 text-center text-axc-dark-gray shadow-sm w-full">
-
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                Billing
-              </p>
-
-              <p className="text-xs text-gray-400 font-medium">
-                Billing details go here.
-              </p>
-
-            </div>
+            <ManifestBilling
+              charges={charges}
+              addCharge={addCharge}
+              updateCharge={updateCharge}
+              removeCharge={removeCharge}
+            />
           )}
         </div>
       </div>

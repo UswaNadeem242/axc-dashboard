@@ -2,6 +2,7 @@
 import { useState } from "react";
 import {
   ManifestBagRow,
+  ManifestChargeRow,
   ManifestFormErrors,
   ManifestFormState,
   ManifestTab,
@@ -66,11 +67,23 @@ const emptyBagRow = (id: number): ManifestBagRow => ({
   actionDuty: "",
 });
 
+const emptyChargeRow = (id: number): ManifestChargeRow => ({
+  id,
+  type: "",
+  coLoader: "",
+  vendor: "",
+  company: "",
+  charge: "",
+  amount: "",
+  remark: "",
+});
+
 export function useManifestForm() {
   const [form, setForm] = useState<ManifestFormState>(emptyForm);
   const [errors, setErrors] = useState<ManifestFormErrors>({});
   const [tab, setTab] = useState<ManifestTab>("entry");
   const [rows, setRows] = useState<ManifestBagRow[]>([emptyBagRow(1)]);
+  const [charges, setCharges] = useState<ManifestChargeRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
 
@@ -105,6 +118,18 @@ export function useManifestForm() {
       const allSelected = prev.every((r) => r.selected);
       return prev.map((r) => ({ ...r, selected: !allSelected }));
     });
+  };
+
+  const updateCharge = <K extends keyof ManifestChargeRow>(id: number, key: K, value: ManifestChargeRow[K]) => {
+    setCharges((prev) => prev.map((c) => (c.id === id ? { ...c, [key]: value } : c)));
+  };
+
+  const addCharge = () => {
+    setCharges((prev) => [...prev, emptyChargeRow(Date.now())]);
+  };
+
+  const removeCharge = (id: number) => {
+    setCharges((prev) => prev.filter((c) => c.id !== id));
   };
 
   const validateEntry = (): boolean => {
@@ -147,6 +172,10 @@ export function useManifestForm() {
     addRow,
     removeRow,
     selectAll,
+    charges,
+    updateCharge,
+    addCharge,
+    removeCharge,
     loading,
     toast,
     showToast,
