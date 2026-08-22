@@ -55,6 +55,17 @@ export interface ManifestBagRow {
   actionDuty: string;
 }
 
+export interface ManifestChargeRow {
+  id: number;
+  type: string;
+  coLoader: string;
+  vendor: string;
+  company: string;
+  charge: string;
+  amount: string;
+  remark: string;
+}
+
 export interface ToastState {
   message: string;
   type: "success" | "info";

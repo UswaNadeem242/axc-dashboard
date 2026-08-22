@@ -37,7 +37,7 @@ const MODULE_COLORS: Record<string, string> = {
 
 function ModuleBadge({ module }: { module: string }) {
   return (
-    <span className={`inline-flex rounded-[3px] px-[10px] py-[4px] text-[10px] font-medium ${MODULE_COLORS[module] ?? "bg-axc-gray text-white"}`}>
+    <span className={`inline-flex rounded-full px-[10px] py-[4px] text-[10px] font-medium ${MODULE_COLORS[module] ?? "bg-axc-gray text-white"}`}>
       {module}
     </span>
   );
