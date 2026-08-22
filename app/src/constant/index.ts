@@ -44,11 +44,12 @@ export const menuItems: MenuItem[] = [
     label: "AWB Management",
     icon: FileText,
     id: "awb-management",
-    hasDropdown: true,
-    subItems: [
-      { label: "AWB Entries", id: "awb-entries", href: "/awb-entries" },
-      { label: "Management System", id: "awb-management-system" },
-    ],
+    hasDropdown: false,
+    href: "/awb-entries",
+    // subItems: [
+    //   { label: "AWB Entries", id: "awb-entries", href: "/awb-entries" },
+    //   { label: "Management System", id: "awb-management-system" },
+    // ],
   },
   {
     label: "Manifest Management",

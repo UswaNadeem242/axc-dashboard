@@ -169,7 +169,7 @@ const CommonTable = ({
                               {onEdit && <button type="button" onClick={() => onEdit(row)} className="text-axc-dark-green transition hover:opacity-70" title="Edit"><Pencil size={16} /></button>}
                               {onBagging && <button type="button" onClick={() => onBagging(row)} className="text-axc-navy transition hover:opacity-70" title="Bagging"><PackageCheck size={17} /></button>}
                               {onDelete && <button type="button" onClick={() => onDelete(row)} className="text-axc-red-dark transition hover:opacity-70" title="Delete"><Trash2 size={16} /></button>}
-                              <button type="button" onClick={() => copyRow(row)} className="text-axc-dark-gray transition hover:opacity-70" title="Copy"><Copy size={16} /></button>
+                              {/* <button type="button" onClick={() => copyRow(row)} className="text-axc-dark-gray transition hover:opacity-70" title="Copy"><Copy size={16} /></button> */}
                               {onPdf && <button type="button" onClick={() => onPdf(row)} className="text-axc-blue transition hover:opacity-70" title="View PDF"><FileText size={16} /></button>}
                             </div>
                           )

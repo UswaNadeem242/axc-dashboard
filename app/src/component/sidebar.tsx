@@ -31,18 +31,23 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
   };
 
   return (
-    <aside className={`flex h-screen w-full flex-col border-r border-axc-border bg-white pt-1.5 pb-5 font-sans transition-all duration-300 ${isCollapsed ? "max-w-[80px] px-2" : "max-w-[280px] px-4"
+    <aside className={`group flex h-screen w-full flex-col border-r border-axc-border bg-white pt-1.5 pb-5 font-sans transition-all duration-300 ${isCollapsed ? "max-w-[80px] px-2" : "max-w-[280px] px-4"
       }`}>
       <div className="mb-3 flex border-b border-gray-100 pb-1">
         {isCollapsed ? (
-          <div className="flex w-full justify-center">
+          <div className="flex w-full justify-center relative">
+            {/* Logo: visible by default, hides on sidebar hover */}
+            <div className="flex h-10 w-10 items-center justify-center transition-opacity duration-200 group-hover:opacity-0">
+              <Image src={logo} width={38} height={38} alt="logo" className="object-contain" />
+            </div>
+            {/* Hamburger: hidden by default, shows on sidebar hover */}
             <button
               type="button"
               onClick={onToggle}
               title="Expand sidebar"
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+              className="absolute inset-0 flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 transition-all duration-200 opacity-0 group-hover:opacity-100 mx-auto"
             >
-              <Menu size={22} className="text-axc-dark-gray" />
+              <Menu size={22} className="text-axc-dark-gray cursor-pointer" />
             </button>
           </div>
         ) : (
@@ -54,7 +59,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
               title="Collapse sidebar"
               className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
             >
-              <Menu size={22} className="text-axc-dark-gray" />
+              <Menu size={22} className="text-axc-dark-gray cursor-pointer" />
             </button>
           </div>
         )}
@@ -62,7 +67,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
       <nav className="flex-1 overflow-y-auto pr-1 space-y-1 scrollbar-none">
         {menuItems.map((item) => {
           const isMainActive = item.href
-            ? (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/")))
+            ? (pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href + "/")) || (item.id === "awb-management" && pathname === "/create-entries"))
             : false;
           const hasActiveSubItem = item.subItems?.some((sub) =>
             sub.href && (

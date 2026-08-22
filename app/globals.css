@@ -68,38 +68,21 @@ h6 {
   padding: 8px;
 }
 
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--axc-navy, #232A76);
-  border-radius: 4px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #1b205b;
-}
-
-/* Firefox Scrollbar Styling */
+/* Hide scrollbars globally — cleaner UX, no per-element patching needed */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: var(--axc-navy, #232A76) #f1f1f1;
+  scrollbar-width: none !important;        /* Firefox */
+  -ms-overflow-style: none !important;     /* IE/Edge */
 }
 
-.scrollbar-none::-webkit-scrollbar {
-  width: 0 !important;
-  height: 0 !important;
-  display: none !important;
+*::-webkit-scrollbar {
+  display: none !important;               /* Chrome, Safari, Opera */
 }
 
+/* Utility kept for explicitness */
 .scrollbar-none {
-  -ms-overflow-style: none !important;
   scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none !important;
 }

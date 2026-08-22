@@ -15,10 +15,7 @@ export default function Header() {
 
   return (
     <header className="flex w-full items-center justify-between gap-5 border-b border-axc-border bg-white px-6 py-2">
-      {/* Left Side: Empty space since heading was moved */}
-      <div className="flex-1"></div>
-
-      {/* Center: Search Bar */}
+      {/* Left Side: Search Bar */}
       <div className="w-64 hidden md:block">
         <SearchInput value={searchQuery} onChange={setSearchQuery} />
       </div>

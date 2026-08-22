@@ -22,7 +22,7 @@ const tabs: TabItem[] = [
   { id: "attachment", label: "Attachment", icon: <Paperclip size={14} /> },
   { id: "delivery", label: "Delivery", icon: <Truck size={14} /> },
   { id: "kyc", label: "KYC", icon: <ShieldCheck size={14} /> },
-  { id: "extra", label: "Extra", icon: <ChevronDown size={14} /> },
+  // { id: "extra", label: "Extra", icon: <ChevronDown size={14} /> },
 ];
 
 export default function CreateEntriesPage() {
@@ -51,9 +51,8 @@ export default function CreateEntriesPage() {
     <div className="flex flex-col gap-4 w-full h-full min-h-0 overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {toast && (
         <div
-          className={`fixed top-5 right-5 z-50 rounded-lg px-4 py-3 text-xs font-bold shadow-lg text-white animate-in fade-in slide-in-from-top-2 duration-200 ${
-            toast.type === "success" ? "bg-axc-dark-green" : "bg-axc-navy"
-          }`}
+          className={`fixed top-5 right-5 z-50 rounded-lg px-4 py-3 text-xs font-bold shadow-lg text-white animate-in fade-in slide-in-from-top-2 duration-200 ${toast.type === "success" ? "bg-axc-dark-green" : "bg-axc-navy"
+            }`}
         >
           {toast.message}
         </div>
@@ -74,30 +73,30 @@ export default function CreateEntriesPage() {
         </div>
       </div> */}
 
-      <div className="bg-white border border-axc-border rounded-[8px] px-5 pb-0 shrink-0">
-        <div className="flex gap-0 overflow-x-auto scrollbar-none">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              onClick={() => setActiveTab(tab.id)}
-              className={`relative shrink-0 flex items-center gap-1.5 px-4 py-4 text-[16px] font-extrabold whitespace-nowrap transition-colors duration-150 ${
-                activeTab === tab.id ? "text-axc-dark-gray" : "text-axc-gray hover:text-axc-dark-gray"
-              }`}
-            >
-              {tab.icon}
-              {tab.label}
-              <span
-                className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-t transition-all duration-200 ${
-                  activeTab === tab.id ? "bg-axc-navy opacity-100" : "opacity-0"
-                }`}
-              />
-            </button>
-          ))}
-        </div>
-      </div>
 
-      <div className="relative bg-white p-3 rounded-[8px] border border-gray-200 w-full flex-1 min-h-0 flex flex-col overflow-hidden">
+
+      <div className="relative bg-white p-3 rounded-lg border border-gray-200 w-full flex-1 min-h-0 flex flex-col overflow-hidden">
+
+        <div className="bg-white border-b border-b-axc-border  pb-0 shrink-0">
+          <div className="flex gap-4 overflow-x-auto scrollbar-none">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`relative shrink-0 flex items-center gap-1.5 px-4 py-4 text-[16px] font-extrabold whitespace-nowrap transition-colors duration-150 cursor-pointer ${activeTab === tab.id ? "text-axc-dark-gray" : "text-axc-gray hover:text-axc-dark-gray "
+                  }`}
+              >
+                {tab.icon}
+                {tab.label}
+                <span
+                  className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-t transition-all duration-200 ${activeTab === tab.id ? "bg-axc-navy opacity-100" : "opacity-0"
+                    }`}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
         {success && (
           <div className="flex items-center gap-3 rounded-2xl bg-axc-green/10 border border-axc-green/30 p-4 text-axc-dark-green animate-in fade-in slide-in-from-top-4 duration-300 shrink-0 mt-0">
             <CheckCircle className="h-5 w-5 text-axc-dark-green shrink-0" />
@@ -112,7 +111,11 @@ export default function CreateEntriesPage() {
           {activeTab === "awb-details" && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full pb-2">
               <div className="grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-6 items-start w-full">
-                <WeightsAndDimensions form={form} setForm={setForm} />
+                {/* Left: sticky panel */}
+                <div className="xl:sticky xl:top-0 self-start">
+                  <WeightsAndDimensions form={form} setForm={setForm} />
+                </div>
+                {/* Right: scrolls naturally */}
                 <div className="flex flex-col gap-6 w-full">
                   <AirWaybillInformation form={form} setForm={setForm} errors={errors} />
                   <ShipperFromForm form={form} setForm={setForm} errors={errors} onReset={resetShipper} showToast={showToast} />

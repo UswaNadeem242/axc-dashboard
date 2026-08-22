@@ -8,7 +8,7 @@ interface Props {
 }
 export default function WeightsAndDimensions({ form, setForm }: Props) {
   return (
-    <div className="xl:sticky xl:top-4 w-full">
+    <div className="xl:sticky  w-full">
       <div className="bg-white rounded-xl border border-axc-border shadow-sm overflow-hidden">
         <PanelHeader title="Weights and Dimensions" />
         <div className="p-5 grid grid-cols-2 gap-3 text-xs">

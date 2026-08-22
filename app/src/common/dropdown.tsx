@@ -56,8 +56,8 @@ export default function Dropdown({ options, value, onChange, items, title = "Act
 
   return (
     <Listbox value={value || ""} onChange={onChange}>
-      <div className={`relative w-full ${className}`}>
-        <ListboxButton className="relative w-full text-left bg-white border border-axc-border rounded-md px-3 py-2.5 outline-none cursor-pointer flex items-center justify-between text-[13px] font-normal text-gray-700 focus:border-axc-border transition">
+      <div className="relative w-full">
+        <ListboxButton className={`relative w-full text-left bg-white border border-axc-border rounded-md px-3 py-2.5 outline-none cursor-pointer flex items-center justify-between text-[13px] font-normal text-gray-700 focus:border-axc-border transition ${className}`}>
           <span className={`block truncate ${selectedOption ? "text-gray-700" : "text-gray-400"}`}>
             {selectedOption ? selectedOption.label : placeholder}
           </span>

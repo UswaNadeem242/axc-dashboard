@@ -48,10 +48,10 @@ export function EditIconButton({
     <button type="button" onClick={onToggle}
       title={title}
       aria-pressed={active}
-      className={`flex items-center justify-center h-8 w-8 shrink-0 rounded border transition ${
+      className={`flex items-center justify-center h-7 w-7 shrink-0 rounded transition ${
         active
-          ? "bg-axc-dark-gray text-white border-axc-dark-gray"
-          : "bg-white text-gray-500 border-axc-gray hover:bg-gray-50"
+          ? "bg-axc-navy text-white cursor-pointer"
+          : "bg-transparent text-axc-grey   hover:bg-gray-100 cursor-pointer"
       }`}
     >
       <Pencil size={13} />
