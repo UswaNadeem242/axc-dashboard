@@ -67,7 +67,7 @@ export default function ManifestPage() {
   };
 
   return (
-    <div className="flex flex-col gap-4 w-full h-screen overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="flex flex-col gap-4 w-full h-full min-h-0 overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 
       {toast && (
         <div
@@ -148,7 +148,7 @@ export default function ManifestPage() {
 
       {/* Same containment div as AWB create page — only this scrolls */}
       <div className="relative bg-white p-3 rounded-[8px] w-full flex-1 min-h-0 flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex-1 overflow-y-auto mt-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex-1 min-h-0 overflow-y-auto mt-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {tab === "entry" ? (
             <div className="flex flex-col gap-6 w-full pb-2">
               <ManifestSummary

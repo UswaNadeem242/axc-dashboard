@@ -31,9 +31,9 @@ export function AwbSalesBillingTab({
   } = useSalesBilling();
 
   return (
-    <div className="h-full flex flex-col gap-6 w-full pb-2">
-      <div className="flex-1 min-h-0 flex flex-col xl:flex-row gap-6 items-stretch w-full">
-        <div className="flex flex-col gap-6 w-full xl:w-[360px] xl:shrink-0">
+    <div className="flex flex-col gap-6 w-full pb-2">
+      <div className="flex flex-col xl:flex-row gap-6 items-start w-full">
+        <div className="flex flex-col gap-6 w-full xl:w-[360px] xl:shrink-0 xl:sticky xl:top-6 xl:self-start">
           <AwbWeightSummary form={form} />
           <PaymentDetailsPanel
             payment={payment}
@@ -42,7 +42,8 @@ export function AwbSalesBillingTab({
             }
           />
         </div>
-        <div className="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+
+        <div className="flex-1 w-full">
           <div className="flex flex-col gap-6 w-full pb-2">
             <AirWaybillInformation form={form} setForm={setForm} errors={errors} />
 
@@ -73,7 +74,7 @@ export function AwbSalesBillingTab({
         </div>
       </div>
 
-      <div className="flex justify-end gap-3 bg-white p-4 rounded-2xl border border-axc-border shadow-sm shrink-0">
+      <div className="flex justify-end gap-3 bg-white p-4 rounded-2xl border border-axc-border shadow-sm">
         <button
           type="button"
           onClick={handleSaveBilling}
