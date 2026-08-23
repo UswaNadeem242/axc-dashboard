@@ -33,7 +33,7 @@ export function AwbSalesBillingTab({
   return (
     <div className="flex flex-col gap-6 w-full pb-2">
       <div className="flex flex-col xl:flex-row gap-6 items-start w-full">
-        <div className="flex flex-col gap-6 w-full xl:w-[360px] xl:shrink-0 xl:sticky xl:top-6 xl:self-start">
+        <div className="flex flex-col gap-6 w-full xl:w-[360px] xl:shrink-0 xl:sticky xl:top-0 xl:self-start">
           <AwbWeightSummary form={form} />
           <PaymentDetailsPanel
             payment={payment}
@@ -79,7 +79,7 @@ export function AwbSalesBillingTab({
           type="button"
           onClick={handleSaveBilling}
           disabled={saving}
-          className="px-5 py-2 bg-axc-navy hover:bg-axc-navy/80 text-white rounded-lg text-xs font-bold transition shadow-sm disabled:opacity-60"
+          className="px-5 py-4 bg-axc-navy hover:bg-axc-navy/80 text-white rounded-lg text-xs font-bold transition shadow-sm disabled:opacity-60"
         >
           {saving ? "SAVING..." : saved ? "SAVED" : "SAVE BILLING"}
         </button>

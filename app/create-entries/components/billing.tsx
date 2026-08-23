@@ -3,11 +3,11 @@ import React from "react";
 import { ChargeKey, SalesBillingFormState } from "./formstate";
 
 const inputClass =
-  "border border-gray-300 rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition";
+  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition";
 
 function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
-    <div className="bg-axc-navy text-white text-[13px] font-semibold px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
+    <div className="bg-axc-navy text-white text-sm font-semibold px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
       <span>{title}</span>
       {right}
     </div>
@@ -47,7 +47,7 @@ function ChargeCell({
     <div className="flex flex-col gap-1.5 border border-gray-200 rounded-md p-2">
       <label className="flex items-center gap-1.5">
         <input type="checkbox" checked={checked} onChange={onToggle} className="h-3.5 w-3.5 accent-axc-navy shrink-0" />
-        <span className={`text-[10.5px] font-semibold leading-tight ${checked ? "text-axc-navy" : "text-gray-500"}`}>
+        <span className={`text-xs  font-semibold leading-tight ${checked ? "text-axc-navy" : "text-axc-dark-gray"}`}>
           {label}
         </span>
       </label>
@@ -75,7 +75,7 @@ function ChargeCell({
 function BillingInputField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[11px] font-semibold text-gray-500">{label}</span>
+      <span className="text-xs font-semibold capitalize text-axc-dark-gray">{label}</span>
       <input value={value} onChange={(e) => onChange(e.target.value)} className={`${inputClass} h-9 text-[12px]`} />
     </div>
   );
@@ -84,8 +84,8 @@ function BillingInputField({ label, value, onChange }: { label: string; value: s
 function BillingSummaryField({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[11px] font-semibold text-gray-500">{label}</span>
-      <input value={value} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50 font-semibold`} />
+      <span className="text-xs font-semibold text-axc-dark-gray">{label}</span>
+      <input value={value} readOnly className={`${inputClass} h-9 text-xs bg-gray-50 font-semibold`} />
     </div>
   );
 }
@@ -98,7 +98,7 @@ function BillingToggleField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-[11px] font-semibold text-gray-500">{label}</span>
+      <span className="text-xs font-semibold text-axc-dark-gray">{label}</span>
       <input
         value={value}
         disabled={!editable}
@@ -128,17 +128,17 @@ export function SalesBillingPanel({
   };
 }) {
   return (
-    <div className="rounded-2xl border border-axc-border bg-white shadow-sm overflow-hidden">
+    <div className="rounded-lg  border border-axc-border bg-white shadow-sm overflow-hidden">
       <PanelHeader
-        title="SALES BILLING"
+        title="Sale Billing"
         right={
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-medium">CURRENCY</span>
+              <span className="text-xs  font-medium">Currency</span>
               <select
                 value={billing.salesCurrency}
                 onChange={(e) => onChange({ salesCurrency: e.target.value })}
-                className="h-7 rounded-md text-[11px] text-gray-700 px-2"
+                className="h-7 rounded-md text-[11px] text-white bg-axc-navy/15 px-2"
               >
                 <option value="USD">USD</option>
                 <option value="INR">INR</option>
@@ -147,20 +147,20 @@ export function SalesBillingPanel({
               </select>
             </div>
             <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-medium">VAT TYPE</span>
+              <span className="text-xs  font-medium">VAT TYPE</span>
               <select
                 value={billing.vatType}
                 onChange={(e) => onChange({ vatType: e.target.value })}
-                className="h-7 rounded-md text-[11px] text-gray-700 px-2"
+                className="h-7 rounded-md text-[11px] text-white bg-axc-navy/15 px-2"
               >
                 <option value="GST">GST</option>
                 <option value="VAT">VAT</option>
                 <option value="NONE">NONE</option>
               </select>
             </div>
-            <label className="flex items-center gap-1.5 text-[11px] font-medium">
+            <label className="flex items-center gap-1.5 text-xs font-medium">
               <input type="checkbox" checked={billing.vatApplicable} onChange={(e) => onChange({ vatApplicable: e.target.checked })} className="h-3.5 w-3.5 accent-white" />
-              VAT APPLICABLE
+              VAT Applicable
             </label>
           </div>
         }
@@ -177,11 +177,11 @@ export function SalesBillingPanel({
             editLabel="EDIT AMOUNT"
           />
           <div className="flex flex-col gap-1">
-            <span className="text-[11px] font-semibold text-gray-500">FREIGHT PER KG</span>
+            <span className="text-xs font-semibold text-axc-dark-gray">FREIGHT PER KG</span>
             <input value={billing.freightPerKg} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50`} />
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-[11px] font-semibold text-gray-500">SEARCH CHARGE</span>
+            <span className="text-xs font-semibold text-axc-dark-gray">SEARCH CHARGE</span>
             <input
               value={billing.searchCharge}
               onChange={(e) => onChange({ searchCharge: e.target.value })}
@@ -206,7 +206,7 @@ export function SalesBillingPanel({
         </div>
         <div className={gridClass}>
           <BillingSummaryField label="TOTAL OTHER CHARGES" value={totals.totalOtherCharges} />
-          <BillingInputField label="ADJUSTMENT AMOUNT" value={billing.adjustmentAmount} onChange={(v) => onChange({ adjustmentAmount: v })} />
+          <BillingInputField label="   Adjustment Amout" value={billing.adjustmentAmount} onChange={(v) => onChange({ adjustmentAmount: v })} />
 
           <BillingToggleField
             label="FSC %"

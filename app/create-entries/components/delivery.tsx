@@ -92,8 +92,8 @@ export function DeliveryPanel({
 
   return (
     <div className="flex flex-col xl:flex-row gap-6 items-start w-full">
-      <div className="flex flex-col gap-6 w-full xl:w-[360px] xl:shrink-0 xl:sticky xl:top-6 xl:self-start">
-        <div className="bg-white rounded-xl border border-axc-border shadow-sm overflow-hidden flex flex-col">
+      <div className="flex flex-col gap-6 w-full xl:w-[360px] xl:shrink-0 xl:sticky xl:top-0 xl:self-start">
+        <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
           <PanelHeader title="Delivery Summary" />
           <div className="p-4 flex flex-col gap-3">
             <div className="flex flex-col gap-1">
@@ -137,7 +137,7 @@ export function DeliveryPanel({
         </div>
       </div>
       <div className="flex-1 w-full flex flex-col gap-6">
-        <div className="bg-white rounded-xl border border-axc-border shadow-sm overflow-hidden flex flex-col">
+        <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
           <PanelHeader title="Delivery" />
           <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-3">
             <Field label="Expected Date">

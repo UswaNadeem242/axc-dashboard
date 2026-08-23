@@ -1,13 +1,14 @@
 "use client";
 import React from "react";
 import { VendorDetailsFormState, VendorWeightRow } from "./formstate";
+import { Plus, Trash } from "lucide-react";
 
 const inputClass =
-  "border border-gray-300 rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition";
+  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition";
 
 function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
-    <div className="bg-axc-navy text-white text-[13px] font-semibold px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
+    <div className="bg-axc-navy text-white text-sm font-semibold px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
       <span>{title}</span>
       {right}
     </div>
@@ -19,7 +20,7 @@ function Field({
 }: { label: string; value: string; editable?: boolean; onChange?: (v: string) => void }) {
   return (
     <div className="flex items-center gap-3">
-      <span className="text-[11px] font-semibold text-gray-500 w-[150px] shrink-0">{label}</span>
+      <span className="text-xs  font-semibold text-axc-dark-gray w-[150px] shrink-0">{label}</span>
       <input
         value={value}
         disabled={!editable}
@@ -47,11 +48,11 @@ export function VendorDetailsPanel({
   const totalChargeableWt = vendorDetails.weightRows.reduce((acc, r) => acc + Number(r.chargeableWeight || 0), 0);
 
   return (
-    <div className="rounded-2xl border border-axc-border bg-white shadow-sm overflow-hidden">
+    <div className="rounded-lg border border-axc-border bg-white shadow-sm overflow-hidden">
       <PanelHeader
         title="VENDOR DETAILS"
         right={
-          <label className="flex items-center gap-1.5 text-[11px] font-medium">
+          <label className="flex items-center gap-1.5 text-sm  font-semibold text-white">
             <input
               type="checkbox"
               checked={vendorDetails.editVendorDetails}
@@ -75,19 +76,19 @@ export function VendorDetailsPanel({
 
         {/* Weight table — styled like Shipment Invoice Items */}
         <div className="mt-2">
-          <div className="bg-axc-navy text-white text-[11px] font-bold px-3 py-1.5 uppercase tracking-wide">
+          <div className="bg-axc-navy text-white text-xs rounded-tl-lg rounded-tr-lg font-bold px-3 py-1.5 uppercase tracking-wide">
             Vendor Weight Details
           </div>
           <div className="border border-axc-border border-t-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <table className="w-full text-[11px] border-collapse min-w-[750px]">
+            <table className="w-full text-xs border-collapse min-w-[750px]">
               <thead>
-                <tr className="bg-gray-50 border-b border-axc-border text-[10px] text-axc-dark-gray font-bold uppercase text-left">
-                  <th className="py-2 px-2 border-r border-axc-border font-bold">Actual Wt.(Kg.)</th>
-                  <th className="py-2 px-2 border-r border-axc-border font-bold">L(cm)</th>
-                  <th className="py-2 px-2 border-r border-axc-border font-bold">B(cm)</th>
-                  <th className="py-2 px-2 border-r border-axc-border font-bold">H(cm)</th>
-                  <th className="py-2 px-2 border-r border-axc-border font-bold">Volumetric Wt.(Kg.)</th>
-                  <th className="py-2 px-2 border-r border-axc-border font-bold">Chargeable Wt.(Kg.)</th>
+                <tr className="bg-gray-50 border-b border-axc-border text-xs  text-axc-dark-gray font-bold uppercase text-left">
+                  <th className="py-2 px-2 border-r border-axc-border font-semibold">Actual Wt.(Kg.)</th>
+                  <th className="py-2 px-2 border-r border-axc-border font-semibold">L(cm)</th>
+                  <th className="py-2 px-2 border-r border-axc-border font-semibold">B(cm)</th>
+                  <th className="py-2 px-2 border-r border-axc-border font-semibold">H(cm)</th>
+                  <th className="py-2 px-2 border-r border-axc-border font-semibold">Volumetric Wt.(Kg.)</th>
+                  <th className="py-2 px-2 border-r border-axc-border font-semibold">Chargeable Wt.(Kg.)</th>
                   <th className="py-2 px-2 font-bold text-center">Action</th>
                 </tr>
               </thead>
@@ -116,8 +117,9 @@ export function VendorDetailsPanel({
                         onClick={() => onRemoveWeightRow(row.id)}
                         className="inline-flex items-center gap-1 text-axc-red hover:text-red-800 font-bold text-[10px] cursor-pointer"
                       >
-                        <span className="inline-block w-3.5 h-3.5 rounded-full border border-axc-red text-center leading-3 font-extrabold text-[9px] shrink-0">x</span>
-                        REMOVE
+                        <Trash size={14} />
+                        {/* <span className="inline-block w-3.5 h-3.5 rounded-full border border-axc-red text-center leading-3 font-extrabold text-[9px] shrink-0">x</span>
+                        REMOVE */}
                       </button>
                     </td>
                   </tr>
@@ -126,13 +128,13 @@ export function VendorDetailsPanel({
                   <tr className="bg-gray-50/50 border-t border-axc-border">
                     <td className="py-2 px-2 border-r border-axc-border"></td>
                     <td colSpan={3} className="py-2 px-2 border-r border-axc-border text-right font-bold text-gray-700">
-                      <div className="flex items-center justify-end gap-2 text-[10px]">
+                      <div className="flex items-center justify-end gap-2 text-xs text-black">
                         <span>TOTAL ACTUAL WT</span>
                         <input type="text" readOnly value={totalActualWt} className="w-20 border border-axc-border bg-gray-100 rounded px-1.5 py-0.5 text-center font-bold text-gray-600" />
                       </div>
                     </td>
                     <td colSpan={2} className="py-2 px-2 border-r border-axc-border text-right font-bold text-gray-700">
-                      <div className="flex items-center justify-end gap-2 text-[10px]">
+                      <div className="flex items-center justify-end gap-2 text-xs text-black">
                         <span>TOTAL CHARGEABLE WT</span>
                         <input type="text" readOnly value={totalChargeableWt} className="w-20 border border-axc-border bg-gray-100 rounded px-1.5 py-0.5 text-center font-bold text-gray-600" />
                       </div>
@@ -147,9 +149,10 @@ export function VendorDetailsPanel({
             <button
               type="button"
               onClick={onAddWeightRow}
-              className="px-3 py-2 bg-axc-yellow hover:bg-axc-yellow/80 text-white rounded text-xs font-bold shadow-sm transition uppercase cursor-pointer"
+              className="px-3 py-2 bg-axc-dark-yellow  flex items-center justify-center gap-2 text-white rounded text-sm font-semibold shadow-sm transition uppercase cursor-pointer"
             >
-              + ADD ROW
+              <Plus size={14} />
+              ADD ROW
             </button>
           </div>
         </div>
@@ -158,7 +161,7 @@ export function VendorDetailsPanel({
 
         <div className={gridClass}>
           <div className="flex items-center gap-3">
-            <span className="text-[11px] font-semibold text-gray-500 w-[150px] shrink-0">CFT ID</span>
+            <span className="text-xs font-semibold text-axc-dark-gray w-[150px] shrink-0">CFT ID</span>
             <input
               value={vendorDetails.cftId}
               disabled={!editable}
@@ -167,7 +170,7 @@ export function VendorDetailsPanel({
             />
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-[11px] font-semibold text-gray-500 w-[150px] shrink-0">CFT VALUE</span>
+            <span className="text-xs font-semibold text-axc-dark-gray w-[150px] shrink-0">CFT VALUE</span>
             <input
               value={vendorDetails.cftValue}
               disabled={!editable}
@@ -176,7 +179,7 @@ export function VendorDetailsPanel({
             />
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-[11px] font-semibold text-gray-500 w-[150px] shrink-0">CONTRACT ID</span>
+            <span className="text-xs font-semibold text-axc-dark-gray w-[150px] shrink-0">CONTRACT ID</span>
             <input
               value={vendorDetails.vendorContractId}
               disabled={!editable}
@@ -185,7 +188,7 @@ export function VendorDetailsPanel({
             />
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-[11px] font-semibold text-gray-500 w-[150px] shrink-0">TAT</span>
+            <span className="text-xs font-semibold text-axc-dark-gray w-[150px] shrink-0">TAT</span>
             <input
               value={vendorDetails.tat}
               disabled={!editable}
@@ -195,7 +198,7 @@ export function VendorDetailsPanel({
           </div>
           <Field label="VOLUME WEIGHT" value={vendorDetails.volumeWeight} editable={editable} onChange={(v) => onChange({ volumeWeight: v })} />
           <div className="flex items-center gap-3">
-            <span className="text-[11px] font-semibold text-gray-500 w-[150px] shrink-0">CHARGEABLE WEIGHT</span>
+            <span className="text-xs font-semibold text-axc-dark-gray w-[150px] shrink-0">CHARGEABLE WEIGHT</span>
             <input value={vendorDetails.chargeableWeight} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50 font-semibold`} />
           </div>
         </div>

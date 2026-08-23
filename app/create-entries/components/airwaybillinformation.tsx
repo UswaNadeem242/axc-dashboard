@@ -13,10 +13,10 @@ interface Props {
 
 export default function AirWaybillInformation({ form, setForm, errors }: Props) {
   return (
-    <div className="bg-white rounded-xl border border-axc-border shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
       <PanelHeader
         title="Air Waybill Information"
-        right={<span className="bg-white/10 text-white text-[10px] px-2 py-0.5 rounded font-medium">BALANCE: WAIT...</span>}
+        right={<span className=" text-white text-xs px-2 py-0.5 rounded font-medium">BALANCE: WAIT...</span>}
       />
       <div className="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3 text-xs">
         <div className="flex flex-col gap-1">
@@ -136,16 +136,16 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Contract ID</FieldLabel>
-          <input type="text" value={form.contractId} onChange={(e) => setForm({ ...form, contractId: e.target.value })} className={inputClass} />
+          {/* <input type="text" value={form.contractId} onChange={(e) => setForm({ ...form, contractId: e.target.value })} className={inputClass} /> */}
         </div>
 
-        <div className="mt-2 border border-axc-border rounded-lg overflow-hidden sm:col-span-2 xl:col-span-3">
+        <div className=" border border-axc-border rounded-lg overflow-hidden sm:col-span-2 xl:col-span-3">
           <table className="w-full text-[10px] text-center border-collapse">
             <thead>
               <tr className="bg-axc-navy border-b border-axc-border">
-                <th className="py-1 border-r text-sm border-axc-border font-normal text-white"></th>
-                <th className="py-1 border-r text-sm border-axc-border font-normal text-white">Customer</th>
-                <th className="py-1 text-sm text-white font-normal">Vendor</th>
+                <th className="py-2 border-r text-sm border-axc-border font-normal text-white"></th>
+                <th className="py-2 border-r text-sm border-axc-border font-normal text-white">Customer</th>
+                <th className="py-2 text-sm text-white font-normal">Vendor</th>
               </tr>
             </thead>
             <tbody>
@@ -168,19 +168,21 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
           </table>
         </div>
 
-        <div className="flex flex-col gap-1 mt-2">
-          <FieldLabel>Origin Hub</FieldLabel>
-          <div className="relative">
-            <CommonDropdown value={form.originHub} onChange={(val) => setForm({ ...form, originHub: val })} className="w-full border-axc-border pr-10" placeholder="SELECT..." options={[]} />
-            <div className="absolute right-1 top-1/2 -translate-y-1/2">
-              <EditIconButton active={form.editOriginHub} onToggle={() => setForm({ ...form, editOriginHub: !form.editOriginHub })} title="Edit Origin Hub" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:col-span-2 xl:col-span-3 mt-2">
+          <div className="flex flex-col gap-1">
+            <FieldLabel>Origin Hub</FieldLabel>
+            <div className="relative">
+              <CommonDropdown value={form.originHub} onChange={(val) => setForm({ ...form, originHub: val })} className="w-full border-axc-border pr-10" placeholder="SELECT..." options={[]} />
+              <div className="absolute right-1 top-1/2 -translate-y-1/2">
+                <EditIconButton active={form.editOriginHub} onToggle={() => setForm({ ...form, editOriginHub: !form.editOriginHub })} title="Edit Origin Hub" />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="flex flex-col gap-1 mt-2">
-          <FieldLabel>Duty</FieldLabel>
-          <CommonDropdown value={form.duty} onChange={(val) => setForm({ ...form, duty: val })} className="border-axc-border" placeholder="SELECT..." options={[]} />
+          <div className="flex flex-col gap-1">
+            <FieldLabel>Duty</FieldLabel>
+            <CommonDropdown value={form.duty} onChange={(val) => setForm({ ...form, duty: val })} className="w-full border-axc-border" placeholder="SELECT..." options={[]} />
+          </div>
         </div>
       </div>
     </div>

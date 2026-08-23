@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Pencil } from "lucide-react";
 
 export const inputClass =
-  "border border-gray-300 rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition";
+  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition";
 export const errorInputClass =
   "border border-red-400 rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 bg-red-50/40 focus:border-red-400 transition";
 export const disabledInputClass =

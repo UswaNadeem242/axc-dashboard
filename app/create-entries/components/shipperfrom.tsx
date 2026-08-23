@@ -13,7 +13,7 @@ interface Props {
 }
 export default function ShipperFromForm({ form, setForm, errors, onReset, showToast }: Props) {
   return (
-    <div className="bg-white rounded-xl border border-axc-border shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
       <PanelHeader
         title="Shipper / Consignor / From"
         right={
@@ -21,8 +21,8 @@ export default function ShipperFromForm({ form, setForm, errors, onReset, showTo
             <button type="button" onClick={onReset} className="text-white/70 hover:text-white transition cursor-pointer" title="Reset Shipper Form">
               <RotateCcw size={14} />
             </button>
-            <label className="flex items-center gap-1 text-[10px] text-white/90 cursor-pointer normal-case font-medium">
-              <input type="checkbox" checked={form.shipperSaveToAddressBook} onChange={(e) => setForm({ ...form, shipperSaveToAddressBook: e.target.checked })} /> SAVE?
+            <label className="flex items-center gap-1 text-xs text-white/90 cursor-pointer capitalize font-medium">
+              <input type="checkbox" checked={form.shipperSaveToAddressBook} onChange={(e) => setForm({ ...form, shipperSaveToAddressBook: e.target.checked })} /> Save?
             </label>
           </div>
         }

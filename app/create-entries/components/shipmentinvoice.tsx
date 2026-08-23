@@ -13,9 +13,9 @@ interface Props {
 }
 export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, setInvoiceItems, addInvoiceItem, removeInvoiceItem }: Props) {
   return (
-    <div className="bg-white rounded-xl border border-axc-border shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
       <div className="px-4 py-3 border-b border-axc-border bg-axc-navy text-white">
-        <label className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider  cursor-pointer">
+        <label className="flex items-center gap-2 text-sm font-bold  tracking-wider  cursor-pointer">
           <input type="checkbox" checked={form.createShipmentInvoice} onChange={(e) => setForm({ ...form, createShipmentInvoice: e.target.checked })} className="h-4 w-4 rounded border-axc-border text-blue-600 focus:ring-blue-500 cursor-pointer" />
           <span>Create Shipment Invoice?</span>
         </label>
@@ -23,23 +23,20 @@ export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, se
       {form.createShipmentInvoice && (
         <div className="flex flex-col gap-4 p-5 animate-in fade-in duration-200 text-xs font-sans text-gray-800">
           <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
-            <div className="flex items-center gap-8">
-              <span className=" uppercase text-axc-grey">Invoice Type</span>
-            </div>
-            <div className="flex items-center gap-8">
-
+            <div className="flex items-center gap-4">
+              <span className="text-axc-dark-gray font-semibold text-sm">Invoice Type</span>
               <div className="w-40">
                 <CommonDropdown value={form.invoiceType} onChange={(val) => setForm({ ...form, invoiceType: val })} className=" !py-2 !px-2 border-axc-border" options={[{ value: "INVOICE", label: "INVOICE" }, { value: "PROFORMA", label: "PROFORMA" }]} />
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="font-semibold uppercase text-gray-600">Currency</span>
+            <div className="flex items-center gap-4">
+              <span className="font-semibold text-axc-dark-gray text-sm">Currency</span>
               <div className="w-32">
                 <CommonDropdown value={form.invoiceCurrency} onChange={(val) => setForm({ ...form, invoiceCurrency: val })} className="!py-2 !px-2 border-axc-border" options={[{ value: "USD", label: "USD" }, { value: "INR", label: "INR" }]} />
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="font-semibold uppercase text-gray-600">Incoterms</span>
+            <div className="flex items-center gap-4">
+              <span className="font-semibold text-axc-dark-gray text-sm">Incoterms</span>
               <div className="w-48">
                 <CommonDropdown value={form.incoterms} onChange={(val) => setForm({ ...form, incoterms: val })} className="!py-2 !px-2 border-axc-border" options={[{ value: "DDU", label: "DDU" }, { value: "DDP", label: "DDP" }]} />
               </div>
@@ -48,7 +45,7 @@ export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, se
 
           <div className="flex flex-wrap md:flex-nowrap items-center gap-3">
             <div className="flex items-center gap-8 shrink-0">
-              <span className="font-semibold uppercase text-gray-600">Note</span>
+              <span className="font-semibold text-sm text-axc-dark-gray">Note</span>
               <div className="w-48">
                 <CommonDropdown value={form.invoiceNote} onChange={(val) => setForm({ ...form, invoiceNote: val })} className="!py-2 !px-2 border-axc-border" options={[{ value: "GIFT", label: "GIFT" }, { value: "SAMPLE", label: "SAMPLE" }, { value: "COMMERCIAL", label: "COMMERCIAL" }]} />
               </div>
@@ -57,7 +54,7 @@ export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, se
           </div>
 
           <div className="mt-2">
-            <div className="bg-axc-navy rounded-tl-xl rounded-tr-xl text-white text-xs font-bold px-3 py-1.5 uppercase tracking-wide">Shipment Invoice Items</div>
+            <div className="bg-axc-navy rounded-tl-lg rounded-tr-lg text-white text-sm font-bold px-3 py-2   tracking-wide">Shipment Invoice Items</div>
             <div className="border border-axc-border border-t-0 overflow-x-auto">
               <table className="w-full text-[11px] border-collapse min-w-[950px]">
                 <thead>
@@ -135,7 +132,7 @@ export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, se
             </div>
             <div className="mt-3">
 
-              <button type="button" onClick={addInvoiceItem} className="px-3 py-2 bg-axc-yellow   text-white rounded text-sm transition uppercase cursor-pointer flex justify-center items-center "><Plus size={15} />ADD ITEM</button>
+              <button type="button" onClick={addInvoiceItem} className="px-3 py-2 bg-axc-dark-yellow  text-white rounded text-sm transition uppercase cursor-pointer flex justify-center items-center "><Plus size={15} />ADD ITEM</button>
             </div>
           </div>
         </div>

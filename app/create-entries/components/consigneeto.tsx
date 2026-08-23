@@ -20,8 +20,8 @@ export default function ConsigneeToForm({ form, setForm, errors, onReset, showTo
             <button type="button" onClick={onReset} className="text-white/70 hover:text-white transition cursor-pointer" title="Reset Consignee Form">
               <RotateCcw size={14} />
             </button>
-            <label className="flex items-center gap-1 text-[10px] text-white/90 cursor-pointer normal-case font-medium">
-              <input type="checkbox" checked={form.consigneeSaveToAddressBook} onChange={(e) => setForm({ ...form, consigneeSaveToAddressBook: e.target.checked })} /> SAVE?
+            <label className="flex items-center gap-1 text-xs text-white/90 cursor-pointer capitalize font-medium">
+              <input type="checkbox" checked={form.consigneeSaveToAddressBook} onChange={(e) => setForm({ ...form, consigneeSaveToAddressBook: e.target.checked })} />  Save?
             </label>
           </div>
         }

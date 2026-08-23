@@ -19,7 +19,7 @@ function Row({
 }: { label: string; value: string; onChange?: (v: string) => void; readOnly?: boolean; type?: string }) {
   return (
     <div>
-      <span className="block text-[11px] font-semibold text-gray-500 mb-1">{label}</span>
+      <span className="block text-xs font-semibold text-axc-dark-gray mb-1">{label}</span>
       <input
         type={type}
         value={value}
@@ -35,15 +35,15 @@ export function PaymentDetailsPanel({
   payment, onChange,
 }: { payment: PaymentDetailsFormState; onChange: (patch: Partial<PaymentDetailsFormState>) => void }) {
   return (
-    <div className="rounded-2xl border border-axc-border bg-white shadow-sm overflow-hidden">
-      <PanelHeader title="PAYMENT DETAILS" />
+    <div className="rounded-lg border border-axc-border bg-white shadow-sm overflow-hidden">
+      <PanelHeader title="Payment Details" />
       <div className="p-4 space-y-3">
-        <Row label="PAID AMOUNT" value={payment.paidAmount} onChange={(v) => onChange({ paidAmount: v })} />
-        <Row label="BALANCE AMOUNT" value={payment.balanceAmount} readOnly />
-        <Row label="INVOICE DATE" value={payment.invoiceDate} type="date" onChange={(v) => onChange({ invoiceDate: v })} />
+        <Row label="Paid amount" value={payment.paidAmount} onChange={(v) => onChange({ paidAmount: v })} />
+        <Row label="Balance amount" value={payment.balanceAmount} readOnly />
+        <Row label="Invoice date" value={payment.invoiceDate} type="date" onChange={(v) => onChange({ invoiceDate: v })} />
 
         <div>
-          <span className="block text-[11px] font-semibold text-gray-500 mb-1">INVOICE NUMBER</span>
+          <span className="block text-xs font-semibold text-axc-dark-gray mb-1">Invoice number</span>
           <div className="flex items-center gap-2">
             <input
               value={payment.invoiceNumber}
