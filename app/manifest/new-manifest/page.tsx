@@ -1,8 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { ArrowLeft, User, FileText } from "lucide-react";
+import { User, FileText } from "lucide-react";
 
 import ManifestSummary from "./component/manifestsummary";
 import ManifestInformation from "./component/manifest-information";
@@ -85,35 +84,6 @@ export default function ManifestPage() {
           {toast.message}
         </div>
       )}
-      <div className="flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/manifest/all-manifest"
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-white border border-axc-border text-gray-600 hover:bg-gray-50 transition shadow-sm"
-          >
-            <ArrowLeft size={16} />
-          </Link>
-
-          <div>
-            <h2 className="text-xl font-bold text-axc-navy">
-              Manifest Detail
-            </h2>
-
-            <p className="text-xs text-axc-gray font-medium">
-              Create and manage manifest entries
-            </p>
-          </div>
-
-        </div>
-        <button
-          type="button"
-          onClick={handleCreateManifest}
-          disabled={loading}
-          className="px-5 py-2 bg-axc-navy hover:bg-axc-navy/80 text-white rounded-lg text-xs font-bold transition shadow-sm disabled:opacity-60"
-        >
-          {loading ? "CREATING…" : "CREATE MANIFEST"}
-        </button>
-      </div>
       <div className="bg-white border border-axc-border rounded-[8px] px-5 pb-0 shrink-0">
         <div className="flex gap-0">
 
