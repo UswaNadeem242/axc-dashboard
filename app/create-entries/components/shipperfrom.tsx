@@ -65,8 +65,8 @@ export default function ShipperFromForm({ form, setForm, errors, onReset, showTo
         <div className="flex flex-col gap-1">
           <FieldLabel>Post / Zip Code</FieldLabel>
           <div className="flex gap-2">
-            <input type="text" value={form.shipperZipCode} onChange={(e) => setForm({ ...form, shipperZipCode: e.target.value })} className={`${inputClass} flex-1`} />
-            <button type="button" onClick={() => showToast(`Searching zip code: ${form.shipperZipCode || "—"}`)} className="px-3 py-1 bg-axc-yellow hover:bg-axc-yellow/80 text-white rounded text-sm font-normal whitespace-nowrap shadow-none cursor-pointer">SEARCH</button>
+            <input type="number" value={form.shipperZipCode} onChange={(e) => setForm({ ...form, shipperZipCode: e.target.value })} className={`${inputClass} flex-1`} />
+            {/* <button type="button" onClick={() => showToast(`Searching zip code: ${form.shipperZipCode || "—"}`)} className="px-3 py-1 bg-axc-yellow hover:bg-axc-yellow/80 text-white rounded text-sm font-normal whitespace-nowrap shadow-none cursor-pointer">SEARCH</button> */}
           </div>
         </div>
         <div className="flex flex-col gap-1">
