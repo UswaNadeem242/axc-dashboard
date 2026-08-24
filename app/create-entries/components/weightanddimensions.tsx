@@ -41,7 +41,7 @@ export default function WeightsAndDimensions({ form, setForm }: Props) {
             <input type="text" value={form.chargeableWeight} onChange={(e) => setForm({ ...form, chargeableWeight: e.target.value })} className={`${inputClass} bg-gray-50`} />
           </div>
           <div className="col-span-2 border-t border-axc-border pt-3 mt-1">
-            <p className="text-[10px] font-extrabold text-axc-dark-gray uppercase tracking-wide mb-2">Parcel 1</p>
+            <p className="text-sm  font-medium text-axc-dark-gray  tracking-wide mb-2">Parcel 1</p>
             <div className="grid grid-cols-2 gap-3">
               <div className="flex flex-col gap-1">
                 <FieldLabel>L (cm)</FieldLabel>

@@ -18,7 +18,7 @@ export function AwbWeightSummary({ form }: { form: AwbFormState }) {
   ];
   return (
     <div className="rounded-lg border border-axc-border bg-white shadow-sm overflow-hidden">
-      <PanelHeader title="WEIGHT SUMMARY" />
+      <PanelHeader title="Weight Summary" />
       <div className="p-4 space-y-3">
         {rows.map((row) => (
           <div key={row.label}>

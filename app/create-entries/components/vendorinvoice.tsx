@@ -14,7 +14,7 @@ function InvoiceRow({
   onValueChange: (v: string) => void; onRemarksChange?: (v: string) => void; readOnly?: boolean;
 }) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+    <div className={`grid grid-cols-1 ${remarksLabel ? "sm:grid-cols-2" : ""} gap-3 items-end`}>
       <div className="flex flex-col gap-1">
         <span className="text-xs font-semibold text-axc-dark-gray">{label}</span>
         <input
@@ -46,41 +46,41 @@ export function VendorInvoicePanel({
 }) {
   return (
     <div className="rounded-lg border border-axc-border bg-white shadow-sm overflow-hidden">
-      <PanelHeader title="VENDOR INVOICE" />
+      <PanelHeader title="Vendor Invoice" />
       <div className="p-4 space-y-3">
         <InvoiceRow
-          label="PAST VENDOR INVOICE"
+          label="Past Vendor Invoice"
           value={vendorInvoice.pastVendorInvoice}
           onValueChange={(v) => onChange({ pastVendorInvoice: v })}
         />
         <InvoiceRow
-          label="VENDOR INVOICE 1"
+          label="Vendor Invoice 1"
           value={vendorInvoice.vendorInvoice1}
-          remarksLabel="INVOICE REMARKS 1"
+          remarksLabel="Invoice Remarks 1"
           remarksValue={vendorInvoice.invoiceRemarks1}
           onValueChange={(v) => onChange({ vendorInvoice1: v })}
           onRemarksChange={(v) => onChange({ invoiceRemarks1: v })}
         />
         <InvoiceRow
-          label="VENDOR INVOICE 2"
+          label="Vendor Invoice 2"
           value={vendorInvoice.vendorInvoice2}
-          remarksLabel="INVOICE REMARKS 2"
+          remarksLabel="Invoice Remarks 2"
           remarksValue={vendorInvoice.invoiceRemarks2}
           onValueChange={(v) => onChange({ vendorInvoice2: v })}
           onRemarksChange={(v) => onChange({ invoiceRemarks2: v })}
         />
         <InvoiceRow
-          label="VENDOR INVOICE 3"
+          label="Vendor Invoice 3"
           value={vendorInvoice.vendorInvoice3}
-          remarksLabel="INVOICE REMARKS 3"
+          remarksLabel="Invoice Remarks 3"
           remarksValue={vendorInvoice.invoiceRemarks3}
           onValueChange={(v) => onChange({ vendorInvoice3: v })}
           onRemarksChange={(v) => onChange({ invoiceRemarks3: v })}
         />
         <InvoiceRow
-          label="VENDOR INVOICE 4"
+          label="Vendor Invoice 4"
           value={vendorInvoice.vendorInvoice4}
-          remarksLabel="INVOICE REMARKS 4"
+          remarksLabel="Invoice Remarks 4"
           remarksValue={vendorInvoice.invoiceRemarks4}
           onValueChange={(v) => onChange({ vendorInvoice4: v })}
           onRemarksChange={(v) => onChange({ invoiceRemarks4: v })}

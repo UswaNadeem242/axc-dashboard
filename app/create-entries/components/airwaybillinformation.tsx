@@ -150,12 +150,12 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
             </thead>
             <tbody>
               <tr className="border-b border-axc-border">
-                <td className="py-1 px-2 border-r text-xs border-axc-border bg-gray-50 text-left   text-axc-gray">RATE CONTRACT</td>
+                <td className="py-1 px-2 border-r text-xs border-axc-border bg-gray-50 text-left   text-axc-gray">Rate Contract</td>
                 <td className="border-r border-axc-border"><input type="text" value={form.rateContractCustomer} onChange={(e) => setForm({ ...form, rateContractCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
                 <td><input type="text" value={form.rateContractVendor} onChange={(e) => setForm({ ...form, rateContractVendor: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
               </tr>
               <tr className="border-b border-axc-border">
-                <td className="py-1 px-2 border-r text-xs border-axc-border bg-gray-50 text-left   text-axc-gray">CFT CONTRACT</td>
+                <td className="py-1 px-2 border-r text-xs border-axc-border bg-gray-50 text-left   text-axc-gray">CFT Contract</td>
                 <td className="border-r border-axc-border"><input type="text" value={form.cftContractCustomer} onChange={(e) => setForm({ ...form, cftContractCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
                 <td><input type="text" value={form.cftContractVendor} onChange={(e) => setForm({ ...form, cftContractVendor: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
               </tr>

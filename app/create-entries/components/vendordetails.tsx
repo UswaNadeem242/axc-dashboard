@@ -66,11 +66,11 @@ export function VendorDetailsPanel({
 
       <div className="p-4 space-y-4">
         <div className={gridClass}>
-          <Field label="PRODUCT" value={vendorDetails.product} editable={editable} onChange={(v) => onChange({ product: v })} />
-          <Field label="SERVICE" value={vendorDetails.service} editable={editable} onChange={(v) => onChange({ service: v })} />
-          <Field label="VENDOR" value={vendorDetails.vendor} editable={editable} onChange={(v) => onChange({ vendor: v })} />
-          <Field label="ORIGIN ZONE" value={vendorDetails.originZone} editable={editable} onChange={(v) => onChange({ originZone: v })} />
-          <Field label="DESTINATION ZONE" value={vendorDetails.destinationZone} editable={editable} onChange={(v) => onChange({ destinationZone: v })} />
+          <Field label="Product" value={vendorDetails.product} editable={editable} onChange={(v) => onChange({ product: v })} />
+          <Field label="Service" value={vendorDetails.service} editable={editable} onChange={(v) => onChange({ service: v })} />
+          <Field label="Vendor" value={vendorDetails.vendor} editable={editable} onChange={(v) => onChange({ vendor: v })} />
+          <Field label="Origin Zone" value={vendorDetails.originZone} editable={editable} onChange={(v) => onChange({ originZone: v })} />
+          <Field label="Destination Zone" value={vendorDetails.destinationZone} editable={editable} onChange={(v) => onChange({ destinationZone: v })} />
           <Field label="PCS" value={vendorDetails.pcs} editable={editable} onChange={(v) => onChange({ pcs: v })} />
         </div>
 
@@ -129,13 +129,13 @@ export function VendorDetailsPanel({
                     <td className="py-2 px-2 border-r border-axc-border"></td>
                     <td colSpan={3} className="py-2 px-2 border-r border-axc-border text-right font-bold text-gray-700">
                       <div className="flex items-center justify-end gap-2 text-xs text-black">
-                        <span>TOTAL ACTUAL WT</span>
+                        <span> Total Actual WT</span>
                         <input type="text" readOnly value={totalActualWt} className="w-20 border border-axc-border bg-gray-100 rounded px-1.5 py-0.5 text-center font-bold text-gray-600" />
                       </div>
                     </td>
                     <td colSpan={2} className="py-2 px-2 border-r border-axc-border text-right font-bold text-gray-700">
                       <div className="flex items-center justify-end gap-2 text-xs text-black">
-                        <span>TOTAL CHARGEABLE WT</span>
+                        <span>Total Chargeable WT</span>
                         <input type="text" readOnly value={totalChargeableWt} className="w-20 border border-axc-border bg-gray-100 rounded px-1.5 py-0.5 text-center font-bold text-gray-600" />
                       </div>
                     </td>

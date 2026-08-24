@@ -22,7 +22,7 @@ export function InvoiceRemarksPanel({
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
         {rows.map((row) => (
           <div key={row.key}>
-            <span className="block text-xs font-semibold text-axc-dark-gray mb-1">{row.label}</span>
+            <span className="block text-xs font-medium text-axc-dark-gray mb-1">{row.label}</span>
             <input
               value={remarks[row.key]}
               onChange={(e) => onChange({ [row.key]: e.target.value } as Partial<InvoiceRemarksFormState>)}
@@ -43,19 +43,19 @@ export function RefundDetailsPanel({
       <PanelHeader title="Refund Details" />
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <span className="block text-xs font-semibold text-axc-dark-gray  mb-1">REFUND AMOUNT</span>
+          <span className="block text-xs font-semibold text-axc-dark-gray  mb-1">Refund Amount</span>
           <input value={refund.refundAmount} onChange={(e) => onChange({ refundAmount: e.target.value })} className={`${inputClass} h-9 text-[12px]`} />
         </div>
         <div>
-          <span className="block text-xs font-semibold text-axc-dark-gray  mb-1">REFUND DATE</span>
+          <span className="block text-xs font-semibold text-axc-dark-gray  mb-1">Refund Date</span>
           <input type="date" value={refund.refundDate} onChange={(e) => onChange({ refundDate: e.target.value })} className={`${inputClass} h-9 text-[12px]`} />
         </div>
         <div>
-          <span className="block text-xs font-semibold text-axc-dark-gray  mb-1">REFUND REASON</span>
+          <span className="block text-xs font-semibold text-axc-dark-gray  mb-1">Refund Reason</span>
           <input value={refund.refundReason} onChange={(e) => onChange({ refundReason: e.target.value })} className={`${inputClass} h-9 text-[12px]`} />
         </div>
         <div>
-          <span className="block text-xs font-semibold text-axc-dark-gray  mb-1">REFUND REMARKS</span>
+          <span className="block text-xs font-semibold text-axc-dark-gray  mb-1">Refund Remarks</span>
           <input value={refund.refundRemarks} onChange={(e) => onChange({ refundRemarks: e.target.value })} className={`${inputClass} h-9 text-[12px]`} />
         </div>
       </div>

@@ -15,26 +15,26 @@ function PanelHeader({ title, right }: { title: string; right?: React.ReactNode 
 }
 
 const CHARGE_ROWS: { key: PurchaseChargeKey; label: string }[] = [
-  { key: "additionalHandling", label: "ADDITIONAL HANDLING" },
-  { key: "additionalHandlingCharge", label: "ADDITIONAL HANDLING CHARGE WEIGHT" },
-  { key: "addressCorrectionFees", label: "ADDRESS CORRECTION FEES" },
-  { key: "ahsWeight", label: "AHS WEIGHT" },
-  { key: "brandCharges", label: "BRAND CHARGES" },
-  { key: "collectionCharges", label: "COLLECTION CHARGES" },
-  { key: "dasCharges", label: "DAS CHARGES" },
-  { key: "ddpCadCharges", label: "DDP CAD CHARGES" },
-  { key: "deliveryAreaSurcharge", label: "DELIVERY AREA SURCHARGE" },
-  { key: "deliveryAreaSurchargeExtended", label: "DELIVERY AREA SURCHARGE EXTENDED" },
-  { key: "dropOffCharges", label: "DROP OFF CHARGES" },
+  { key: "additionalHandling", label: "Additional Handling " },
+  { key: "additionalHandlingCharge", label: "Additional Handling Charge Weight" },
+  { key: "addressCorrectionFees", label: "Address Correction Fees" },
+  { key: "ahsWeight", label: "AHS Weight" },
+  { key: "brandCharges", label: "Brand Charges" },
+  { key: "collectionCharges", label: "Collection Charges" },
+  { key: "dasCharges", label: "DAS Charge" },
+  { key: "ddpCadCharges", label: "DDP CAD Charge" },
+  { key: "deliveryAreaSurcharge", label: "Delivery Area Surcharge" },
+  { key: "deliveryAreaSurchargeExtended", label: "Delivery Area Surcharge Extended" },
+  { key: "dropOffCharges", label: "Drop Off Charges" },
   { key: "eForm", label: "E FORM" },
-  { key: "extraCharges", label: "EXTRA CHARGES" },
-  { key: "oversized", label: "OVERSIZED" },
-  { key: "peakSurcharge", label: "PEAK SURCHARGE" },
-  { key: "pickupCharges", label: "PICKUP CHARGES" },
+  { key: "extraCharges", label: "Extra Charges" },
+  { key: "oversized", label: "Oversized" },
+  { key: "peakSurcharge", label: "Peak Surcharge" },
+  { key: "pickupCharges", label: "Pickup Charges" },
   { key: "remoteArea", label: "REMOTE AREA" },
-  { key: "remoteAreaSurcharge", label: "REMOTE AREA SURCHARGE" },
-  { key: "residentialSurcharge", label: "RESIDENTIAL SURCHARGE" },
-  { key: "residentialSurchargeManual", label: "RESIDENTIAL SURCHARGE" },
+  { key: "remoteAreaSurcharge", label: "Remote Area Surcharge" },
+  { key: "residentialSurcharge", label: "Residential Surcharge" },
+  { key: "residentialSurchargeManual", label: "Residential Surcharge" },
 ];
 
 function ChargeCell({
@@ -131,7 +131,7 @@ export function PurchaseBillingPanel({
   return (
     <div className="rounded-lg border border-axc-border bg-white shadow-sm overflow-hidden">
       <PanelHeader
-        title="PURCHASE BILLING"
+        title="Purchase Billing"
         right={
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-1.5">
@@ -185,7 +185,7 @@ export function PurchaseBillingPanel({
       <div className="p-4 space-y-4">
         <div className={gridClass}>
           <BillingToggleField
-            label="FREIGHT"
+            label="Freight"
             value={billing.freight}
             editable={billing.editFreightAmount}
             onValueChange={(v) => onChange({ freight: v })}
@@ -193,11 +193,11 @@ export function PurchaseBillingPanel({
             editLabel="EDIT AMOUNT"
           />
           <div className="flex flex-col gap-1">
-            <span className="text-xs  font-semibold text-axc-dark-gray">FREIGHT PER KG</span>
+            <span className="text-xs  font-semibold text-axc-dark-gray">Freight Per Kg</span>
             <input value={billing.freightPerKg} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50`} />
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-xs  font-semibold text-axc-dark-gray">SEARCH CHARGE</span>
+            <span className="text-xs  font-semibold text-axc-dark-gray">Search Charge</span>
             <input
               value={billing.searchCharge}
               onChange={(e) => onChange({ searchCharge: e.target.value })}
@@ -223,8 +223,8 @@ export function PurchaseBillingPanel({
         </div>
 
         <div className={gridClass}>
-          <BillingSummaryField label="TOTAL OTHER CHARGES" value={totals.totalOtherCharges} />
-          <BillingInputField label="ADJUSTMENT AMOUNT" value={billing.adjustmentAmount} onChange={(v) => onChange({ adjustmentAmount: v })} />
+          <BillingSummaryField label="Total Other Charges" value={totals.totalOtherCharges} />
+          <BillingInputField label="Adjustment Amount" value={billing.adjustmentAmount} onChange={(v) => onChange({ adjustmentAmount: v })} />
 
           <BillingToggleField
             label="FSC %"
@@ -242,16 +242,15 @@ export function PurchaseBillingPanel({
             onEditToggle={(v) => onChange({ editFsc: v })}
             editLabel="EDIT FSC"
           />
+          <BillingInputField label="Discount (In %)" value={billing.discountPercent} onChange={(v) => onChange({ discountPercent: v })} />
+          <BillingInputField label="Discount Amount" value={billing.discountAmount} onChange={(v) => onChange({ discountAmount: v })} />
+          <BillingSummaryField label="Total Discount" value={totals.totalDiscount} />
 
-          <BillingInputField label="DISCOUNT (IN %)" value={billing.discountPercent} onChange={(v) => onChange({ discountPercent: v })} />
-          <BillingInputField label="DISCOUNT AMOUNT" value={billing.discountAmount} onChange={(v) => onChange({ discountAmount: v })} />
-          <BillingSummaryField label="TOTAL DISCOUNT" value={totals.totalDiscount} />
+          <BillingSummaryField label="Freight After Discount" value={totals.freightAfterDiscount} />
+          <BillingSummaryField label="Subtotal" value={totals.subtotal} />
+          <BillingSummaryField label="Non Taxable Amount" value={totals.nonTaxableAmount} />
 
-          <BillingSummaryField label="FREIGHT AFTER DISCOUNT" value={totals.freightAfterDiscount} />
-          <BillingSummaryField label="SUBTOTAL" value={totals.subtotal} />
-          <BillingSummaryField label="NON TAXABLE AMOUNT" value={totals.nonTaxableAmount} />
-
-          <BillingSummaryField label="TAXABLE AMOUNT" value={totals.taxableAmount} />
+          <BillingSummaryField label="Taxable Amount" value={totals.taxableAmount} />
           <BillingInputField label="VAT %" value={billing.vatPercent} onChange={(v) => onChange({ vatPercent: v })} />
 
           <BillingToggleField
