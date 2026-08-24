@@ -19,7 +19,7 @@ function Row({
 }: { label: string; value: string; onChange?: (v: string) => void; readOnly?: boolean; type?: string }) {
   return (
     <div>
-      <span className="block text-xs font-semibold text-axc-dark-gray mb-1">{label}</span>
+      <span className="block text-xs font-medium text-axc-dark-gray mb-1">{label}</span>
       <input
         type={type}
         value={value}
@@ -43,7 +43,7 @@ export function PaymentDetailsPanel({
         <Row label="Invoice date" value={payment.invoiceDate} type="date" onChange={(v) => onChange({ invoiceDate: v })} />
 
         <div>
-          <span className="block text-xs font-semibold text-axc-dark-gray mb-1">Invoice number</span>
+          <span className="block text-xs font-medium text-axc-dark-gray mb-1">Invoice number</span>
           <div className="flex items-center gap-2">
             <input
               value={payment.invoiceNumber}

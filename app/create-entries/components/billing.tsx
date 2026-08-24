@@ -84,7 +84,7 @@ function BillingInputField({ label, value, onChange }: { label: string; value: s
 function BillingSummaryField({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-semibold text-axc-dark-gray">{label}</span>
+      <span className="text-xs font-medium text-axc-dark-gray">{label}</span>
       <input value={value} readOnly className={`${inputClass} h-9 text-xs bg-gray-50 font-semibold`} />
     </div>
   );
@@ -98,7 +98,7 @@ function BillingToggleField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-semibold text-axc-dark-gray">{label}</span>
+      <span className="text-xs font-medium text-axc-dark-gray">{label}</span>
       <input
         value={value}
         disabled={!editable}
@@ -181,7 +181,7 @@ export function SalesBillingPanel({
             <input value={billing.freightPerKg} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50`} />
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold text-axc-dark-gray">Search Charge</span>
+            <span className="text-xs font-medium text-axc-dark-gray">Search Charge</span>
             <input
               value={billing.searchCharge}
               onChange={(e) => onChange({ searchCharge: e.target.value })}

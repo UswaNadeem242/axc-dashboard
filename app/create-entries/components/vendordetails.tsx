@@ -161,7 +161,7 @@ export function VendorDetailsPanel({
 
         <div className={gridClass}>
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-axc-dark-gray w-[150px] shrink-0">CFT ID</span>
+            <span className="text-xs font-medium text-axc-dark-gray w-[150px] shrink-0">CFT ID</span>
             <input
               value={vendorDetails.cftId}
               disabled={!editable}
@@ -170,7 +170,7 @@ export function VendorDetailsPanel({
             />
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-axc-dark-gray w-[150px] shrink-0">CFT VALUE</span>
+            <span className="text-xs font-medium text-axc-dark-gray w-[150px] shrink-0">CFT VALUE</span>
             <input
               value={vendorDetails.cftValue}
               disabled={!editable}
@@ -179,7 +179,7 @@ export function VendorDetailsPanel({
             />
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-axc-dark-gray w-[150px] shrink-0">CONTRACT ID</span>
+            <span className="text-xs font-medium text-axc-dark-gray w-[150px] shrink-0">CONTRACT ID</span>
             <input
               value={vendorDetails.vendorContractId}
               disabled={!editable}
@@ -188,7 +188,7 @@ export function VendorDetailsPanel({
             />
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-axc-dark-gray w-[150px] shrink-0">TAT</span>
+            <span className="text-xs font-medium text-axc-dark-gray w-[150px] shrink-0">TAT</span>
             <input
               value={vendorDetails.tat}
               disabled={!editable}
@@ -198,7 +198,7 @@ export function VendorDetailsPanel({
           </div>
           <Field label="VOLUME WEIGHT" value={vendorDetails.volumeWeight} editable={editable} onChange={(v) => onChange({ volumeWeight: v })} />
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-axc-dark-gray w-[150px] shrink-0">CHARGEABLE WEIGHT</span>
+            <span className="text-xs font-medium text-axc-dark-gray w-[150px] shrink-0">CHARGEABLE WEIGHT</span>
             <input value={vendorDetails.chargeableWeight} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50 font-semibold`} />
           </div>
         </div>
