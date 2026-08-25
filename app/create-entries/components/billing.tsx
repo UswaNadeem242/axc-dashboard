@@ -57,7 +57,7 @@ function ChargeCell({
           onChange={(e) => onValueChange(e.target.value)}
           disabled={!checked}
           placeholder="Value"
-          className={`${inputClass} h-8 text-[12px] px-2 ${!checked ? "bg-gray-50" : ""}`}
+          className={`${inputClass} h-8 text-[12px] px-2 ${!checked ? "bg-gray-50 cursor-pointer" : ""}`}
         />
         {checked && (
           <input
@@ -138,12 +138,13 @@ export function SalesBillingPanel({
               <select
                 value={billing.salesCurrency}
                 onChange={(e) => onChange({ salesCurrency: e.target.value })}
-                className="h-7 rounded-md text-[11px] text-white bg-axc-navy/15 px-2"
+                className="h-7 text-[11px] px-2 outline-none cursor-pointer"
               >
-                <option value="USD">USD</option>
-                <option value="INR">INR</option>
-                <option value="EUR">EUR</option>
-                <option value="GBP">GBP</option>
+                <option value="select" className="text-axc-navy">Select</option>
+                <option value="USD" className="text-axc-navy">USD</option>
+                <option value="INR" className="text-axc-navy">INR</option>
+                <option value="EUR" className="text-axc-navy">EUR</option>
+                <option value="GBP" className="text-axc-navy">GBP</option>
               </select>
             </div>
             <div className="flex items-center gap-1.5">
@@ -151,14 +152,14 @@ export function SalesBillingPanel({
               <select
                 value={billing.vatType}
                 onChange={(e) => onChange({ vatType: e.target.value })}
-                className="h-7 rounded-md text-[11px] text-white bg-axc-navy/15 px-2"
+                className="h-7 text-[11px] outline-none cursor-pointer px-2"
               >
-                <option value="GST">GST</option>
-                <option value="VAT">VAT</option>
-                <option value="NONE">NONE</option>
+                <option value="GST" className="text-axc-navy ">GST</option>
+                <option value="VAT" className="text-axc-navy ">VAT</option>
+                <option value="NONE" className="text-axc-navy ">NONE</option>
               </select>
             </div>
-            <label className="flex items-center gap-1.5 text-xs font-medium">
+            <label className="flex items-center gap-1.5 text-xs font-medium cursor-pointer">
               <input type="checkbox" checked={billing.vatApplicable} onChange={(e) => onChange({ vatApplicable: e.target.checked })} className="h-3.5 w-3.5 accent-white" />
               VAT Applicable
             </label>

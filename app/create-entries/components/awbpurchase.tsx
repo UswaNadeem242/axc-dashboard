@@ -56,12 +56,12 @@ export function AwbPurchaseBillingTab() {
         </div>
       </div>
 
-      <div className="flex justify-end gap-3 bg-white p-4 rounded-2xl border border-axc-border shadow-sm">
+      <div className="flex justify-end gap-3 bg-white p-4">
         <button
           type="button"
           onClick={handleSavePurchaseBilling}
           disabled={saving}
-          className="px-5 py-4 bg-axc-navy hover:bg-axc-navy/80 text-white rounded-lg text-xs font-bold transition shadow-sm disabled:opacity-60"
+          className="px-5 py-4 bg-axc-navy  cursor-pointer text-white rounded-lg text-xs font-bold transition shadow-sm disabled:opacity-60"
         >
           {saving ? "SAVING..." : saved ? "SAVED" : "SAVE BILLING"}
         </button>

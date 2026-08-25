@@ -39,7 +39,7 @@ export function DeliveryPanel({
   onRemoveEvent: (id: string) => void;
 }) {
   const inputClass =
-    "w-full h-9 px-2.5 rounded-md border border-axc-border text-xs text-axc-dark-gray focus:outline-none focus:ring-1 focus:ring-axc-navy disabled:bg-gray-50 disabled:text-gray-400";
+    "w-full h-9 px-2.5 rounded-md border border-axc-border text-xs text-axc-dark-gray focus:outline-none ";
 
   const deliverySummaryData: DeliverySummaryRow[] = [
     {

@@ -139,9 +139,9 @@ export function PurchaseBillingPanel({
               <select
                 value={billing.company}
                 onChange={(e) => onChange({ company: e.target.value })}
-                className="h-7 rounded-md text-[11px] text-gray-700 px-2"
+                className="h-7 rounded-md text-[11px] cursor-pointer outline-none  px-2"
               >
-                <option value="">Select...</option>
+                <option value="" className="text-axc-navy ">Select...</option>
               </select>
             </div>
             <div className="flex items-center gap-1.5">
@@ -149,13 +149,13 @@ export function PurchaseBillingPanel({
               <select
                 value={billing.purchaseCurrency}
                 onChange={(e) => onChange({ purchaseCurrency: e.target.value })}
-                className="h-7 rounded-md text-[11px] text-gray-700 px-2"
+                className="h-7 rounded-md text-[11px] cursor-pointer outline-none  px-2"
               >
-                <option value="">Select...</option>
-                <option value="USD">USD</option>
-                <option value="INR">INR</option>
-                <option value="EUR">EUR</option>
-                <option value="GBP">GBP</option>
+                <option value="" className="text-axc-navy ">Select...</option>
+                <option value="USD" className="text-axc-navy ">USD</option>
+                <option value="INR" className="text-axc-navy ">INR</option>
+                <option value="EUR" className="text-axc-navy ">EUR</option>
+                <option value="GBP" className="text-axc-navy ">GBP</option>
               </select>
             </div>
             <div className="flex items-center gap-1.5">
@@ -163,11 +163,11 @@ export function PurchaseBillingPanel({
               <select
                 value={billing.vatType}
                 onChange={(e) => onChange({ vatType: e.target.value })}
-                className="h-7 rounded-md text-[11px] text-gray-700 px-2"
+                className="h-7 rounded-md text-[11px] cursor-pointer outline-none  px-2"
               >
-                <option value="GST">GST</option>
-                <option value="VAT">VAT</option>
-                <option value="NONE">NONE</option>
+                <option value="GST" className="text-axc-navy ">GST</option>
+                <option value="VAT" className="text-axc-navy ">VAT</option>
+                <option value="NONE" className="text-axc-navy ">NONE</option>
               </select>
             </div>
             <label className="flex items-center gap-1.5 text-[11px] font-medium">
