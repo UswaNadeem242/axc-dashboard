@@ -55,7 +55,7 @@ export function SingleCustomerInvoiceDetails({ form, setForm, errors = {}, onCre
             <CommonDropdown
               value={form.invoiceCurrency}
               onChange={(val) => setForm((prev) => ({ ...prev, invoiceCurrency: val }))}
-              className="border-axc-border"
+              className="w-full border-axc-border"
               placeholder="SELECT..."
               options={[{ value: "USD", label: "USD" }, { value: "INR", label: "INR" }]}
             />
@@ -67,7 +67,7 @@ export function SingleCustomerInvoiceDetails({ form, setForm, errors = {}, onCre
               rows={2}
               value={form.noteForCustomer}
               onChange={(e) => setForm((prev) => ({ ...prev, noteForCustomer: e.target.value }))}
-              className={`${inputClass} text-xs outline-none`}
+              className={`${inputClass} outline-none`}
             />
           </div>
         </div>

@@ -13,7 +13,7 @@ interface Props {
 
 export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors = {} }: Props) {
   return (
-    <div className="bg-white rounded-xl border border-axc-border shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
       <PanelHeader title="Add Invoice" />
 
       <div className="p-4 flex flex-col gap-3 text-xs">
@@ -34,7 +34,7 @@ export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors 
             <CommonDropdown
               value={search.billingCompany}
               onChange={(val) => setSearch((prev) => ({ ...prev, billingCompany: val }))}
-              className="border-axc-border"
+              className="w-full border-axc-border"
               options={[{ value: "AXC INC", label: "AMERICAN XPRESS COURIER - AXC INC" }]}
             />
             {errors.billingCompany && <span className="text-[10px] text-red-500">{errors.billingCompany}</span>}
@@ -45,7 +45,7 @@ export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors 
             <CommonDropdown
               value={search.bankDetails}
               onChange={(val) => setSearch((prev) => ({ ...prev, bankDetails: val }))}
-              className="border-axc-border"
+              className="w-full border-axc-border"
               options={[{ value: "BANK", label: "BANK (BANK)" }]}
             />
           </div>
@@ -66,7 +66,7 @@ export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors 
             <CommonDropdown
               value={search.invoiceRange}
               onChange={(val) => setSearch((prev) => ({ ...prev, invoiceRange: val }))}
-              className="border-axc-border"
+              className="w-full border-axc-border"
               options={[{ value: "AXC", label: "AXC" }]}
             />
             {errors.invoiceRange && <span className="text-[10px] text-red-500">{errors.invoiceRange}</span>}

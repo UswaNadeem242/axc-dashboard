@@ -200,7 +200,7 @@ export default function ManifestInformation({
 
       <div className="flex justify-end gap-3 px-5 pb-5">
         <button
-          type="button"yy
+          type="button"
           onClick={handleSearchAwb}
           className="bg-axc-navy text-white text-[12px] font-semibold px-4 py-2 rounded cursor-pointer transition uppercase tracking-wide"
         >
