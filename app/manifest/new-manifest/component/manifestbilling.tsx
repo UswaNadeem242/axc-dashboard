@@ -1,5 +1,6 @@
 "use client";
 import React from "react";
+import { Trash2, Plus } from "lucide-react";
 import CommonTable from "../../../src/common/table";
 import { ManifestChargeRow } from "./state";
 
@@ -111,9 +112,10 @@ export default function ManifestBilling({
         <button
           type="button"
           onClick={() => removeCharge(row.id)}
-          className="text-axc-red text-[11px] font-bold hover:underline"
+          className="text-axc-red hover:opacity-70 cursor-pointer"
+          title="Remove"
         >
-          ✕ REMOVE
+          <Trash2 size={16} />
         </button>
       ),
     },
@@ -125,16 +127,17 @@ export default function ManifestBilling({
         headings={headings}
         data={charges}
         rowKey="id"
-        itemsPerPage={10}
         emptyMessage="No charges added"
+        hidePagination
       />
 
       <button
         type="button"
         onClick={addCharge}
-        className="self-start flex items-center gap-1.5 px-4 py-2 bg-axc-dark-green hover:opacity-90 text-white rounded-md text-xs font-bold transition"
+        className="self-end flex items-center gap-1.5 px-4 py-2 bg-axc-navy hover:opacity-90 text-white rounded-md text-xs font-bold transition cursor-pointer"
       >
-        + ADD CHARGE
+        <Plus size={14} />
+        ADD CHARGE
       </button>
     </div>
   );

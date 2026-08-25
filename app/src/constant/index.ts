@@ -22,7 +22,7 @@ import {
   DollarSign,
   Coins,
 } from "lucide-react";
-
+0
 export interface SubMenuItem {
   label: string;
   id: string;
@@ -55,21 +55,23 @@ export const menuItems: MenuItem[] = [
     label: "Manifest Management",
     icon: ClipboardCheck,
     id: "manifest",
-    hasDropdown: true,
-    subItems: [
-      { label: "All Manifest", id: "all-manifest", href: "/manifest/all-manifest" },
-    ],
+    href: "/manifest/all-manifest",
+    hasDropdown: false,
+    //subItems: [
+      //{ label: "All Manifest", id: "all-manifest", href: "/manifest/all-manifest" },
+   // ],
   },
   {
     label: "Invoice & Billing",
     icon: CreditCard,
     id: "invoice",
-    hasDropdown: true,
-    subItems: [
-      /* UPDATED: was "/invoice/all-invoice" -> now matches the actual folder "all-invoices" */
-      { label: "Invoices", id: "invoices", href: "/invoice/all-invoices" },
-      { label: "Billing System", id: "billing-system" },
-    ],
+    hasDropdown: false,
+    href: "/invoice/all-invoices",
+    //subItems: [
+      
+     // { label: "Invoices", id: "invoices", href: "/invoice/all-invoices" },
+     // { label: "Billing System", id: "billing-system" },
+    //],
   },
   { label: "Tracking", icon: MapPin, id: "tracking" },
   { label: "Rate Calculation", icon: Calculator, id: "rate-calculation" },
