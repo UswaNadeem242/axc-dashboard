@@ -1,14 +1,23 @@
 "use client";
 import React, { useState } from "react";
 import { AwbInvoiceRow, SingleInvoiceFormState, SingleInvoiceSearchState, ToastState } from "./invoicestate";
+
 export const inputClass = "w-full border border-axc-border rounded px-2 py-1.5 text-[11px] bg-white focus:outline-none focus:ring-1 focus:ring-blue-500";
 
 export const errorInputClass = "w-full border border-red-400 rounded px-2 py-1.5 text-[11px] bg-white focus:outline-none focus:ring-1 focus:ring-red-500";
 
+// Converts any casing to Sentence case: only the first letter capital, rest lowercase.
+export function toSentenceCase(text: string): string {
+  if (!text) return text;
+  const lower = text.toLowerCase();
+  return lower.charAt(0).toUpperCase() + lower.slice(1);
+}
+
 export function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
+  const label = typeof children === "string" ? toSentenceCase(children) : children;
   return (
-    <label className="font-bold text-gray-600 uppercase text-[11px]">
-      {children} {required && <span className="text-red-500">*</span>}
+    <label className="font-bold text-gray-600 text-[11px]">
+      {label} {required && <span className="text-red-500">*</span>}
     </label>
   );
 }
@@ -21,7 +30,7 @@ export function FieldError({ message }: { message?: string }) {
 export function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
     <div className="bg-axc-navy text-white px-4 py-2.5 flex items-center justify-between">
-      <span className="text-xs font-bold uppercase tracking-wide">{title}</span>
+      <span className="text-xs font-bold tracking-wide">{toSentenceCase(title)}</span>
       {right}
     </div>
   );

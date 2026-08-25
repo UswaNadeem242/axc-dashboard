@@ -111,11 +111,10 @@ export default function CreateEntriesPage() {
           {activeTab === "awb-details" && (
             <form onSubmit={handleSubmit} className="flex flex-col gap-6 w-full pb-2">
               <div className="grid grid-cols-1 xl:grid-cols-[360px_1fr] gap-6 items-start w-full">
-                {/* Left: sticky panel */}
                 <div className="xl:sticky xl:top-0 self-start">
                   <WeightsAndDimensions form={form} setForm={setForm} />
                 </div>
-                {/* Right: scrolls naturally */}
+            
                 <div className="flex flex-col gap-6 w-full">
                   <AirWaybillInformation form={form} setForm={setForm} errors={errors} />
                   <ShipperFromForm form={form} setForm={setForm} errors={errors} onReset={resetShipper} showToast={showToast} />

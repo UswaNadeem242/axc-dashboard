@@ -31,83 +31,82 @@ interface ManifestSummaryProps {
 
 export default function ManifestSummary({ form, updateField, toggleEdit }: ManifestSummaryProps) {
   return (
-    <div className="bg-white border border-axc-border rounded-[8px] overflow-hidden shadow-sm w-full">
-      <PanelHeader title="MANIFEST SUMMARY" />
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-7 gap-x-6 gap-y-4 p-5">
-        <div>
-          <FieldLabel>MANIFEST NO.</FieldLabel>
-          <input
-            disabled
-            value={form.manifestNo}
-            className={`${disabledInputClass} mt-1`}
-            placeholder="Auto-generated"
-          />
+    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
+      <PanelHeader title="Manifest Summary" />
+      <div className="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3 text-xs">
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Manifest No.</FieldLabel>
+          <input disabled value={form.manifestNo} className={disabledInputClass} placeholder="Auto-generated" />
         </div>
 
-        <div>
-          <FieldLabel>DATE</FieldLabel>
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Date</FieldLabel>
           <input
             type="date"
             value={form.date}
             onChange={(e) => updateField("date", e.target.value)}
-            className={`${inputClass} mt-1`}
+            className={inputClass}
           />
         </div>
 
-        <div>
-          <FieldLabel>TIME</FieldLabel>
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Time</FieldLabel>
           <input
             type="time"
             value={form.time}
             onChange={(e) => updateField("time", e.target.value)}
-            className={`${inputClass} mt-1`}
+            className={inputClass}
           />
         </div>
 
-        <div>
-          <FieldLabel>ARRIVAL DATE</FieldLabel>
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Arrival Date</FieldLabel>
           <input
             type="date"
             value={form.arrivalDate}
             onChange={(e) => updateField("arrivalDate", e.target.value)}
-            className={`${inputClass} mt-1`}
+            className={inputClass}
           />
         </div>
 
-        <div>
-          <FieldLabel>ARRIVAL TIME</FieldLabel>
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Arrival Time</FieldLabel>
           <input
             type="time"
             value={form.arrivalTime}
             onChange={(e) => updateField("arrivalTime", e.target.value)}
-            className={`${inputClass} mt-1`}
+            className={inputClass}
           />
         </div>
 
-        <div>
-          <FieldLabel>NO. OF BAGS</FieldLabel>
-          <div className="flex gap-2 mt-1">
+        <div className="flex flex-col gap-1">
+          <FieldLabel>No. of Bags</FieldLabel>
+          <div className="relative">
             <input
               disabled={!form.editNoOfBags}
               value={form.noOfBags}
               onChange={(e) => updateField("noOfBags", e.target.value)}
-              className={form.editNoOfBags ? inputClass : disabledInputClass}
+              className={`${form.editNoOfBags ? inputClass : disabledInputClass} w-full pr-10`}
             />
-            <EditIconButton active={form.editNoOfBags} onToggle={() => toggleEdit("editNoOfBags")} />
+            <div className="absolute right-1 top-1/2 -translate-y-1/2">
+              <EditIconButton active={form.editNoOfBags} onToggle={() => toggleEdit("editNoOfBags")} title="Edit No. of Bags" />
+            </div>
           </div>
         </div>
 
-        <div>
-          <FieldLabel>TOTAL ACTUAL WT</FieldLabel>
-          <input disabled value={form.totalActualWt} className={`${disabledInputClass} mt-1`} />
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Total Actual Wt</FieldLabel>
+          <input disabled value={form.totalActualWt} className={disabledInputClass} />
         </div>
-        <div>
-          <FieldLabel>TOTAL VOLUMETRIC WT</FieldLabel>
-          <input disabled value={form.totalVolumetricWt} className={`${disabledInputClass} mt-1`} />
+
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Total Volumetric Wt</FieldLabel>
+          <input disabled value={form.totalVolumetricWt} className={disabledInputClass} />
         </div>
-        <div>
-          <FieldLabel>TOTAL CHARGEABLE WT</FieldLabel>
-          <input disabled value={form.totalChargeableWt} className={`${disabledInputClass} mt-1`} />
+
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Total Chargeable Wt</FieldLabel>
+          <input disabled value={form.totalChargeableWt} className={disabledInputClass} />
         </div>
       </div>
     </div>

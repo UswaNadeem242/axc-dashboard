@@ -203,7 +203,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
               className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-amber-500 shadow-sm border border-amber-100 hover:bg-amber-50 transition-colors"
             >
               <Plus size={16} />
-            </button>
+            </button>u
           </div>
         </div>
       )}

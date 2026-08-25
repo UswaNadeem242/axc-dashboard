@@ -76,45 +76,41 @@ export default function ManifestPage() {
       {toast && (
         <div
           className={`fixed top-5 right-5 z-50 rounded-lg px-4 py-3 text-xs font-bold shadow-lg text-white animate-in fade-in slide-in-from-top-2 duration-200 ${
-            toast.type === "success"
-              ? "bg-[#0b733a]"
-              : "bg-axc-navy"
+            toast.type === "success" ? "bg-axc-dark-green" : "bg-axc-navy"
           }`}
         >
           {toast.message}
         </div>
       )}
-      <div className="bg-white border border-axc-border rounded-[8px] px-5 pb-0 shrink-0">
-        <div className="flex gap-0">
 
-          {tabs.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTab(t.id)}
-              className={`relative shrink-0 flex items-center gap-1.5 px-4 py-4 text-[16px] font-extrabold whitespace-nowrap transition-colors duration-150 ${
-                tab === t.id
-                  ? "text-axc-dark-gray"
-                  : "text-gray-400 hover:text-axc-dark-gray"
-              }`}
-            >
-              {t.icon}
+      <div className="relative bg-white p-3 rounded-lg border border-gray-200 w-full flex-1 min-h-0 flex flex-col overflow-hidden">
 
-              {t.label}
-              <span
-                className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-t transition-all duration-200 ${
+        <div className="bg-white border-b border-b-axc-border pb-0 shrink-0">
+          <div className="flex gap-4 overflow-x-auto scrollbar-none">
+            {tabs.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setTab(t.id)}
+                className={`relative shrink-0 flex items-center gap-1.5 px-4 py-4 text-[16px] font-extrabold whitespace-nowrap transition-colors duration-150 cursor-pointer ${
                   tab === t.id
-                    ? "bg-axc-navy opacity-100"
-                    : "opacity-0"
+                    ? "text-axc-dark-gray"
+                    : "text-axc-gray hover:text-axc-dark-gray"
                 }`}
-              />
-            </button>
-          ))}
-
+              >
+                {t.icon}
+                {t.label}
+                <span
+                  className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-t transition-all duration-200 ${
+                    tab === t.id ? "bg-axc-navy opacity-100" : "opacity-0"
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
-      <div className="relative bg-white p-3 rounded-[8px] w-full flex-1 min-h-0 flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex-1 min-h-0 overflow-y-auto mt-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+
+        <div className="flex-1 min-h-0 overflow-y-auto mt-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {tab === "entry" ? (
             <div className="flex flex-col gap-6 w-full pb-2">
               <ManifestSummary

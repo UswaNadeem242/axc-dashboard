@@ -21,12 +21,12 @@ export function AwbSingleCustomerInvoiceTab() {
   } = useSingleCustomerInvoiceForm();
 
   return (
-    <div className="flex flex-col xl:flex-row gap-6 items-start w-full pb-2">
-      <div className="w-full xl:w-[300px] xl:shrink-0 xl:sticky xl:top-6 xl:self-start">
+    <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 items-start w-full pb-2">
+      <div className="w-full lg:col-span-5 lg:sticky lg:top-0 lg:self-start">
         <SingleCustomerSearchPanel search={search} setSearch={setSearch} onSearch={handleSearch} errors={errors} />
       </div>
 
-      <div className="flex-1 w-full flex flex-col gap-6">
+      <div className="lg:col-span-7 w-full flex flex-col gap-6">
         <SingleCustomerInvoiceDetails
           form={form}
           setForm={setForm}
