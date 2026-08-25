@@ -30,7 +30,7 @@ const emptyForm: ManifestFormState = {
   time: "",
 
   runNumber: "",
-  editRunNumber: true,
+  editRunNumber: false,
 
   flightNo: "",
   editFlightNo: false,

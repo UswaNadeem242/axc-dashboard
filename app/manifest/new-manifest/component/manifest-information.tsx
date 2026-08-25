@@ -85,7 +85,7 @@ export default function ManifestInformation({
           <input
             value={form.lineHaulVendor}
             onChange={(e) => updateField("lineHaulVendor", e.target.value)}
-            className={`${inputClass} bg-gray-50 focus:bg-white`}
+            className={`${inputClass} bg-gray-50`}
           />
         </div>
 
@@ -94,7 +94,7 @@ export default function ManifestInformation({
           <input
             value={form.masterNo}
             onChange={(e) => updateField("masterNo", e.target.value)}
-            className={`${inputClass} bg-gray-50 focus:bg-white`}
+            className={`${inputClass} bg-gray-50`}
           />
         </div>
 
@@ -103,7 +103,7 @@ export default function ManifestInformation({
           <input
             value={form.masterEdiBagNo}
             onChange={(e) => updateField("masterEdiBagNo", e.target.value)}
-            className={`${inputClass} bg-gray-50 focus:bg-white`}
+            className={`${inputClass} bg-gray-50`}
           />
         </div>
 
@@ -123,6 +123,7 @@ export default function ManifestInformation({
           </div>
         </div>
 
+        {/* Flight No — icon back inside (overlay style), custom chevron so it doesn't collide with the pencil */}
         <div className="flex flex-col gap-1">
           <FieldLabel>Flight No</FieldLabel>
           <div className="relative">
@@ -130,12 +131,18 @@ export default function ManifestInformation({
               disabled={!form.editFlightNo}
               value={form.flightNo}
               onChange={(e) => updateField("flightNo", e.target.value)}
-              className={`${form.editFlightNo ? inputClass : disabledInputClass} w-full pr-10`}
+              className={`${form.editFlightNo ? inputClass : disabledInputClass} w-full pr-16 appearance-none`}
             >
               <option value="">Select Flight No...</option>
               <option value="AI-101">AI-101</option>
               <option value="EK-501">EK-501</option>
             </select>
+            {/* custom dropdown arrow */}
+            <div className="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2.5 4.5L6 8L9.5 4.5" stroke="#6B7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
             <div className="absolute right-1 top-1/2 -translate-y-1/2">
               <EditIconButton active={form.editFlightNo} onToggle={() => toggleEdit("editFlightNo")} title="Edit Flight No" />
             </div>
@@ -186,23 +193,23 @@ export default function ManifestInformation({
             rows={3}
             value={form.comment}
             onChange={(e) => updateField("comment", e.target.value)}
-            className={`${inputClass} text-xs focus:ring-1 focus:ring-blue-500 outline-none resize-none`}
+            className={`${inputClass} text-xs outline-none resize-none`}
           />
         </div>
       </div>
 
-      <div className="flex gap-3 px-5 pb-5">
+      <div className="flex justify-end gap-3 px-5 pb-5">
         <button
-          type="button"
+          type="button"yy
           onClick={handleSearchAwb}
-          className="bg-axc-navy text-white text-[12px] font-semibold px-4 py-2 rounded hover:brightness-110 cursor-pointer transition uppercase tracking-wide"
+          className="bg-axc-navy text-white text-[12px] font-semibold px-4 py-2 rounded cursor-pointer transition uppercase tracking-wide"
         >
           Search AWB
         </button>
         <button
           type="button"
           onClick={handleBagging}
-          className="bg-axc-navy text-white text-[12px] font-semibold px-4 py-2 rounded hover:brightness-110 cursor-pointer transition uppercase tracking-wide"
+          className="bg-axc-navy text-white text-[12px] font-semibold px-4 py-2 rounded cursor-pointer transition uppercase tracking-wide"
         >
           Bagging
         </button>

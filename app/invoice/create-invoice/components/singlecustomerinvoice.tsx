@@ -17,65 +17,67 @@ export function SingleCustomerInvoiceDetails({ form, setForm, errors = {}, onCre
   return (
     <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
       <PanelHeader title="Invoice Details" />
-      <div className="p-5 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3 text-xs">
-        <div className="flex flex-col gap-1">
-          <FieldLabel required>Invoice No.</FieldLabel>
-          <input
-            type="text"
-            value={form.invoiceNo}
-            onChange={(e) => setForm((prev) => ({ ...prev, invoiceNo: e.target.value }))}
-            className={inputClass}
-          />
-          {errors.invoiceNo && <span className="text-[10px] text-red-500">{errors.invoiceNo}</span>}
+      <div className="p-5 flex flex-col gap-3 text-xs">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+          <div className="flex flex-col gap-1">
+            <FieldLabel required>Invoice No.</FieldLabel>
+            <input
+              type="text"
+              value={form.invoiceNo}
+              onChange={(e) => setForm((prev) => ({ ...prev, invoiceNo: e.target.value }))}
+              className={inputClass}
+            />
+            {errors.invoiceNo && <span className="text-[10px] text-red-500">{errors.invoiceNo}</span>}
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <FieldLabel>Due Date</FieldLabel>
+            <input
+              type="date"
+              value={form.dueDate}
+              onChange={(e) => setForm((prev) => ({ ...prev, dueDate: e.target.value }))}
+              className={inputClass}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <FieldLabel>Invoice Date</FieldLabel>
+            <input
+              type="date"
+              value={form.invoiceDate}
+              onChange={(e) => setForm((prev) => ({ ...prev, invoiceDate: e.target.value }))}
+              className={inputClass}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <FieldLabel>Invoice Currency</FieldLabel>
+            <CommonDropdown
+              value={form.invoiceCurrency}
+              onChange={(val) => setForm((prev) => ({ ...prev, invoiceCurrency: val }))}
+              className="border-axc-border"
+              placeholder="SELECT..."
+              options={[{ value: "USD", label: "USD" }, { value: "INR", label: "INR" }]}
+            />
+          </div>
+
+          <div className="flex flex-col gap-1 col-span-2">
+            <FieldLabel>Note For Customer</FieldLabel>
+            <textarea
+              rows={2}
+              value={form.noteForCustomer}
+              onChange={(e) => setForm((prev) => ({ ...prev, noteForCustomer: e.target.value }))}
+              className={`${inputClass} text-xs outline-none`}
+            />
+          </div>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <FieldLabel>Due Date</FieldLabel>
-          <input
-            type="date"
-            value={form.dueDate}
-            onChange={(e) => setForm((prev) => ({ ...prev, dueDate: e.target.value }))}
-            className={inputClass}
-          />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <FieldLabel>Invoice Date</FieldLabel>
-          <input
-            type="date"
-            value={form.invoiceDate}
-            onChange={(e) => setForm((prev) => ({ ...prev, invoiceDate: e.target.value }))}
-            className={inputClass}
-          />
-        </div>
-
-        <div className="flex flex-col gap-1">
-          <FieldLabel>Invoice Currency</FieldLabel>
-          <CommonDropdown
-            value={form.invoiceCurrency}
-            onChange={(val) => setForm((prev) => ({ ...prev, invoiceCurrency: val }))}
-            className="border-axc-border"
-            placeholder="SELECT..."
-            options={[{ value: "USD", label: "USD" }, { value: "INR", label: "INR" }]}
-          />
-        </div>
-
-        <div className="flex flex-col gap-1 sm:col-span-2">
-          <FieldLabel>Note For Customer</FieldLabel>
-          <textarea
-            rows={2}
-            value={form.noteForCustomer}
-            onChange={(e) => setForm((prev) => ({ ...prev, noteForCustomer: e.target.value }))}
-            className={`${inputClass} text-xs focus:ring-1 focus:ring-blue-500 outline-none`}
-          />
-        </div>
-
-        <div className="flex items-end sm:col-span-2 sm:justify-end">
+        <div className="flex justify-end">
           <button
             type="button"
             onClick={onCreateInvoice}
             disabled={loading}
-            className="px-4 py-2 bg-axc-navy hover:bg-axc-navy/80 text-white rounded text-xs font-bold shadow-sm transition uppercase cursor-pointer disabled:opacity-60"
+            className="px-4 py-2 bg-axc-navy text-white rounded text-xs font-bold shadow-sm transition uppercase cursor-pointer disabled:opacity-60"
           >
             {loading ? "Creating..." : "Create Invoice"}
           </button>
@@ -156,7 +158,7 @@ export function AwbTableSection({ awbRows, addAwbRow, updateAwbRow, removeAwbRow
                       type="button"
                       onClick={() => removeAwbRow(row.id)}
                       title="Remove AWB"
-                      className="inline-flex items-center justify-center text-axc-red hover:text-red-800 cursor-pointer"
+                      className="inline-flex items-center justify-center text-axc-red cursor-pointer"
                     >
                       <Trash size={15} />
                     </button>
