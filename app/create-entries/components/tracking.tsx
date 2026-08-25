@@ -2,6 +2,7 @@
 import React from "react";
 import { TrackingEvent } from "./formstate";
 import CommonTable from "../../src/common/table";
+import { Trash } from "lucide-react";
 
 export function TrackingEventsPanel({
   awbTrackingNo,
@@ -146,9 +147,9 @@ export function TrackingEventsPanel({
         <button
           type="button"
           onClick={() => onRemoveEvent(ev.id)}
-          className="text-axc-red text-[11px] font-bold hover:underline"
+          className="text-axc-red text-[11px] font-bold hover:underline cursor-pointer"
         >
-          ✕ REMOVE
+            <Trash className="w-4 h-4" size={15}/>
         </button>
       ),
     },
@@ -166,12 +167,13 @@ export function TrackingEventsPanel({
         rowKey="id"
         itemsPerPage={10}
         emptyMessage="No tracking events added"
+        hidePagination={true}
       />
 
       <button
         type="button"
         onClick={onAddEvent}
-        className="self-start flex items-center gap-1.5 px-4 py-2 bg-axc-dark-green hover:opacity-90 text-white rounded-md text-xs font-bold transition"
+        className="self-start flex items-center gap-1.5 px-3 py-2 bg-axc-dark-yellow hover:opacity-90 text-white rounded-md text-sm  font-medium  cursor-pointer transition"
       >
         + ADD ITEM
       </button>

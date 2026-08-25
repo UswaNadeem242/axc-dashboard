@@ -37,6 +37,7 @@ interface CommonTableProps {
   emptyMessage?: string;
   loading?: boolean;
   loadingMessage?: string;
+  hidePagination?: boolean;
 }
 
 const CommonTable = ({
@@ -62,6 +63,7 @@ const CommonTable = ({
   emptyMessage = "No records found",
   loading = false,
   loadingMessage = "Loading...",
+  hidePagination = false,
 }: CommonTableProps) => {
   const computedTotalPages = propTotalPages ?? Math.max(1, Math.ceil(data.length / itemsPerPage));
   const activePage = Math.min(Math.max(1, currentPage), computedTotalPages);
@@ -204,7 +206,7 @@ const CommonTable = ({
         </div>
       </div>
 
-      {computedTotalPages >= 1 && (
+      {!hidePagination && computedTotalPages >= 1 && (
         <div className="mt-2 flex shrink-0 justify-end">
           <CommonPagination currentPage={activePage} totalPages={computedTotalPages} onPageChange={onPageChange ?? (() => {})} />
         </div>

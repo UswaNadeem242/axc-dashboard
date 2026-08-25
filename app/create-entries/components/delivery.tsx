@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import { DeliveryFormState, TrackingEvent } from "./formstate";
-import { PanelHeader } from "./form";
+import { PanelHeader, EditIconButton } from "./form";
 import { TrackingEventsPanel } from "./tracking";
 import CommonTable from "../../src/common/table";
 
@@ -67,7 +67,7 @@ export function DeliveryPanel({
       label: "",
       key: "label",
       render: (row: DeliverySummaryRow) => (
-        <span className="font-bold text-axc-dark-gray">{row.label}</span>
+        <span className="font-medium text-xs text-axc-dark-gray">{row.label}</span>
       ),
     },
     {
@@ -92,29 +92,31 @@ export function DeliveryPanel({
 
   return (
     <div className="flex flex-col xl:grid xl:grid-cols-12 gap-6 items-start w-full">
-      <div className="flex flex-col gap-6 w-full xl:col-span-5 xl:sticky xl:top-0 xl:self-start">
+      <div className="flex flex-col gap-6 w-full xl:col-span-4 xl:sticky xl:top-0 xl:self-start">
         <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
           <PanelHeader title="Delivery Summary" />
           <div className="p-4 flex flex-col gap-3">
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold text-axc-gray uppercase">
-                Forwarding Number
-              </label>
-              <input
-                className={inputClass}
-                value={delivery.forwardingNumber}
-                onChange={(e) => updateField("forwardingNumber", e.target.value)}
-              />
-            </div>
-            <div className="flex flex-col gap-1">
-              <label className="text-[11px] font-bold text-axc-gray uppercase">
-                Forwarding Number 2
-              </label>
-              <input
-                className={inputClass}
-                value={delivery.forwardingNumber2}
-                onChange={(e) => updateField("forwardingNumber2", e.target.value)}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-axc-dark-gray capitalize">
+                  Forwarding Number
+                </label>
+                <input
+                  className={inputClass}
+                  value={delivery.forwardingNumber}
+                  onChange={(e) => updateField("forwardingNumber", e.target.value)}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-xs font-medium text-axc-dark-gray capitalize">
+                  Forwarding Number 2
+                </label>
+                <input
+                  className={inputClass}
+                  value={delivery.forwardingNumber2}
+                  onChange={(e) => updateField("forwardingNumber2", e.target.value)}
+                />
+              </div>
             </div>
             <button
               type="button"
@@ -131,32 +133,32 @@ export function DeliveryPanel({
               headings={deliverySummaryHeadings}
               data={deliverySummaryData}
               rowKey="label"
+              hidePagination={true}
               itemsPerPage={deliverySummaryData.length}
             />
           </div>
         </div>
       </div>
-      <div className="xl:col-span-7 w-full flex flex-col gap-6">
+      <div className="xl:col-span-8 w-full flex flex-col gap-6">
         <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
           <PanelHeader title="Delivery" />
-          <div className="p-5 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-x-4 gap-y-3">
+          <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-4">
             <Field label="Expected Date">
-              <div className="flex items-center gap-2">
+              <div className="relative">
                 <input
                   type="date"
-                  className={inputClass}
+                  className={`${inputClass} pr-9`}
                   value={delivery.expectedDate}
                   disabled={!delivery.editExpectedDate}
                   onChange={(e) => updateField("expectedDate", e.target.value)}
                 />
-                <label className="flex items-center gap-1 text-[10px] font-bold text-axc-gray whitespace-nowrap">
-                  <input
-                    type="checkbox"
-                    checked={delivery.editExpectedDate}
-                    onChange={() => toggleEdit("editExpectedDate")}
+                <div className="absolute right-1 top-1/2 -translate-y-1/2">
+                  <EditIconButton
+                    active={delivery.editExpectedDate}
+                    onToggle={() => toggleEdit("editExpectedDate")}
+                    title="Edit Expected Date"
                   />
-                  EDIT
-                </label>
+                </div>
               </div>
             </Field>
             <Field label="Expected Time">
@@ -189,22 +191,21 @@ export function DeliveryPanel({
             </Field>
 
             <Field label="Connection Date">
-              <div className="flex items-center gap-2">
+              <div className="relative">
                 <input
                   type="date"
-                  className={inputClass}
+                  className={`${inputClass} pr-9`}
                   value={delivery.connectionDate}
                   disabled={!delivery.editConnectionDate}
                   onChange={(e) => updateField("connectionDate", e.target.value)}
                 />
-                <label className="flex items-center gap-1 text-[10px] font-bold text-axc-gray whitespace-nowrap">
-                  <input
-                    type="checkbox"
-                    checked={delivery.editConnectionDate}
-                    onChange={() => toggleEdit("editConnectionDate")}
+                <div className="absolute right-1 top-1/2 -translate-y-1/2">
+                  <EditIconButton
+                    active={delivery.editConnectionDate}
+                    onToggle={() => toggleEdit("editConnectionDate")}
+                    title="Edit Connection Date"
                   />
-                  EDIT
-                </label>
+                </div>
               </div>
             </Field>
 
@@ -316,34 +317,42 @@ export function DeliveryPanel({
             </Field>
 
             <Field label="COD Amount Collected">
-              <div className="flex items-center gap-2">
+              <div className="relative">
                 <input
-                  className={inputClass}
+                  className={`${inputClass} pr-9`}
                   value={delivery.codAmountCollected}
                   onChange={(e) =>
                     updateField("codAmountCollected", e.target.value)
                   }
                 />
-                <input
-                  type="checkbox"
-                  checked={delivery.codAmountCollectedChecked}
-                  onChange={(e) =>
-                    updateField("codAmountCollectedChecked", e.target.checked)
-                  }
-                />
+                <div className="absolute right-1 top-1/2 -translate-y-1/2">
+                  <EditIconButton
+                    active={delivery.codAmountCollectedChecked}
+                    onToggle={() =>
+                      updateField("codAmountCollectedChecked", !delivery.codAmountCollectedChecked)
+                    }
+                    title="Edit COD Amount Collected"
+                  />
+                </div>
               </div>
             </Field>
+            <div className="flex items-center gap-2 mt-1">
 
-            <Field label="POD Hard Copy">
+              <label htmlFor="podHardCopy" className="text-xs font-medium text-axc-dark-gray capitalize cursor-pointer">
+                POD Hard Copy
+              </label>
               <input
                 type="checkbox"
+                id="podHardCopy"
+                className="cursor-pointer"
                 checked={delivery.podHardCopy}
                 onChange={(e) => updateField("podHardCopy", e.target.checked)}
               />
-            </Field>
+            </div>
+
           </div>
 
-          <div className="flex flex-wrap gap-x-6 gap-y-1 px-5 py-4 border-t border-axc-border text-xs font-bold text-axc-dark-gray">
+          <div className="flex flex-wrap gap-x-6 gap-y-1 px-5 py-4 border-t border-axc-border text-sm  font-bold text-black">
             <p>TOTAL PCS - {delivery.totalPcs}</p>
             <p>TOTAL PICKUP SCAN PARCELS - {delivery.totalPickupScanParcels}</p>
             <p>TOTAL INSCAN PARCELS - {delivery.totalInscanParcels}</p>
@@ -373,7 +382,7 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-[11px] font-bold text-axc-gray uppercase">
+      <label className="text-xs font-medium text-axc-dark-gray capitalize">
         {label}
       </label>
       <div>{children}</div>
