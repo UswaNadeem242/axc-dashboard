@@ -3,6 +3,7 @@
 import React, { useRef } from "react";
 import { PanelHeader } from "./form";
 import CommonTable from "../../src/common/table";
+import { Upload } from "lucide-react";
 
 interface KycField {
   key: string;
@@ -97,9 +98,9 @@ function KycFileCell({
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="shrink-0 border border-axc-border bg-axc-light-bg hover:bg-axc-border/30 text-axc-dark-gray text-[11px] font-bold px-3 py-1.5 rounded-md transition"
+          className="shrink-0 border border-axc-border bg-axc-light-bg hover:bg-axc-border/30 text-axc-dark-gray text-regular-medium cursor-pointer px-3 py-1.5 rounded-md transition"
         >
-          Choose File
+          <Upload size={14} />
         </button>
         <span className="text-[11px] text-axc-gray truncate">
           {file ? file.name : "No file chosen"}
@@ -155,7 +156,7 @@ function KycSection({
       label: "Document Type",
       key: "label",
       render: (row: KycTableRow) => (
-        <span className="text-[12px] font-bold text-axc-dark-gray">{row.label}</span>
+        <span className="text-regular-medium text-axc-dark-gray">{row.label}</span>
       ),
     },
     {
@@ -214,6 +215,7 @@ function KycSection({
           headings={headings}
           data={tableData}
           rowKey="key"
+          hidePagination={true}
           itemsPerPage={fields.length}
         />
       </div>
@@ -225,7 +227,7 @@ function SaveKycButton({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="bg-axc-navy hover:bg-axc-navy/80 text-white text-xs font-bold uppercase px-5 py-2 rounded-lg transition shadow-sm shrink-0"
+      className="bg-axc-navy hover:bg-axc-navy/80 text-white text-xs font-bold uppercase px-5 py-4 rounded-lg transition shadow-sm shrink-0"
     >
       Save KYC
     </button>

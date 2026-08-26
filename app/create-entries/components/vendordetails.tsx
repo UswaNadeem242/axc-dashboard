@@ -129,13 +129,13 @@ export function VendorDetailsPanel({
                   <tr className="bg-gray-50/50 border-t border-axc-border">
                     <td className="py-2 px-2 border-r border-axc-border"></td>
                     <td colSpan={3} className="py-2 px-2 border-r border-axc-border text-right font-bold text-gray-700">
-                      <div className="flex items-center justify-end gap-2 text-xs text-black">
+                      <div className="flex items-center justify-end gap-2 text-regular-medium text-black">
                         <span> Total Actual WT</span>
-                        <input type="text" readOnly value={totalActualWt} className="w-20 border border-axc-border bg-gray-100 rounded px-1.5 py-0.5 text-center font-bold text-gray-600" />
+                        <input type="text" readOnly value={totalActualWt} className="w-20 border border-axc-border bg-gray-100 rounded px-1.5 py-0.5 text-center text-gray-600" />
                       </div>
                     </td>
                     <td colSpan={2} className="py-2 px-2 border-r border-axc-border text-right font-bold text-gray-700">
-                      <div className="flex items-center justify-end gap-2 text-xs text-black">
+                      <div className="flex items-center justify-end gap-2 text-regular-medium text-black">
                         <span>Total Chargeable WT</span>
                         <input type="text" readOnly value={totalChargeableWt} className="w-20 border border-axc-border bg-gray-100 rounded px-1.5 py-0.5 text-center font-bold text-gray-600" />
                       </div>
@@ -158,12 +158,13 @@ export function VendorDetailsPanel({
           </div>
         </div>
 
-        <Field label="ACTUAL WEIGHT" value={vendorDetails.actualWeight} editable={editable} onChange={(v) => onChange({ actualWeight: v })} placeholder="Actual Weight" />
+        <Field label="Actual Weight" value={vendorDetails.actualWeight} editable={editable} onChange={(v) => onChange({ actualWeight: v })} placeholder="Actual Weight" />
 
         <div className={gridClass}>
           <div className="flex items-center gap-3">
             <span className="text-regular-medium text-axc-dark-gray w-[150px] shrink-0">CFT ID</span>
             <input
+              placeholder="CFT ID"
               value={vendorDetails.cftId}
               disabled={!editable}
               onChange={(e) => onChange({ cftId: e.target.value })}
@@ -173,6 +174,7 @@ export function VendorDetailsPanel({
           <div className="flex items-center gap-3">
             <span className="text-regular-medium text-axc-dark-gray w-[150px] shrink-0">CFT VALUE</span>
             <input
+              placeholder="CFT VALUE"
               value={vendorDetails.cftValue}
               disabled={!editable}
               onChange={(e) => onChange({ cftValue: e.target.value })}
@@ -180,8 +182,9 @@ export function VendorDetailsPanel({
             />
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-regular-medium text-axc-dark-gray w-[150px] shrink-0">CONTRACT ID</span>
+            <span className="text-regular-medium text-axc-dark-gray w-[150px] shrink-0">Contact ID</span>
             <input
+              placeholder="Contact ID"
               value={vendorDetails.vendorContractId}
               disabled={!editable}
               onChange={(e) => onChange({ vendorContractId: e.target.value })}
@@ -191,16 +194,17 @@ export function VendorDetailsPanel({
           <div className="flex items-center gap-3">
             <span className="text-regular-medium text-axc-dark-gray w-[150px] shrink-0">TAT</span>
             <input
+              placeholder="TAT"
               value={vendorDetails.tat}
               disabled={!editable}
               onChange={(e) => onChange({ tat: e.target.value })}
               className={`${inputClass} h-9 text-[12px] ${!editable ? "bg-gray-50" : ""}`}
             />
           </div>
-          <Field label="VOLUME WEIGHT" value={vendorDetails.volumeWeight} editable={editable} onChange={(v) => onChange({ volumeWeight: v })} />
+          <Field label="Volum Weight" value={vendorDetails.volumeWeight} editable={editable} onChange={(v) => onChange({ volumeWeight: v })} placeholder="Volum Weight" />
           <div className="flex items-center gap-3">
-            <span className="text-regular-medium text-axc-dark-gray w-[150px] shrink-0">CHARGEABLE WEIGHT</span>
-            <input value={vendorDetails.chargeableWeight} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50 font-semibold`} />
+            <span className="text-regular-medium text-axc-dark-gray w-[150px] shrink-0 ">Chargerable Weight</span>
+            <input value={vendorDetails.chargeableWeight} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50 font-semibold`} placeholder="Chargerable Weight" />
           </div>
         </div>
       </div>

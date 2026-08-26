@@ -3,22 +3,23 @@ import React from "react";
 import { VendorInvoiceFormState } from "./formstate";
 
 const inputClass =
-  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition";
+  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-regular-medium text-axc-dark-gray placeholder:text-[12px] placeholder:text-axc-gray transition";
 
 import { PanelHeader } from "./form";
 
 function InvoiceRow({
-  label, value, remarksLabel, remarksValue, onValueChange, onRemarksChange, readOnly = false,
+  label, value, remarksLabel, remarksValue, onValueChange, onRemarksChange, readOnly = false, placeholder = "", remarksPlaceholder = ""
 }: {
   label: string; value: string; remarksLabel?: string; remarksValue?: string;
-  onValueChange: (v: string) => void; onRemarksChange?: (v: string) => void; readOnly?: boolean;
+  onValueChange: (v: string) => void; onRemarksChange?: (v: string) => void; readOnly?: boolean; placeholder?: string; remarksPlaceholder?: string;
 }) {
   return (
     <div className={`grid grid-cols-1 ${remarksLabel ? "sm:grid-cols-2" : ""} gap-3 items-end`}>
       <div className="flex flex-col gap-1">
-        <span className="text-xs font-semibold text-axc-dark-gray">{label}</span>
+        <span className="text-regular-medium text-axc-dark-gray">{label}</span>
         <input
           value={value}
+          placeholder={placeholder}
           readOnly={readOnly}
           onChange={(e) => onValueChange(e.target.value)}
           className={`${inputClass} h-9 text-[12px] ${readOnly ? "bg-gray-50" : ""}`}
@@ -26,8 +27,9 @@ function InvoiceRow({
       </div>
       {remarksLabel && (
         <div className="flex flex-col gap-1">
-          <span className="text-xs font-semibold text-axc-dark-gray">{remarksLabel}</span>
+          <span className="text-regular-medium text-axc-dark-gray">{remarksLabel}</span>
           <input
+            placeholder={remarksPlaceholder}
             value={remarksValue ?? ""}
             onChange={(e) => onRemarksChange?.(e.target.value)}
             className={`${inputClass} h-9 text-[12px]`}
@@ -49,11 +51,13 @@ export function VendorInvoicePanel({
       <PanelHeader title="Vendor Invoice" />
       <div className="p-4 space-y-3">
         <InvoiceRow
+          placeholder="Past Vendor Invoice"
           label="Past Vendor Invoice"
           value={vendorInvoice.pastVendorInvoice}
           onValueChange={(v) => onChange({ pastVendorInvoice: v })}
         />
         <InvoiceRow
+          placeholder="Vendor Invoice 1"
           label="Vendor Invoice 1"
           value={vendorInvoice.vendorInvoice1}
           remarksLabel="Invoice Remarks 1"
@@ -62,6 +66,7 @@ export function VendorInvoicePanel({
           onRemarksChange={(v) => onChange({ invoiceRemarks1: v })}
         />
         <InvoiceRow
+          placeholder="Vendor Invoice 2"
           label="Vendor Invoice 2"
           value={vendorInvoice.vendorInvoice2}
           remarksLabel="Invoice Remarks 2"
@@ -70,6 +75,7 @@ export function VendorInvoicePanel({
           onRemarksChange={(v) => onChange({ invoiceRemarks2: v })}
         />
         <InvoiceRow
+          placeholder="Vendor Invoice 3"
           label="Vendor Invoice 3"
           value={vendorInvoice.vendorInvoice3}
           remarksLabel="Invoice Remarks 3"
@@ -78,6 +84,7 @@ export function VendorInvoicePanel({
           onRemarksChange={(v) => onChange({ invoiceRemarks3: v })}
         />
         <InvoiceRow
+          placeholder="Vendor Invoice 4"
           label="Vendor Invoice 4"
           value={vendorInvoice.vendorInvoice4}
           remarksLabel="Invoice Remarks 4"
