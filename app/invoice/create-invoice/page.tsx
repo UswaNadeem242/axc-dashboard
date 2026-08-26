@@ -29,7 +29,7 @@ export default function CreateInvoicePage() {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative shrink-0 flex items-center gap-1.5 px-4 py-4 regular-text-medium whitespace-nowrap transition-colors duration-150 cursor-pointer ${
+                className={`relative shrink-0 flex items-center gap-1.5 px-4 py-4 text-regular-medium whitespace-nowrap transition-colors duration-150 cursor-pointer ${
                   activeTab === tab.id ? "text-axc-dark-gray" : "text-axc-gray hover:text-axc-dark-gray"
                 }`}
               >

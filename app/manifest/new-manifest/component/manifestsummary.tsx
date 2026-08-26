@@ -37,6 +37,7 @@ export default function ManifestSummary({ form, updateField, toggleEdit }: Manif
         <div className="flex flex-col gap-1">
           <FieldLabel>Manifest No.</FieldLabel>
           <input disabled value={form.manifestNo} className={disabledInputClass} placeholder="Auto-generated" />
+
         </div>
 
         <div className="flex flex-col gap-1">
@@ -56,6 +57,7 @@ export default function ManifestSummary({ form, updateField, toggleEdit }: Manif
             value={form.time}
             onChange={(e) => updateField("time", e.target.value)}
             className={inputClass}
+            placeholder="Time"
           />
         </div>
 
@@ -76,6 +78,7 @@ export default function ManifestSummary({ form, updateField, toggleEdit }: Manif
             value={form.arrivalTime}
             onChange={(e) => updateField("arrivalTime", e.target.value)}
             className={inputClass}
+            placeholder="Arrival time"
           />
         </div>
 
@@ -96,17 +99,18 @@ export default function ManifestSummary({ form, updateField, toggleEdit }: Manif
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Total Actual Wt</FieldLabel>
-          <input disabled value={form.totalActualWt} className={disabledInputClass} />
+          <input disabled value={form.totalActualWt} className={disabledInputClass} placeholder="Toatla Actual Wt" />
+          
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Total Volumetric Wt</FieldLabel>
-          <input disabled value={form.totalVolumetricWt} className={disabledInputClass} />
+          <input disabled value={form.totalVolumetricWt} className={disabledInputClass} placeholder="Total Volumetric Wt"/>
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Total Chargeable Wt</FieldLabel>
-          <input disabled value={form.totalChargeableWt} className={disabledInputClass} />
+          <input disabled value={form.totalChargeableWt} className={disabledInputClass} placeholder="Total Chargeable Wt" />
         </div>
       </div>
     </div>

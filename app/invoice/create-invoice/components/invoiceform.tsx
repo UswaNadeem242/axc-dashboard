@@ -4,13 +4,13 @@ import { Pencil } from "lucide-react";
 import { AwbInvoiceRow, SingleInvoiceFormState, SingleInvoiceSearchState, ToastState } from "./invoicestate";
 
 export const inputClass =
-  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition cursor-pointer placeholder:text-regular-small";
+  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-regular-small text-axc-gray placeholder:text-axc-gray  transition cursor-pointer placeholder:text-regular-small";
 
 export const errorInputClass =
-  "border border-red-400 rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 bg-red-50/40 focus:border-red-400 transition cursor-pointer placeholder:text-regular-small";
+  "border border-red-400 rounded-md px-3 py-2.5 outline-none w-full text-regular-small text-axc-gray placeholder:text-axc-gray bg-red-50/40 focus:border-red-400 transition cursor-pointer placeholder:text-regular-small";
 
 export const disabledInputClass =
-  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-400 placeholder:text-gray-400 bg-gray-50 cursor-not-allowed transition placeholder:text-regular-small";
+  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-regular-small text-axc-gray placeholder:text-axc-gray bg-gray-50 cursor-not-allowed transition placeholder:text-regular-small";
 
 export function toSentenceCase(text: string): string {
   if (!text) return text;
@@ -21,7 +21,7 @@ export function toSentenceCase(text: string): string {
 export function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
   const label = typeof children === "string" ? toSentenceCase(children) : children;
   return (
-    <label className="text-regular-medium text-axc-dark-gray  capitalize">
+    <label className="text-regular-medium text-axc-dark-gray  ">
       {label} {required && <span className="text-axc-red ml-0.5">*</span>}
     </label>
   );
@@ -44,7 +44,7 @@ export function FileUploadField({
   const [fileName, setFileName] = useState("");
   return (
     <label className="flex items-center gap-2 border border-axc-border rounded-md px-2 py-2.5 text-[11px] text-gray-500 bg-white cursor-pointer hover:bg-gray-50 transition">
-      <span className="px-2 py-1 bg-gray-100 rounded text-[10px] font-bold text-gray-600 shrink-0">Choose File</span>
+      <span className="px-2 py-1 bg-gray-100 rounded text-regular-small text-gray-600 shrink-0">Choose File</span>
       <span className={`truncate ${fileName ? "text-gray-700 font-medium" : "text-gray-400"}`}>{fileName || placeholder}</span>
       <input
         type="file"
@@ -85,7 +85,7 @@ export function EditIconButton({
       title={title}
       aria-pressed={active}
       className={`flex items-center justify-center h-7 w-7 shrink-0 rounded transition cursor-pointer ${
-        active ? "bg-axc-navy text-white" : "bg-transparent text-axc-grey hover:bg-gray-100"
+        active ? "bg-axc-navy text-white" : "bg-transparent text-axc-grey hover:bg-gray-100 cursor pointer"
       }`}
     >
       <Pencil size={13} />
