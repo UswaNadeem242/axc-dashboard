@@ -22,8 +22,8 @@ export function AwbWeightSummary({ form }: { form: AwbFormState }) {
       <div className="p-4 space-y-3">
         {rows.map((row) => (
           <div key={row.label}>
-            <span className="block text-xs font-medium  capitalize text-axc-dark-gray mb-1">{row.label}</span>
-            <input value={row.value} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50`} />
+            <span className="block text-regular-medium  capitalize text-axc-dark-gray mb-1">{row.label}</span>
+            <input value={row.value} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50`} placeholder={row.label} />
           </div>
         ))}
       </div>

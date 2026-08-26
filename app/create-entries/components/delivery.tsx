@@ -98,7 +98,7 @@ export function DeliveryPanel({
           <div className="p-4 flex flex-col gap-3">
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-axc-dark-gray capitalize">
+                <label className="text-regular-medium text-axc-dark-gray capitalize">
                   Forwarding Number
                 </label>
                 <input
@@ -108,7 +108,7 @@ export function DeliveryPanel({
                 />
               </div>
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-medium text-axc-dark-gray capitalize">
+                <label className="text-regular-medium text-axc-dark-gray capitalize">
                   Forwarding Number 2
                 </label>
                 <input
@@ -338,7 +338,7 @@ export function DeliveryPanel({
             </Field>
             <div className="flex items-center gap-2 mt-1">
 
-              <label htmlFor="podHardCopy" className="text-xs font-medium text-axc-dark-gray capitalize cursor-pointer">
+              <label htmlFor="podHardCopy" className="text-regular-medium text-axc-dark-gray capitalize cursor-pointer">
                 POD Hard Copy
               </label>
               <input
@@ -382,7 +382,7 @@ function Field({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-xs font-medium text-axc-dark-gray capitalize">
+      <label className="text-regular-medium text-axc-dark-gray capitalize">
         {label}
       </label>
       <div>{children}</div>

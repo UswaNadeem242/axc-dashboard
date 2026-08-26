@@ -4,7 +4,7 @@ import { PaymentDetailsFormState } from "./formstate";
 import { FileText, Mail } from "lucide-react";
 
 const inputClass =
-  "border border-gray-300 rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition";
+  "border border-gray-300 rounded-md px-3 py-2.5 outline-none w-full text-regular-small text-axc-gray  placeholder:text-axc-gray  transition";
 
 function PanelHeader({ title }: { title: string }) {
   return (
@@ -15,12 +15,13 @@ function PanelHeader({ title }: { title: string }) {
 }
 
 function Row({
-  label, value, onChange, readOnly, type = "text",
-}: { label: string; value: string; onChange?: (v: string) => void; readOnly?: boolean; type?: string }) {
+  label, value, onChange, readOnly, type = "text", placeholder
+}: { label: string; value: string; onChange?: (v: string) => void; readOnly?: boolean; type?: string; placeholder?: string }) {
   return (
     <div>
-      <span className="block text-xs font-medium text-axc-dark-gray mb-1">{label}</span>
+      <span className="block text-regular-medium text-axc-dark-gray mb-1">{label}</span>
       <input
+        placeholder={placeholder}
         type={type}
         value={value}
         readOnly={readOnly}
@@ -43,9 +44,10 @@ export function PaymentDetailsPanel({
         <Row label="Invoice date" value={payment.invoiceDate} type="date" onChange={(v) => onChange({ invoiceDate: v })} />
 
         <div>
-          <span className="block text-xs font-medium text-axc-dark-gray mb-1">Invoice number</span>
+          <span className="block text-regular-medium text-axc-dark-gray mb-1">Invoice number</span>
           <div className="flex items-center gap-2">
             <input
+              placeholder="0000000"
               value={payment.invoiceNumber}
               onChange={(e) => onChange({ invoiceNumber: e.target.value })}
               className={`${inputClass} h-9 text-[12px]`}
@@ -59,9 +61,9 @@ export function PaymentDetailsPanel({
           </div>
         </div>
 
-        <Row label="INVOICE REMARKS" value={payment.invoiceRemarks} onChange={(v) => onChange({ invoiceRemarks: v })} />
-        <Row label="PAST INVOICE NO." value={payment.pastInvoiceNo} onChange={(v) => onChange({ pastInvoiceNo: v })} />
-        <Row label="CREDIT/DEBIT NOTE" value={payment.creditDebitNote} onChange={(v) => onChange({ creditDebitNote: v })} />
+        <Row label="Invoice Remarks" value={payment.invoiceRemarks} onChange={(v) => onChange({ invoiceRemarks: v })} placeholder="Invoice Remarks" />
+        <Row label="Past Invoice No" value={payment.pastInvoiceNo} onChange={(v) => onChange({ pastInvoiceNo: v })} placeholder="Past Invoice No" />
+        <Row label="Credit/Debit Note" value={payment.creditDebitNote} onChange={(v) => onChange({ creditDebitNote: v })} placeholder="Credit/Debit Note" />
       </div>
     </div>
   );

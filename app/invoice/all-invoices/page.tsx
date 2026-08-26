@@ -105,7 +105,7 @@ export default function AllInvoicePage() {
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
         <div className="flex flex-wrap items-center gap-3">
           {selectedIds.length > 0 && (
-            <span className="text-xs font-semibold text-axc-gray">{selectedIds.length} selected</span>
+            <span className="text-regular-medium  text-axc-gray">{selectedIds.length} selected</span>
           )}
           <FilterSearch
             options={[

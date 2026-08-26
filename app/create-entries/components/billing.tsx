@@ -3,7 +3,7 @@ import React from "react";
 import { ChargeKey, SalesBillingFormState } from "./formstate";
 
 const inputClass =
-  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition";
+  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-regular-samll text-axc-gray  placeholder:text-axc-gray placeholder:text-regular-samll  transition";
 
 function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
@@ -47,7 +47,7 @@ function ChargeCell({
     <div className="flex flex-col gap-1.5 border border-gray-200 rounded-md p-2">
       <label className="flex items-center gap-1.5">
         <input type="checkbox" checked={checked} onChange={onToggle} className="h-3.5 w-3.5 accent-axc-navy shrink-0" />
-        <span className={`text-xs  font-semibold leading-tight ${checked ? "text-axc-navy" : "text-axc-dark-gray"}`}>
+        <span className={`text-regular-medium leading-tight ${checked ? "text-axc-navy" : "text-axc-dark-gray"}`}>
           {label}
         </span>
       </label>
@@ -72,11 +72,11 @@ function ChargeCell({
   );
 }
 
-function BillingInputField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function BillingInputField({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void, placeholder?: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-semibold capitalize text-axc-dark-gray">{label}</span>
-      <input value={value} onChange={(e) => onChange(e.target.value)} className={`${inputClass} h-9 text-[12px]`} />
+      <span className="text-regular-medium capitalize text-axc-dark-gray">{label}</span>
+      <input value={value} onChange={(e) => onChange(e.target.value)} className={`${inputClass} h-9 text-[12px]`} placeholder={placeholder} />
     </div>
   );
 }
@@ -84,7 +84,7 @@ function BillingInputField({ label, value, onChange }: { label: string; value: s
 function BillingSummaryField({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-axc-dark-gray">{label}</span>
+      <span className="text-regular-medium text-axc-dark-gray">{label}</span>
       <input value={value} readOnly className={`${inputClass} h-9 text-xs bg-gray-50 font-semibold`} />
     </div>
   );
@@ -98,12 +98,13 @@ function BillingToggleField({
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs font-medium text-axc-dark-gray">{label}</span>
+      <span className="text-regular-medium text-axc-dark-gray">{label}</span>
       <input
         value={value}
         disabled={!editable}
         onChange={(e) => onValueChange(e.target.value)}
         className={`${inputClass} h-9 text-[12px] ${!editable ? "bg-gray-50" : ""}`}
+        
       />
       <label className="flex items-center gap-1.5 text-[10px] text-gray-500">
         <input type="checkbox" checked={editable} onChange={(e) => onEditToggle(e.target.checked)} className="h-3 w-3 accent-axc-navy" />
@@ -178,11 +179,11 @@ export function SalesBillingPanel({
             editLabel="EDIT AMOUNT"
           />
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-semibold capitalize text-axc-dark-gray">freight per kg</span>
-            <input value={billing.freightPerKg} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50`} />
+            <span className="text-regular-medium  capitalize text-axc-dark-gray">Freight per kg</span>
+            <input value={billing.freightPerKg} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50`} placeholder="Freight per kg" />
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-xs font-medium text-axc-dark-gray">Search Charge</span>
+            <span className="text-regular-medium  text-axc-dark-gray">Search Charge</span>
             <input
               value={billing.searchCharge}
               onChange={(e) => onChange({ searchCharge: e.target.value })}
@@ -207,7 +208,7 @@ export function SalesBillingPanel({
         </div>
         <div className={gridClass}>
           <BillingSummaryField label="Total Other Charges" value={totals.totalOtherCharges} />
-          <BillingInputField label="Adjustment Amount" value={billing.adjustmentAmount} onChange={(v) => onChange({ adjustmentAmount: v })} />
+          <BillingInputField label="Adjustment Amount" value={billing.adjustmentAmount} onChange={(v) => onChange({ adjustmentAmount: v })} placeholder="Adjustment Amount" />
 
           <BillingToggleField
             label="FSC %"
@@ -215,6 +216,7 @@ export function SalesBillingPanel({
             editable={billing.editFscPercent}
             onValueChange={(v) => onChange({ fscPercent: v })}
             onEditToggle={(v) => onChange({ editFscPercent: v })}
+            
             editLabel="EDIT FSC %"
           />
           <BillingToggleField
