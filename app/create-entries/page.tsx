@@ -84,9 +84,10 @@ export default function CreateEntriesPage() {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative shrink-0 flex items-center gap-1.5 px-4 py-4 text-[16px] font-extrabold whitespace-nowrap transition-colors duration-150 cursor-pointer ${activeTab === tab.id ? "text-axc-dark-gray" : "text-axc-gray hover:text-axc-dark-gray "
+                className={`text-regular-medium relative shrink-0 flex items-center gap-1.5 px-4 py-4  whitespace-nowrap transition-colors duration-150 cursor-pointer ${activeTab === tab.id ? "text-axc-dark-gray" : "text-axc-gray hover:text-axc-dark-gray "
                   }`}
               >
+
                 {tab.icon}
                 {tab.label}
                 <span
@@ -114,7 +115,7 @@ export default function CreateEntriesPage() {
                 <div className="xl:sticky xl:top-0 self-start">
                   <WeightsAndDimensions form={form} setForm={setForm} />
                 </div>
-            
+
                 <div className="flex flex-col gap-6 w-full">
                   <AirWaybillInformation form={form} setForm={setForm} errors={errors} />
                   <ShipperFromForm form={form} setForm={setForm} errors={errors} onReset={resetShipper} showToast={showToast} />

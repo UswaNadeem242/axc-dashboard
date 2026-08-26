@@ -26,9 +26,9 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
               type={form.editAwbNumber ? "text" : "password"}
               value={form.awbNumber}
               readOnly={!form.editAwbNumber}
-              placeholder={!form.editAwbNumber ? "AUTO-GENERATED" : ""}
+              placeholder={!form.editAwbNumber ? "AUTO-GENERATED " : ""}
               onChange={(e) => setForm({ ...form, awbNumber: e.target.value })}
-              className={`${errors.awbNumber ? errorInputClass : inputClass} w-full pr-10 ${form.editAwbNumber ? "bg-white" : "bg-gray-50 text-gray-400 cursor-not-allowed"}`}
+              className={`${errors.awbNumber ? errorInputClass : inputClass} w-full pr-10 text-regular-small ${form.editAwbNumber ? "bg-white" : "bg-gray-50 text-gray-400 cursor-not-allowed"}`}
             />
             <div className="absolute right-1 top-1/2 -translate-y-1/2">
               <EditIconButton active={form.editAwbNumber} onToggle={() => setForm({ ...form, editAwbNumber: !form.editAwbNumber })} title="Edit AWB Number" />
@@ -130,8 +130,8 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
         </div>
 
         <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">
-          <label className="font-bold text-gray-600 uppercase">Content</label>
-          <textarea rows={2} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} className={`${inputClass} text-xs focus:ring-1 focus:ring-blue-500 outline-none`} />
+          <label className="text-regular-medium text-axc-dark-gray">Content</label>
+          <textarea rows={2} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} className={`${inputClass} focus:outline-none border-axc-border border`} placeholder="Content here" />
         </div>
 
         <div className="flex flex-col gap-1">

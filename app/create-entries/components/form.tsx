@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import { Pencil } from "lucide-react";
 
 export const inputClass =
-  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition";
+  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition placeholder:text-regular-small";
 export const errorInputClass =
-  "border border-red-400 rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 bg-red-50/40 focus:border-red-400 transition";
+  "border border-red-400 rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 bg-red-50/40 focus:border-red-400 transition placeholder:text-regular-small";
 
 export function toSentenceCase(text: string): string {
   if (!text) return text;
@@ -16,7 +16,7 @@ export function toSentenceCase(text: string): string {
 export function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
   const label = typeof children === "string" ? toSentenceCase(children) : children;
   return (
-    <label className="font-medium text-axc-dark-gray text-xs">
+    <label className=" text-axc-dark-gray text-regular-medium">
       {label}
       {required && <span className="text-axc-red ml-0.5">*</span>}
     </label>
