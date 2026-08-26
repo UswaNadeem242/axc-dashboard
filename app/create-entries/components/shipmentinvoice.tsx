@@ -45,12 +45,12 @@ export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, se
 
           <div className="flex flex-wrap md:flex-nowrap items-center gap-3">
             <div className="flex items-center gap-8 shrink-0">
-              <span className="font-semibold text-sm text-axc-dark-gray">Note</span>
+              <span className="text-regular-medium text-axc-dark-gray">Note</span>
               <div className="w-48">
                 <CommonDropdown value={form.invoiceNote} onChange={(val) => setForm({ ...form, invoiceNote: val })} className="!py-2 !px-2 border-axc-border" options={[{ value: "GIFT", label: "GIFT" }, { value: "SAMPLE", label: "SAMPLE" }, { value: "COMMERCIAL", label: "COMMERCIAL" }]} />
               </div>
             </div>
-            <input type="text" value={form.invoiceDeclaration} onChange={(e) => setForm({ ...form, invoiceDeclaration: e.target.value })} className="w-full border border-axc-border rounded px-3 py-2 text-xs bg-white focus:outline-none" />
+            <input type="text" value={form.invoiceDeclaration} onChange={(e) => setForm({ ...form, invoiceDeclaration: e.target.value })} className="w-full border border-axc-border rounded px-3 py-2 text-regular-small bg-white focus:outline-none" />
           </div>
 
           <div className="mt-2">
@@ -58,7 +58,7 @@ export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, se
             <div className="border border-axc-border border-t-0 overflow-x-auto">
               <table className="w-full text-[11px] border-collapse min-w-[950px]">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-axc-border text-[10px] text-black  uppercase text-left">
+                  <tr className="bg-gray-50 border-b border-axc-border text-regular-medium text-axc-dark-gray text-left">
                     <th className="py-2 px-2 border-r border-axc-border ">Box#</th>
                     <th className="py-2 px-2 border-r border-axc-border ">Sr#</th>
                     <th className="py-2 px-2 border-r border-axc-border  w-1/5">Description</th>

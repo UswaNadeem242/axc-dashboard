@@ -75,7 +75,7 @@ function ChargeCell({
 function BillingInputField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs  font-semibold text-axc-dark-gray">{label}</span>
+      <span className="text-regular-medium  text-axc-dark-gray">{label}</span>
       <input value={value} onChange={(e) => onChange(e.target.value)} className={`${inputClass} h-9 text-[12px]`} />
     </div>
   );
@@ -84,7 +84,7 @@ function BillingInputField({ label, value, onChange }: { label: string; value: s
 function BillingSummaryField({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs  font-semibold text-axc-dark-gray">{label}</span>
+      <span className="text-regular-medium  text-axc-dark-gray">{label}</span>
       <input value={value} readOnly className={`${inputClass} h-9 text-xs bg-gray-50 font-semibold`} />
     </div>
   );
@@ -272,7 +272,7 @@ export function PurchaseBillingPanel({
         </div>
 
         <div className="flex items-center gap-2 pt-1 border-t border-gray-100">
-          <span className="text-[13px] font-bold w-[190px] shrink-0 text-gray-800">GRAND TOTAL</span>
+          <span className="text-regular-bold w-[190px] shrink-0 text-gray-800">GRAND TOTAL</span>
           <input
             value={billing.editTotal ? billing.grandTotal : totals.grandTotal}
             disabled={!billing.editTotal}

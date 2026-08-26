@@ -3,7 +3,7 @@ import React from "react";
 import { InvoiceRemarksFormState, RefundDetailsFormState } from "./formstate";
 
 const inputClass =
-  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 outline-none  focus:outline-none transition";
+  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full  text-regular-small  text-axc-gray  placeholder:text-axc-gray placeholder:text-regular-small   outline-none    transition";
 
 import { PanelHeader } from "./form";
 
@@ -22,8 +22,9 @@ export function InvoiceRemarksPanel({
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
         {rows.map((row) => (
           <div key={row.key}>
-            <span className="block text-xs font-medium text-axc-dark-gray mb-1">{row.label}</span>
+            <span className="block text-regular-medium text-axc-dark-gray mb-1">{row.label}</span>
             <input
+            placeholder={row.label}
               value={remarks[row.key]}
               onChange={(e) => onChange({ [row.key]: e.target.value } as Partial<InvoiceRemarksFormState>)}
               className={`${inputClass} h-9 text-[12px]`}
@@ -43,20 +44,21 @@ export function RefundDetailsPanel({
       <PanelHeader title="Refund Details" />
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <span className="block text-xs font-semibold text-axc-dark-gray  mb-1">Refund Amount</span>
-          <input value={refund.refundAmount} onChange={(e) => onChange({ refundAmount: e.target.value })} className={`${inputClass} h-9 text-[12px]`} />
+          <span className="block text-regular-medium text-axc-dark-gray  mb-1">Refund Amount</span>
+          <input value={refund.refundAmount} onChange={(e) => onChange({ refundAmount: e.target.value })} className={`${inputClass} h-9 text-[12px]`}  placeholder="Refund Amount
+"/>
         </div>
         <div>
-          <span className="block text-xs font-semibold text-axc-dark-gray  mb-1">Refund Date</span>
-          <input type="date" value={refund.refundDate} onChange={(e) => onChange({ refundDate: e.target.value })} className={`${inputClass} h-9 text-[12px]`} />
+          <span className="block text-regular-medium text-axc-dark-gray  mb-1">Refund Date</span>
+          <input type="date" value={refund.refundDate} onChange={(e) => onChange({ refundDate: e.target.value })} className={`${inputClass} h-9 text-[12px]`}  placeholder="00/00/0000"/>
         </div>
         <div>
-          <span className="block text-xs font-semibold text-axc-dark-gray  mb-1">Refund Reason</span>
-          <input value={refund.refundReason} onChange={(e) => onChange({ refundReason: e.target.value })} className={`${inputClass} h-9 text-[12px]`} />
+          <span className="block text-regular-medium text-axc-dark-gray  mb-1">Refund Reason</span>
+          <input value={refund.refundReason} onChange={(e) => onChange({ refundReason: e.target.value })} className={`${inputClass} h-9 text-[12px]`} placeholder="Refund Reason" />
         </div>
         <div>
-          <span className="block text-xs font-semibold text-axc-dark-gray  mb-1">Refund Remarks</span>
-          <input value={refund.refundRemarks} onChange={(e) => onChange({ refundRemarks: e.target.value })} className={`${inputClass} h-9 text-[12px]`} />
+          <span className="block text-regular-medium text-axc-dark-gray  mb-1">Refund Remarks</span>
+          <input value={refund.refundRemarks} onChange={(e) => onChange({ refundRemarks: e.target.value })} className={`${inputClass} h-9 text-[12px]`} placeholder="Refund Remarks"/>
         </div>
       </div>
     </div>

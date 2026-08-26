@@ -39,7 +39,7 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
 
         <div className="flex flex-col gap-1">
           <FieldLabel required>Customer</FieldLabel>
-          <input type="text" value={form.customer} onChange={(e) => setForm({ ...form, customer: e.target.value })} className={`${errors.customer ? errorInputClass : inputClass} bg-gray-50 focus:bg-white`} />
+          <input type="text" value={form.customer} onChange={(e) => setForm({ ...form, customer: e.target.value })} className={`${errors.customer ? errorInputClass : inputClass} bg-gray-50 focus:bg-white`}  placeholder="Customer"/>
           <FieldError message={errors.customer} />
         </div>
 
@@ -98,17 +98,17 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Forwarding Number</FieldLabel>
-          <input type="text" value={form.forwardingNumber} onChange={(e) => setForm({ ...form, forwardingNumber: e.target.value })} className={inputClass} />
+          <input type="text" value={form.forwardingNumber} onChange={(e) => setForm({ ...form, forwardingNumber: e.target.value })} className={inputClass}  placeholder="Forwarding Number"/>
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Forwarding Number 2</FieldLabel>
-          <input type="text" value={form.forwardingNumber2} onChange={(e) => setForm({ ...form, forwardingNumber2: e.target.value })} className={inputClass} />
+          <input type="text" value={form.forwardingNumber2} onChange={(e) => setForm({ ...form, forwardingNumber2: e.target.value })} className={inputClass}  placeholder="Forwarding Number"/>
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Reference Number</FieldLabel>
-          <input type="text" value={form.referenceNumber} onChange={(e) => setForm({ ...form, referenceNumber: e.target.value })} className={inputClass} />
+          <input type="text" value={form.referenceNumber} onChange={(e) => setForm({ ...form, referenceNumber: e.target.value })} className={inputClass}  placeholder="Reference Number"/>
         </div>
 
         <div className="flex flex-col gap-1">
@@ -126,7 +126,7 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Invoice Number</FieldLabel>
-          <input type="text" value={form.invoiceNumber} onChange={(e) => setForm({ ...form, invoiceNumber: e.target.value })} className={inputClass} />
+          <input type="number" value={form.invoiceNumber} onChange={(e) => setForm({ ...form, invoiceNumber: e.target.value })} className={inputClass}  placeholder="Invoice Number"/>
         </div>
 
         <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">
@@ -150,17 +150,17 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
             </thead>
             <tbody>
               <tr className="border-b border-axc-border">
-                <td className="py-1 px-2 border-r text-xs border-axc-border bg-gray-50 text-left   text-axc-gray">Rate Contract</td>
+                <td className="py-1 px-2 border-r text-regular-small text-axc-dark-gray border-axc-border bg-gray-50 text-left ">Rate Contract</td>
                 <td className="border-r border-axc-border"><input type="text" value={form.rateContractCustomer} onChange={(e) => setForm({ ...form, rateContractCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
                 <td><input type="text" value={form.rateContractVendor} onChange={(e) => setForm({ ...form, rateContractVendor: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
               </tr>
               <tr className="border-b border-axc-border">
-                <td className="py-1 px-2 border-r text-xs border-axc-border bg-gray-50 text-left   text-axc-gray">CFT Contract</td>
+                <td className="py-1 px-2 border-r   border-axc-border bg-gray-50 text-left   text-regular-small text-axc-dark-gray">CFT Contract</td>
                 <td className="border-r border-axc-border"><input type="text" value={form.cftContractCustomer} onChange={(e) => setForm({ ...form, cftContractCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
                 <td><input type="text" value={form.cftContractVendor} onChange={(e) => setForm({ ...form, cftContractVendor: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
               </tr>
               <tr>
-                <td className="py-1 px-2 border-r text-xs border-axc-border bg-gray-50 text-left   text-axc-gray">TAT</td>
+                <td className="py-1 px-2 border-r  border-axc-border bg-gray-50 text-left   text-regular-small text-axc-dark-gray">TAT</td>
                 <td className="border-r border-axc-border"><input type="text" value={form.tatCustomer} onChange={(e) => setForm({ ...form, tatCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
                 <td><input type="text" value={form.tatVendor} onChange={(e) => setForm({ ...form, tatVendor: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
               </tr>
