@@ -3,7 +3,7 @@ import React from "react";
 import { PurchaseChargeKey, PurchaseBillingFormState } from "./formstate";
 
 const inputClass =
-  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition";
+  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-regular-small placeholder:text-regular-small text-axc-gray placeholder:text-axc-gray";
 
 function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
@@ -47,7 +47,7 @@ function ChargeCell({
     <div className="flex flex-col gap-1.5 border border-gray-200 rounded-md p-2">
       <label className="flex items-center gap-1.5">
         <input type="checkbox" checked={checked} onChange={onToggle} className="h-3.5 w-3.5 accent-axc-navy shrink-0" />
-        <span className={`text-xs  font-semibold leading-tight ${checked ? "text-axc-navy" : "text-axc-dark-gray"}`}>
+        <span className={` text-regular-medium leading-tight ${checked ? "text-axc-navy" : "text-axc-dark-gray"}`}>
           {label}
         </span>
       </label>
@@ -72,34 +72,35 @@ function ChargeCell({
   );
 }
 
-function BillingInputField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+function BillingInputField({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
     <div className="flex flex-col gap-1">
       <span className="text-regular-medium  text-axc-dark-gray">{label}</span>
-      <input value={value} onChange={(e) => onChange(e.target.value)} className={`${inputClass} h-9 text-[12px]`} />
+      <input value={value} onChange={(e) => onChange(e.target.value)} className={`${inputClass} h-9 text-[12px]`} placeholder={placeholder} />
     </div>
   );
 }
 
-function BillingSummaryField({ label, value }: { label: string; value: string }) {
+function BillingSummaryField({ label, value, placeholder }: { label: string; value: string; placeholder?: string }) {
   return (
     <div className="flex flex-col gap-1">
       <span className="text-regular-medium  text-axc-dark-gray">{label}</span>
-      <input value={value} readOnly className={`${inputClass} h-9 text-xs bg-gray-50 font-semibold`} />
+      <input value={value} readOnly className={`${inputClass} h-9 text-xs bg-gray-50 font-semibold`} placeholder={placeholder} />
     </div>
   );
 }
 
 function BillingToggleField({
-  label, value, editable, onValueChange, onEditToggle, editLabel,
+  label, value, editable, onValueChange, onEditToggle, editLabel, placeholder
 }: {
   label: string; value: string; editable: boolean;
-  onValueChange: (v: string) => void; onEditToggle: (v: boolean) => void; editLabel: string;
+  onValueChange: (v: string) => void; onEditToggle: (v: boolean) => void; editLabel: string; placeholder: string;
 }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-xs  font-semibold text-axc-dark-gray">{label}</span>
+      <span className="text-regular-medium text-axc-dark-gray">{label}</span>
       <input
+        placeholder={placeholder}
         value={value}
         disabled={!editable}
         onChange={(e) => onValueChange(e.target.value)}
@@ -185,6 +186,7 @@ export function PurchaseBillingPanel({
       <div className="p-4 space-y-4">
         <div className={gridClass}>
           <BillingToggleField
+            placeholder="Freight"
             label="Freight"
             value={billing.freight}
             editable={billing.editFreightAmount}
@@ -194,7 +196,7 @@ export function PurchaseBillingPanel({
           />
           <div className="flex flex-col gap-1">
             <span className="text-xs  font-semibold text-axc-dark-gray">Freight Per Kg</span>
-            <input value={billing.freightPerKg} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50`} />
+            <input value={billing.freightPerKg} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50`} placeholder="Freight Per Kg" />
           </div>
           <div className="flex flex-col gap-1">
             <span className="text-xs  font-semibold text-axc-dark-gray">Search Charge</span>
@@ -224,9 +226,10 @@ export function PurchaseBillingPanel({
 
         <div className={gridClass}>
           <BillingSummaryField label="Total Other Charges" value={totals.totalOtherCharges} />
-          <BillingInputField label="Adjustment Amount" value={billing.adjustmentAmount} onChange={(v) => onChange({ adjustmentAmount: v })} />
+          <BillingInputField label="Adjustment Amount" value={billing.adjustmentAmount} onChange={(v) => onChange({ adjustmentAmount: v })} placeholder="Adjustment Amount" />
 
           <BillingToggleField
+            placeholder="FSC %"
             label="FSC %"
             value={billing.fscPercent}
             editable={billing.editFscPercent}
@@ -235,6 +238,7 @@ export function PurchaseBillingPanel({
             editLabel="EDIT FSC %"
           />
           <BillingToggleField
+            placeholder="FSC"
             label="FSC"
             value={billing.fsc}
             editable={billing.editFsc}
@@ -242,18 +246,19 @@ export function PurchaseBillingPanel({
             onEditToggle={(v) => onChange({ editFsc: v })}
             editLabel="EDIT FSC"
           />
-          <BillingInputField label="Discount (In %)" value={billing.discountPercent} onChange={(v) => onChange({ discountPercent: v })} />
-          <BillingInputField label="Discount Amount" value={billing.discountAmount} onChange={(v) => onChange({ discountAmount: v })} />
+          <BillingInputField label="Discount (In %)" value={billing.discountPercent} onChange={(v) => onChange({ discountPercent: v })} placeholder="Discount (In %)" />
+          <BillingInputField label="Discount Amount" value={billing.discountAmount} onChange={(v) => onChange({ discountAmount: v })} placeholder="Discount Amount" />
           <BillingSummaryField label="Total Discount" value={totals.totalDiscount} />
 
-          <BillingSummaryField label="Freight After Discount" value={totals.freightAfterDiscount} />
-          <BillingSummaryField label="Subtotal" value={totals.subtotal} />
-          <BillingSummaryField label="Non Taxable Amount" value={totals.nonTaxableAmount} />
+          <BillingSummaryField label="Freight After Discount" value={totals.freightAfterDiscount} placeholder="Freight After Discount" />
+          <BillingSummaryField label="Subtotal" value={totals.subtotal} placeholder="Subtotal" />
+          <BillingSummaryField label="Non Taxable Amount" value={totals.nonTaxableAmount} placeholder="Non Taxable Amount" />
 
-          <BillingSummaryField label="Taxable Amount" value={totals.taxableAmount} />
-          <BillingInputField label="VAT %" value={billing.vatPercent} onChange={(v) => onChange({ vatPercent: v })} />
+          <BillingSummaryField label="Taxable Amount" value={totals.taxableAmount} placeholder="Taxable Amount" />
+          <BillingInputField label="VAT %" value={billing.vatPercent} onChange={(v) => onChange({ vatPercent: v })} placeholder="VAT %" />
 
           <BillingToggleField
+            placeholder="CGST"
             label="CGST"
             value={totals.cgst}
             editable={billing.editCgst}
@@ -262,6 +267,7 @@ export function PurchaseBillingPanel({
             editLabel="EDIT CGST"
           />
           <BillingToggleField
+            placeholder="SGST"
             label="SGST"
             value={totals.sgst}
             editable={billing.editSgst}

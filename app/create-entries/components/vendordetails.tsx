@@ -4,7 +4,7 @@ import { VendorDetailsFormState, VendorWeightRow } from "./formstate";
 import { Plus, Trash } from "lucide-react";
 
 const inputClass =
-  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition";
+  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-regular-small placeholder:text-regular-small text-axc-gray placeholder:text-axc-gray";
 
 function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
@@ -16,12 +16,13 @@ function PanelHeader({ title, right }: { title: string; right?: React.ReactNode 
 }
 
 function Field({
-  label, value, editable = true, onChange,
-}: { label: string; value: string; editable?: boolean; onChange?: (v: string) => void }) {
+  label, value, editable = true, onChange, placeholder,
+}: { label: string; value: string; editable?: boolean; onChange?: (v: string) => void; placeholder?: string }) {
   return (
     <div className="flex items-center gap-3">
       <span className="text-regular-medium  text-axc-dark-gray   w-[150px] shrink-0">{label}</span>
       <input
+        placeholder={placeholder}
         value={value}
         disabled={!editable}
         onChange={(e) => onChange?.(e.target.value)}
@@ -66,12 +67,12 @@ export function VendorDetailsPanel({
 
       <div className="p-4 space-y-4">
         <div className={gridClass}>
-          <Field label="Product" value={vendorDetails.product} editable={editable} onChange={(v) => onChange({ product: v })} />
-          <Field label="Service" value={vendorDetails.service} editable={editable} onChange={(v) => onChange({ service: v })} />
-          <Field label="Vendor" value={vendorDetails.vendor} editable={editable} onChange={(v) => onChange({ vendor: v })} />
-          <Field label="Origin Zone" value={vendorDetails.originZone} editable={editable} onChange={(v) => onChange({ originZone: v })} />
-          <Field label="Destination Zone" value={vendorDetails.destinationZone} editable={editable} onChange={(v) => onChange({ destinationZone: v })} />
-          <Field label="PCS" value={vendorDetails.pcs} editable={editable} onChange={(v) => onChange({ pcs: v })} />
+          <Field label="Product" value={vendorDetails.product} editable={editable} onChange={(v) => onChange({ product: v })} placeholder="Product" />
+          <Field label="Service" value={vendorDetails.service} editable={editable} onChange={(v) => onChange({ service: v })} placeholder="Service" />
+          <Field label="Vendor" value={vendorDetails.vendor} editable={editable} onChange={(v) => onChange({ vendor: v })} placeholder="Vendor" />
+          <Field label="Origin Zone" value={vendorDetails.originZone} editable={editable} onChange={(v) => onChange({ originZone: v })} placeholder="Origin Zone" />
+          <Field label="Destination Zone" value={vendorDetails.destinationZone} editable={editable} onChange={(v) => onChange({ destinationZone: v })} placeholder="Destination Zone" />
+          <Field label="PCS" value={vendorDetails.pcs} editable={editable} onChange={(v) => onChange({ pcs: v })} placeholder="PCS" />
         </div>
 
         {/* Weight table — styled like Shipment Invoice Items */}
@@ -82,7 +83,7 @@ export function VendorDetailsPanel({
           <div className="border border-axc-border border-t-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <table className="w-full text-xs border-collapse min-w-[750px]">
               <thead>
-                <tr className="bg-gray-50 border-b border-axc-border text-xs  text-axc-dark-gray font-bold uppercase text-left">
+                <tr className="bg-gray-50 border-b border-axc-border text-regular-medium  text-axc-dark-gray font-bold uppercase text-left">
                   <th className="py-2 px-2 border-r border-axc-border font-semibold">Actual Wt.(Kg.)</th>
                   <th className="py-2 px-2 border-r border-axc-border font-semibold">L(cm)</th>
                   <th className="py-2 px-2 border-r border-axc-border font-semibold">B(cm)</th>
@@ -95,7 +96,7 @@ export function VendorDetailsPanel({
               <tbody>
                 {vendorDetails.weightRows.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="py-4 px-3 text-center text-gray-400 text-[11px]">
+                    <td colSpan={7} className="py-4 px-3 text-center text-gray-400 text-regular-semibold">
                       No weight rows added yet.
                     </td>
                   </tr>
@@ -157,7 +158,7 @@ export function VendorDetailsPanel({
           </div>
         </div>
 
-        <Field label="ACTUAL WEIGHT" value={vendorDetails.actualWeight} editable={editable} onChange={(v) => onChange({ actualWeight: v })} />
+        <Field label="ACTUAL WEIGHT" value={vendorDetails.actualWeight} editable={editable} onChange={(v) => onChange({ actualWeight: v })} placeholder="Actual Weight" />
 
         <div className={gridClass}>
           <div className="flex items-center gap-3">
