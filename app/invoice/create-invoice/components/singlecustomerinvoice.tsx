@@ -114,7 +114,7 @@ export function AwbTableSection({ awbRows, addAwbRow, updateAwbRow, removeAwbRow
         <div className="border border-axc-border rounded-lg overflow-x-auto">
           <table className="w-full text-[11px] border-collapse min-w-[950px]">
             <thead>
-              <tr className="bg-gray-50 border-b border-axc-border text-regular-medium text-axc-gray  text-left">
+              <tr className="bg-gray-50 border-b border-axc-border text-regular-medium text-axc-dark-gray  text-left">
                 <th className="py-2 px-2 border-r border-axc-border">AWB Number</th>
                 <th className="py-2 px-2 border-r border-axc-border">Booking Date</th>
                 <th className="py-2 px-2 border-r border-axc-border">Forwarding Number</th>
