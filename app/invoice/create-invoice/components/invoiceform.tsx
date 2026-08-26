@@ -4,13 +4,13 @@ import { Pencil } from "lucide-react";
 import { AwbInvoiceRow, SingleInvoiceFormState, SingleInvoiceSearchState, ToastState } from "./invoicestate";
 
 export const inputClass =
-  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition cursor-pointer";
+  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 focus:border-gray-400 transition cursor-pointer placeholder:text-regular-small";
 
 export const errorInputClass =
-  "border border-red-400 rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 bg-red-50/40 focus:border-red-400 transition cursor-pointer";
+  "border border-red-400 rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-700 placeholder:text-gray-400 bg-red-50/40 focus:border-red-400 transition cursor-pointer placeholder:text-regular-small";
 
 export const disabledInputClass =
-  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-400 placeholder:text-gray-400 bg-gray-50 cursor-not-allowed transition";
+  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-[13px] text-gray-400 placeholder:text-gray-400 bg-gray-50 cursor-not-allowed transition placeholder:text-regular-small";
 
 export function toSentenceCase(text: string): string {
   if (!text) return text;
@@ -21,7 +21,7 @@ export function toSentenceCase(text: string): string {
 export function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
   const label = typeof children === "string" ? toSentenceCase(children) : children;
   return (
-    <label className="font-medium text-axc-dark-gray text-xs capitalize">
+    <label className="text-regular-medium text-axc-dark-gray  capitalize">
       {label} {required && <span className="text-axc-red ml-0.5">*</span>}
     </label>
   );

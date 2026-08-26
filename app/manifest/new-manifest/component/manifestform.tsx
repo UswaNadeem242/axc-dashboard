@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ManifestBagRow,
   ManifestChargeRow,
@@ -79,6 +80,8 @@ const emptyChargeRow = (id: number): ManifestChargeRow => ({
 });
 
 export function useManifestForm() {
+  const router = useRouter();
+
   const [form, setForm] = useState<ManifestFormState>(emptyForm);
   const [errors, setErrors] = useState<ManifestFormErrors>({});
   const [tab, setTab] = useState<ManifestTab>("entry");
@@ -156,7 +159,7 @@ export function useManifestForm() {
   };
 
   const handleBagging = () => {
-    showToast("Bagging started");
+    router.push("/manifest/new-manifest/component/bagging");
   };
 
   return {
