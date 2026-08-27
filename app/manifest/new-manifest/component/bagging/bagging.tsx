@@ -9,7 +9,7 @@ type BaggingPanelProps = Omit<BaggingFormState, "awbDetails">;
 function StatBox({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="bg-axc-navy text-white text-center py-1.5 flex-1">
-      <div className="text-[10px] font-semibold uppercase tracking-wide">{label}</div>
+      <div className="text-regular-medium uppercase tracking-wide">{label}</div>
       <div className="text-regular-medium font-bold">{value}</div>
     </div>
   );
@@ -18,7 +18,7 @@ function StatBox({ label, value }: { label: string; value: number | string }) {
 function TotalBox({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="border-2 border-axc-red-dark bg-axc-red-dark rounded text-center py-1.5 flex-1">
-      <div className="text-[10px] font-semibold text-white uppercase tracking-wide">{label}</div>
+      <div className="text-regular-small text-white uppercase tracking-wide">{label}</div>
       <div className="text-regular-medium font-bold text-white">{value}</div>
     </div>
   );
