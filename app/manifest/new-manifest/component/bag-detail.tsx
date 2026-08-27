@@ -33,7 +33,7 @@ export default function BagDetails({ rows, updateRow, addRow, removeRow, selectA
         <div className="border border-axc-border rounded-lg overflow-x-auto">
           <table className="w-full text-[11px] border-collapse min-w-[1100px]">
             <thead>
-              <tr className="bg-gray-50 border-b border-axc-border text-[10px] text-black uppercase text-left">
+              <tr className="bg-gray-50 border-b border-axc-border text-regular-medium text-axc-dark-gray uppercase text-left">
                 <th className="py-2 px-2 border-r border-axc-border w-8"></th>
                 <th className="py-2 px-2 border-r border-axc-border">Bag No.</th>
                 <th className="py-2 px-2 border-r border-axc-border">EDI Bag No.</th>

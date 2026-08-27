@@ -21,7 +21,7 @@ type AwbDetails = {
 function DetailRow({ label, value }: { label: string; value?: string }) {
   return (
     <div className="grid grid-cols-2 border-b border-axc-border last:border-b-0 text-regular-small">
-      <div className="bg-gray-50 px-2 py-1.5 font-medium text-axc-dark-gray border-r border-axc-border">
+      <div className="bg-gray-50 px-2 py-1.5 text-regular-medium  text-axc-dark-gray border-r border-axc-border">
         {label}
       </div>
       <div className="px-2 py-1.5 text-gray-700">{value || ""}</div>

@@ -59,8 +59,8 @@ export default function Home() {
               <div className="flex flex-row justify-between gap-2">
 
                 <div>
-                  <p className="mt-1 text-sm font-medium text-axc-gray truncate">{card.label}</p>
-                  <p className="mt-1 text-2xl font-extrabold text-axc-navy-dark">{card.count}</p>
+                  <p className="mt-1 text-regular text-axc-gray truncate">{card.label}</p>
+                  <h2 className="mt-1 text-axc-navy-dark">{card.count}</h2>
                 </div>
                 <div className="flex items-center ">
                   <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${card.iconBgColor} ${card.iconTextColor}`}>
@@ -72,7 +72,7 @@ export default function Home() {
 
               <div className="mt-2 flex items-center gap-1 text-[10px]">
                 <TrendIcon size={12} className={trendColor} />
-                <span className="text-axc-dark-gray font-medium">{card.trend}</span>
+                <span className="text-axc-dark-gray text-regular">{card.trend}</span>
               </div>
             </div>
           );
@@ -148,7 +148,7 @@ export default function Home() {
                     28
                   </span>
                 </div>
-                <p className="mt-2 text-xs font-bold text-axc-dark-grey">Email</p>
+                <p className="mt-2 text-regular-semibold text-axc-dark-grey">Email</p>
                 <p className="text-[10px] font-medium text-axc-navy">28 Unread</p>
               </div>
 

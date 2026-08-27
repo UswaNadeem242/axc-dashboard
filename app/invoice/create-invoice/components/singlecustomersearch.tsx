@@ -25,6 +25,7 @@ export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors 
               value={search.customer}
               onChange={(e) => setSearch((prev) => ({ ...prev, customer: e.target.value }))}
               className={inputClass}
+              placeholder="Customer"
             />
             {errors.customer && <span className="text-[10px] text-red-500">{errors.customer}</span>}
           </div>
@@ -57,6 +58,7 @@ export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors 
               value={search.gstNumber}
               onChange={(e) => setSearch((prev) => ({ ...prev, gstNumber: e.target.value }))}
               className={inputClass}
+              placeholder="GST number"
             />
             {errors.gstNumber && <span className="text-[10px] text-red-500">{errors.gstNumber}</span>}
           </div>
@@ -99,6 +101,7 @@ export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors 
               value={search.service}
               onChange={(e) => setSearch((prev) => ({ ...prev, service: e.target.value }))}
               className={inputClass}
+              placeholder="Service"
             />
           </div>
 
@@ -109,6 +112,7 @@ export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors 
               value={search.vendor}
               onChange={(e) => setSearch((prev) => ({ ...prev, vendor: e.target.value }))}
               className={inputClass}
+              placeholder="Vendor"
             />
           </div>
 
@@ -119,6 +123,7 @@ export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors 
               value={search.product}
               onChange={(e) => setSearch((prev) => ({ ...prev, product: e.target.value }))}
               className={inputClass}
+              placeholder="Product"
             />
           </div>
 
@@ -129,6 +134,7 @@ export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors 
               value={search.runNumber}
               onChange={(e) => setSearch((prev) => ({ ...prev, runNumber: e.target.value }))}
               className={inputClass}
+              placeholder="Run Number"
             />
           </div>
         </div>

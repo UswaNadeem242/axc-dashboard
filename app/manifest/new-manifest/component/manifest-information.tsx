@@ -58,6 +58,7 @@ export default function ManifestInformation({
               value={form.forwarder}
               onChange={(e) => updateField("forwarder", e.target.value)}
               className={`${form.editForwarder ? inputClass : disabledInputClass} w-full pr-10`}
+              placeholder="Forwarder"
             />
             <div className="absolute right-1 top-1/2 -translate-y-1/2">
               <EditIconButton active={form.editForwarder} onToggle={() => toggleEdit("editForwarder")} title="Edit Forwarder" />
@@ -73,6 +74,7 @@ export default function ManifestInformation({
               value={form.vendor}
               onChange={(e) => updateField("vendor", e.target.value)}
               className={`${form.editVendor ? inputClass : disabledInputClass} w-full pr-10`}
+              placeholder="Vendor"
             />
             <div className="absolute right-1 top-1/2 -translate-y-1/2">
               <EditIconButton active={form.editVendor} onToggle={() => toggleEdit("editVendor")} title="Edit Vendor" />
@@ -86,6 +88,7 @@ export default function ManifestInformation({
             value={form.lineHaulVendor}
             onChange={(e) => updateField("lineHaulVendor", e.target.value)}
             className={`${inputClass} bg-gray-50`}
+            placeholder="Line Haul Vendor"
           />
         </div>
 
@@ -95,6 +98,7 @@ export default function ManifestInformation({
             value={form.masterNo}
             onChange={(e) => updateField("masterNo", e.target.value)}
             className={`${inputClass} bg-gray-50`}
+            placeholder="Master No."
           />
         </div>
 
@@ -104,6 +108,7 @@ export default function ManifestInformation({
             value={form.masterEdiBagNo}
             onChange={(e) => updateField("masterEdiBagNo", e.target.value)}
             className={`${inputClass} bg-gray-50`}
+            placeholder="Master EDI Bag No"
           />
         </div>
 
@@ -123,7 +128,6 @@ export default function ManifestInformation({
           </div>
         </div>
 
-        {/* Flight No — icon back inside (overlay style), custom chevron so it doesn't collide with the pencil */}
         <div className="flex flex-col gap-1">
           <FieldLabel>Flight No</FieldLabel>
           <div className="relative">
@@ -194,6 +198,7 @@ export default function ManifestInformation({
             value={form.comment}
             onChange={(e) => updateField("comment", e.target.value)}
             className={`${inputClass} text-xs outline-none resize-none`}
+            placeholder="Comment here"
           />
         </div>
       </div>
@@ -202,14 +207,14 @@ export default function ManifestInformation({
         <button
           type="button"
           onClick={handleSearchAwb}
-          className="bg-axc-navy text-white text-[12px] font-semibold px-4 py-2 rounded cursor-pointer transition uppercase tracking-wide"
+          className="bg-axc-navy text-white text-[12px] font-semibold px-4 py-2 rounded cursor-pointer transition uppercase "
         >
           Search AWB
         </button>
         <button
           type="button"
           onClick={handleBagging}
-          className="bg-axc-navy text-white text-[12px] font-semibold px-4 py-2 rounded cursor-pointer transition uppercase tracking-wide"
+          className="bg-axc-navy text-white text-[12px] font-semibold px-4 py-2 rounded cursor-pointer transition uppercase "
         >
           Bagging
         </button>
