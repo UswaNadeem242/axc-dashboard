@@ -22,7 +22,7 @@ import {
   DollarSign,
   Coins,
 } from "lucide-react";
-
+0
 export interface SubMenuItem {
   label: string;
   id: string;
@@ -44,30 +44,34 @@ export const menuItems: MenuItem[] = [
     label: "AWB Management",
     icon: FileText,
     id: "awb-management",
-    hasDropdown: true,
-    subItems: [
-      { label: "AWB Entries", id: "awb-entries", href: "/awb-entries" },
-      { label: "Management System", id: "awb-management-system" },
-    ],
+    hasDropdown: false,
+    href: "/awb-entries",
+    // subItems: [
+    //   { label: "AWB Entries", id: "awb-entries", href: "/awb-entries" },
+    //   { label: "Management System", id: "awb-management-system" },
+    // ],
   },
   {
     label: "Manifest Management",
     icon: ClipboardCheck,
     id: "manifest",
-    hasDropdown: true,
-    subItems: [
-      { label: "All Manifest", id: "all-manifest", href: "/manifest/all-manifest" },
-    ],
+    href: "/manifest/all-manifest",
+    hasDropdown: false,
+    //subItems: [
+      //{ label: "All Manifest", id: "all-manifest", href: "/manifest/all-manifest" },
+   // ],
   },
   {
     label: "Invoice & Billing",
     icon: CreditCard,
     id: "invoice",
-    hasDropdown: true,
-    subItems: [
-      { label: "Invoices", id: "invoices" },
-      { label: "Billing System", id: "billing-system" },
-    ],
+    hasDropdown: false,
+    href: "/invoice/all-invoices",
+    //subItems: [
+      
+     // { label: "Invoices", id: "invoices", href: "/invoice/all-invoices" },
+     // { label: "Billing System", id: "billing-system" },
+    //],
   },
   { label: "Tracking", icon: MapPin, id: "tracking" },
   { label: "Rate Calculation", icon: Calculator, id: "rate-calculation" },
@@ -969,6 +973,59 @@ export const initialManifestData: ManifestEntry[] = [
     noOfBags: 79, 
     weight: "1395.3" },
 ];
+
+export interface InvoiceEntry {
+  srNo: number;
+  invoiceNumber: string;
+  customerName: string;
+  customerType: string;
+  invoiceDate: string;
+  grandTotal: string;
+  shipperCode: string;
+  createdBy: string;
+  createdDate: string;
+  isEmailSent: string;
+  emailSentCount: number;
+}
+
+export const InvoiceHeading = [
+  { label: "SR.NO.", key: "srNo" },
+  { label: "INVOICE NUMBER", key: "invoiceNumber", sortable: true, truncate: false },
+  { label: "CUSTOMER NAME", key: "customerName", truncate: false },
+  { label: "CUSTOMER TYPE", key: "customerType" },
+  { label: "INVOICE DATE", key: "invoiceDate", sortable: true },
+  { label: "GRAND TOTAL", key: "grandTotal", className: "font-bold" },
+  { label: "SHIPPER CODE", key: "shipperCode" },
+  { label: "CREATED BY", key: "createdBy" },
+  { label: "CREATED DATE", key: "createdDate", sortable: true },
+  { label: "IS EMAIL SENT", key: "isEmailSent" },
+  { label: "EMAIL SENT COUNT", key: "emailSentCount" },
+  { label: "ACTION", key: "action" },
+];
+
+export const initialInvoiceData: InvoiceEntry[] = [
+  { srNo: 1, invoiceNumber: "AURA LOGISTICS CB RUN 07", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "30550", shipperCode: "SKT", createdBy: "ACCOUNTS 5", createdDate: "22/08/2026 11:20 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 2, invoiceNumber: "MASTER LEATHER CB RUN 02", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "10420", shipperCode: "SKT SHIPPER", createdBy: "ACCOUNTS 4", createdDate: "22/08/2026 11:14 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 3, invoiceNumber: "STANDARD CARGO CB RUN 01", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "8830", shipperCode: "SKT", createdBy: "ACCOUNTS 4", createdDate: "22/08/2026 11:11 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 4, invoiceNumber: "NA LOGISTICS CB RUN 62", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "159380", shipperCode: "SKT", createdBy: "ACCOUNTS 5", createdDate: "22/08/2026 11:04 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 5, invoiceNumber: "DMS EXPRESS CB SKT RUN 163", customerName: "DMS COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "10250", shipperCode: "", createdBy: "ACCOUNTS 5", createdDate: "22/08/2026 10:49 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 6, invoiceNumber: "XS COURIER CB RUN 16", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "96520", shipperCode: "SKT", createdBy: "ACCOUNTS 5", createdDate: "22/08/2026 10:46 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 7, invoiceNumber: "AYAAN INTERNATIONAL CB RUN 02", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "71330", shipperCode: "SKT SHIPPER", createdBy: "ACCOUNTS 5", createdDate: "22/08/2026 10:45 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 8, invoiceNumber: "CAPITAL COURIER CB RUN 14", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "42300", shipperCode: "SKT", createdBy: "ACCOUNTS 5", createdDate: "22/08/2026 10:19 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 9, invoiceNumber: "SWIFTSHIP COURIER CB 58", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "40800", shipperCode: "SKT", createdBy: "ACCOUNTS 5", createdDate: "22/08/2026 10:14 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 10, invoiceNumber: "KUNHAR LOGISTIC CB RUN 09", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "126950", shipperCode: "SKT", createdBy: "ACCOUNTS 5", createdDate: "22/08/2026 09:50 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 11, invoiceNumber: "FINE COURIER CB RUN 89", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "112960", shipperCode: "SKT", createdBy: "ACCOUNTS 5", createdDate: "22/08/2026 09:35 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 12, invoiceNumber: "M&U COURIER CB RUN 35", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "23380", shipperCode: "SKT", createdBy: "ACCOUNTS 5", createdDate: "22/08/2026 09:32 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 13, invoiceNumber: "SKY SHIP COURIER CB RUN 63", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "13130", shipperCode: "SKT", createdBy: "ACCOUNTS 5", createdDate: "22/08/2026 09:31 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 14, invoiceNumber: "ONLY TRACK CB RUN 17", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "269110", shipperCode: "SKT", createdBy: "ACCOUNTS 5", createdDate: "22/08/2026 09:22 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 15, invoiceNumber: "NA LOGISTICS CB RUN 61", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "297180", shipperCode: "SKT", createdBy: "ACCOUNTS 5", createdDate: "22/08/2026 09:08 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 16, invoiceNumber: "SUPERWAYS COURIER CB RUN 07", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "7350", shipperCode: "SKT", createdBy: "ACCOUNTS 5", createdDate: "22/08/2026 08:07 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 17, invoiceNumber: "AXC SKT-C-RUN 472", customerName: "AXC SKT", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "586.95", shipperCode: "", createdBy: "ACCOUNTS 2", createdDate: "22/08/2026 07:03 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 18, invoiceNumber: "AXC SKT-C-RUN 471", customerName: "AXC SKT", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "789.85", shipperCode: "", createdBy: "ACCOUNTS 2", createdDate: "22/08/2026 07:02 PM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 19, invoiceNumber: "SKY SHIP COURIER CB RUN 62", customerName: "AXC COUNTER BOOKING", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "322430", shipperCode: "SKT", createdBy: "ACCOUNTS 5", createdDate: "22/08/2026 05:36 AM", isEmailSent: "FALSE", emailSentCount: 0 },
+  { srNo: 20, invoiceNumber: "EASTERN FREIGHT RUN 129", customerName: "EASTERN FREIGHT & LOGISTICS", customerType: "CORPORATE", invoiceDate: "22/08/2026", grandTotal: "819443", shipperCode: "", createdBy: "ACCOUNTS 4", createdDate: "22/08/2026 03:51 AM", isEmailSent: "FALSE", emailSentCount: 0 },
+];
+
 export const ticket = [
   {
     title: "Open Tickets",

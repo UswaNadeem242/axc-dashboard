@@ -33,6 +33,7 @@ export default function Dropdown({ options, value, onChange, items, title = "Act
           <MoreVertical className="h-4 w-4" />
           {title}
         </MenuButton>
+
         <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
           <MenuItems className="absolute right-0 z-50 mt-1 w-40 origin-top-right rounded-md border border-axc-border bg-white py-1 text-[12px] shadow-lg focus:outline-none">
             {items.map((item) => (
@@ -54,10 +55,12 @@ export default function Dropdown({ options, value, onChange, items, title = "Act
   const selectedOption = options?.find((opt) => opt.value === value);
 
   return (
-    <Listbox value={value} onChange={onChange}>
-      <div className={`relative w-full ${className}`}>
-        <ListboxButton className="relative w-full text-left bg-white border border-axc-gray rounded px-3 py-3 outline-none cursor-pointer flex items-center justify-between text-xs font-medium text-axc-dark-gray">
-          <span className="block truncate">{selectedOption ? selectedOption.label : placeholder}</span>
+    <Listbox value={value || ""} onChange={onChange}>
+      <div className="relative w-full">
+        <ListboxButton className={`relative w-full text-left bg-white border border-axc-border rounded-md px-3 py-2.5 outline-none cursor-pointer flex items-center justify-between text-[13px] font-normal text-gray-700 focus:border-axc-border transition ${className}`}>
+          <span className={`block truncate ${selectedOption ? "text-gray-700" : "text-gray-400"}`}>
+            {selectedOption ? selectedOption.label : placeholder}
+          </span>
           <ChevronDown className="h-4 w-4 text-gray-400 shrink-0" aria-hidden="true" />
         </ListboxButton>
 

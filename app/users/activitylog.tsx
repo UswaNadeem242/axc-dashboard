@@ -5,9 +5,9 @@ import { FileText, Printer, Trash2 } from "lucide-react";
 
 import SearchInput from "../src/common/search";
 import Dropdown from "../src/common/dropdown";
-import Pagination from "../src/common/pagination";
 import ToggleSwitch from "./toggleswitch";
 import DeleteConfirmationDialog from "./deleteConfirmation";
+import CommonTable from "../src/common/table";
 
 interface ActivityLog {
   id: number;
@@ -37,11 +37,12 @@ const MODULE_COLORS: Record<string, string> = {
 
 function ModuleBadge({ module }: { module: string }) {
   return (
-    <span className={`inline-flex rounded-[3px] px-[10px] py-[4px] text-[10px] font-medium ${MODULE_COLORS[module] ?? "bg-axc-gray text-white"}`}>
+    <span className={`inline-flex rounded-full px-[10px] py-[4px] text-[10px] font-medium ${MODULE_COLORS[module] ?? "bg-axc-gray text-white"}`}>
       {module}
     </span>
   );
 }
+
 function Toast({ msg }: { msg: string }) {
   return (
     <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-2 rounded-lg bg-axc-green px-4 py-3 text-[13px] font-medium text-white shadow-lg">
@@ -57,11 +58,9 @@ export default function ActivityLogsTab() {
   const [logs, setLogs] = useState<ActivityLog[]>(initialLogs);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
-
-  const perPage = 10;
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -80,15 +79,6 @@ export default function ActivityLogsTab() {
     );
   }, [logs, search]);
 
-  const totalPages = Math.ceil(filteredLogs.length / perPage);
-  const paginatedLogs = filteredLogs.slice((currentPage - 1) * perPage, currentPage * perPage);
-
-  const allSelected = paginatedLogs.length > 0 && paginatedLogs.every((log) => selectedIds.includes(log.id));
-  const toggleAll = () =>
-    setSelectedIds(allSelected ? [] : Array.from(new Set([...selectedIds, ...paginatedLogs.map((log) => log.id)])));
-  const toggleSelect = (id: number) =>
-    setSelectedIds((previous) => (previous.includes(id) ? previous.filter((item) => item !== id) : [...previous, id]));
-
   const toggleStatus = (id: number) => {
     setLogs((previous) => previous.map((log) => (log.id === id ? { ...log, isActive: !log.isActive } : log)));
     showToast("Status updated successfully");
@@ -101,11 +91,28 @@ export default function ActivityLogsTab() {
     setBulkDeleteOpen(false);
   };
 
+  const headings = [
+    { label: "User Name", key: "userName" },
+    { label: "Action", key: "action", truncate: false, render: (row: ActivityLog) => row.action },
+    { label: "Module", key: "module", render: (row: ActivityLog) => <ModuleBadge module={row.module} /> },
+    { label: "Date", key: "date", truncate: false },
+    { label: "IP Address", key: "ipAddress", render: (row: ActivityLog) => <span className="font-mono">{row.ipAddress}</span> },
+    {
+      label: "Status",
+      key: "status",
+      render: (row: ActivityLog) => (
+        <div className="flex justify-center">
+          <ToggleSwitch checked={row.isActive} onChange={() => toggleStatus(row.id)} />
+        </div>
+      ),
+    },
+  ];
+
   return (
-    <div className="relative">
+    <div className="relative bg-white p-3 rounded-[8px] w-full h-[calc(100vh-160px)] flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {toast && <Toast msg={toast} />}
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 mb-4 shrink-0">
         <div className="w-[220px]">
           <SearchInput
             placeholder="Search activity logs..."
@@ -147,64 +154,17 @@ export default function ActivityLogsTab() {
         )}
       </div>
 
-      <div className="mt-4 overflow-x-auto rounded-[8px] border border-axc-border">
-        <table className="w-full whitespace-nowrap">
-          <thead>
-            <tr className="h-[42px] border-b border-axc-border bg-axc-light-bg text-[12px] font-semibold text-axc-dark-gray">
-              <th className="w-10 px-3 py-3">
-                <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-3.5 w-3.5 accent-axc-blue" />
-              </th>
-              <th className="px-4 py-3 text-left">User Name</th>
-              <th className="px-4 py-3 text-left">Action</th>
-              <th className="px-4 py-3 text-left">Module</th>
-              <th className="px-4 py-3 text-left">Date</th>
-              <th className="px-4 py-3 text-left">IP Address</th>
-              <th className="px-4 py-3 text-center">Status</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {paginatedLogs.length === 0 ? (
-              <tr>
-                <td colSpan={7} className="px-4 py-12 text-center text-[12px] text-axc-gray">
-                  No activity logs found
-                </td>
-              </tr>
-            ) : (
-              paginatedLogs.map((log) => (
-                <tr key={log.id} className="h-[42px] border-b border-axc-border text-[12px] text-axc-dark-gray transition-colors hover:bg-axc-light-bg">
-                  <td className="px-3 py-3">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(log.id)}
-                      onChange={() => toggleSelect(log.id)}
-                      className="h-3.5 w-3.5 accent-axc-blue"
-                    />
-                  </td>
-                  <td className="px-4 py-3 font-medium">{log.userName}</td>
-                  <td className="px-4 py-3">{log.action}</td>
-                  <td className="px-4 py-3">
-                    <ModuleBadge module={log.module} />
-                  </td>
-                  <td className="px-4 py-3">{log.date}</td>
-                  <td className="px-4 py-3 font-mono">{log.ipAddress}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-center">
-                      <ToggleSwitch checked={log.isActive} onChange={() => toggleStatus(log.id)} />
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {totalPages > 1 && (
-        <div className="flex justify-end mt-2">
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-        </div>
-      )}
+      <CommonTable
+        headings={headings}
+        data={filteredLogs}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+        itemsPerPage={10}
+        selectable
+        rowKey="id"
+        selectedIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+      />
 
       <DeleteConfirmationDialog
         isOpen={bulkDeleteOpen}

@@ -31,8 +31,8 @@ export default function UsersHeader() {
   };
 
   return (
-    <div className="w-full">
-      <div className="rounded-md border border-axc-border bg-white px-5 pt-2">
+    <div className="flex h-full min-h-0 flex-col w-full">
+      <div className="rounded-md border border-axc-border bg-white px-5 pt-2 shrink-0">
         <div className="flex gap-0 overflow-x-auto scrollbar-none">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
@@ -42,7 +42,7 @@ export default function UsersHeader() {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveTab(tab.id)}
-                className={`relative shrink-0 px-4 py-4 text-[12px] font-semibold whitespace-nowrap transition-colors duration-150  cursor-pointer ${
+                className={`relative shrink-0 px-4 py-4 text-[12px] font-semibold whitespace-nowrap transition-colors duration-150 cursor-pointer ${
                   isActive ? "text-axc-blue" : "text-axc-gray hover:text-axc-blue"
                 }`}
               >
@@ -57,7 +57,8 @@ export default function UsersHeader() {
           })}
         </div>
       </div>
-      <div className="mt-3 h-[calc(100vh-170px)] overflow-y-auto rounded-lg border border-axc-border bg-white px-8 py-[20px]">
+
+      <div className="mt-3 flex-1 min-h-0 overflow-y-auto rounded-lg border border-axc-border bg-white px-8 py-[20px] scrollbar-none">
         {renderContent()}
       </div>
     </div>

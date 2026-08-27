@@ -1,7 +1,9 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ManifestBagRow,
+  ManifestChargeRow,
   ManifestFormErrors,
   ManifestFormState,
   ManifestTab,
@@ -29,7 +31,7 @@ const emptyForm: ManifestFormState = {
   time: "",
 
   runNumber: "",
-  editRunNumber: true,
+  editRunNumber: false,
 
   flightNo: "",
   editFlightNo: false,
@@ -66,11 +68,25 @@ const emptyBagRow = (id: number): ManifestBagRow => ({
   actionDuty: "",
 });
 
+const emptyChargeRow = (id: number): ManifestChargeRow => ({
+  id,
+  type: "",
+  coLoader: "",
+  vendor: "",
+  company: "",
+  charge: "",
+  amount: "",
+  remark: "",
+});
+
 export function useManifestForm() {
+  const router = useRouter();
+
   const [form, setForm] = useState<ManifestFormState>(emptyForm);
   const [errors, setErrors] = useState<ManifestFormErrors>({});
   const [tab, setTab] = useState<ManifestTab>("entry");
   const [rows, setRows] = useState<ManifestBagRow[]>([emptyBagRow(1)]);
+  const [charges, setCharges] = useState<ManifestChargeRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
 
@@ -107,6 +123,18 @@ export function useManifestForm() {
     });
   };
 
+  const updateCharge = <K extends keyof ManifestChargeRow>(id: number, key: K, value: ManifestChargeRow[K]) => {
+    setCharges((prev) => prev.map((c) => (c.id === id ? { ...c, [key]: value } : c)));
+  };
+
+  const addCharge = () => {
+    setCharges((prev) => [...prev, emptyChargeRow(Date.now())]);
+  };
+
+  const removeCharge = (id: number) => {
+    setCharges((prev) => prev.filter((c) => c.id !== id));
+  };
+
   const validateEntry = (): boolean => {
     const next: ManifestFormErrors = {};
     if (!form.originHub?.trim()) next.originHub = "Origin Hub is required";
@@ -131,7 +159,7 @@ export function useManifestForm() {
   };
 
   const handleBagging = () => {
-    showToast("Bagging started");
+    router.push("/manifest/new-manifest/component/bagging");
   };
 
   return {
@@ -147,6 +175,10 @@ export function useManifestForm() {
     addRow,
     removeRow,
     selectAll,
+    charges,
+    updateCharge,
+    addCharge,
+    removeCharge,
     loading,
     toast,
     showToast,

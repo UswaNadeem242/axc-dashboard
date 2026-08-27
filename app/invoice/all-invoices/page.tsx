@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Mail, MessageCircle, FileText, FileSpreadsheet, Pencil, Trash2 } from "lucide-react";
 
 import CommonTable from "../../src/common/table";
-import { ManifestHeading, ManifestEntry, initialManifestData } from "../../src/constant";
+import { InvoiceHeading, InvoiceEntry, initialInvoiceData } from "../../src/constant";
 import FilterSearch from "../../src/common/filtersearch";
 import Button from "../../src/common/button";
 import { showToast } from "../../src/common/toast";
 
-export default function AllManifestPage() {
-  const [data, setData] = useState<ManifestEntry[]>([]);
+export default function AllInvoicePage() {
+  const [data, setData] = useState<InvoiceEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("");
   const [activeTags, setActiveTags] = useState<string[]>([]);
@@ -21,26 +21,26 @@ export default function AllManifestPage() {
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("manifest_entries");
-      if (stored) { 
+      const stored = localStorage.getItem("invoice_entries");
+      if (stored) {
         try {
-          const parsed: ManifestEntry[] = JSON.parse(stored);
-          if (parsed.length > initialManifestData.length) {
+          const parsed: InvoiceEntry[] = JSON.parse(stored);
+          if (parsed.length > initialInvoiceData.length) {
             setData(parsed);
             return;
           }
         } catch (error) {
-          console.error("Failed to load manifest data:", error);
+          console.error("Failed to load invoice data:", error);
         }
       }
-      setData(initialManifestData);
-      localStorage.setItem("manifest_entries", JSON.stringify(initialManifestData));
+      setData(initialInvoiceData);
+      localStorage.setItem("invoice_entries", JSON.stringify(initialInvoiceData));
     }
   }, []);
 
   useEffect(() => {
     if (typeof window !== "undefined" && data.length > 0) {
-      localStorage.setItem("manifest_entries", JSON.stringify(data));
+      localStorage.setItem("invoice_entries", JSON.stringify(data));
     }
   }, [data]);
 
@@ -56,37 +56,38 @@ export default function AllManifestPage() {
     setActiveTags((prev) => prev.filter((tag) => tag !== tagToRemove));
   };
 
-  const handleEdit = (row: ManifestEntry) => console.log("Edit Manifest:", row.manifestNo);
+  const handleEmail = (row: InvoiceEntry) => console.log("Email Invoice:", row.invoiceNumber);
+  const handleWhatsapp = (row: InvoiceEntry) => console.log("Whatsapp Invoice:", row.invoiceNumber);
+  const handlePdf = (row: InvoiceEntry) => console.log("View Invoice PDF:", row.invoiceNumber);
+  const handleExcel = (row: InvoiceEntry) => console.log("Export Invoice Excel:", row.invoiceNumber);
+  const handleEdit = (row: InvoiceEntry) => console.log("Edit Invoice:", row.invoiceNumber);
 
-  const handleDelete = (row: ManifestEntry) => {
-    const confirmed = confirm(`Are you sure you want to delete manifest ${row.manifestNo}?`);
+  const handleDelete = (row: InvoiceEntry) => {
+    const confirmed = confirm(`Are you sure you want to delete invoice ${row.invoiceNumber}?`);
     if (!confirmed) return;
-    setData((prev) => prev.filter((item) => item.manifestNo !== row.manifestNo));
-    setSelectedIds((prev) => prev.filter((id) => id !== row.manifestNo));
-    showToast({ variant: "success", message: "Manifest deleted." });
+    setData((prev) => prev.filter((item) => item.invoiceNumber !== row.invoiceNumber));
+    setSelectedIds((prev) => prev.filter((id) => id !== row.invoiceNumber));
+    showToast({ variant: "success", message: "Invoice deleted." });
   };
-
-  const handleBagging = (row: ManifestEntry) => console.log("Bagging Manifest:", row.manifestNo);
-  const handlePdf = (row: ManifestEntry) => console.log("View Manifest PDF:", row.manifestNo);
 
   const filteredData = data.filter((item) => {
     const query = searchQuery.toLowerCase();
     const matchesQuery =
       !query ||
-      item.manifestNo.toLowerCase().includes(query) ||
-      item.runNumber.toLowerCase().includes(query) ||
-      item.originHubCode.toLowerCase().includes(query) ||
-      item.destinationHubCode.toLowerCase().includes(query) ||
-      item.destinationHubName.toLowerCase().includes(query);
+      item.invoiceNumber.toLowerCase().includes(query) ||
+      item.customerName.toLowerCase().includes(query) ||
+      item.customerType.toLowerCase().includes(query) ||
+      item.shipperCode.toLowerCase().includes(query) ||
+      item.createdBy.toLowerCase().includes(query);
 
     const matchesTags = activeTags.every((tag) => {
       const t = tag.toLowerCase();
       return (
-        item.manifestNo.toLowerCase().includes(t) ||
-        item.runNumber.toLowerCase().includes(t) ||
-        item.originHubCode.toLowerCase().includes(t) ||
-        item.destinationHubCode.toLowerCase().includes(t) ||
-        item.destinationHubName.toLowerCase().includes(t)
+        item.invoiceNumber.toLowerCase().includes(t) ||
+        item.customerName.toLowerCase().includes(t) ||
+        item.customerType.toLowerCase().includes(t) ||
+        item.shipperCode.toLowerCase().includes(t) ||
+        item.createdBy.toLowerCase().includes(t)
       );
     });
 
@@ -104,14 +105,14 @@ export default function AllManifestPage() {
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
         <div className="flex flex-wrap items-center gap-3">
           {selectedIds.length > 0 && (
-            <span className="text-xs font-semibold text-axc-gray">{selectedIds.length} selected</span>
+            <span className="text-regular-medium  text-axc-gray">{selectedIds.length} selected</span>
           )}
           <FilterSearch
             options={[
               { label: "Select", value: "" },
-              { label: "Manifest No.", value: "manifestNo" },
-              { label: "Origin Hub", value: "originHubCode" },
-              { label: "Destination Hub", value: "destinationHubCode" },
+              { label: "Invoice Number", value: "invoiceNumber" },
+              { label: "Customer Name", value: "customerName" },
+              { label: "Created By", value: "createdBy" },
             ]}
             selectedOption={filterType}
             onOptionChange={setFilterType}
@@ -122,7 +123,8 @@ export default function AllManifestPage() {
           />
         </div>
 
-        <Button label="New Manifest" href="/manifest/new-manifest" variant="primary" />
+        {/* UPDATED: href now points to /invoice/create-invoice to match the actual folder */}
+        <Button label="New Invoice" href="/invoice/create-invoice" variant="primary" />
       </div>
 
       {activeTags.length > 0 && (
@@ -158,20 +160,38 @@ export default function AllManifestPage() {
       )}
 
       <CommonTable
-        headings={ManifestHeading}
+        headings={InvoiceHeading}
         data={filteredData}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        onBagging={handleBagging}
-        onPdf={handlePdf}
         currentPage={page}
         totalPages={totalPages}
         onPageChange={(p) => setPage(p)}
         itemsPerPage={itemsPerPage}
         selectable
-        rowKey="manifestNo"
+        rowKey="invoiceNumber"
         selectedIds={selectedIds}
         onSelectionChange={setSelectedIds}
+        renderActions={(row: InvoiceEntry) => (
+          <div className="flex items-center gap-3">
+            <button type="button" onClick={() => handleEmail(row)} className="text-axc-blue transition hover:opacity-70" title="Email">
+              <Mail size={16} />
+            </button>
+            <button type="button" onClick={() => handleWhatsapp(row)} className="text-axc-dark-green transition hover:opacity-70" title="Whatsapp">
+              <MessageCircle size={16} />
+            </button>
+            <button type="button" onClick={() => handlePdf(row)} className="text-amber-600 transition hover:opacity-70" title="View PDF">
+              <FileText size={16} />
+            </button>
+            <button type="button" onClick={() => handleExcel(row)} className="text-axc-dark-green transition hover:opacity-70" title="Export Excel">
+              <FileSpreadsheet size={16} />
+            </button>
+            <button type="button" onClick={() => handleEdit(row)} className="text-axc-navy transition hover:opacity-70" title="Edit">
+              <Pencil size={16} />
+            </button>
+            <button type="button" onClick={() => handleDelete(row)} className="text-axc-red-dark transition hover:opacity-70" title="Delete">
+              <Trash2 size={16} />
+            </button>
+          </div>
+        )}
       />
     </div>
   );

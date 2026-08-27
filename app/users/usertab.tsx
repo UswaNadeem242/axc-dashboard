@@ -1,14 +1,14 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Eye, FileText, Plus, Printer, Trash2 } from "lucide-react";
 
 import SearchInput from "../src/common/search";
 import Dropdown from "../src/common/dropdown";
-import Pagination from "../src/common/pagination";
 import ToggleSwitch from "./toggleswitch";
 import AddUserModal from "./adduser";
 import DeleteConfirmationDialog from "./deleteConfirmation";
+import CommonTable from "../src/common/table";
 
 interface UserRow {
   id: number;
@@ -37,7 +37,7 @@ const ROLE_COLORS: Record<string, string> = {
 
 function RoleBadge({ role }: { role: string }) {
   return (
-    <span className={`inline-flex rounded-[3px] px-[10px] py-[4px] text-[10px] font-medium ${ROLE_COLORS[role] ?? "bg-axc-gray text-white"}`}>
+    <span className={`inline-flex rounded-full px-[10px] py-[4px] text-[10px] font-medium ${ROLE_COLORS[role] ?? "bg-axc-gray text-white"}`}>
       {role}
     </span>
   );
@@ -53,6 +53,7 @@ function Toast({ msg }: { msg: string }) {
     </div>
   );
 }
+
 function ViewUserModal({ user, onClose }: { user: UserRow | null; onClose: () => void }) {
   if (!user) return null;
   return (
@@ -81,7 +82,7 @@ function ViewUserModal({ user, onClose }: { user: UserRow | null; onClose: () =>
   );
 }
 
-function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
+function DetailRow({ label, value }: { label: string; value: ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3 border-b border-axc-border pb-2">
       <span className="font-medium text-axc-gray">{label}</span>
@@ -94,14 +95,12 @@ export default function UserTab() {
   const [users, setUsers] = useState<UserRow[]>(initialUsers);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
   const [toast, setToast] = useState<string | null>(null);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [viewingUser, setViewingUser] = useState<UserRow | null>(null);
   const [deleteUser, setDeleteUser] = useState<UserRow | null>(null);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
-
-  const perPage = 10;
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -119,15 +118,6 @@ export default function UserTab() {
         user.store.toLowerCase().includes(value)
     );
   }, [users, search]);
-
-  const totalPages = Math.ceil(filteredUsers.length / perPage);
-  const paginatedUsers = filteredUsers.slice((currentPage - 1) * perPage, currentPage * perPage);
-
-  const allSelected = paginatedUsers.length > 0 && paginatedUsers.every((user) => selectedIds.includes(user.id));
-  const toggleAll = () =>
-    setSelectedIds(allSelected ? [] : Array.from(new Set([...selectedIds, ...paginatedUsers.map((user) => user.id)])));
-  const toggleSelect = (id: number) =>
-    setSelectedIds((previous) => (previous.includes(id) ? previous.filter((item) => item !== id) : [...previous, id]));
 
   const toggleStatus = (id: number) => {
     setUsers((previous) => previous.map((user) => (user.id === id ? { ...user, isActive: !user.isActive } : user)));
@@ -171,146 +161,122 @@ export default function UserTab() {
     setIsAddUserOpen(false);
   };
 
+  const headings = [
+    { label: "User Name", key: "name" },
+    { label: "Email Address", key: "email", truncate: false },
+    { label: "Role", key: "role", render: (row: UserRow) => <RoleBadge role={row.role} /> },
+    { label: "Store", key: "store", truncate: false },
+    { label: "Last Login", key: "lastLogin", truncate: false },
+    {
+      label: "Status",
+      key: "status",
+      render: (row: UserRow) => (
+        <div className="flex justify-center">
+          <ToggleSwitch checked={row.isActive} onChange={() => toggleStatus(row.id)} />
+        </div>
+      ),
+    },
+    { label: "Action", key: "action" },
+  ];
+
+  const renderActions = (row: UserRow) => (
+    <div className="flex justify-center gap-2">
+      <button
+        type="button"
+        onClick={() => setViewingUser(row)}
+        className="flex h-7 w-7 items-center justify-center rounded border border-axc-yellow text-axc-yellow hover:bg-axc-light-bg"
+        title="View"
+      >
+        <Eye className="h-3.5 w-3.5" />
+      </button>
+      <button
+        type="button"
+        onClick={() => setDeleteUser(row)}
+        className="flex h-7 w-7 items-center justify-center rounded border border-axc-red text-axc-red hover:bg-red-50"
+        title="Delete"
+      >
+        <Trash2 className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+
   return (
-    <div className="relative">
+    <>
       {toast && <Toast msg={toast} />}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="w-[220px]">
-            <SearchInput
-              placeholder="Search users..."
-              value={search}
-              onChange={(value) => {
-                setSearch(value);
-                setCurrentPage(1);
-              }}
+
+      {/* Fixed-height outer box — same pattern as CustomerReport.
+          Everything inside is flex-col; the table area (CommonTable)
+          is the only part that scrolls. */}
+      <div className="relative bg-white p-3 rounded-[8px] w-full h-[calc(100vh-160px)] flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="w-[220px]">
+              <SearchInput
+                placeholder="Search users..."
+                value={search}
+                onChange={(value) => {
+                  setSearch(value);
+                  setCurrentPage(1);
+                }}
+              />
+            </div>
+
+            <Dropdown
+              title="Actions"
+              items={[
+                { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: () => {} },
+                { label: "Print", icon: <Printer className="h-4 w-4" />, onClick: () => window.print() },
+                {
+                  label: "Delete",
+                  icon: <Trash2 className="h-4 w-4" />,
+                  onClick: () => {
+                    if (selectedIds.length === 0) {
+                      showToast("Please select at least one user to delete");
+                      return;
+                    }
+                    setBulkDeleteOpen(true);
+                  },
+                },
+              ]}
             />
+
+            {selectedIds.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedIds([])}
+                className="flex items-center gap-2 rounded-md border border-axc-border px-3 py-2 text-[12px] font-medium text-axc-dark-gray"
+              >
+                {selectedIds.length} Selected
+              </button>
+            )}
           </div>
 
-          <Dropdown
-            title="Actions"
-            items={[
-              { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: () => {} },
-              { label: "Print", icon: <Printer className="h-4 w-4" />, onClick: () => window.print() },
-              {
-                label: "Delete",
-                icon: <Trash2 className="h-4 w-4" />,
-                onClick: () => {
-                  if (selectedIds.length === 0) {
-                    showToast("Please select at least one user to delete");
-                    return;
-                  }
-                  setBulkDeleteOpen(true);
-                },
-              },
-            ]}
-          />
-
-          {selectedIds.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setSelectedIds([])}
-              className="flex items-center gap-2 rounded-md border border-axc-border px-3 py-2 text-[12px] font-medium text-axc-dark-gray"
-            >
-              {selectedIds.length} Selected
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => setIsAddUserOpen(true)}
+            className="flex h-[38px] cursor-pointer items-center gap-2 rounded-md bg-axc-blue px-4 text-[12px] font-semibold text-white"
+          >
+            <Plus className="h-4 w-4" />
+            Add User
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setIsAddUserOpen(true)}
-          className="flex h-[38px] cursor-pointer items-center gap-2 rounded-md bg-axc-blue px-4 text-[12px] font-semibold text-white"
-        >
-          <Plus className="h-4 w-4" />
-          Add User
-        </button>
-      </div>
-      <div className="mt-4 overflow-x-auto rounded-[8px] border border-axc-border">
-        <table className="w-full whitespace-nowrap">
-          <thead>
-            <tr className="h-[42px] border-b border-axc-border bg-axc-light-bg text-[12px] font-semibold text-axc-dark-gray">
-              <th className="w-10 px-3 py-3">
-                <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-3.5 w-3.5 accent-axc-blue" />
-              </th>
-              <th className="px-4 py-3 text-left">User Name</th>
-              <th className="px-4 py-3 text-left">Email Address</th>
-              <th className="px-4 py-3 text-left">Role</th>
-              <th className="px-4 py-3 text-left">Store</th>
-              <th className="px-4 py-3 text-left">Last Login</th>
-              <th className="px-4 py-3 text-center">Status</th>
-              <th className="px-4 py-3 text-center">Action</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {paginatedUsers.length === 0 ? (
-              <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-[12px] text-axc-gray">
-                  No users found
-                </td>
-              </tr>
-            ) : (
-              paginatedUsers.map((user) => (
-                <tr key={user.id} className="h-[42px] border-b border-axc-border text-[12px] text-axc-dark-gray transition-colors hover:bg-axc-light-bg">
-                  <td className="px-3 py-3">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.includes(user.id)}
-                      onChange={() => toggleSelect(user.id)}
-                      className="h-3.5 w-3.5 accent-axc-blue"
-                    />
-                  </td>
-                  <td className="px-4 py-3 font-medium">{user.name}</td>
-                  <td className="px-4 py-3">{user.email}</td>
-                  <td className="px-4 py-3">
-                    <RoleBadge role={user.role} />
-                  </td>
-                  <td className="px-4 py-3">{user.store}</td>
-                  <td className="px-4 py-3">{user.lastLogin}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-center">
-                      <ToggleSwitch checked={user.isActive} onChange={() => toggleStatus(user.id)} />
-                    </div>
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setViewingUser(user)}
-                        className="flex h-7 w-7 items-center justify-center rounded border border-axc-yellow text-axc-yellow hover:bg-axc-light-bg"
-                        title="View"
-                      >
-                        <Eye className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDeleteUser(user)}
-                        className="flex h-7 w-7 items-center justify-center rounded border border-axc-red text-axc-red hover:bg-red-50"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+        <CommonTable
+          headings={headings}
+          data={filteredUsers}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          itemsPerPage={10}
+          renderActions={renderActions}
+          selectable
+          rowKey="id"
+          selectedIds={selectedIds}
+          onSelectionChange={setSelectedIds}
+          emptyMessage="No users found"
+        />
       </div>
 
-      {totalPages > 1 && (
-        <div className="mt-2 flex justify-end">
-          <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
-        </div>
-      )}
-
-      <AddUserModal
-        isOpen={isAddUserOpen}
-        onClose={() => setIsAddUserOpen(false)}
-        onSave={handleAddUser}
-      />
+      <AddUserModal isOpen={isAddUserOpen} onClose={() => setIsAddUserOpen(false)} onSave={handleAddUser} />
 
       <ViewUserModal user={viewingUser} onClose={() => setViewingUser(null)} />
 
@@ -327,6 +293,6 @@ export default function UserTab() {
         onCancel={() => setBulkDeleteOpen(false)}
         onConfirm={handleBulkDeleteConfirm}
       />
-    </div>
+    </>
   );
 }

@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
-import { ArrowLeft, User, FileText } from "lucide-react";
+import { User, FileText } from "lucide-react";
 
 import ManifestSummary from "./component/manifestsummary";
 import ManifestInformation from "./component/manifest-information";
 import BagDetails from "./component/bag-detail";
+import ManifestBilling from "./component/manifestbilling";
 import { useManifestForm } from "./component/manifestform";
 
 type TabItem = {
@@ -41,6 +41,10 @@ export default function ManifestPage() {
     addRow,
     removeRow,
     selectAll,
+    charges,
+    updateCharge,
+    addCharge,
+    removeCharge,
     loading,
     toast,
     handleCreateManifest,
@@ -67,117 +71,79 @@ export default function ManifestPage() {
   };
 
   return (
-    <div className="flex flex-col gap-6 py-2">
+    <div className="flex flex-col gap-4 w-full h-full min-h-0 overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
 
       {toast && (
         <div
           className={`fixed top-5 right-5 z-50 rounded-lg px-4 py-3 text-xs font-bold shadow-lg text-white animate-in fade-in slide-in-from-top-2 duration-200 ${
-            toast.type === "success"
-              ? "bg-[#0b733a]"
-              : "bg-axc-navy"
+            toast.type === "success" ? "bg-axc-dark-green" : "bg-axc-navy"
           }`}
         >
           {toast.message}
         </div>
       )}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
 
-          <Link
-            href="/manifest/all-manifest"
-            className="flex h-9 w-9 items-center justify-center rounded-lg bg-white border border-axc-border text-gray-600 hover:bg-gray-50 transition shadow-sm"
-          >
-            <ArrowLeft size={16} />
-          </Link>
+      <div className="relative bg-white p-3 rounded-lg border border-gray-200 w-full flex-1 min-h-0 flex flex-col overflow-hidden">
 
-          <div>
-            <h2 className="text-xl font-bold text-axc-navy">
-              Manifest Detail
-            </h2>
-
-            <p className="text-xs text-axc-gray font-medium">
-              Create and manage manifest entries
-            </p>
-          </div>
-
-        </div>
-
-        <button
-          type="button"
-          onClick={handleCreateManifest}
-          disabled={loading}
-          className="px-5 py-2 bg-axc-navy hover:bg-axc-navy/80 text-white rounded-lg text-xs font-bold transition shadow-sm disabled:opacity-60"
-        >
-          {loading ? "CREATING…" : "CREATE MANIFEST"}
-        </button>
-      </div>
-      <div className="sticky top-0 z-20 bg-white border border-axc-border rounded-[8px] px-5 pb-0 shadow-sm">
-        <div className="flex gap-0">
-
-          {tabs.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setTab(t.id)}
-              className={`relative shrink-0 flex items-center gap-1.5 px-4 py-4 text-[16px] font-extrabold whitespace-nowrap transition-colors duration-150 ${
-                tab === t.id
-                  ? "text-axc-dark-gray"
-                  : "text-gray-400 hover:text-axc-dark-gray"
-              }`}
-            >
-              {t.icon}
-
-              {t.label}
-
-              <span
-                className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-t transition-all duration-200 ${
+        <div className="bg-white border-b border-b-axc-border pb-0 shrink-0">
+          <div className="flex gap-4 overflow-x-auto scrollbar-none">
+            {tabs.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setTab(t.id)}
+                className={`relative shrink-0 flex items-center gap-1.5 px-4 py-4 text-regular-medium whitespace-nowrap transition-colors duration-150 cursor-pointer ${
                   tab === t.id
-                    ? "bg-axc-navy opacity-100"
-                    : "opacity-0"
+                    ? "text-axc-dark-gray"
+                    : "text-axc-gray hover:text-axc-dark-gray"
                 }`}
-              />
-            </button>
-          ))}
+              >
+                {t.icon}
+                {t.label}
+                <span
+                  className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-t transition-all duration-200 ${
+                    tab === t.id ? "bg-axc-navy opacity-100" : "opacity-0"
+                  }`}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
 
+        <div className="flex-1 min-h-0 overflow-y-auto mt-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {tab === "entry" ? (
+            <div className="flex flex-col gap-6 w-full pb-2">
+              <ManifestSummary
+                form={form}
+                updateField={handleUpdateField}
+                toggleEdit={handleToggleEdit}
+              />
+              <ManifestInformation
+                form={form}
+                errors={errors}
+                updateField={handleUpdateField}
+                toggleEdit={handleToggleEdit}
+                handleSearchAwb={handleSearchAwb}
+                handleBagging={handleBagging}
+              />
+              <BagDetails
+                rows={rows}
+                updateRow={updateRow}
+                addRow={addRow}
+                removeRow={removeRow}
+                selectAll={selectAll}
+              />
+            </div>
+          ) : (
+            <ManifestBilling
+              charges={charges}
+              addCharge={addCharge}
+              updateCharge={updateCharge}
+              removeCharge={removeCharge}
+            />
+          )}
         </div>
       </div>
-      {tab === "entry" ? (
-        <div className="flex flex-col gap-6 w-full">
-          <ManifestSummary
-            form={form}
-            updateField={handleUpdateField}
-            toggleEdit={handleToggleEdit}
-          />
-          <ManifestInformation
-            form={form}
-            errors={errors}
-            updateField={handleUpdateField}
-            toggleEdit={handleToggleEdit}
-            handleSearchAwb={handleSearchAwb}
-            handleBagging={handleBagging}
-          />
-          <BagDetails
-            rows={rows}
-            updateRow={updateRow}
-            addRow={addRow}
-            removeRow={removeRow}
-            selectAll={selectAll}
-          />
-
-        </div>
-      ) : (
-        <div className="rounded-[8px] border border-axc-border bg-white p-12 text-center text-axc-dark-gray shadow-sm w-full">
-
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-            Billing
-          </p>
-
-          <p className="text-xs text-gray-400 font-medium">
-            Billing details go here.
-          </p>
-
-        </div>
-      )}
     </div>
   );
 }

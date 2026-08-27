@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import {
   EditIconButton,
@@ -7,6 +8,7 @@ import {
   FileUploadField,
   PanelHeader,
   inputClass,
+  errorInputClass,
   disabledInputClass,
 } from "./formfield";
 
@@ -45,162 +47,171 @@ export default function ManifestInformation({
   handleBagging,
 }: ManifestInformationProps) {
   return (
-    <div className="bg-white border border-axc-border rounded-[8px] overflow-hidden shadow-sm w-full">
-      <PanelHeader title="MANIFEST INFORMATION" />
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4 p-5">
-        <div>
-          <FieldLabel>FORWARDER</FieldLabel>
-          <div className="flex gap-2 mt-1">
-            <input disabled className={`${disabledInputClass} w-1/3`} />
+    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
+      <PanelHeader title="Manifest Information" />
+      <div className="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3 text-xs">
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Forwarder</FieldLabel>
+          <div className="relative">
             <input
               disabled={!form.editForwarder}
               value={form.forwarder}
               onChange={(e) => updateField("forwarder", e.target.value)}
-              className={form.editForwarder ? inputClass : disabledInputClass}
+              className={`${form.editForwarder ? inputClass : disabledInputClass} w-full pr-10`}
             />
-            <EditIconButton active={form.editForwarder} onToggle={() => toggleEdit("editForwarder")} />
+            <div className="absolute right-1 top-1/2 -translate-y-1/2">
+              <EditIconButton active={form.editForwarder} onToggle={() => toggleEdit("editForwarder")} title="Edit Forwarder" />
+            </div>
           </div>
         </div>
 
-        <div>
-          <FieldLabel>VENDOR</FieldLabel>
-          <div className="flex gap-2 mt-1">
-            <input disabled className={`${disabledInputClass} w-1/3`} />
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Vendor</FieldLabel>
+          <div className="relative">
             <input
               disabled={!form.editVendor}
               value={form.vendor}
               onChange={(e) => updateField("vendor", e.target.value)}
-              className={form.editVendor ? inputClass : disabledInputClass}
+              className={`${form.editVendor ? inputClass : disabledInputClass} w-full pr-10`}
             />
-            <EditIconButton active={form.editVendor} onToggle={() => toggleEdit("editVendor")} />
+            <div className="absolute right-1 top-1/2 -translate-y-1/2">
+              <EditIconButton active={form.editVendor} onToggle={() => toggleEdit("editVendor")} title="Edit Vendor" />
+            </div>
           </div>
         </div>
 
-        <div>
-          <FieldLabel>LINE HAUL VENDOR</FieldLabel>
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Line Haul Vendor</FieldLabel>
           <input
             value={form.lineHaulVendor}
             onChange={(e) => updateField("lineHaulVendor", e.target.value)}
-            className={`${inputClass} mt-1`}
+            className={`${inputClass} bg-gray-50`}
           />
         </div>
 
-        <div>
-          <FieldLabel>MASTER NO.</FieldLabel>
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Master No.</FieldLabel>
           <input
             value={form.masterNo}
             onChange={(e) => updateField("masterNo", e.target.value)}
-            className={`${inputClass} mt-1`}
+            className={`${inputClass} bg-gray-50`}
           />
         </div>
 
-        <div>
-          <FieldLabel>MASTER EDI BAG NO</FieldLabel>
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Master EDI Bag No</FieldLabel>
           <input
             value={form.masterEdiBagNo}
             onChange={(e) => updateField("masterEdiBagNo", e.target.value)}
-            className={`${inputClass} mt-1`}
+            className={`${inputClass} bg-gray-50`}
           />
         </div>
 
-        <div>
-          <FieldLabel>RUN NUMBER</FieldLabel>
-          <div className="flex gap-2 mt-1">
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Run Number</FieldLabel>
+          <div className="relative">
             <input
               disabled={!form.editRunNumber}
               placeholder="Alphabet-Number"
               value={form.runNumber}
               onChange={(e) => updateField("runNumber", e.target.value)}
-              className={form.editRunNumber ? inputClass : disabledInputClass}
+              className={`${form.editRunNumber ? inputClass : disabledInputClass} w-full pr-10`}
             />
-            <EditIconButton active={form.editRunNumber} onToggle={() => toggleEdit("editRunNumber")} />
+            <div className="absolute right-1 top-1/2 -translate-y-1/2">
+              <EditIconButton active={form.editRunNumber} onToggle={() => toggleEdit("editRunNumber")} title="Edit Run Number" />
+            </div>
           </div>
         </div>
 
-        <div>
-          <FieldLabel>FLIGHT NO</FieldLabel>
-          <div className="flex gap-2 mt-1">
+        {/* Flight No — icon back inside (overlay style), custom chevron so it doesn't collide with the pencil */}
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Flight No</FieldLabel>
+          <div className="relative">
             <select
               disabled={!form.editFlightNo}
               value={form.flightNo}
               onChange={(e) => updateField("flightNo", e.target.value)}
-              className={form.editFlightNo ? inputClass : disabledInputClass}
+              className={`${form.editFlightNo ? inputClass : disabledInputClass} w-full pr-16 appearance-none`}
             >
-              <option value="">SELECT FLIGHT NO...</option>
+              <option value="">Select Flight No...</option>
               <option value="AI-101">AI-101</option>
               <option value="EK-501">EK-501</option>
             </select>
-            <EditIconButton active={form.editFlightNo} onToggle={() => toggleEdit("editFlightNo")} />
+            {/* custom dropdown arrow */}
+            <div className="absolute right-8 top-1/2 -translate-y-1/2 pointer-events-none">
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M2.5 4.5L6 8L9.5 4.5" stroke="#6B7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </div>
+            <div className="absolute right-1 top-1/2 -translate-y-1/2">
+              <EditIconButton active={form.editFlightNo} onToggle={() => toggleEdit("editFlightNo")} title="Edit Flight No" />
+            </div>
           </div>
         </div>
 
-        <div>
-          <FieldLabel required>ORIGIN HUB</FieldLabel>
+        <div className="flex flex-col gap-1">
+          <FieldLabel required>Origin Hub</FieldLabel>
           <select
             value={form.originHub}
             onChange={(e) => updateField("originHub", e.target.value)}
-            className={`${errors.originHub ? "border-red-400" : ""} ${inputClass} mt-1`}
+            className={errors.originHub ? errorInputClass : inputClass}
           >
-            <option value="">SELECT...</option>
-            <option value="DEL">DELHI</option>
-            <option value="BOM">MUMBAI</option>
+            <option value="">Select...</option>
+            <option value="DEL">Delhi</option>
+            <option value="BOM">Mumbai</option>
           </select>
           <FieldError message={errors.originHub} />
         </div>
 
-        <div>
-          <FieldLabel>DESTINATION HUB</FieldLabel>
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Destination Hub</FieldLabel>
           <select
             value={form.destinationHub}
             onChange={(e) => updateField("destinationHub", e.target.value)}
-            className={`${inputClass} mt-1`}
+            className={inputClass}
           >
-            <option value="">SELECT...</option>
-            <option value="JFK">NEW YORK</option>
-            <option value="LAX">LOS ANGELES</option>
+            <option value="">Select...</option>
+            <option value="JFK">New York</option>
+            <option value="LAX">Los Angeles</option>
           </select>
         </div>
 
-        <div>
-          <FieldLabel>EDI EXCEL FILE</FieldLabel>
-          <div className="mt-1">
-            <FileUploadField />
-          </div>
-          <p className="text-[10px] text-axc-red font-semibold mt-1">(UPLOAD EXCEL FILE ONLY)</p>
+        <div className="flex flex-col gap-1">
+          <FieldLabel>EDI Excel File</FieldLabel>
+          <FileUploadField />
+          <p className="text-[10px] text-axc-red font-semibold mt-1 uppercase">(Upload excel file only)</p>
         </div>
 
-        <div>
-          <FieldLabel>MAWB IMAGE</FieldLabel>
-          <div className="mt-1">
-            <FileUploadField multiple />
-          </div>
+        <div className="flex flex-col gap-1">
+          <FieldLabel>MAWB Image</FieldLabel>
+          <FileUploadField multiple />
         </div>
 
-        <div className="sm:col-span-2 lg:col-span-4">
-          <FieldLabel>COMMENT</FieldLabel>
+        <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">
+          <FieldLabel>Comment</FieldLabel>
           <textarea
             rows={3}
             value={form.comment}
             onChange={(e) => updateField("comment", e.target.value)}
-            className={`${inputClass} mt-1 resize-none`}
+            className={`${inputClass} text-xs outline-none resize-none`}
           />
         </div>
       </div>
 
-      <div className="flex gap-3 px-5 pb-5">
+      <div className="flex justify-end gap-3 px-5 pb-5">
         <button
           type="button"
           onClick={handleSearchAwb}
-          className="bg-amber-800 text-white text-[12px] font-semibold px-4 py-2 rounded hover:brightness-110"
+          className="bg-axc-navy text-white text-[12px] font-semibold px-4 py-2 rounded cursor-pointer transition uppercase tracking-wide"
         >
-          SEARCH AWB
+          Search AWB
         </button>
         <button
           type="button"
           onClick={handleBagging}
-          className="bg-axc-green text-white text-[12px] font-semibold px-4 py-2 rounded hover:brightness-110"
+          className="bg-axc-navy text-white text-[12px] font-semibold px-4 py-2 rounded cursor-pointer transition uppercase tracking-wide"
         >
-          BAGGING
+          Bagging
         </button>
       </div>
     </div>
