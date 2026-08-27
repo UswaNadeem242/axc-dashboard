@@ -42,13 +42,13 @@ export default function DashboardLayout({
           <Header />
           <section className="flex-1 overflow-y-auto bg-axc-light-bg lg:p-6 p-4 scrollbar-none">
             <div className="mb-6">
-              <h1 className="text-2xl font-bold text-axc-navy">{title}</h1>
+              <h1 className=" text-axc-navy">{title}</h1>
               {pathname === "/" ? (
-                <p className="mt-0.5 text-xs text-axc-gray font-medium">
+                <p className="mt-0.5 text-xs text-axc-gray text-regular-medium">
                   Welcome back, Admin! Here's what's happening today.
                 </p>
               ) : (
-                <p className="mt-0.5 text-xs text-axc-gray font-medium">
+                <p className="mt-0.5 text-regular-medium text-axc-gray ">
                   Home {pathname !== "/" && ` > ${breadcrumb}`}
                 </p>
               )}

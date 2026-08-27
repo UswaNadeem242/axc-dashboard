@@ -36,8 +36,7 @@ export default function Card({
 
             {title && (
               <h3
-                className={`
-                  text-base font-bold text-axc-navy
+                className={` text-axc-navy
                   ${titleClassName}
                 `}
               >
