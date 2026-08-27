@@ -91,10 +91,10 @@ function BillingSummaryField({ label, value }: { label: string; value: string })
 }
 
 function BillingToggleField({
-  label, value, editable, onValueChange, onEditToggle, editLabel,
+  label, value, editable, onValueChange, onEditToggle, editLabel, placeholder
 }: {
   label: string; value: string; editable: boolean;
-  onValueChange: (v: string) => void; onEditToggle: (v: boolean) => void; editLabel: string;
+  onValueChange: (v: string) => void; onEditToggle: (v: boolean) => void; editLabel: string; placeholder?: string;
 }) {
   return (
     <div className="flex flex-col gap-1">
@@ -104,7 +104,7 @@ function BillingToggleField({
         disabled={!editable}
         onChange={(e) => onValueChange(e.target.value)}
         className={`${inputClass} h-9 text-[12px] ${!editable ? "bg-gray-50" : ""}`}
-        
+
       />
       <label className="flex items-center gap-1.5 text-[10px] text-gray-500">
         <input type="checkbox" checked={editable} onChange={(e) => onEditToggle(e.target.checked)} className="h-3 w-3 accent-axc-navy" />
@@ -216,10 +216,11 @@ export function SalesBillingPanel({
             editable={billing.editFscPercent}
             onValueChange={(v) => onChange({ fscPercent: v })}
             onEditToggle={(v) => onChange({ editFscPercent: v })}
-            
+            placeholder="FSC %"
             editLabel="EDIT FSC %"
           />
           <BillingToggleField
+            placeholder="FSC"
             label="FSC"
             value={billing.fsc}
             editable={billing.editFsc}
@@ -228,8 +229,8 @@ export function SalesBillingPanel({
             editLabel="EDIT FSC"
           />
 
-          <BillingInputField label="Discount (in %)" value={billing.discountPercent} onChange={(v) => onChange({ discountPercent: v })} />
-          <BillingInputField label="Discount Amount" value={billing.discountAmount} onChange={(v) => onChange({ discountAmount: v })} />
+          <BillingInputField label="Discount (in %)" value={billing.discountPercent} onChange={(v) => onChange({ discountPercent: v })} placeholder="Discount (in %)" />
+          <BillingInputField label="Discount Amount" value={billing.discountAmount} onChange={(v) => onChange({ discountAmount: v })} placeholder="Discount Amount" />
           <BillingSummaryField label="Total Discount" value={totals.totalDiscount} />
 
           <BillingSummaryField label="Freight After Discount" value={totals.freightAfterDiscount} />

@@ -24,7 +24,7 @@ export function InvoiceRemarksPanel({
           <div key={row.key}>
             <span className="block text-regular-medium text-axc-dark-gray mb-1">{row.label}</span>
             <input
-            placeholder={row.label}
+              placeholder={row.label}
               value={remarks[row.key]}
               onChange={(e) => onChange({ [row.key]: e.target.value } as Partial<InvoiceRemarksFormState>)}
               className={`${inputClass} h-9 text-[12px]`}
@@ -45,12 +45,12 @@ export function RefundDetailsPanel({
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <span className="block text-regular-medium text-axc-dark-gray  mb-1">Refund Amount</span>
-          <input value={refund.refundAmount} onChange={(e) => onChange({ refundAmount: e.target.value })} className={`${inputClass} h-9 text-[12px]`}  placeholder="Refund Amount
+          <input value={refund.refundAmount} onChange={(e) => onChange({ refundAmount: e.target.value })} className={`${inputClass} h-9 text-[12px]`} placeholder="Refund Amount
 "/>
         </div>
         <div>
           <span className="block text-regular-medium text-axc-dark-gray  mb-1">Refund Date</span>
-          <input type="date" value={refund.refundDate} onChange={(e) => onChange({ refundDate: e.target.value })} className={`${inputClass} h-9 text-[12px]`}  placeholder="00/00/0000"/>
+          <input type="date" value={refund.refundDate} onChange={(e) => onChange({ refundDate: e.target.value })} className={`${inputClass} h-9 text-[12px]`} placeholder="00/00/0000" />
         </div>
         <div>
           <span className="block text-regular-medium text-axc-dark-gray  mb-1">Refund Reason</span>
@@ -58,7 +58,7 @@ export function RefundDetailsPanel({
         </div>
         <div>
           <span className="block text-regular-medium text-axc-dark-gray  mb-1">Refund Remarks</span>
-          <input value={refund.refundRemarks} onChange={(e) => onChange({ refundRemarks: e.target.value })} className={`${inputClass} h-9 text-[12px]`} placeholder="Refund Remarks"/>
+          <input value={refund.refundRemarks} onChange={(e) => onChange({ refundRemarks: e.target.value })} className={`${inputClass} h-9 text-[12px]`} placeholder="Refund Remarks" />
         </div>
       </div>
     </div>

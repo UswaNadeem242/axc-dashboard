@@ -173,7 +173,7 @@ export function TrackingEventsPanel({
       <button
         type="button"
         onClick={onAddEvent}
-        className="self-start flex items-center gap-1.5 px-3 py-2 bg-axc-dark-yellow hover:opacity-90 text-white rounded-md text-sm  font-medium  cursor-pointer transition"
+        className="self-start flex items-center gap-1.5 px-3 py-2 bg-axc-dark-yellow  text-white rounded-md text-sm  font-medium  cursor-pointer transition"
       >
         + ADD ITEM
       </button>

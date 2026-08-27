@@ -39,23 +39,26 @@ export function DeliveryPanel({
   onRemoveEvent: (id: string) => void;
 }) {
   const inputClass =
-    "w-full h-9 px-2.5 rounded-md border border-axc-border text-xs text-axc-dark-gray focus:outline-none ";
+    "w-full h-9 px-2.5 rounded-md border border-axc-border text-regular-medium placeholder:text-regular-medium placeholder:text-axc-gray  placeholder:text-regular-small text-axc-dark-gray focus:outline-none ";
 
   const deliverySummaryData: DeliverySummaryRow[] = [
     {
       label: "Expected Delivery Date",
+
       customer: delivery.expectedDeliveryDateCustomer || "-",
       vendor: delivery.expectedDeliveryDateVendor || "-",
       highlight: false,
     },
     {
       label: "Actual TAT",
+
       customer: delivery.actualTatCustomer || "-",
       vendor: delivery.actualTatVendor || "-",
       highlight: true,
     },
     {
       label: "Crossed EDD Days",
+
       customer: delivery.crossedEddDaysCustomer || "-",
       vendor: delivery.crossedEddDaysVendor || "-",
       highlight: false,
@@ -102,6 +105,7 @@ export function DeliveryPanel({
                   Forwarding Number
                 </label>
                 <input
+                  placeholder="Forwarding Number"
                   className={inputClass}
                   value={delivery.forwardingNumber}
                   onChange={(e) => updateField("forwardingNumber", e.target.value)}
@@ -112,6 +116,7 @@ export function DeliveryPanel({
                   Forwarding Number 2
                 </label>
                 <input
+                  placeholder="Forwarding Number"
                   className={inputClass}
                   value={delivery.forwardingNumber2}
                   onChange={(e) => updateField("forwardingNumber2", e.target.value)}
@@ -132,6 +137,7 @@ export function DeliveryPanel({
             <CommonTable
               headings={deliverySummaryHeadings}
               data={deliverySummaryData}
+
               rowKey="label"
               hidePagination={true}
               itemsPerPage={deliverySummaryData.length}
@@ -163,6 +169,7 @@ export function DeliveryPanel({
             </Field>
             <Field label="Expected Time">
               <input
+                placeholder="Expected Time"
                 type="time"
                 className={inputClass}
                 value={delivery.expectedTime}
@@ -187,12 +194,13 @@ export function DeliveryPanel({
               />
             </Field>
             <Field label="API Crossed EDD Days">
-              <input className={inputClass} disabled value={delivery.apiCrossedEddDays} />
+              <input className={inputClass} disabled value={delivery.apiCrossedEddDays} placeholder="API Crossed EDD Days" />
             </Field>
 
             <Field label="Connection Date">
               <div className="relative">
                 <input
+                  placeholder="Connection Date"
                   type="date"
                   className={`${inputClass} pr-9`}
                   value={delivery.connectionDate}
@@ -211,6 +219,7 @@ export function DeliveryPanel({
 
             <Field label="Connection Time">
               <input
+                placeholder="Connection Time"
                 type="time"
                 className={inputClass}
                 value={delivery.connectionTime}
@@ -220,6 +229,7 @@ export function DeliveryPanel({
 
             <Field label="Appointment Date">
               <input
+                placeholder="Appointment Date"
                 type="date"
                 className={inputClass}
                 value={delivery.appointmentDate}
@@ -237,15 +247,16 @@ export function DeliveryPanel({
             </Field>
 
             <Field label="POD Uploaded Date">
-              <input className={inputClass} disabled value={delivery.podUploadedDate} />
+              <input className={inputClass} disabled value={delivery.podUploadedDate} placeholder="POD Uploaded Date" />
             </Field>
 
             <Field label="POD Uploaded Time">
-              <input className={inputClass} disabled value={delivery.podUploadedTime} />
+              <input className={inputClass} disabled value={delivery.podUploadedTime} placeholder="POD Uploaded Time" />
             </Field>
 
             <Field label="Delivery Cost">
               <input
+                placeholder="Delivery Cost"
                 className={inputClass}
                 value={delivery.deliveryCost}
                 onChange={(e) => updateField("deliveryCost", e.target.value)}
@@ -254,6 +265,7 @@ export function DeliveryPanel({
 
             <Field label="Receiver Name">
               <input
+                placeholder="Receiver Name"
                 className={inputClass}
                 value={delivery.receiverName}
                 onChange={(e) => updateField("receiverName", e.target.value)}
@@ -262,6 +274,7 @@ export function DeliveryPanel({
 
             <Field label="Receiver Mobile">
               <input
+                placeholder="Receiver Mobile"
                 className={inputClass}
                 value={delivery.receiverMobile}
                 onChange={(e) => updateField("receiverMobile", e.target.value)}
@@ -270,6 +283,7 @@ export function DeliveryPanel({
 
             <Field label="Receiver Email">
               <input
+                placeholder="Receiver Email"
                 className={inputClass}
                 value={delivery.receiverEmail}
                 onChange={(e) => updateField("receiverEmail", e.target.value)}
@@ -278,6 +292,7 @@ export function DeliveryPanel({
 
             <Field label="Remarks">
               <input
+                placeholder="Remarks"
                 className={inputClass}
                 value={delivery.remarks}
                 onChange={(e) => updateField("remarks", e.target.value)}
@@ -286,6 +301,7 @@ export function DeliveryPanel({
 
             <Field label="AWB Status Code">
               <input
+                placeholder="AWB Status Code"
                 className={inputClass}
                 value={delivery.awbStatusCode}
                 onChange={(e) => updateField("awbStatusCode", e.target.value)}
@@ -294,6 +310,7 @@ export function DeliveryPanel({
 
             <Field label="AWB Status Name">
               <input
+                placeholder="AWB Status Name"
                 className={inputClass}
                 value={delivery.awbStatusName}
                 onChange={(e) => updateField("awbStatusName", e.target.value)}
@@ -302,6 +319,7 @@ export function DeliveryPanel({
 
             <Field label="Reason For Status">
               <input
+                placeholder="Reason For Status"
                 className={inputClass}
                 value={delivery.reasonForStatus}
                 onChange={(e) => updateField("reasonForStatus", e.target.value)}
@@ -310,6 +328,7 @@ export function DeliveryPanel({
 
             <Field label="COD Amount">
               <input
+                placeholder="COD Amount"
                 className={inputClass}
                 value={delivery.codAmount}
                 onChange={(e) => updateField("codAmount", e.target.value)}
@@ -319,6 +338,7 @@ export function DeliveryPanel({
             <Field label="COD Amount Collected">
               <div className="relative">
                 <input
+                  placeholder="COD Amount Collected"
                   className={`${inputClass} pr-9`}
                   value={delivery.codAmountCollected}
                   onChange={(e) =>
@@ -352,7 +372,7 @@ export function DeliveryPanel({
 
           </div>
 
-          <div className="flex flex-wrap gap-x-6 gap-y-1 px-5 py-4 border-t border-axc-border text-sm  font-bold text-black">
+          <div className="flex flex-wrap gap-x-6 gap-y-1 px-5 py-4 border-t border-axc-border text-sm  text-regular-semibold text-axc-dark-gray">
             <p>TOTAL PCS - {delivery.totalPcs}</p>
             <p>TOTAL PICKUP SCAN PARCELS - {delivery.totalPickupScanParcels}</p>
             <p>TOTAL INSCAN PARCELS - {delivery.totalInscanParcels}</p>
