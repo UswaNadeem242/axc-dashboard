@@ -44,7 +44,7 @@ export default function DashboardLayout({
             <div className="mb-6">
               <h1 className=" text-axc-navy">{title}</h1>
               {pathname === "/" ? (
-                <p className="mt-0.5 text-xs text-axc-gray text-regular-medium">
+                <p className="mt-0.5  text-axc-gray text-regular-medium">
                   Welcome back, Admin! Here's what's happening today.
                 </p>
               ) : (

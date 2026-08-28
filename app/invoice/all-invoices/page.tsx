@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Mail, MessageCircle, FileText, FileSpreadsheet, Pencil, Trash2 } from "lucide-react";
+import { X, Mail, MessageCircle, FileText, FileSpreadsheet, Pencil, Trash2,  PlusCircle, PlusCircleIcon,} from "lucide-react";
 
 import CommonTable from "../../src/common/table";
 import { InvoiceHeading, InvoiceEntry, initialInvoiceData } from "../../src/constant";
@@ -124,7 +124,7 @@ export default function AllInvoicePage() {
         </div>
 
         {/* UPDATED: href now points to /invoice/create-invoice to match the actual folder */}
-        <Button label="New Invoice" href="/invoice/create-invoice" variant="primary" />
+        <Button label="New Invoice" href="/invoice/create-invoice" variant="primary" icon={PlusCircleIcon}  />
       </div>
 
       {activeTags.length > 0 && (
@@ -171,23 +171,53 @@ export default function AllInvoicePage() {
         selectedIds={selectedIds}
         onSelectionChange={setSelectedIds}
         renderActions={(row: InvoiceEntry) => (
-          <div className="flex items-center gap-3">
-            <button type="button" onClick={() => handleEmail(row)} className="text-axc-blue transition hover:opacity-70" title="Email">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => handleEmail(row)}
+              className="inline-flex items-center justify-center rounded-md border border-axc-blue/30  p-1.5 text-axc-blue transition hover:bg-axc-blue/10"
+              title="Email"
+            >
               <Mail size={16} />
             </button>
-            <button type="button" onClick={() => handleWhatsapp(row)} className="text-axc-dark-green transition hover:opacity-70" title="Whatsapp">
+            <button
+              type="button"
+              onClick={() => handleWhatsapp(row)}
+              className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30  p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10"
+              title="Whatsapp"
+            >
               <MessageCircle size={16} />
             </button>
-            <button type="button" onClick={() => handlePdf(row)} className="text-amber-600 transition hover:opacity-70" title="View PDF">
+            <button
+              type="button"
+              onClick={() => handlePdf(row)}
+              className="inline-flex items-center justify-center rounded-md border border-amber-600/30  p-1.5 text-amber-600 transition hover:bg-amber-600/10"
+              title="View PDF"
+            >
               <FileText size={16} />
             </button>
-            <button type="button" onClick={() => handleExcel(row)} className="text-axc-dark-green transition hover:opacity-70" title="Export Excel">
+            <button
+              type="button"
+              onClick={() => handleExcel(row)}
+              className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30  p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10"
+              title="Export Excel"
+            >
               <FileSpreadsheet size={16} />
             </button>
-            <button type="button" onClick={() => handleEdit(row)} className="text-axc-navy transition hover:opacity-70" title="Edit">
+            <button
+              type="button"
+              onClick={() => handleEdit(row)}
+              className="inline-flex items-center justify-center rounded-md border border-axc-navy/30  p-1.5 text-axc-navy transition hover:bg-axc-navy/10"
+              title="Edit"
+            >
               <Pencil size={16} />
             </button>
-            <button type="button" onClick={() => handleDelete(row)} className="text-axc-red-dark transition hover:opacity-70" title="Delete">
+            <button
+              type="button"
+              onClick={() => handleDelete(row)}
+              className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
+              title="Delete"
+            >
               <Trash2 size={16} />
             </button>
           </div>
