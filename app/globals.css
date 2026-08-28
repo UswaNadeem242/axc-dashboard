@@ -24,7 +24,8 @@
 }
 
 :root {
-  --background: #ffffff;
+  /* --background: #ffffff; */
+  --background: #171717;
   --foreground: #171717;
 }
 
