@@ -40,7 +40,7 @@
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
-    --foreground: #ededed;
+    /* --foreground: #ededed; */
   }
 }
 
@@ -48,7 +48,7 @@ body {
   margin: 0;
   padding: 0;
   background: var(--background);
-  color: var(--foreground);
+  /* color: var(--foreground); */
 }
 
 h1,
