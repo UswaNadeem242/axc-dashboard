@@ -122,7 +122,7 @@ export default function AllManifestPage() {
           />
         </div>
 
-        <Button label="New Manifest" href="/manifest/new-manifest" variant="primary" icon={PlusCircleIcon}/>
+        <Button className="px-5 py-4 rounded-lg text-regular-small"label="New Manifest" href="/manifest/new-manifest" variant="primary" icon={PlusCircleIcon}/>
       </div>
 
       {activeTags.length > 0 && (

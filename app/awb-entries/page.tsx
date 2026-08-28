@@ -126,7 +126,7 @@ export default function AwbEntriesPage() {
             onSearchSubmit={handleSearchSubmit}
             placeholder="Search"
           />
-          <Button label="Create Entry" href="/create-entries" variant="primary" icon={PlusCircleIcon} />
+          <Button className="px-5 py-4 rounded-lg text-regular-small" label="Create Entry" href="/create-entries" variant="primary" icon={PlusCircleIcon} />
         </div>
 
         {activeTags.length > 0 && (
