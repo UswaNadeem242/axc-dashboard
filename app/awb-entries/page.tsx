@@ -130,10 +130,10 @@ export default function AwbEntriesPage() {
         </div>
 
         {activeTags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 mb-2 shrink-0">
+          <div className="flex flex-wrap items-center gap-2 mb-2 shrink-0 border-axc-gray">
             {activeTags.map((tag, idx) => {
               const colors = [
-                "border-slate-200 bg-slate-50 text-slate-700",
+                "border-slate-200 bg-slate-50 text-slate-700 ",
                 "border-axc-red/30 bg-axc-red/5 text-axc-red",
                 "border-axc-yellow/30 bg-axc-yellow/5 text-axc-dark-yellow",
                 "border-axc-green/30 bg-axc-green/5 text-axc-dark-green",

@@ -71,20 +71,6 @@ const CommonTable = ({
   const paginatedData = data.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
   const colSpan = headings.length + (selectable ? 1 : 0);
 
-  const computedTotalPages =
-    propTotalPages ??
-    Math.max(1, Math.ceil(data.length / itemsPerPage));
-
-  const activePage = Math.min(
-    Math.max(1, currentPage),
-    computedTotalPages
-  );
-
-  const paginatedData = data.slice(
-    (activePage - 1) * itemsPerPage,
-    activePage * itemsPerPage
-  );
-
   // =========================================================
   // COPY ROW
   // =========================================================
@@ -134,8 +120,8 @@ const CommonTable = ({
 
   return (
     <div className="flex flex-col">
-      <div className="flex flex-col overflow-hidden rounded-[8px] border border-axc-border">
-        <div className="overflow-x-auto scrollbar-none max-h-[calc(100vh-260px)] overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+      <div className="flex flex-col overflow-hidden rounded-lg border border-axc-border">
+        <div className="overflow-x-auto scrollbar-none max-h-[calc(100vh-260px)] overflow-y-auto [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
           <table className="w-max min-w-full border-collapse text-left text-sm">
             <thead className="sticky top-0 z-10">
               <tr className="bg-axc-navy text-white">
@@ -191,13 +177,67 @@ const CommonTable = ({
                           renderActions ? (
                             renderActions(row)
                           ) : (
-                            <div className="flex items-center gap-3">
-                              {onView && <button type="button" onClick={() => onView(row)} className="text-axc-navy transition hover:opacity-70" title="View"><Eye size={16} /></button>}
-                              {onEdit && <button type="button" onClick={() => onEdit(row)} className="text-axc-dark-green transition hover:opacity-70" title="Edit"><Pencil size={16} /></button>}
-                              {onBagging && <button type="button" onClick={() => onBagging(row)} className="text-axc-navy transition hover:opacity-70" title="Bagging"><PackageCheck size={17} /></button>}
-                              {onDelete && <button type="button" onClick={() => onDelete(row)} className="text-axc-red-dark transition hover:opacity-70" title="Delete"><Trash2 size={16} /></button>}
-                              {/* <button type="button" onClick={() => copyRow(row)} className="text-axc-dark-gray transition hover:opacity-70" title="Copy"><Copy size={16} /></button> */}
-                              {onPdf && <button type="button" onClick={() => onPdf(row)} className="text-axc-blue transition hover:opacity-70" title="View PDF"><FileText size={16} /></button>}
+                            <div className="flex items-center gap-2">
+                              {onView && (
+                                <button
+                                  type="button"
+                                  onClick={() => onView(row)}
+                                  className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10"
+                                  title="View"
+                                >
+                                  <Eye size={16} />
+                                </button>
+                              )}
+                              {onEdit && (
+                                <button
+                                  type="button"
+                                  onClick={() => onEdit(row)}
+                                  className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30  p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10"
+                                  title="Edit"
+                                >
+                                  <Pencil size={16} />
+                                </button>
+                              )}
+                              {onBagging && (
+                                <button
+                                  type="button"
+                                  onClick={() => onBagging(row)}
+                                  className="inline-flex items-center justify-center rounded-md border border-axc-navy/30  p-1.5 text-axc-navy transition hover:bg-axc-navy/10"
+                                  title="Bagging"
+                                >
+                                  <PackageCheck size={17} />
+                                </button>
+                              )}
+                              {onDelete && (
+                                <button
+                                  type="button"
+                                  onClick={() => onDelete(row)}
+                                  className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
+                                  title="Delete"
+                                >
+                                  <Trash2 size={16} />
+                                </button>
+                              )}
+                              {/* {onCopy && (
+                                <button
+                                  type="button"
+                                  onClick={() => copyRow(row)}
+                                  className="inline-flex items-center justify-center rounded-md border border-axc-dark-gray/30  p-1.5 text-axc-dark-gray transition hover:bg-axc-dark-gray/10"
+                                  title="Copy"
+                                >
+                                  <Copy size={16} />
+                                </button>
+                              )} */}
+                              {onPdf && (
+                                <button
+                                  type="button"
+                                  onClick={() => onPdf(row)}
+                                  className="inline-flex items-center justify-center rounded-md border border-axc-blue/30  p-1.5 text-axc-blue transition hover:bg-axc-blue/10"
+                                  title="View PDF"
+                                >
+                                  <FileText size={16} />
+                                </button>
+                              )}
                             </div>
                           )
                         ) : (
@@ -207,7 +247,7 @@ const CommonTable = ({
                             if (typeof value === "string") {
                               if (heading.truncate === false) return <span className="whitespace-nowrap">{value}</span>;
                               return (
-                                <div className="group relative inline-block max-w-[120px]">
+                                <div className="group relative inline-block max-w-30">
                                   <span className="block truncate cursor-pointer">{truncateText(value, 8)}</span>
                                   {value.length > 8 && (
                                     <div className="invisible absolute left-1/2 top-full z-50 mt-2 w-max max-w-xs -translate-x-1/2 rounded-lg bg-axc-dark-gray px-3 py-2 text-xs text-white opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">

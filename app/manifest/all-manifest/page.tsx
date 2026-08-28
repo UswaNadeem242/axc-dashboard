@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X , PlusCircleIcon,} from "lucide-react";
 
 import CommonTable from "../../src/common/table";
 import { ManifestHeading, ManifestEntry, initialManifestData } from "../../src/constant";
@@ -122,7 +122,7 @@ export default function AllManifestPage() {
           />
         </div>
 
-        <Button label="New Manifest" href="/manifest/new-manifest" variant="primary" />
+        <Button label="New Manifest" href="/manifest/new-manifest" variant="primary" icon={PlusCircleIcon}/>
       </div>
 
       {activeTags.length > 0 && (
