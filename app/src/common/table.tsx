@@ -121,7 +121,8 @@ const CommonTable = ({
   return (
     <div className="flex flex-col">
       <div className="flex flex-col overflow-hidden rounded-lg border border-axc-border">
-        <div className="overflow-x-auto scrollbar-none max-h-[calc(100vh-260px)] overflow-y-auto [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div className="overflow-x-auto scrollbar-none max-h-[calc(100vh-260px)] ">
+          {/* overflow-y-auto [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden */}
           <table className="w-max min-w-full border-collapse text-left text-sm">
             <thead className="sticky top-0 z-10">
               <tr className="bg-axc-navy text-white">
