@@ -104,7 +104,7 @@ export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, se
                         <input type="text" readOnly value={item.amount} className="w-full bg-gray-50 border border-axc-border rounded px-1.5 py-2 text-center cursor-not-allowed text-axc-dark-gray font-medium" />
                       </td>
                       <td className="p-1 text-center">
-                        <button type="button" onClick={() => removeInvoiceItem(item.id)} className="inline-flex items-center gap-1 text-axc-red hover:text-red-800 font-bold text-[10px] cursor-pointer">
+                        <button type="button" onClick={() => removeInvoiceItem(item.id)}  className="inline-flex items-center justify-center rounded-md border border-axc-red/30  p-1.5 text-axc-red transition hover:bg-axc-red/10">
                           <Trash size={15} />
 
                         </button>

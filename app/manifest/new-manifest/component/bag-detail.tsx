@@ -132,7 +132,7 @@ export default function BagDetails({ rows, updateRow, addRow, removeRow, selectA
                       type="button"
                       onClick={() => removeRow(row.id)}
                       title="Remove"
-                      className="inline-flex items-center justify-center text-axc-red hover:text-red-800 cursor-pointer"
+                      className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
                     >
                       <Trash size={15} />
                     </button>
