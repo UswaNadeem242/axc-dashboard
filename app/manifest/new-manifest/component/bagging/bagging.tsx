@@ -9,7 +9,7 @@ type BaggingPanelProps = Omit<BaggingFormState, "awbDetails">;
 function StatBox({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="bg-axc-navy text-white text-center py-1.5 flex-1">
-      <div className="text-[10px] font-semibold uppercase tracking-wide">{label}</div>
+      <div className="text-regular-medium uppercase tracking-wide">{label}</div>
       <div className="text-regular-medium font-bold">{value}</div>
     </div>
   );
@@ -18,7 +18,7 @@ function StatBox({ label, value }: { label: string; value: number | string }) {
 function TotalBox({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="border-2 border-axc-red-dark bg-axc-red-dark rounded text-center py-1.5 flex-1">
-      <div className="text-[10px] font-semibold text-white uppercase tracking-wide">{label}</div>
+      <div className="text-regular-small text-white uppercase tracking-wide">{label}</div>
       <div className="text-regular-medium font-bold text-white">{value}</div>
     </div>
   );
@@ -69,6 +69,7 @@ export default function BaggingPanel({
               value={form.runNumber}
               onChange={(e) => updateField("runNumber", e.target.value)}
               className={errors.runNumber ? errorInputClass : inputClass}
+              placeholder="Run Number"
             />
             <FieldError message={errors.runNumber} />
           </div>
@@ -106,7 +107,7 @@ export default function BaggingPanel({
           >
             <table className="w-full text-[11px] border-collapse">
               <thead>
-                <tr className="bg-gray-50 border-b border-axc-border text-[10px] text-black uppercase text-left">
+                <tr className="bg-gray-50 border-b border-axc-border text-regular-medium text-axc-dark-gray  text-left">
                   <th className="py-2 px-2 border-r border-axc-border">Bag No.</th>
                   <th className="py-2 px-2 border-r border-axc-border">AWB No.</th>
                   {!form.parcelWiseBagging && <th className="py-2 px-2 border-r border-axc-border">PCS</th>}
@@ -121,6 +122,7 @@ export default function BaggingPanel({
                       value={bagRow.bagNo}
                       onChange={(e) => updateBagRow("bagNo", e.target.value)}
                       className={inputClass}
+                      placeholder="Bag no."
                     />
                   </td>
                   <td className="border-r border-axc-border p-1 align-top">
@@ -129,6 +131,7 @@ export default function BaggingPanel({
                       value={bagRow.awbNo}
                       onChange={(e) => updateBagRow("awbNo", e.target.value)}
                       className={inputClass}
+                      placeholder="AWB No."
                     />
                   </td>
                   {!form.parcelWiseBagging && (
@@ -151,6 +154,7 @@ export default function BaggingPanel({
                       value={bagRow.weight}
                       onChange={(e) => updateBagRow("weight", e.target.value)}
                       className={`${inputClass} text-center`}
+                      
                     />
                   </td>
                 </tr>
@@ -174,7 +178,7 @@ export default function BaggingPanel({
           >
             <table className="w-full text-[11px] border-collapse">
               <thead>
-                <tr className="bg-gray-50 border-b border-axc-border text-[10px] text-black uppercase text-left">
+                <tr className="bg-gray-50 border-b border-axc-border text-regular-medium text-axc-dark-gray text-left">
                   <th className="py-2 px-2 border-r border-axc-border">Bag No.</th>
                   <th className="py-2 px-2 border-r border-axc-border">Bag Weight</th>
                   <th className="py-2 px-2">Weight</th>
@@ -188,6 +192,7 @@ export default function BaggingPanel({
                       value={weightBagRow.bagNo}
                       onChange={(e) => updateWeightBagRow("bagNo", e.target.value)}
                       className={inputClass}
+                      placeholder="Bag No."
                     />
                   </td>
                   <td className="border-r border-axc-border p-1">
@@ -196,6 +201,7 @@ export default function BaggingPanel({
                       value={weightBagRow.bagWeight}
                       onChange={(e) => updateWeightBagRow("bagWeight", e.target.value)}
                       className={`${inputClass} text-center`}
+                      
                     />
                   </td>
                   <td className="p-1">
@@ -204,6 +210,7 @@ export default function BaggingPanel({
                       value={weightBagRow.weight}
                       onChange={(e) => updateWeightBagRow("weight", e.target.value)}
                       className={`${inputClass} text-center`}
+                      
                     />
                   </td>
                 </tr>
@@ -218,6 +225,7 @@ export default function BaggingPanel({
                 value={form.flightNo}
                 onChange={(e) => updateField("flightNo", e.target.value)}
                 className={inputClass}
+                placeholder="Flight No."
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -236,6 +244,7 @@ export default function BaggingPanel({
                 value={form.origin}
                 onChange={(e) => updateField("origin", e.target.value)}
                 className={inputClass}
+                placeholder="Origin"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -245,6 +254,7 @@ export default function BaggingPanel({
                 value={form.destination}
                 onChange={(e) => updateField("destination", e.target.value)}
                 className={inputClass}
+                placeholder="Destination"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -254,6 +264,7 @@ export default function BaggingPanel({
                 value={form.forwarder}
                 onChange={(e) => updateField("forwarder", e.target.value)}
                 className={inputClass}
+                placeholder="Forwarder"
               />
             </div>
             <div className="flex flex-col gap-1">
@@ -263,6 +274,7 @@ export default function BaggingPanel({
                 value={form.masterNo}
                 onChange={(e) => updateField("masterNo", e.target.value)}
                 className={inputClass}
+                placeholder="Master No."
               />
             </div>
           </div>
@@ -286,7 +298,7 @@ export default function BaggingPanel({
         </div>
         <table className="w-full text-[11px] border-collapse">
           <thead>
-            <tr className="bg-gray-50 border-b border-t border-axc-border text-[10px] text-black uppercase text-left">
+            <tr className="bg-gray-50 border-b border-t border-axc-border text-regular-medium text-axc-dark-gray text-left">
               <th className="py-2 px-2 border-r border-axc-border">AWB No.</th>
               <th className="py-2 px-2 border-r border-axc-border">PCS</th>
               <th className="py-2 px-2">Weight</th>
@@ -314,7 +326,7 @@ export default function BaggingPanel({
       <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden">
         <table className="w-full text-[11px] border-collapse">
           <thead>
-            <tr className="bg-gray-50 border-b border-axc-border text-[10px] text-black uppercase text-left">
+            <tr className="bg-gray-50 border-b border-axc-border text-regular-medium text-axc-dark-gray text-left">
               <th className="py-2 px-2 border-r border-axc-border">Bag No.</th>
               <th className="py-2 px-2 border-r border-axc-border">Total PCS</th>
               <th className="py-2 px-2 border-r border-axc-border">Total Weight</th>
@@ -345,7 +357,7 @@ export default function BaggingPanel({
         <PanelHeader title="Partial Manifested AWB" />
         <table className="w-full text-[11px] border-collapse">
           <thead>
-            <tr className="bg-gray-50 border-b border-axc-border text-[10px] text-black uppercase text-left">
+            <tr className="bg-gray-50 border-b border-axc-border text-regular-medium text-axc-dark-gray text-left">
               <th className="py-2 px-2 border-r border-axc-border">AWB Number</th>
               <th className="py-2 px-2 border-r border-axc-border">Split AWB</th>
               <th className="py-2 px-2 border-r border-axc-border">PC Number</th>
