@@ -71,20 +71,6 @@ const CommonTable = ({
   const paginatedData = data.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
   const colSpan = headings.length + (selectable ? 1 : 0);
 
-  const computedTotalPages =
-    propTotalPages ??
-    Math.max(1, Math.ceil(data.length / itemsPerPage));
-
-  const activePage = Math.min(
-    Math.max(1, currentPage),
-    computedTotalPages
-  );
-
-  const paginatedData = data.slice(
-    (activePage - 1) * itemsPerPage,
-    activePage * itemsPerPage
-  );
-
   // =========================================================
   // COPY ROW
   // =========================================================
