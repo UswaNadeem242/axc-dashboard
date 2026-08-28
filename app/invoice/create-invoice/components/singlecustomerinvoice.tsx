@@ -161,7 +161,7 @@ export function AwbTableSection({ awbRows, addAwbRow, updateAwbRow, removeAwbRow
                       type="button"
                       onClick={() => removeAwbRow(row.id)}
                       title="Remove AWB"
-                 className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
+                      className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
                     >
                       <Trash size={15} />
                     </button>
