@@ -203,18 +203,18 @@ export default function ManifestInformation({
         </div>
       </div>
 
-      <div className="flex justify-end gap-4 px-5 pb-5">
+      <div className="flex justify-end gap-4 px-6 pb-5">
         <button
           type="button"
           onClick={handleSearchAwb}
-          className="bg-axc-navy text-white text-[12px] font-semibold px-5 py-3 rounded cursor-pointer transition uppercase "
+          className="bg-axc-navy text-white text-reguar-small px-5 py-4 rounded-lg cursor-pointer transition uppercase "
         >
           Search AWB
         </button>
         <button
           type="button"
           onClick={handleBagging}
-          className="bg-axc-navy text-white text-[12px] font-semibold px-5 py-3 rounded cursor-pointer transition uppercase "
+          className="bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition uppercase "
         >
           Bagging
         </button>

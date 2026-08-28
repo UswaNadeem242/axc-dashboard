@@ -80,7 +80,7 @@ export function SingleCustomerInvoiceDetails({ form, setForm, errors = {}, onCre
             type="button"
             onClick={onCreateInvoice}
             disabled={loading}
-            className="px-5 py-3 bg-axc-navy text-white rounded text-xs font-bold shadow-sm transition uppercase cursor-pointer disabled:opacity-60"
+            className="px-5 py-4 bg-axc-navy text-white rounded-lg text-regular-small shadow-sm transition uppercase cursor-pointer disabled:opacity-60"
           >
             {loading ? "Creating..." : "Create Invoice"}
           </button>
@@ -161,7 +161,7 @@ export function AwbTableSection({ awbRows, addAwbRow, updateAwbRow, removeAwbRow
                       type="button"
                       onClick={() => removeAwbRow(row.id)}
                       title="Remove AWB"
-                      className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
+                      className="inline-flex items-center justify-center text-axc-red cursor-pointer"
                     >
                       <Trash size={15} />
                     </button>
@@ -195,7 +195,7 @@ export function AwbTableSection({ awbRows, addAwbRow, updateAwbRow, removeAwbRow
           <button
             type="button"
             onClick={addAwbRow}
-            className="px-3 py-2 bg-axc-navy text-white rounded text-sm transition uppercase cursor-pointer flex items-center gap-1.5"
+            className="px-3 py-2 bg-axc-navy text-white rounded-lg text-regular-small transition uppercase cursor-pointer flex items-center gap-1.5"
           >
             <Plus size={15} />
             Add AWB

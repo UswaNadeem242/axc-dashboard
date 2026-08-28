@@ -132,7 +132,7 @@ export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, se
             </div>
             <div className="mt-3">
 
-              <button type="button" onClick={addInvoiceItem} className="px-3 py-2 bg-axc-dark-yellow  text-white rounded text-sm transition uppercase cursor-pointer flex justify-center items-center "><Plus size={15} />ADD ITEM</button>
+              <button type="button" onClick={addInvoiceItem} className="px-3 py-2 bg-axc-dark-yellow  text-white rounded text-regular-small transition uppercase cursor-pointer flex justify-center items-center "><Plus size={15} />ADD ITEM</button>
             </div>
           </div>
         </div>
