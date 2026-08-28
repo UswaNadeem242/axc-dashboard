@@ -37,7 +37,6 @@ export default function ManifestSummary({ form, updateField, toggleEdit }: Manif
         <div className="flex flex-col gap-1">
           <FieldLabel>Manifest No.</FieldLabel>
           <input disabled value={form.manifestNo} className={disabledInputClass} placeholder="Auto-generated" />
-
         </div>
 
         <div className="flex flex-col gap-1">
