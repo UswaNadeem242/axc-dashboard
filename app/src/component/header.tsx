@@ -48,11 +48,11 @@ export default function Header() {
             </div>
 
               <div>
-                <p className="text-sm font-bold text-axc-dark-gray leading-none">
+                <p className="text-regular-semibold text-axc-dark-gray leading-none">
                   Admin User
                 </p>
 
-              <p className="mt-1 text-[11px] text-axc-gray font-medium leading-none">
+              <p className="mt-1 text-regular-small text-axc-gray  leading-none">
                 Administrator
               </p>
             </div>

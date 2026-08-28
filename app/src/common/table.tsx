@@ -17,6 +17,7 @@ interface Heading {
 interface CommonTableProps {
   headings: Heading[];
   data: any[];
+
   onView?: (row: any) => void;
   onEdit?: (row: any) => void;
   onDelete?: (row: any) => void;
@@ -70,12 +71,21 @@ const CommonTable = ({
   const paginatedData = data.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
   const colSpan = headings.length + (selectable ? 1 : 0);
 
+  // =========================================================
+  // COPY ROW
+  // =========================================================
   const copyRow = async (row: any) => {
     await navigator.clipboard.writeText(JSON.stringify(row, null, 2));
     showToast({ variant: "success", message: "Row copied." });
   };
 
-  const truncateText = (text: string, maxLength = 8) => {
+  // =========================================================
+  // TRUNCATE
+  // =========================================================
+  const truncateText = (
+    text: string,
+    maxLength = 8
+  ) => {
     if (!text) return "-";
     return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
   };
@@ -131,6 +141,7 @@ const CommonTable = ({
                     </span>
                   </th>
                 ))}
+
               </tr>
             </thead>
             <tbody className="divide-y divide-axc-border">
