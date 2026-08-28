@@ -119,10 +119,10 @@ const CommonTable = ({
   };
 
   return (
-    <div className="flex flex-col">
-      <div className="flex flex-col overflow-hidden rounded-lg border border-axc-border">
-        <div className="overflow-x-auto scrollbar-none max-h-[calc(100vh-260px)] overflow-y-auto [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-          <table className="w-max min-w-full border-collapse text-left text-sm">
+    <div className="flex flex-col flex-1 min-h-0">
+      <div className="flex flex-col flex-1 min-h-0 overflow-hidden rounded-lg border border-axc-border bg-white">
+        <div className="overflow-x-auto overflow-y-hidden flex-1 min-h-0">
+          <table className="w-full min-w-full border-collapse text-left text-sm">
             <thead className="sticky top-0 z-10">
               <tr className="bg-axc-navy text-white">
                 {selectable && (
