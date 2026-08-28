@@ -116,7 +116,7 @@ export function VendorDetailsPanel({
                       <button
                         type="button"
                         onClick={() => onRemoveWeightRow(row.id)}
-                        className="inline-flex items-center gap-1 text-axc-red hover:text-red-800 font-bold text-[10px] cursor-pointer"
+                        className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
                       >
                         <Trash size={14} />
                         {/* <span className="inline-block w-3.5 h-3.5 rounded-full border border-axc-red text-center leading-3 font-extrabold text-[9px] shrink-0">x</span>
