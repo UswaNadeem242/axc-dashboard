@@ -98,7 +98,7 @@ export function DeliveryPanel({
       <div className="flex flex-col w-full xl:col-span-3 h-full">
         {/* xl:sticky xl:top-0 xl:self-start */}
         <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
-          <PanelHeader title="Delivery Summary" />
+          {/* <PanelHeader title="Delivery Summary" /> */}
           <div className="p-4 flex flex-col gap-3">
             <div className="grid grid-cols-1 gap-4">
               <div className="flex flex-col gap-1">

@@ -4,7 +4,7 @@ import { PaymentDetailsFormState } from "./formstate";
 import { FileText, Mail } from "lucide-react";
 
 const inputClass =
-  "border border-gray-300 rounded-md px-3 py-2.5 outline-none w-full text-regular-small text-axc-gray  placeholder:text-axc-gray  transition";
+  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-regular-small text-axc-gray placeholder:text-axc-gray transition";
 
 function PanelHeader({ title }: { title: string }) {
   return (
@@ -38,9 +38,9 @@ export function PaymentDetailsPanel({
   return (
     <div className="rounded-lg border border-axc-border bg-white shadow-sm overflow-hidden">
       <PanelHeader title="Payment Details" />
-      <div className="p-4 space-y-3">
-        <Row label="Paid amount" value={payment.paidAmount} onChange={(v) => onChange({ paidAmount: v })} />
-        <Row label="Balance amount" value={payment.balanceAmount} readOnly />
+      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Row label="Paid amount" value={payment.paidAmount} onChange={(v) => onChange({ paidAmount: v })} placeholder="Paid amount" />
+        <Row label="Balance amount" value={payment.balanceAmount} readOnly placeholder="Balance amount" />
         <Row label="Invoice date" value={payment.invoiceDate} type="date" onChange={(v) => onChange({ invoiceDate: v })} />
 
         <div>
@@ -52,10 +52,10 @@ export function PaymentDetailsPanel({
               onChange={(e) => onChange({ invoiceNumber: e.target.value })}
               className={`${inputClass} h-9 text-[12px]`}
             />
-            <button type="button" title="View invoice" className="h-9 w-9 shrink-0 flex items-center justify-center rounded bg-axc-navy text-white">
+            <button type="button" title="View invoice" className="h-9 w-9 shrink-0 flex items-center justify-center rounded bg-axc-navy text-white hover:bg-axc-navy/90 transition cursor-pointer">
               <FileText size={13} />
             </button>
-            <button type="button" title="Email invoice" className="h-9 w-9 shrink-0 flex items-center justify-center rounded bg-axc-navy text-white">
+            <button type="button" title="Email invoice" className="h-9 w-9 shrink-0 flex items-center justify-center rounded bg-axc-navy text-white hover:bg-axc-navy/90 transition cursor-pointer">
               <Mail size={13} />
             </button>
           </div>

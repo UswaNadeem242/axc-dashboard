@@ -74,7 +74,9 @@ export interface AwbFormState {
   consignerWeight: string;
   addWeight: string;
   chargeableWeight: string;
+  parcelType: string;
   boxNo: string;
+  actualNo: string;
   parcelActualWt: string;
   parcelL: string;
   parcelB: string;

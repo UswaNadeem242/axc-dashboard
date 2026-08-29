@@ -13,7 +13,7 @@ interface Props {
 
 export default function AirWaybillInformation({ form, setForm, errors }: Props) {
   return (
-    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-white rounded-lg border border-axc-border shadow-sm flex flex-col">
       <PanelHeader
         title="Air Waybill Information"
         right={<span className=" text-white text-xs px-2 py-0.5 rounded font-medium">BALANCE: WAIT...</span>}
@@ -39,7 +39,7 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
 
         <div className="flex flex-col gap-1">
           <FieldLabel required>Customer</FieldLabel>
-          <input type="text" value={form.customer} onChange={(e) => setForm({ ...form, customer: e.target.value })} className={`${errors.customer ? errorInputClass : inputClass} bg-gray-50 focus:bg-white`}  placeholder="Customer"/>
+          <input type="text" value={form.customer} onChange={(e) => setForm({ ...form, customer: e.target.value })} className={`${errors.customer ? errorInputClass : inputClass} bg-gray-50 focus:bg-white`} placeholder="Customer" />
           <FieldError message={errors.customer} />
         </div>
 
@@ -98,17 +98,17 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Forwarding Number</FieldLabel>
-          <input type="text" value={form.forwardingNumber} onChange={(e) => setForm({ ...form, forwardingNumber: e.target.value })} className={inputClass}  placeholder="Forwarding Number"/>
+          <input type="text" value={form.forwardingNumber} onChange={(e) => setForm({ ...form, forwardingNumber: e.target.value })} className={inputClass} placeholder="Forwarding Number" />
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Forwarding Number 2</FieldLabel>
-          <input type="text" value={form.forwardingNumber2} onChange={(e) => setForm({ ...form, forwardingNumber2: e.target.value })} className={inputClass}  placeholder="Forwarding Number"/>
+          <input type="text" value={form.forwardingNumber2} onChange={(e) => setForm({ ...form, forwardingNumber2: e.target.value })} className={inputClass} placeholder="Forwarding Number" />
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Reference Number</FieldLabel>
-          <input type="text" value={form.referenceNumber} onChange={(e) => setForm({ ...form, referenceNumber: e.target.value })} className={inputClass}  placeholder="Reference Number"/>
+          <input type="text" value={form.referenceNumber} onChange={(e) => setForm({ ...form, referenceNumber: e.target.value })} className={inputClass} placeholder="Reference Number" />
         </div>
 
         <div className="flex flex-col gap-1">
@@ -126,12 +126,28 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Invoice Number</FieldLabel>
-          <input type="number" value={form.invoiceNumber} onChange={(e) => setForm({ ...form, invoiceNumber: e.target.value })} className={inputClass}  placeholder="Invoice Number"/>
+          <div className="relative">
+            <input
+              type="text"
+              value={form.invoiceNumber}
+              readOnly={!form.editInvoice}
+              onChange={(e) => setForm({ ...form, invoiceNumber: e.target.value })}
+              className={`${inputClass} w-full pr-10 text-regular-small ${form.editInvoice ? "bg-white" : "bg-gray-100 text-axc-dark-gray cursor-not-allowed"}`}
+              placeholder="Invoice Number"
+            />
+            <div className="absolute right-1 top-1/2 -translate-y-1/2">
+              <EditIconButton
+                active={form.editInvoice}
+                onToggle={() => setForm({ ...form, editInvoice: !form.editInvoice })}
+                title="Edit Invoice Number"
+              />
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">
           <label className="text-regular-medium text-axc-dark-gray">Content</label>
-          <textarea rows={2} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} className={`${inputClass} focus:outline-none border-axc-border border`} placeholder="Content here" />
+          <textarea rows={4} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} className={`${inputClass} focus:outline-none border-axc-border border`} placeholder="Content here" />
         </div>
 
         <div className="flex flex-col gap-1">
@@ -150,17 +166,17 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
             </thead>
             <tbody>
               <tr className="border-b border-axc-border">
-                <td className="py-1 px-2 border-r text-regular-small text-axc-dark-gray border-axc-border bg-gray-50 text-left ">Rate Contract</td>
+                <td className="py-2.5 px-3 border-r text-regular-small text-axc-dark-gray border-axc-border bg-gray-50 text-left ">Rate Contract</td>
                 <td className="border-r border-axc-border"><input type="text" value={form.rateContractCustomer} onChange={(e) => setForm({ ...form, rateContractCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
                 <td><input type="text" value={form.rateContractVendor} onChange={(e) => setForm({ ...form, rateContractVendor: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
               </tr>
               <tr className="border-b border-axc-border">
-                <td className="py-1 px-2 border-r   border-axc-border bg-gray-50 text-left   text-regular-small text-axc-dark-gray">CFT Contract</td>
+                <td className="py-2.5 px-3 border-r   border-axc-border bg-gray-50 text-left   text-regular-small text-axc-dark-gray">CFT Contract</td>
                 <td className="border-r border-axc-border"><input type="text" value={form.cftContractCustomer} onChange={(e) => setForm({ ...form, cftContractCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
                 <td><input type="text" value={form.cftContractVendor} onChange={(e) => setForm({ ...form, cftContractVendor: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
               </tr>
               <tr>
-                <td className="py-1 px-2 border-r  border-axc-border bg-gray-50 text-left   text-regular-small text-axc-dark-gray">TAT</td>
+                <td className="py-2.5 px-3 border-r  border-axc-border bg-gray-50 text-left   text-regular-small text-axc-dark-gray">TAT</td>
                 <td className="border-r border-axc-border"><input type="text" value={form.tatCustomer} onChange={(e) => setForm({ ...form, tatCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
                 <td><input type="text" value={form.tatVendor} onChange={(e) => setForm({ ...form, tatVendor: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
               </tr>
@@ -172,7 +188,24 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
           <div className="flex flex-col gap-1">
             <FieldLabel>Origin Hub</FieldLabel>
             <div className="relative">
-              <CommonDropdown value={form.originHub} onChange={(val) => setForm({ ...form, originHub: val })} className="w-full border-axc-border pr-10" placeholder="SELECT..." options={[]} />
+              <CommonDropdown
+                value={form.originHub}
+                onChange={(val) => setForm({ ...form, originHub: val })}
+                className="w-full border-axc-border pr-10"
+                placeholder="SELECT ORIGIN HUB..."
+                options={[
+                  { value: "DEL", label: "DEL - Delhi" },
+                  { value: "BOM", label: "BOM - Mumbai" },
+                  { value: "BLR", label: "BLR - Bangalore" },
+                  { value: "AMD", label: "AMD - Ahmedabad" },
+                  { value: "HYD", label: "HYD - Hyderabad" },
+                  { value: "MAA", label: "MAA - Chennai" },
+                  { value: "CCU", label: "CCU - Kolkata" },
+                  { value: "DXB", label: "DXB - Dubai" },
+                  { value: "LHR", label: "LHR - London" },
+                  { value: "JFK", label: "JFK - New York" },
+                ]}
+              />
               <div className="absolute right-1 top-1/2 -translate-y-1/2">
                 <EditIconButton active={form.editOriginHub} onToggle={() => setForm({ ...form, editOriginHub: !form.editOriginHub })} title="Edit Origin Hub" />
               </div>
@@ -181,7 +214,17 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
 
           <div className="flex flex-col gap-1">
             <FieldLabel>Duty</FieldLabel>
-            <CommonDropdown value={form.duty} onChange={(val) => setForm({ ...form, duty: val })} className="w-full border-axc-border" placeholder="SELECT..." options={[]} />
+            <CommonDropdown
+              value={form.duty}
+              onChange={(val) => setForm({ ...form, duty: val })}
+              className="w-full border-axc-border"
+              placeholder="SELECT DUTY..."
+              options={[
+                { value: "Shipper", label: "Shipper" },
+                { value: "Receiver", label: "Receiver" },
+               
+              ]}
+            />
           </div>
         </div>
       </div>

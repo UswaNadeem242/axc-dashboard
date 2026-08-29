@@ -35,25 +35,12 @@ export function AwbSalesBillingTab({
       <div className="flex flex-col xl:flex-row gap-6 items-start w-full">
         <div className="flex flex-col gap-4 w-full xl:w-[360px] xl:shrink-0 xl:sticky xl:top-0 xl:self-start">
           <AwbWeightSummary form={form} />
-          <PaymentDetailsPanel
-            payment={payment}
-            onChange={(patch: Partial<PaymentDetailsFormState>) =>
-              setPayment((prev: PaymentDetailsFormState) => ({ ...prev, ...patch }))
-            }
-          />
+
         </div>
 
         <div className="flex-1 w-full">
           <div className="flex flex-col gap-6 w-full pb-2">
             <AirWaybillInformation form={form} setForm={setForm} errors={errors} />
-
-            <InvoiceRemarksPanel
-              remarks={remarks}
-              onChange={(patch: Partial<InvoiceRemarksFormState>) =>
-                setRemarks((prev: InvoiceRemarksFormState) => ({ ...prev, ...patch }))
-              }
-            />
-
             <SalesBillingPanel
               billing={billing}
               toggleCharge={toggleCharge}
@@ -63,6 +50,20 @@ export function AwbSalesBillingTab({
               }
               totals={totals}
             />
+            <PaymentDetailsPanel
+              payment={payment}
+              onChange={(patch: Partial<PaymentDetailsFormState>) =>
+                setPayment((prev: PaymentDetailsFormState) => ({ ...prev, ...patch }))
+              }
+            />
+            <InvoiceRemarksPanel
+              remarks={remarks}
+              onChange={(patch: Partial<InvoiceRemarksFormState>) =>
+                setRemarks((prev: InvoiceRemarksFormState) => ({ ...prev, ...patch }))
+              }
+            />
+
+
 
             <RefundDetailsPanel
               refund={refund}

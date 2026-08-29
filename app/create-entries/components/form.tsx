@@ -16,7 +16,7 @@ export function toSentenceCase(text: string): string {
 export function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
   const label = typeof children === "string" ? toSentenceCase(children) : children;
   return (
-    <label className=" text-axc-dark-gray text-regular-medium">
+    <label className=" text-axc-dark-gray text-regular-medium capitalize">
       {label}
       {required && <span className="text-axc-red ml-0.5">*</span>}
     </label>
