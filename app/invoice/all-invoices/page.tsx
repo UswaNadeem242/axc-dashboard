@@ -123,8 +123,9 @@ export default function AllInvoicePage() {
           />
         </div>
 
-        {/* UPDATED: href now points to /invoice/create-invoice to match the actual folder */}
+      
         <Button className="px-5 py-4 rounded-lg text-regular-small" label="New Invoice" href="/invoice/create-invoice" variant="primary" icon={PlusCircleIcon}  />
+
       </div>
 
       {activeTags.length > 0 && (

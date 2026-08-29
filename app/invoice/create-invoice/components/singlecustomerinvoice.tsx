@@ -79,7 +79,7 @@ export function SingleCustomerInvoiceDetails({ form, setForm, errors = {}, onCre
             type="button"
             onClick={onCreateInvoice}
             disabled={loading}
-            className="px-5 py-4 bg-axc-navy text-white rounded-lg text-regular-small shadow-sm transition uppercase cursor-pointer disabled:opacity-60"
+            className="px-5 py-3 bg-axc-navy text-white rounded text-xs font-bold shadow-sm transition uppercase cursor-pointer disabled:opacity-60"
           >
             {loading ? "Creating..." : "Create Invoice"}
           </button>

@@ -154,7 +154,42 @@ export default function AwbEntriesPage() {
         </div>
       )}
 
+ 
       <div className="flex-1 min-h-0 flex flex-col">
+ 
+        {activeTags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mb-2 shrink-0 border-axc-gray">
+            {activeTags.map((tag, idx) => {
+              const colors = [
+                "border-slate-200 bg-slate-50 text-slate-700 ",
+                "border-axc-red/30 bg-axc-red/5 text-axc-red",
+                "border-axc-yellow/30 bg-axc-yellow/5 text-axc-dark-yellow",
+                "border-axc-green/30 bg-axc-green/5 text-axc-dark-green",
+                "border-axc-sky/30 bg-axc-sky/5 text-axc-sky",
+                "border-axc-blue/30 bg-axc-blue/5 text-axc-blue",
+                "border-purple-200 bg-purple-50 text-purple-700",
+                "border-pink-200 bg-pink-50 text-pink-700",
+              ];
+              const colorClass = colors[idx % colors.length];
+
+              return (
+                <span
+                  key={tag}
+                  className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-medium transition ${colorClass}`}
+                >
+                  {tag}
+                  <X
+                    size={14}
+                    className="cursor-pointer hover:opacity-70 transition-opacity"
+                    onClick={() => removeTag(tag)}
+                  />
+                </span>
+              );
+            })}
+          </div>
+        )}
+
+ 
         <CommonTable
           headings={AwbEntryheading}
           data={filteredData}
