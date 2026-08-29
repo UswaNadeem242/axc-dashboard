@@ -104,7 +104,7 @@ export default function AwbEntriesPage() {
   }, [searchQuery]);
 
   return (
-    <div className="relative bg-white p-4 rounded-lg w-full flex-1 flex flex-col min-h-0 overflow-hidden shadow-sm border border-axc-border">
+    <div className="relative bg-white p-4 rounded-lg w-full flex-1 flex flex-col min-h-0  shadow-sm border border-axc-border  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4 shrink-0">
         <FilterSearch
           options={[
@@ -159,6 +159,7 @@ export default function AwbEntriesPage() {
           headings={AwbEntryheading}
           data={filteredData}
           onEdit={handleEdit}
+          
           onDelete={handleDelete}
           onView={handleView}
           currentPage={page}

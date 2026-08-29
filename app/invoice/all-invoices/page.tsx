@@ -101,7 +101,7 @@ export default function AllInvoicePage() {
   }, [searchQuery]);
 
   return (
-    <div className="relative bg-white p-3 rounded-[8px] w-full h-[calc(100vh-160px)] flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <div className="relative bg-white p-6 rounded-lg w-full h-[calc(100vh-160px)] flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
         <div className="flex flex-wrap items-center gap-3">
           {selectedIds.length > 0 && (

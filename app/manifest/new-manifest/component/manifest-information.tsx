@@ -49,7 +49,7 @@ export default function ManifestInformation({
   return (
     <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
       <PanelHeader title="Manifest Information" />
-      <div className="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3 text-xs">
+      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3">
         <div className="flex flex-col gap-1">
           <FieldLabel>Forwarder</FieldLabel>
           <div className="relative">
@@ -207,14 +207,14 @@ export default function ManifestInformation({
         <button
           type="button"
           onClick={handleSearchAwb}
-          className="bg-axc-navy text-white text-reguar-small px-5 py-4 rounded-lg cursor-pointer transition uppercase "
+          className="bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition capitalize "
         >
           Search AWB
         </button>
         <button
           type="button"
           onClick={handleBagging}
-          className="bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition uppercase "
+          className="bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition capitalize "
         >
           Bagging
         </button>

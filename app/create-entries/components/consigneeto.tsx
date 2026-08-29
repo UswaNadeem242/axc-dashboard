@@ -26,7 +26,7 @@ export default function ConsigneeToForm({ form, setForm, errors, onReset, showTo
           </div>
         }
       />
-      <div className="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-2.5 text-xs">
+      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-2.5">
         <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">
           <FieldLabel>Search Address Book</FieldLabel>
           <input type="text" value={form.consigneeSearchAddressBook} onChange={(e) => setForm({ ...form, consigneeSearchAddressBook: e.target.value })} className={inputClass} placeholder="Search Address Book"/>

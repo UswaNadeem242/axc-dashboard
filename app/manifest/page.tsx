@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { X, PlusCircleIcon } from "lucide-react";
 
-import CommonTable from "../../src/common/table";
-import { ManifestHeading, ManifestEntry, initialManifestData } from "../../src/constant";
-import FilterSearch from "../../src/common/filtersearch";
-import Button from "../../src/common/button";
-import { showToast } from "../../src/common/toast";
+import CommonTable from "../src/common/table";
+import { ManifestHeading, ManifestEntry, initialManifestData } from "../src/constant";
+import FilterSearch from "../src/common/filtersearch";
+import Button from "../src/common/button";
+import { showToast } from "../src/common/toast";
 
 export default function AllManifestPage() {
   const [data, setData] = useState<ManifestEntry[]>([]);
@@ -98,8 +98,8 @@ export default function AllManifestPage() {
   }, [searchQuery]);
 
   return (
-    <div className="relative bg-white p-3 rounded-[8px] w-full h-[calc(100vh-160px)] flex flex-col overflow-hidden">
-      <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
+    <div className="relative bg-white p-3 rounded-[8px] w-full h-[calc(100vh-160px)] flex flex-col  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
+      <div className="flex flex-wrap justify-between items-center gap-3 mb-4 ">
         <div className="flex flex-wrap items-center gap-3">
           {selectedIds.length > 0 && (
             <span className="text-xs font-semibold text-axc-gray">{selectedIds.length} selected</span>

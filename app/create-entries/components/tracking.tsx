@@ -23,7 +23,7 @@ export function TrackingEventsPanel({
   const headings = [
     {
       label: "Event Date Time",
-      key: "eventDateTime",
+      key: "eventDateTime", 
       truncate: false,
       render: (ev: TrackingEvent) =>
         ev.editable ? (

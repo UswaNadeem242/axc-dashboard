@@ -35,13 +35,13 @@ export default function Card({
             )}
 
             {title && (
-              <h3
+              <h2
                 className={` text-axc-navy
                   ${titleClassName}
                 `}
               >
                 {title}
-              </h3>
+              </h2>
             )}
           </div>
 

@@ -11,7 +11,7 @@ export default function WeightsAndDimensions({ form, setForm }: Props) {
     <div className="xl:sticky  w-full">
       <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden">
         <PanelHeader title="Weights and Dimensions" />
-        <div className="p-5 grid grid-cols-2 gap-3 text-xs">
+        <div className="p-4 grid grid-cols-2 gap-3 ">
           <div className="flex flex-col gap-1">
             <FieldLabel>PCS</FieldLabel>
             <input type="number" value={form.pcs} onChange={(e) => setForm({ ...form, pcs: Number(e.target.value) })} className={`${inputClass} bg-gray-50`} placeholder="PCS" />
