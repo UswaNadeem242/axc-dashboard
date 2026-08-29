@@ -73,14 +73,14 @@ export const menuItems: MenuItem[] = [
      // { label: "Billing System", id: "billing-system" },
     //],
   },
-  { label: "Tracking", icon: MapPin, id: "tracking" },
-  { label: "Rate Calculation", icon: Calculator, id: "rate-calculation" },
-  { label: "Vendor Reconciliation", icon: Repeat, id: "vendor-reconciliation" },
-  { label: "Accounts", icon: UserCircle2, id: "accounts" },
-  { label: "Users & Roles", icon: Users, id: "users-roles" },
-  { label: "Notifications", icon: Bell, id: "notifications" },
-  { label: "Support Tickets", icon: MessageSquare, id: "support-tickets" },
-  { label: "Reports & Analytics", icon: BarChart3, id: "reports-analytics" },
+  // { label: "Tracking", icon: MapPin, id: "tracking" },
+  // { label: "Rate Calculation", icon: Calculator, id: "rate-calculation" },
+  // { label: "Vendor Reconciliation", icon: Repeat, id: "vendor-reconciliation" },
+  // { label: "Accounts", icon: UserCircle2, id: "accounts" },
+  // { label: "Users & Roles", icon: Users, id: "users-roles" },
+  // { label: "Notifications", icon: Bell, id: "notifications" },
+  // { label: "Support Tickets", icon: MessageSquare, id: "support-tickets" },
+  // { label: "Reports & Analytics", icon: BarChart3, id: "reports-analytics" },
 ];
 
 export const statsCards = [

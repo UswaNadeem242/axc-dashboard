@@ -40,8 +40,8 @@ export default function DashboardLayout({
 
         <div className="flex h-screen flex-col border-l border-axc-border overflow-hidden">
           <Header />
-          <section className="flex-1 overflow-y-auto bg-axc-light-bg lg:p-6 p-4 scrollbar-none">
-            <div className="mb-6">
+          <section className="flex-1 overflow-hidden bg-axc-light-bg lg:p-6 p-4 flex flex-col">
+            <div className="mb-4 shrink-0">
               <h1 className=" text-axc-navy">{title}</h1>
               {pathname === "/" ? (
                 <p className="mt-0.5  text-axc-gray text-regular-medium">

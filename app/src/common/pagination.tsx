@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from "lucide-react";
 
 interface CommonPaginationProps {
     currentPage: number;
@@ -14,9 +14,8 @@ const CommonPagination = ({
     totalPages,
     onPageChange,
 }: CommonPaginationProps) => {
-
     const getPages = () => {
-        const pages = [];
+        const pages: (number | string)[] = [];
 
         if (totalPages <= 5) {
             for (let i = 1; i <= totalPages; i++) {
@@ -46,41 +45,53 @@ const CommonPagination = ({
         return pages;
     };
 
+    const buttonBase =
+        "flex h-8 w-8 items-center justify-center rounded-lg border text-sm font-medium transition cursor-pointer disabled:cursor-not-allowed disabled:opacity-40";
 
     return (
-        <div className="flex items-center  justify-end    px-4 py-3">
-
-            {/* Previous */}
+        <div className="flex items-center justify-end gap-1.5 py-2">
+            {/* First Page (<<) */}
             <button
+                type="button"
                 disabled={currentPage === 1}
-                onClick={() => onPageChange(currentPage - 1)}
-                className="flex items-center gap-1 rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                onClick={() => onPageChange(1)}
+                className={`${buttonBase} border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900`}
+                title="First Page"
             >
-                <ChevronLeft size={16} />
-                 
+                <ChevronsLeft size={16} />
             </button>
 
+            {/* Previous Page (<) */}
+            <button
+                type="button"
+                disabled={currentPage === 1}
+                onClick={() => onPageChange(currentPage - 1)}
+                className={`${buttonBase} border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900`}
+                title="Previous Page"
+            >
+                <ChevronLeft size={16} />
+            </button>
 
-            {/* Pages */}
-            <div className="flex items-center gap-2">
+            {/* Page Numbers */}
+            <div className="flex items-center gap-1.5">
                 {getPages().map((page, index) =>
                     page === "..." ? (
                         <span
                             key={index}
-                            className="px-2 text-gray-500"
+                            className="flex h-8 w-6 items-center justify-center text-sm font-medium text-gray-500"
                         >
                             ...
                         </span>
                     ) : (
                         <button
                             key={index}
+                            type="button"
                             onClick={() => onPageChange(Number(page))}
-                            className={`h-8 w-8 rounded-full text-sm transition
-                ${currentPage === page
-                                    ? "bg-axc-navy text-white"
-                                    : "text-gray-600 hover:bg-gray-100"
-                                }
-              `}
+                            className={`${buttonBase} ${
+                                currentPage === page
+                                    ? "border-axc-navy bg-axc-navy text-white shadow-xs"
+                                    : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                            }`}
                         >
                             {page}
                         </button>
@@ -88,17 +99,27 @@ const CommonPagination = ({
                 )}
             </div>
 
-
-            {/* Next */}
+            {/* Next Page (>) */}
             <button
+                type="button"
                 disabled={currentPage === totalPages}
                 onClick={() => onPageChange(currentPage + 1)}
-                className="flex items-center gap-1 rounded-md px-3 py-2 text-sm text-gray-600 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className={`${buttonBase} border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900`}
+                title="Next Page"
             >
-                 
                 <ChevronRight size={16} />
             </button>
 
+            {/* Last Page (>>) */}
+            <button
+                type="button"
+                disabled={currentPage === totalPages}
+                onClick={() => onPageChange(totalPages)}
+                className={`${buttonBase} border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:text-gray-900`}
+                title="Last Page"
+            >
+                <ChevronsRight size={16} />
+            </button>
         </div>
     );
 };

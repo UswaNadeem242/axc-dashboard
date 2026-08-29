@@ -134,7 +134,7 @@ const CommonTable = ({
                   <th
                     key={heading.key}
                     onClick={() => heading.sortable && onSort?.(heading.key)}
-                    className={`bg-axc-navy px-4 py-3 font-medium capitalize whitespace-nowrap ${index === 0 && !selectable ? "rounded-l-sm" : ""} ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${heading.sortable ? "cursor-pointer select-none" : ""}`}
+                    className={`bg-axc-navy px-4 py-3  text-regular-semibold uppercase  whitespace-nowrap ${index === 0 && !selectable ? "rounded-l-sm" : ""} ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${heading.sortable ? "cursor-pointer select-none" : ""}`}
                   >
                     <span className="inline-flex items-center gap-1">
                       {heading.label}

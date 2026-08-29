@@ -195,7 +195,7 @@ export function AwbTableSection({ awbRows, addAwbRow, updateAwbRow, removeAwbRow
           <button
             type="button"
             onClick={addAwbRow}
-            className="px-3 py-2 bg-axc-navy text-white rounded text-sm transition uppercase cursor-pointer flex items-center gap-1.5"
+            className="px-3 py-2 bg-axc-navy text-white rounded-lg text-regular-small transition uppercase cursor-pointer flex items-center gap-1.5"
           >
             <Plus size={15} />
             Add AWB
