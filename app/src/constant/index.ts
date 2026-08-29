@@ -55,7 +55,7 @@ export const menuItems: MenuItem[] = [
     label: "Manifest Management",
     icon: ClipboardCheck,
     id: "manifest",
-    href: "/manifest/all-manifest",
+    href: "/manifest",
     hasDropdown: false,
     //subItems: [
       //{ label: "All Manifest", id: "all-manifest", href: "/manifest/all-manifest" },

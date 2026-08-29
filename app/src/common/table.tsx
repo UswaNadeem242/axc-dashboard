@@ -39,6 +39,7 @@ interface CommonTableProps {
   loading?: boolean;
   loadingMessage?: string;
   hidePagination?: boolean;
+  className?: string;
 }
 
 const CommonTable = ({
@@ -65,6 +66,7 @@ const CommonTable = ({
   loading = false,
   loadingMessage = "Loading...",
   hidePagination = false,
+  className = "",
 }: CommonTableProps) => {
   const computedTotalPages = propTotalPages ?? Math.max(1, Math.ceil(data.length / itemsPerPage));
   const activePage = Math.min(Math.max(1, currentPage), computedTotalPages);
@@ -119,7 +121,7 @@ const CommonTable = ({
   };
 
   return (
-    <div className="flex flex-col flex-1 min-h-0">
+    <div className={`flex flex-col flex-1 min-h-0 ${className}`}>
       <div className="flex flex-col flex-1 min-h-0 overflow-hidden rounded-lg border border-axc-border bg-white">
         <div className="overflow-x-auto overflow-y-hidden flex-1 min-h-0">
           <table className="w-full min-w-full border-collapse text-left text-sm">
@@ -134,7 +136,7 @@ const CommonTable = ({
                   <th
                     key={heading.key}
                     onClick={() => heading.sortable && onSort?.(heading.key)}
-                    className={`bg-axc-navy px-4 py-3  text-regular-semibold uppercase  whitespace-nowrap ${index === 0 && !selectable ? "rounded-l-sm" : ""} ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${heading.sortable ? "cursor-pointer select-none" : ""}`}
+                    className={`bg-axc-navy px-4 py-3  text-regular-semibold uppercase  whitespace-nowrap ${index === 0 && !selectable ? "rounded-l-sm" : ""} ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${heading.sortable ? "cursor-pointer select-none" : ""} `}
                   >
                     <span className="inline-flex items-center gap-1">
                       {heading.label}
@@ -147,13 +149,13 @@ const CommonTable = ({
             <tbody className="divide-y divide-axc-border">
               {loading ? (
                 <tr>
-                  <td colSpan={colSpan} className="px-4 py-12 text-center text-[12px] text-axc-gray">
+                  <td colSpan={colSpan} className="px-4 py-12 text-center text-sm text-axc-gray">
                     {loadingMessage}
                   </td>
                 </tr>
               ) : paginatedData.length === 0 ? (
                 <tr>
-                  <td colSpan={colSpan} className="px-4 py-12 text-center text-[12px] text-axc-gray">
+                  <td colSpan={colSpan} className="px-4 py-12 text-center text-sm text-axc-gray">
                     {emptyMessage}
                   </td>
                 </tr>
@@ -182,7 +184,7 @@ const CommonTable = ({
                                 <button
                                   type="button"
                                   onClick={() => onView(row)}
-                                  className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10"
+                                  className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
                                   title="View"
                                 >
                                   <Eye size={16} />
@@ -192,7 +194,7 @@ const CommonTable = ({
                                 <button
                                   type="button"
                                   onClick={() => onEdit(row)}
-                                  className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30  p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10"
+                                  className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30  p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10 cursor-pointer"
                                   title="Edit"
                                 >
                                   <Pencil size={16} />
@@ -202,7 +204,7 @@ const CommonTable = ({
                                 <button
                                   type="button"
                                   onClick={() => onBagging(row)}
-                                  className="inline-flex items-center justify-center rounded-md border border-axc-navy/30  p-1.5 text-axc-navy transition hover:bg-axc-navy/10"
+                                  className="inline-flex items-center justify-center rounded-md border border-axc-navy/30  p-1.5 text-axc-navy transition hover:bg-axc-navy/10 "
                                   title="Bagging"
                                 >
                                   <PackageCheck size={17} />
@@ -212,7 +214,7 @@ const CommonTable = ({
                                 <button
                                   type="button"
                                   onClick={() => onDelete(row)}
-                                  className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
+                                  className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
                                   title="Delete"
                                 >
                                   <Trash2 size={16} />
@@ -273,7 +275,7 @@ const CommonTable = ({
 
       {!hidePagination && computedTotalPages >= 1 && (
         <div className="mt-2 flex shrink-0 justify-end">
-          <CommonPagination currentPage={activePage} totalPages={computedTotalPages} onPageChange={onPageChange ?? (() => {})} />
+          <CommonPagination currentPage={activePage} totalPages={computedTotalPages} onPageChange={onPageChange ?? (() => { })} />
         </div>
       )}
     </div>

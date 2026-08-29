@@ -9,7 +9,7 @@ type BaggingPanelProps = Omit<BaggingFormState, "awbDetails">;
 function StatBox({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="bg-axc-navy text-white text-center py-1.5 flex-1">
-      <div className="text-regular-medium uppercase tracking-wide">{label}</div>
+      <div className="text-regular-medium capitalize tracking-wide">{label}</div>
       <div className="text-regular-medium font-bold">{value}</div>
     </div>
   );
@@ -17,8 +17,8 @@ function StatBox({ label, value }: { label: string; value: number | string }) {
 
 function TotalBox({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="border-2 border-axc-red-dark bg-axc-red-dark rounded text-center py-1.5 flex-1">
-      <div className="text-regular-small text-white uppercase tracking-wide">{label}</div>
+    <div className="  bg-axc-red rounded text-center py-1.5 flex-1">
+      <div className="text-regular-small text-white capitalize tracking-wide">{label}</div>
       <div className="text-regular-medium font-bold text-white">{value}</div>
     </div>
   );
@@ -91,14 +91,14 @@ export default function BaggingPanel({
                 <button
                   type="button"
                   onClick={onSaveBag}
-                  className="px-3 py-2 bg-axc-navy text-white rounded-lg text-regular-small  uppercase cursor-pointer"
+                  className="px-5 py-3 bg-axc-navy text-white rounded-lg text-regular-small  capitalize cursor-pointer"
                 >
                   Save
                 </button>
                 <button
                   type="button"
                   onClick={onSaveBag}
-                  className="px-3 py-2 bg-axc-red text-white rounded-lg text-regular-small  uppercase cursor-pointer"
+                  className="px-5 py-3 bg-axc-red text-white rounded-lg text-regular-small  capitalize cursor-pointer"
                 >
                   Save &amp; Lock
                 </button>
@@ -169,7 +169,7 @@ export default function BaggingPanel({
                 <button
                   type="button"
                   onClick={handleSaveWeightBag}
-                  className="px-3 py-2 bg-axc-navy text-white rounded-lg text-regular-small uppercase cursor-pointer"
+                  className="px-5 py-3 bg-axc-navy text-white rounded-lg text-regular-small capitalize cursor-pointer"
                 >
                   Save
                 </button>

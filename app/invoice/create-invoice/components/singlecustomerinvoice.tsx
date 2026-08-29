@@ -15,10 +15,10 @@ interface InvoiceDetailsProps {
 
 export function SingleCustomerInvoiceDetails({ form, setForm, errors = {}, onCreateInvoice, loading }: InvoiceDetailsProps) {
   return (
-    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
       <PanelHeader title="Invoice Details" />
-      <div className="p-5 flex flex-col gap-3 text-xs">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+      <div className="p-4 flex flex-col justify-between flex-1 gap-3 text-xs">
+        <div className="grid grid-cols-1 gap-3">
           <div className="flex flex-col gap-1">
             <FieldLabel required>Invoice No.</FieldLabel>
             <input
@@ -38,7 +38,6 @@ export function SingleCustomerInvoiceDetails({ form, setForm, errors = {}, onCre
               value={form.dueDate}
               onChange={(e) => setForm((prev) => ({ ...prev, dueDate: e.target.value }))}
               className={inputClass}
-              
             />
           </div>
 
@@ -63,13 +62,13 @@ export function SingleCustomerInvoiceDetails({ form, setForm, errors = {}, onCre
             />
           </div>
 
-          <div className="flex flex-col gap-1 col-span-2">
+          <div className="flex flex-col gap-1">
             <FieldLabel>Note For Customer</FieldLabel>
-            <textarea
-              rows={2}
+            <input
+              type="text"
               value={form.noteForCustomer}
               onChange={(e) => setForm((prev) => ({ ...prev, noteForCustomer: e.target.value }))}
-              className={`${inputClass} outline-none`}
+              className={inputClass}
               placeholder="Note"
             />
           </div>
@@ -110,7 +109,7 @@ export function AwbTableSection({ awbRows, addAwbRow, updateAwbRow, removeAwbRow
         right={<span className="text-white text-xs px-2 py-0.5 rounded font-medium">TOTAL NO. OF AWB: {awbRows.length}</span>}
       />
 
-      <div className="flex flex-col gap-3 p-5 text-xs">
+      <div className="flex flex-col gap-3 p-4 text-xs">
         <div className="border border-axc-border rounded-lg overflow-x-auto">
           <table className="w-full text-[11px] border-collapse min-w-[950px]">
             <thead>
@@ -161,7 +160,7 @@ export function AwbTableSection({ awbRows, addAwbRow, updateAwbRow, removeAwbRow
                       type="button"
                       onClick={() => removeAwbRow(row.id)}
                       title="Remove AWB"
-                      className="inline-flex items-center justify-center text-axc-red cursor-pointer"
+                      className="inline-flex items-center justify-center cursor-pointer rounded-md border border-axc-red/30 p-1.5 text-axc-red transition hover:bg-axc-red/10"
                     >
                       <Trash size={15} />
                     </button>
@@ -195,7 +194,7 @@ export function AwbTableSection({ awbRows, addAwbRow, updateAwbRow, removeAwbRow
           <button
             type="button"
             onClick={addAwbRow}
-            className="px-3 py-2 bg-axc-navy text-white rounded-lg text-regular-small transition uppercase cursor-pointer flex items-center gap-1.5"
+            className="px-5 py-4 bg-axc-navy text-white rounded-lg text-regular-small transition capitalize cursor-pointer flex items-center gap-1.5"
           >
             <Plus size={15} />
             Add AWB

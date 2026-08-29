@@ -75,7 +75,7 @@ export default function CreateEntriesPage() {
 
 
 
-      <div className="relative bg-white p-3 rounded-lg border border-gray-200 w-full flex-1 min-h-0 flex flex-col overflow-hidden">
+      <div className="relative bg-white p-6 rounded-lg border border-gray-200 w-full flex-1 min-h-0 flex flex-col overflow-hidden">
 
         <div className="bg-white border-b border-b-axc-border  pb-0 shrink-0">
           <div className="flex gap-4 overflow-x-auto scrollbar-none">

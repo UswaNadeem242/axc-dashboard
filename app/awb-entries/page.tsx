@@ -159,6 +159,7 @@ export default function AwbEntriesPage() {
           headings={AwbEntryheading}
           data={filteredData}
           onEdit={handleEdit}
+          
           onDelete={handleDelete}
           currentPage={page}
           totalPages={totalPages}

@@ -7,8 +7,8 @@ const inputClass =
 
 function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
-    <div className="bg-axc-navy text-white text-sm font-semibold px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
-      <span>{title}</span>
+    <div className="bg-axc-navy text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
+      <h3> {title}</h3> 
       {right}
     </div>
   );
@@ -168,7 +168,7 @@ export function SalesBillingPanel({
         }
       />
 
-      <div className="p-4 space-y-4">
+      <div className="p-4 space-y-3">
         <div className={gridClass}>
           <BillingToggleField
             label="Freight"

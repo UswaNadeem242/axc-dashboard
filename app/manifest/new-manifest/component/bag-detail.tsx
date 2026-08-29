@@ -22,7 +22,7 @@ export default function BagDetails({ rows, updateRow, addRow, removeRow, selectA
           <button
             type="button"
             onClick={selectAll}
-            className="bg-white/10 hover:bg-white/20 text-white text-[11px] font-semibold px-3 py-1.5 rounded transition cursor-pointer uppercase tracking-wide"
+            className="bg-white/10 hover:bg-white/20 text-white text-sm font-semibold px-3 py-1.5 rounded transition cursor-pointer capitalize tracking-wide"
           >
             Select All
           </button>
@@ -33,7 +33,7 @@ export default function BagDetails({ rows, updateRow, addRow, removeRow, selectA
         <div className="border border-axc-border rounded-lg overflow-x-auto">
           <table className="w-full text-[11px] border-collapse min-w-[1100px]">
             <thead>
-              <tr className="bg-gray-50 border-b border-axc-border text-regular-medium text-axc-dark-gray uppercase text-left">
+              <tr className="bg-gray-50 border-b border-axc-border text-regular-medium text-axc-dark-gray capitalize text-left">
                 <th className="py-2 px-2 border-r border-axc-border w-8"></th>
                 <th className="py-2 px-2 border-r border-axc-border">Bag No.</th>
                 <th className="py-2 px-2 border-r border-axc-border">EDI Bag No.</th>
@@ -132,7 +132,7 @@ export default function BagDetails({ rows, updateRow, addRow, removeRow, selectA
                       type="button"
                       onClick={() => removeRow(row.id)}
                       title="Remove"
-                      className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
+                      className="inline-flex items-center justify-center cursor-pointer rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
                     >
                       <Trash size={15} />
                     </button>
@@ -147,7 +147,7 @@ export default function BagDetails({ rows, updateRow, addRow, removeRow, selectA
           <button
             type="button"
             onClick={addRow}
-            className="px-3 py-2 bg-axc-navy text-white rounded text-sm transition uppercase cursor-pointer flex items-center gap-1.5"
+            className="px-5 py-3 bg-axc-navy text-white rounded-lg text-reular-small transition capitalize  cursor-pointer flex items-center gap-1.5"
           >
             <Plus size={15} />
             Add AWB

@@ -3,11 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { X , PlusCircleIcon,} from "lucide-react";
 
-import CommonTable from "../../src/common/table";
-import { ManifestHeading, ManifestEntry, initialManifestData } from "../../src/constant";
-import FilterSearch from "../../src/common/filtersearch";
-import Button from "../../src/common/button";
-import { showToast } from "../../src/common/toast";
+import CommonTable from "../src/common/table";
+import { ManifestHeading, ManifestEntry, initialManifestData } from "../src/constant";
+import FilterSearch from "../src/common/filtersearch";
+import Button from "../src/common/button";
+import { showToast } from "../src/common/toast";
 
 export default function AllManifestPage() {
   const [data, setData] = useState<ManifestEntry[]>([]);

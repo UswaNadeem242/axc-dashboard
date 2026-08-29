@@ -33,7 +33,7 @@ export default function ManifestSummary({ form, updateField, toggleEdit }: Manif
   return (
     <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
       <PanelHeader title="Manifest Summary" />
-      <div className="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3 text-xs">
+      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3">
         <div className="flex flex-col gap-1">
           <FieldLabel>Manifest No.</FieldLabel>
           <input disabled value={form.manifestNo} className={disabledInputClass} placeholder="Auto-generated" />

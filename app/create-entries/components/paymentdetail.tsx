@@ -8,8 +8,8 @@ const inputClass =
 
 function PanelHeader({ title }: { title: string }) {
   return (
-    <div className="bg-axc-navy text-white text-[13px] font-semibold px-4 py-2.5">
-      {title}
+    <div className="bg-axc-navy text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
+    <h3> {title}</h3> 
     </div>
   );
 }
