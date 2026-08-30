@@ -335,14 +335,14 @@ export default function ManifestInformation({
         <button
           type="button"
           onClick={handleSearchAwb}
-          className="bg-axc-navy hover:bg-axc-navy/90 text-white text-regular-small px-6 py-3 rounded-lg cursor-pointer transition capitalize font-semibold shadow-sm"
+          className="bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition capitalize "
         >
           Search AWB
         </button>
         <button
           type="button"
           onClick={handleBagging}
-          className="bg-axc-navy hover:bg-axc-navy/90 text-white text-regular-small px-6 py-3 rounded-lg cursor-pointer transition capitalize font-semibold shadow-sm"
+          className="bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition capitalize "
         >
           Bagging
         </button>
