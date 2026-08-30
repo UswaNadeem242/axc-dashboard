@@ -130,12 +130,12 @@ function CreateEntriesContent() {
                 </div>
               </div>
               <div className="flex justify-end gap-3">
-                <button type="submit" disabled={loading} className="px-5 py-4 bg-axc-navy hover:bg-axc-navy text-white rounded-lg text-xs font-bold transition shadow-sm cursor-pointer">
-                  {loading ? (isEditMode ? "Updating..." : "Saving...") : (isEditMode ? "UPDATE AWB" : "CREATE AWB")}
+                <button type="submit" disabled={loading} className="px-5 py-4 bg-axc-navy  cursor-pointer text-white rounded-lg text-regular-small transition shadow-sm ">
+                  {loading ? (isEditMode ? "Updating..." : "Saving...") : (isEditMode ? "Update AWB" : "Create AWB")}
                 </button>
                 {!isEditMode && (
-                  <button type="button" onClick={handleCreateAndPrint} className="px-5 py-2 bg-axc-dark-green hover:opacity-90 text-white rounded-lg text-xs font-bold transition shadow-sm cursor-pointer">
-                    CREATE AWB AND PRINT LABEL
+                  <button type="button" onClick={handleCreateAndPrint} className="px-5 py-4 bg-axc-dark-green hover:opacity-90 text-white rounded-lg text-regular-small transition shadow-sm cursor-pointer">
+                    Create AWB and Print Label
                   </button>
                 )}
               </div>
@@ -146,7 +146,7 @@ function CreateEntriesContent() {
             <AwbSalesBillingTab form={form} setForm={setForm} errors={errors} />
           )}
 
-          {activeTab === "purchase-billing" && <AwbPurchaseBillingTab />}
+          {activeTab === "purchase-billing" && <AwbPurchaseBillingTab isEdit={isEdit} />}
 
           {activeTab === "attachment" && (
             <AwbAttachmentsTab awbTrackingNo={form.awbNumber} showToast={showToast} />

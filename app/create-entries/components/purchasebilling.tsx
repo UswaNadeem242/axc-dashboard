@@ -150,8 +150,8 @@ export function PurchaseBillingPanel({
       <div className="p-4 space-y-3">
         {/* Row 1: Company, Currency, and Vat Type (3 in one row) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3">
-          <div className="flex items-center gap-2.5 w-full">
-            <span className="text-regular-medium text-axc-dark-gray shrink-0 w-16 xl:w-20">Company</span>
+          <div className="flex flex-col gap-1 w-full">
+            <span className="text-regular-medium text-axc-dark-gray">Company</span>
             <select
               disabled
               value={billing.company}
@@ -165,8 +165,8 @@ export function PurchaseBillingPanel({
             </select>
           </div>
 
-          <div className="flex items-center gap-2.5 w-full">
-            <span className="text-regular-medium text-axc-dark-gray shrink-0 w-16 xl:w-20">Currency</span>
+          <div className="flex flex-col gap-1 w-full">
+            <span className="text-regular-medium text-axc-dark-gray">Currency</span>
             <select
               disabled
               value={billing.purchaseCurrency}
@@ -181,18 +181,16 @@ export function PurchaseBillingPanel({
             </select>
           </div>
 
-          <div className="flex items-center gap-2.5 w-full">
-            <span className="text-regular-medium text-axc-dark-gray shrink-0 w-16 xl:w-20">Vat Type</span>
+          <div className="flex flex-col gap-1 w-full">
+            <span className="text-regular-medium text-axc-dark-gray">Vat Type</span>
             <select
               disabled
               value={billing.vatType}
               onChange={(e) => onChange({ vatType: e.target.value })}
-              className={`${inputClass} h-9 text-[12px] bg-gray-50 cursor-not-allowed text-gray-500 flex-1 min-w-0`}
+              className={`${inputClass} h-9 text-[12px] bg-gray-50 cursor-not-allowed text-gray-500 w-full`}
             >
               <option value="GST">GST</option>
             </select>
-
-
           </div>
 
 

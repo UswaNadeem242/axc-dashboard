@@ -222,15 +222,14 @@ function AttachmentCard({
 
   return (
     <div
-      className={`relative bg-white rounded-xl border transition-all duration-200 flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md ${
-        error
+      className={`relative bg-white rounded-xl border transition-all duration-200 flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md ${error
           ? "border-red-400 ring-1 ring-red-300"
           : file
-          ? "border-gray-200"
-          : isDragging
-          ? "border-axc-navy ring-2 ring-axc-navy/20 bg-blue-50/20"
-          : "border-gray-200"
-      }`}
+            ? "border-gray-200"
+            : isDragging
+              ? "border-axc-navy ring-2 ring-axc-navy/20 bg-blue-50/20"
+              : "border-gray-200"
+        }`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -334,7 +333,7 @@ function AttachmentCard({
                 type="button"
                 onClick={handleDownload}
                 title="Download File"
-                className="w-6 h-6 rounded border border-red-300 bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center transition cursor-pointer"
+                className="w-6 h-6 rounded border border-red-300 bg-red-50 hover:bg-red-100 text-axc-red flex items-center justify-center transition cursor-pointer"
               >
                 <Download size={12} />
               </button>
@@ -346,7 +345,7 @@ function AttachmentCard({
                 type="button"
                 onClick={() => inputRef.current?.click()}
                 title="Replace File"
-                className="text-[10px] font-bold text-axc-navy hover:underline px-1 cursor-pointer"
+                className="text-regular-small text-axc-navy hover:underline px-1 cursor-pointer"
               >
                 Replace
               </button>
@@ -354,7 +353,7 @@ function AttachmentCard({
                 type="button"
                 onClick={onRemove}
                 title="Remove File"
-                className="w-6 h-6 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition cursor-pointer"
+                className="w-6 h-6 rounded text-axc-red hover:bg-red-50 flex items-center justify-center transition cursor-pointer"
               >
                 <Trash2 size={12} />
               </button>
@@ -553,22 +552,20 @@ export function AwbAttachmentsTab({
           <button
             type="button"
             onClick={() => setActiveFilter("all")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-              activeFilter === "all"
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${activeFilter === "all"
                 ? "bg-axc-navy text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+              }`}
           >
             All Files ({fields.length})
           </button>
           <button
             type="button"
             onClick={() => setActiveFilter("pdf")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-              activeFilter === "pdf"
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${activeFilter === "pdf"
                 ? "bg-axc-navy text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+              }`}
           >
             <FileText size={13} />
             PDFs ({fields.filter((f) => f.kind === "pdf").length})
@@ -576,11 +573,10 @@ export function AwbAttachmentsTab({
           <button
             type="button"
             onClick={() => setActiveFilter("excel")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-              activeFilter === "excel"
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${activeFilter === "excel"
                 ? "bg-axc-navy text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+              }`}
           >
             <FileSpreadsheet size={13} />
             Excel Files ({fields.filter((f) => f.kind === "excel").length})
@@ -588,11 +584,10 @@ export function AwbAttachmentsTab({
           <button
             type="button"
             onClick={() => setActiveFilter("uploaded")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-              activeFilter === "uploaded"
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${activeFilter === "uploaded"
                 ? "bg-axc-navy text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+              }`}
           >
             <CheckCircle2 size={13} />
             Uploaded ({totalUploadedCount})
@@ -626,11 +621,11 @@ export function AwbAttachmentsTab({
       </div>
 
       {/* Save Button */}
-      <div className="flex justify-end gap-3 bg-white p-4 rounded-xl border border-axc-border shadow-xs">
+      <div className="flex justify-end gap-3 bg-white">
         <button
           type="button"
           onClick={handleSave}
-          className="px-6 py-2.5 bg-axc-navy hover:bg-axc-navy/90 text-white rounded-lg text-xs font-bold uppercase transition shadow-sm cursor-pointer"
+          className="px-5 py-4 bg-axc-navy  cursor-pointer text-white rounded-lg text-regular-small transition shadow-sm"
         >
           Save Attachment
         </button>
