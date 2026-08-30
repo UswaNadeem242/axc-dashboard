@@ -13,6 +13,7 @@ import Button from "../src/common/button";
 
 export default function AwbEntriesPage() {
   const router = useRouter();
+  
   const [data, setData] = useState<AwbEntry[]>([]);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -106,8 +107,7 @@ export default function AwbEntriesPage() {
   }, [searchQuery]);
 
   return (
-     <div className="relative bg-white p-4 rounded-lg w-full flex-1 flex flex-col min-h-0  shadow-sm border border-axc-border  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
- 
+    <div className="relative bg-white p-4 rounded-lg w-full flex-1 flex flex-col min-h-0  shadow-sm border border-axc-border  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4 shrink-0">
         <FilterSearch
           options={[
@@ -157,51 +157,16 @@ export default function AwbEntriesPage() {
         </div>
       )}
 
- 
- 
       <div className="flex-1 min-h-0 flex flex-col">
- 
-        {activeTags.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 mb-2 shrink-0 border-axc-gray">
-            {activeTags.map((tag, idx) => {
-              const colors = [
-                "border-slate-200 bg-slate-50 text-slate-700 ",
-                "border-axc-red/30 bg-axc-red/5 text-axc-red",
-                "border-axc-yellow/30 bg-axc-yellow/5 text-axc-dark-yellow",
-                "border-axc-green/30 bg-axc-green/5 text-axc-dark-green",
-                "border-axc-sky/30 bg-axc-sky/5 text-axc-sky",
-                "border-axc-blue/30 bg-axc-blue/5 text-axc-blue",
-                "border-purple-200 bg-purple-50 text-purple-700",
-                "border-pink-200 bg-pink-50 text-pink-700",
-              ];
-              const colorClass = colors[idx % colors.length];
-
-              return (
-                <span
-                  key={tag}
-                  className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm font-medium transition ${colorClass}`}
-                >
-                  {tag}
-                  <X
-                    size={14}
-                    className="cursor-pointer hover:opacity-70 transition-opacity"
-                    onClick={() => removeTag(tag)}
-                  />
-                </span>
-              );
-            })}
-          </div>
-        )}
-
- 
- 
         <CommonTable
           headings={AwbEntryheading}
           data={filteredData}
           onEdit={handleEdit}
           
+          
           onDelete={handleDelete}
           onView={handleView}
+          
           currentPage={page}
           totalPages={totalPages}
           onPageChange={(p) => setPage(p)}
@@ -215,3 +180,4 @@ export default function AwbEntriesPage() {
     </div>
   );
 }
+

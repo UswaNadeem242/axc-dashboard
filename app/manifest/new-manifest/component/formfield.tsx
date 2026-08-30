@@ -1,7 +1,63 @@
 "use client";
 import React, { useState } from "react";
-import { Pencil } from "lucide-react";
+import { Pencil, Check, Upload } from "lucide-react";
 import { toSentenceCase } from "@/app/create-entries/components/form";
+
+export function EditCheckbox({
+  active,
+  onToggle,
+  title = "Edit",
+}: {
+  active: boolean;
+  onToggle: () => void;
+  title?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      title={title}
+      className="flex items-center gap-1.5 text-regular-small text-axc-navy hover:text-axc-navy/80 transition cursor-pointer select-none shrink-0"
+    >
+      <div
+        className={`h-4 w-4 rounded border flex items-center justify-center transition ${
+          active
+            ? "border-axc-navy bg-axc-navy text-white"
+            : "border-gray-400 bg-white"
+        }`}
+      >
+        {active && <Check size={11} strokeWidth={3} />}
+      </div>
+      <span className="font-bold text-[11px] tracking-wider text-gray-700">EDIT</span>
+    </button>
+  );
+}
+
+export function EditIconButton({
+  active,
+  onToggle,
+  title = "Edit",
+}: {
+  active: boolean;
+  onToggle: () => void;
+  title?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      title={title}
+      aria-pressed={active}
+      className={`flex items-center justify-center h-7 w-7 shrink-0 rounded transition cursor-pointer ${
+        active
+          ? "bg-axc-navy text-white shadow-sm"
+          : "bg-transparent text-gray-400 hover:text-axc-navy hover:bg-gray-100"
+      }`}
+    >
+      <Pencil size={13} />
+    </button>
+  );
+}
 
 export const inputClass =
   "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-regular-small text-axc-gray placeholder:text-axc-gray transition cursor-pointer placeholder:text-regular-small";
@@ -38,7 +94,7 @@ export function FileUploadField({
   const [fileName, setFileName] = useState("");
   return (
     <label className="flex items-center gap-2 border border-axc-border rounded-md px-2 py-2.5 text-[11px] text-gray-500 bg-white cursor-pointer hover:bg-gray-50 transition">
-      <span className="px-2 py-1 bg-gray-100 rounded text-regular-small text-gray-600 shrink-0">Choose File</span>
+      <span className="px-2 py-1 bg-gray-100 rounded text-regular-small text-gray-600 shrink-0"><Upload size={14}/></span>
       <span className={`truncate ${fileName ? "text-gray-700 font-medium" : "text-gray-400"}`}>{fileName || placeholder}</span>
       <input
         type="file"
@@ -54,36 +110,11 @@ export function FileUploadField({
   );
 }
 
-export function EditIconButton({
-  active,
-  onToggle,
-  title = "Edit",
-}: {
-  active: boolean;
-  onToggle: () => void;
-  title?: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onToggle}
-      title={title}
-      aria-pressed={active}
-      className={`flex items-center justify-center h-7 w-7 shrink-0 rounded transition cursor-pointer ${
-        active
-          ? "bg-axc-navy text-white"
-          : "bg-transparent text-axc-grey hover:bg-gray-100 cursor pointer"
-      }`}
-    >
-      <Pencil size={13} />
-    </button>
-  );
-}
 
 export function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
-    <div className="bg-axc-navy text-white p-4 flex items-center justify-between gap-2">
-      <h3>{toSentenceCase(title)}</h3>
+    <div className="bg-axc-navy text-white p-4 flex items-center rounded-tl-lg rounded-tr-lg justify-between gap-2">
+      <h2>{toSentenceCase(title)}</h2>
       {right}
     </div>
   );

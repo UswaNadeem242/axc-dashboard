@@ -18,8 +18,10 @@ const dd = String(today.getDate()).padStart(2, "0");
 const emptyForm: ManifestFormState = {
   manifestNo: "",
 
+  forwarderCode: "",
   forwarder: "",
   editForwarder: false,
+  vendorCode: "",
   vendor: "",
   editVendor: false,
 

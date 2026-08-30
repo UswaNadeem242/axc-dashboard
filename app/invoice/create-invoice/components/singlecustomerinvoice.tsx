@@ -2,6 +2,7 @@
 import React from "react";
 import { Plus, Trash } from "lucide-react";
 import CommonDropdown from "../../../src/common/dropdown";
+import CustomDatePicker from "../../../src/common/datepicker";
 import { AwbInvoiceRow, SingleInvoiceFormState, SingleInvoiceSearchState } from "./invoicestate";
 import { FieldLabel, PanelHeader, inputClass } from "./invoiceform";
 
@@ -15,7 +16,7 @@ interface InvoiceDetailsProps {
 
 export function SingleCustomerInvoiceDetails({ form, setForm, errors = {}, onCreateInvoice, loading }: InvoiceDetailsProps) {
   return (
-    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
+    <div className="bg-white rounded-lg border border-axc-border shadow-sm flex flex-col h-full">
       <PanelHeader title="Invoice Details" />
       <div className="p-4 flex flex-col justify-between flex-1 gap-3 text-xs">
         <div className="grid grid-cols-1 gap-3">
@@ -30,26 +31,24 @@ export function SingleCustomerInvoiceDetails({ form, setForm, errors = {}, onCre
             />
             {errors.invoiceNo && <span className="text-[10px] text-red-500">{errors.invoiceNo}</span>}
           </div>
-
-          <div className="flex flex-col gap-1">
-            <FieldLabel>Due Date</FieldLabel>
-            <input
-              type="date"
-              value={form.dueDate}
-              onChange={(e) => setForm((prev) => ({ ...prev, dueDate: e.target.value }))}
-              className={inputClass}
-            />
-          </div>
-
           <div className="flex flex-col gap-1">
             <FieldLabel>Invoice Date</FieldLabel>
-            <input
-              type="date"
+            <CustomDatePicker
               value={form.invoiceDate}
-              onChange={(e) => setForm((prev) => ({ ...prev, invoiceDate: e.target.value }))}
-              className={inputClass}
+              onChange={(val) => setForm((prev) => ({ ...prev, invoiceDate: val }))}
+              placeholder="Select Invoice Date"
             />
           </div>
+          <div className="flex flex-col gap-1">
+            <FieldLabel>Due Date</FieldLabel>
+            <CustomDatePicker
+              value={form.dueDate}
+              onChange={(val) => setForm((prev) => ({ ...prev, dueDate: val }))}
+              placeholder="Select Due Date"
+            />
+          </div>
+
+
 
           <div className="flex flex-col gap-1">
             <FieldLabel>Invoice Currency</FieldLabel>
