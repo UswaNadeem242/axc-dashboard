@@ -16,7 +16,7 @@ export function toSentenceCase(text: string): string {
 export function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
   const label = typeof children === "string" ? toSentenceCase(children) : children;
   return (
-    <label className=" text-axc-dark-gray text-regular-medium">
+    <label className=" text-axc-dark-gray text-regular-medium capitalize">
       {label}
       {required && <span className="text-axc-red ml-0.5">*</span>}
     </label>
@@ -71,7 +71,7 @@ export function EditIconButton({
 
 export function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
-    <div className="bg-axc-navy text-white px-4 py-2.5 flex items-center justify-between gap-2">
+    <div className="bg-axc-navy text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
       <h3>{toSentenceCase(title)}</h3>
       {right}
     </div>

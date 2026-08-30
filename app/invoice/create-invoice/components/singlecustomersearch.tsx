@@ -13,11 +13,11 @@ interface Props {
 
 export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors = {} }: Props) {
   return (
-    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
       <PanelHeader title="Add Invoice" />
 
-      <div className="p-4 flex flex-col gap-3 text-xs">
-        <div className="grid grid-cols-2 gap-3">
+      <div className="p-4 flex flex-col justify-between flex-1 gap-3 text-xs">
+        <div className="grid grid-cols-3 gap-3">
           <div className="flex flex-col gap-1">
             <FieldLabel required>Customer</FieldLabel>
             <input

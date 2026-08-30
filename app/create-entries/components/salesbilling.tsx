@@ -33,6 +33,7 @@ const emptyBillingForm: SalesBillingFormState = {
   salesCurrency: "USD",
   vatType: "GST",
   vatApplicable: false,
+  editVat: false,
 
   freight: "0",
   editFreightAmount: false,
@@ -59,6 +60,8 @@ const emptyBillingForm: SalesBillingFormState = {
   taxableAmount: "0",
   vatPercent: "0.00",
   vat: "0",
+  cgst: "0",
+  sgst: "0",
   grandTotal: "0",
   editTotal: false,
 };
@@ -129,7 +132,10 @@ export function useSalesBilling() {
     const subtotal = freightAfterDiscount + otherCharges + toNumber(billing.fsc) + toNumber(billing.adjustmentAmount || "0");
     const taxableAmount = billing.vatApplicable ? subtotal : 0;
     const nonTaxableAmount = billing.vatApplicable ? 0 : subtotal;
-    const vat = billing.vatApplicable ? (taxableAmount * toNumber(billing.vatPercent)) / 100 : 0;
+    const vatPercent = toNumber(billing.vatPercent);
+    const vat = billing.vatApplicable ? (taxableAmount * vatPercent) / 100 : 0;
+    const cgst = billing.vatApplicable ? (taxableAmount * vatPercent) / 200 : 0;
+    const sgst = billing.vatApplicable ? (taxableAmount * vatPercent) / 200 : 0;
     const grandTotal = subtotal + vat;
 
     return {
@@ -140,6 +146,8 @@ export function useSalesBilling() {
       taxableAmount: taxableAmount.toFixed(2),
       nonTaxableAmount: nonTaxableAmount.toFixed(2),
       vat: vat.toFixed(2),
+      cgst: cgst.toFixed(2),
+      sgst: sgst.toFixed(2),
       grandTotal: grandTotal.toFixed(2),
     };
   }, [billing]);

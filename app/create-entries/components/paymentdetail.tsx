@@ -2,14 +2,15 @@
 import React from "react";
 import { PaymentDetailsFormState } from "./formstate";
 import { FileText, Mail } from "lucide-react";
+import CustomDatePicker from "../../src/common/datepicker";
 
 const inputClass =
-  "border border-gray-300 rounded-md px-3 py-2.5 outline-none w-full text-regular-small text-axc-gray  placeholder:text-axc-gray  transition";
+  "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-regular-small text-axc-gray placeholder:text-axc-gray transition";
 
 function PanelHeader({ title }: { title: string }) {
   return (
-    <div className="bg-axc-navy text-white text-[13px] font-semibold px-4 py-2.5">
-      {title}
+    <div className="bg-axc-navy text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
+    <h3> {title}</h3> 
     </div>
   );
 }
@@ -36,12 +37,19 @@ export function PaymentDetailsPanel({
   payment, onChange,
 }: { payment: PaymentDetailsFormState; onChange: (patch: Partial<PaymentDetailsFormState>) => void }) {
   return (
-    <div className="rounded-lg border border-axc-border bg-white shadow-sm overflow-hidden">
+    <div className="rounded-lg border border-axc-border bg-white shadow-sm flex flex-col">
       <PanelHeader title="Payment Details" />
-      <div className="p-4 space-y-3">
-        <Row label="Paid amount" value={payment.paidAmount} onChange={(v) => onChange({ paidAmount: v })} />
-        <Row label="Balance amount" value={payment.balanceAmount} readOnly />
-        <Row label="Invoice date" value={payment.invoiceDate} type="date" onChange={(v) => onChange({ invoiceDate: v })} />
+      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Row label="Paid amount" value={payment.paidAmount} onChange={(v) => onChange({ paidAmount: v })} placeholder="Paid amount" />
+        <Row label="Balance amount" value={payment.balanceAmount} readOnly placeholder="Balance amount" />
+        <div className="relative z-20">
+          <span className="block text-regular-medium text-axc-dark-gray mb-1">Invoice Date</span>
+          <CustomDatePicker
+            value={payment.invoiceDate}
+            onChange={(val) => onChange({ invoiceDate: val })}
+            placeholder="Select Invoice Date"
+          />
+        </div>
 
         <div>
           <span className="block text-regular-medium text-axc-dark-gray mb-1">Invoice number</span>
@@ -50,12 +58,12 @@ export function PaymentDetailsPanel({
               placeholder="0000000"
               value={payment.invoiceNumber}
               onChange={(e) => onChange({ invoiceNumber: e.target.value })}
-              className={`${inputClass} h-9 text-[12px]`}
+              className={`${inputClass} h-9 text-sm`}
             />
-            <button type="button" title="View invoice" className="h-9 w-9 shrink-0 flex items-center justify-center rounded bg-axc-navy text-white">
+            <button type="button" title="View invoice" className="h-9 w-9 shrink-0 flex items-center justify-center rounded bg-axc-navy text-white hover:bg-axc-navy/90 transition cursor-pointer">
               <FileText size={13} />
             </button>
-            <button type="button" title="Email invoice" className="h-9 w-9 shrink-0 flex items-center justify-center rounded bg-axc-navy text-white">
+            <button type="button" title="Email invoice" className="h-9 w-9 shrink-0 flex items-center justify-center rounded bg-axc-navy text-white hover:bg-axc-navy/90 transition cursor-pointer">
               <Mail size={13} />
             </button>
           </div>

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   X,
   PlusCircle,
@@ -11,6 +12,7 @@ import FilterSearch from "../src/common/filtersearch";
 import Button from "../src/common/button";
 
 export default function AwbEntriesPage() {
+  const router = useRouter();
   const [data, setData] = useState<AwbEntry[]>([]);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -57,7 +59,6 @@ export default function AwbEntriesPage() {
   }, [data]);
 
   const handleDelete = (row: AwbEntry) => {
-
     if (confirm(`Are you sure you want to delete AWB ${row.awbNumber}?`)) {
       setData((prev) => prev.filter((item) => item.awbNumber !== row.awbNumber));
       setSelectedIds((prev) => prev.filter((id) => id !== row.awbNumber));
@@ -69,7 +70,8 @@ export default function AwbEntriesPage() {
   const handlePdf1 = (row: AwbEntry) => console.log("View PDF 1", row.awbNumber);
   const handlePdf2 = (row: AwbEntry) => console.log("View PDF 2", row.awbNumber);
   const handleInv = (row: AwbEntry) => console.log("View INV", row.awbNumber);
-  const handleEdit = (row: AwbEntry) => console.log("Edit AWB", row.awbNumber);
+  const handleEdit = (row: AwbEntry) => router.push(`/create-entries?edit=${row.awbNumber}`);
+  const handleView = (row: AwbEntry) => router.push(`/create-entries?edit=${row.awbNumber}`);
 
   const filteredData = data.filter((item) => {
     const query = searchQuery.toLowerCase();
@@ -104,7 +106,8 @@ export default function AwbEntriesPage() {
   }, [searchQuery]);
 
   return (
-    <div className="relative bg-white p-4 rounded-lg w-full flex-1 flex flex-col min-h-0 overflow-hidden shadow-sm border border-axc-border">
+     <div className="relative bg-white p-4 rounded-lg w-full flex-1 flex flex-col min-h-0  shadow-sm border border-axc-border  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
+ 
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4 shrink-0">
         <FilterSearch
           options={[
@@ -155,6 +158,7 @@ export default function AwbEntriesPage() {
       )}
 
  
+ 
       <div className="flex-1 min-h-0 flex flex-col">
  
         {activeTags.length > 0 && (
@@ -190,11 +194,14 @@ export default function AwbEntriesPage() {
         )}
 
  
+ 
         <CommonTable
           headings={AwbEntryheading}
           data={filteredData}
           onEdit={handleEdit}
+          
           onDelete={handleDelete}
+          onView={handleView}
           currentPage={page}
           totalPages={totalPages}
           onPageChange={(p) => setPage(p)}

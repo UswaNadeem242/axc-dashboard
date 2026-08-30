@@ -1,7 +1,11 @@
 export interface AwbFormState {
   awbNumber: string;
   editAwbNumber: boolean;
+  branch: string;
   customer: string;
+  customerCode: string;
+  sector: string;
+  destinationHub: string;
   company: string;
   editCompany: boolean;
   origin: string;
@@ -74,7 +78,9 @@ export interface AwbFormState {
   consignerWeight: string;
   addWeight: string;
   chargeableWeight: string;
+  parcelType: string;
   boxNo: string;
+  actualNo: string;
   parcelActualWt: string;
   parcelL: string;
   parcelB: string;
@@ -144,6 +150,7 @@ export interface SalesBillingFormState {
   salesCurrency: string;
   vatType: string;
   vatApplicable: boolean;
+  editVat?: boolean;
 
   freight: string;
   editFreightAmount: boolean;
@@ -170,6 +177,8 @@ export interface SalesBillingFormState {
   taxableAmount: string;
   vatPercent: string;
   vat: string;
+  cgst: string;
+  sgst: string;
   grandTotal: string;
   editTotal: boolean;
 }

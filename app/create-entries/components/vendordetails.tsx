@@ -8,8 +8,8 @@ const inputClass =
 
 function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
-    <div className="bg-axc-navy text-white text-sm font-semibold px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
-      <span>{title}</span>
+    <div className="bg-axc-navy text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
+      <h3> {title}</h3>
       {right}
     </div>
   );
@@ -51,7 +51,7 @@ export function VendorDetailsPanel({
   return (
     <div className="rounded-lg border border-axc-border bg-white shadow-sm overflow-hidden">
       <PanelHeader
-        title="VENDOR DETAILS"
+        title="Vendor Details"
         right={
           <label className="flex items-center gap-1.5 text-sm  font-semibold text-white">
             <input
@@ -65,7 +65,7 @@ export function VendorDetailsPanel({
         }
       />
 
-      <div className="p-4 space-y-4">
+      <div className="p-4 space-y-3">
         <div className={gridClass}>
           <Field label="Product" value={vendorDetails.product} editable={editable} onChange={(v) => onChange({ product: v })} placeholder="Product" />
           <Field label="Service" value={vendorDetails.service} editable={editable} onChange={(v) => onChange({ service: v })} placeholder="Service" />
@@ -77,9 +77,9 @@ export function VendorDetailsPanel({
 
         {/* Weight table — styled like Shipment Invoice Items */}
         <div className="mt-2">
-          <div className="bg-axc-navy text-white text-xs rounded-tl-lg rounded-tr-lg font-bold px-3 py-1.5 uppercase tracking-wide">
+          {/* <div className="bg-axc-navy text-white text-regular-medium rounded-tl-lg rounded-tr-lg  p-3 capitalize tracking-wide">
             Vendor Weight Details
-          </div>
+          </div> */}
           <div className="border border-axc-border border-t-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <table className="w-full text-xs border-collapse min-w-[750px]">
               <thead>
@@ -116,11 +116,9 @@ export function VendorDetailsPanel({
                       <button
                         type="button"
                         onClick={() => onRemoveWeightRow(row.id)}
-                        className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
+                        className="cursor-pointer inline-flex items-center justify-center rounded-md border border-axc-red-dark/30 p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
                       >
                         <Trash size={14} />
-                        {/* <span className="inline-block w-3.5 h-3.5 rounded-full border border-axc-red text-center leading-3 font-extrabold text-[9px] shrink-0">x</span>
-                        REMOVE */}
                       </button>
                     </td>
                   </tr>
@@ -150,7 +148,7 @@ export function VendorDetailsPanel({
             <button
               type="button"
               onClick={onAddWeightRow}
-              className="px-3 py-2 bg-axc-dark-yellow  flex items-center justify-center gap-2 text-white rounded text-sm font-semibold shadow-sm transition uppercase cursor-pointer"
+              className="px-3 py-2 bg-axc-dark-yellow flex items-center justify-center gap-2 text-white rounded text-sm font-semibold shadow-sm transition uppercase cursor-pointer"
             >
               <Plus size={14} />
               ADD ROW

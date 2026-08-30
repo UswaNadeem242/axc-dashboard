@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AwbEntry } from "../../src/constant";
 import { AwbFormErrors, AwbFormState, InvoiceItem, ToastState } from "./formstate";
@@ -128,7 +128,11 @@ const initialData: AwbEntry[] = [
 const emptyForm: AwbFormState = {
   awbNumber: "",
   editAwbNumber: false,
+  branch: "",
   customer: "",
+  customerCode: "",
+  sector: "",
+  destinationHub: "",
   company: "",
   editCompany: false,
   origin: "",
@@ -201,7 +205,9 @@ const emptyForm: AwbFormState = {
   consignerWeight: "",
   addWeight: "",
   chargeableWeight: "",
+  parcelType: "",
   boxNo: "1",
+  actualNo: "",
   parcelActualWt: "",
   parcelL: "",
   parcelB: "",
@@ -220,14 +226,69 @@ const emptyForm: AwbFormState = {
 const emptyInvoiceItems: InvoiceItem[] = [
   { id: 1, boxNo: "Select...", srNo: "1", description: "UNSOLICITED GIFT", hsCode: "", unitType: "PCS", quantity: "1", unitWeight: "", igst: "", unitRates: "", amount: "" },
 ];
-export function useAwbEntryForm() {
+export function useAwbEntryForm(editAwbId?: string | null) {
   const router = useRouter();
   const [form, setForm] = useState<AwbFormState>(emptyForm);
   const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>(emptyInvoiceItems);
   const [errors, setErrors] = useState<AwbFormErrors>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
+
+  useEffect(() => {
+    if (!editAwbId) {
+      setIsEditMode(false);
+      return;
+    }
+    setIsEditMode(true);
+    if (typeof window !== "undefined") {
+      // 1. Check if full detailed form state was previously saved
+      const savedDetail = localStorage.getItem(`awb_detail_${editAwbId}`);
+      if (savedDetail) {
+        try {
+          const parsed = JSON.parse(savedDetail);
+          if (parsed.form) setForm(parsed.form);
+          if (parsed.invoiceItems) setInvoiceItems(parsed.invoiceItems);
+          return;
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // 2. Otherwise load from awb_entries list or initialData
+      let list = initialData;
+      const stored = localStorage.getItem("awb_entries");
+      if (stored) {
+        try {
+          list = JSON.parse(stored);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+      const found = list.find((item) => String(item.awbNumber) === String(editAwbId));
+      if (found) {
+        setForm((prev) => ({
+          ...prev,
+          awbNumber: String(found.awbNumber || ""),
+          editAwbNumber: true,
+          customer: found.customer || "",
+          forwardingNumber: found.forwardingNumber || "",
+          masterCode: found.masterCode || "",
+          product: found.product || "NONDOX",
+          pcs: Number(found.pcs) || 1,
+          service: found.service || "",
+          vendor: found.vendor || "",
+          origin: found.origin || "",
+          destination: found.destination || "",
+          consigneePersonName: found.consignee || "",
+          shipperPersonName: found.shipper || "",
+          bookingDate: found.bookingDate ? found.bookingDate.split(" ")[0] : prev.bookingDate,
+        }));
+      }
+    }
+  }, [editAwbId]);
+
   const showToast = (message: string, type: "success" | "info" = "info") => {
     setToast({ message, type });
     window.clearTimeout((showToast as any)._t);
@@ -241,12 +302,10 @@ export function useAwbEntryForm() {
     });
   };
   const validateAwbInfo = (): boolean => {
-    const keys = ["awbNumber", "customer", "origin", "destination"];
+    const keys = ["awbNumber", "customer"];
     const next: AwbFormErrors = {};
     if (!form.awbNumber?.trim()) next.awbNumber = "AWB Number is required";
     if (!form.customer?.trim()) next.customer = "Customer is required";
-    if (!form.origin?.trim()) next.origin = "Origin is required";
-    if (!form.destination?.trim()) next.destination = "Destination is required";
     setErrors((prev) => {
       const copy = { ...prev };
       keys.forEach((k) => delete copy[k]);
@@ -255,31 +314,10 @@ export function useAwbEntryForm() {
     return Object.keys(next).length === 0;
   };
   const validateShipper = (): boolean => {
-    const keys = ["shipperAddress1", "shipperState", "shipperCountry"];
-    const next: AwbFormErrors = {};
-    if (!form.shipperAddress1?.trim()) next.shipperAddress1 = "Address 1 is required";
-    if (!form.shipperState?.trim()) next.shipperState = "State / County is required";
-    if (!form.shipperCountry?.trim()) next.shipperCountry = "Country is required";
-    setErrors((prev) => {
-      const copy = { ...prev };
-      keys.forEach((k) => delete copy[k]);
-      return { ...copy, ...next };
-    });
-    return Object.keys(next).length === 0;
+    return true;
   };
   const validateConsignee = (): boolean => {
-    const keys = ["consigneePersonName", "consigneeAddress1", "consigneeState", "consigneeCountry"];
-    const next: AwbFormErrors = {};
-    if (!form.consigneePersonName?.trim()) next.consigneePersonName = "Person Name is required";
-    if (!form.consigneeAddress1?.trim()) next.consigneeAddress1 = "Address 1 is required";
-    if (!form.consigneeState?.trim()) next.consigneeState = "State / County is required";
-    if (!form.consigneeCountry?.trim()) next.consigneeCountry = "Country is required";
-    setErrors((prev) => {
-      const copy = { ...prev };
-      keys.forEach((k) => delete copy[k]);
-      return { ...copy, ...next };
-    });
-    return Object.keys(next).length === 0;
+    return true;
   };
   const resetShipper = () => {
     clearFieldErrors(["shipperAddress1", "shipperState", "shipperCountry"]);
@@ -350,9 +388,7 @@ export function useAwbEntryForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const awbOk = validateAwbInfo();
-    const shipperOk = validateShipper();
-    const consigneeOk = validateConsignee();
-    if (!awbOk || !shipperOk || !consigneeOk) {
+    if (!awbOk) {
       showToast("Please fill all the required fields");
       return;
     }
@@ -369,47 +405,56 @@ export function useAwbEntryForm() {
           }
         }
       }
-      const newEntry: AwbEntry = {
-        srNo: currentData.length + 1,
+
+      const existingItem = currentData.find((i) => String(i.awbNumber) === String(form.awbNumber));
+      const entry: AwbEntry = {
+        srNo: existingItem?.srNo || currentData.length + 1,
         awbNumber: form.awbNumber,
-        bookingDate: form.bookingDate ? new Date(form.bookingDate).toLocaleDateString() : new Date().toLocaleString(),
+        bookingDate: form.bookingDate || new Date().toLocaleDateString(),
         forwardingNumber: form.forwardingNumber || "8745" + Math.floor(10000000 + Math.random() * 90000000),
         customer: form.customer,
         masterCode: form.masterCode || "NONGST",
         product: form.product,
-        pcs: Number(form.pcs),
+        pcs: Number(form.pcs) || 1,
         service: form.service,
         vendor: form.vendor,
-        origin: form.origin,
-        destination: form.destination,
-        consignee: form.consigneePersonName || "N/A",
-        shipper: form.shipperPersonName || "N/A",
-        status: "Arrived",
+        origin: form.origin || "INDIA",
+        destination: form.destination || "UNITED STATES OF AMERICA",
+        consignee: form.consigneePersonName || existingItem?.consignee || "N/A",
+        shipper: form.shipperPersonName || existingItem?.shipper || "N/A",
+        status: existingItem?.status || "Arrived",
       };
 
-      const updatedData = [newEntry, ...currentData];
+      let updatedData: AwbEntry[];
+      if (isEditMode || existingItem) {
+        updatedData = currentData.map((item) =>
+          String(item.awbNumber) === String(form.awbNumber) ? entry : item
+        );
+      } else {
+        updatedData = [entry, ...currentData];
+      }
+
       if (typeof window !== "undefined") {
         localStorage.setItem("awb_entries", JSON.stringify(updatedData));
+        localStorage.setItem(`awb_detail_${form.awbNumber}`, JSON.stringify({ form, invoiceItems }));
       }
 
       setLoading(false);
       setSuccess(true);
+      showToast(isEditMode ? "AWB Entry Updated Successfully!" : "Entry Created Successfully!", "success");
       setTimeout(() => {
         router.push("/awb-entries");
-      }, 1500);
-    }, 800);
+      }, 1200);
+    }, 600);
   };
 
   const handleCreateAndPrint = () => {
     const awbOk = validateAwbInfo();
-    const shipperOk = validateShipper();
-    const consigneeOk = validateConsignee();
-    if (!awbOk || !shipperOk || !consigneeOk) {
+    if (!awbOk) {
       showToast("Please fill all the required fields");
       return;
     }
-    showToast("AWB created and label printed!", "success");
-    handleReset();
+    showToast("AWB saved and label printed!", "success");
   };
   return {
     form,
@@ -419,6 +464,7 @@ export function useAwbEntryForm() {
     errors,
     loading,
     success,
+    isEditMode,
     toast,
     showToast,
     clearFieldErrors,
