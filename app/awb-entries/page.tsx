@@ -13,6 +13,7 @@ import Button from "../src/common/button";
 
 export default function AwbEntriesPage() {
   const router = useRouter();
+  const router = useRouter();
   const [data, setData] = useState<AwbEntry[]>([]);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -70,6 +71,8 @@ export default function AwbEntriesPage() {
   const handlePdf1 = (row: AwbEntry) => console.log("View PDF 1", row.awbNumber);
   const handlePdf2 = (row: AwbEntry) => console.log("View PDF 2", row.awbNumber);
   const handleInv = (row: AwbEntry) => console.log("View INV", row.awbNumber);
+  const handleEdit = (row: AwbEntry) => router.push(`/create-entries?edit=${row.awbNumber}`);
+  const handleView = (row: AwbEntry) => router.push(`/create-entries?edit=${row.awbNumber}`);
   const handleEdit = (row: AwbEntry) => router.push(`/create-entries?edit=${row.awbNumber}`);
   const handleView = (row: AwbEntry) => router.push(`/create-entries?edit=${row.awbNumber}`);
 
@@ -162,7 +165,9 @@ export default function AwbEntriesPage() {
           data={filteredData}
           onEdit={handleEdit}
           
+          
           onDelete={handleDelete}
+          onView={handleView}
           onView={handleView}
           currentPage={page}
           totalPages={totalPages}
@@ -177,3 +182,4 @@ export default function AwbEntriesPage() {
     </div>
   );
 }
+

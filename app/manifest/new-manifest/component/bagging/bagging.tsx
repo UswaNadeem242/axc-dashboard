@@ -10,6 +10,7 @@ function StatBox({ label, value }: { label: string; value: number | string }) {
   return (
     <div className="bg-axc-navy text-white text-center py-1.5 flex-1">
       <div className="text-regular-medium capitalize tracking-wide">{label}</div>
+      <div className="text-regular-medium capitalize tracking-wide">{label}</div>
       <div className="text-regular-medium font-bold">{value}</div>
     </div>
   );
@@ -17,6 +18,8 @@ function StatBox({ label, value }: { label: string; value: number | string }) {
 
 function TotalBox({ label, value }: { label: string; value: number | string }) {
   return (
+    <div className="  bg-axc-red rounded text-center py-1.5 flex-1">
+      <div className="text-regular-small text-white capitalize tracking-wide">{label}</div>
     <div className="  bg-axc-red rounded text-center py-1.5 flex-1">
       <div className="text-regular-small text-white capitalize tracking-wide">{label}</div>
       <div className="text-regular-medium font-bold text-white">{value}</div>
@@ -169,7 +172,7 @@ export default function BaggingPanel({
                 <button
                   type="button"
                   onClick={handleSaveWeightBag}
-                  className="px-5 py-3 bg-axc-navy text-white rounded-lg text-regular-small capitalize cursor-pointer"
+                  className="px-4 py-2 bg-axc-navy text-white rounded text-regular-small font-bold uppercase cursor-pointer"
                 >
                   Save
                 </button>
