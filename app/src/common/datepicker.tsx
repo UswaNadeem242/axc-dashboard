@@ -146,15 +146,13 @@ export default function CustomDatePicker({
       {/* Input Display Box */}
       <div
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        className={`flex items-center justify-between border rounded-md px-3 py-2 bg-white transition cursor-pointer select-none ${
+        className={`flex items-center justify-between bg-white border border-axc-border rounded-md px-3 py-2.5 outline-none transition cursor-pointer select-none text-regular-small ${
           disabled
-            ? "bg-gray-50 text-gray-400 cursor-not-allowed border-axc-border"
-            : isOpen
-            ? "border-axc-navy ring-1 ring-axc-navy"
-            : "border-axc-border hover:border-gray-400"
+            ? "bg-gray-50 text-axc-dark-gray cursor-not-allowed"
+            : ""
         } ${className}`}
       >
-        <span className={`text-[12px] ${value ? "text-gray-800 font-medium" : "text-gray-400"}`}>
+        <span className={`block truncate ${value ? "text-gray-800 font-medium" : "text-gray-400"}`}>
           {value || placeholder}
         </span>
         <div className="flex items-center gap-1.5 shrink-0 text-gray-400">
@@ -175,19 +173,19 @@ export default function CustomDatePicker({
         </div>
       </div>
 
-      {/* Single Month Calendar Popover (Matching Reference Image) */}
+      {/* Single Month Calendar Popover (Matching Dropdown Design) */}
       {isOpen && (
         <div
-          className={`absolute top-full mt-3 z-50 animate-in fade-in zoom-in-95 duration-150 ${
+          className={`absolute top-full z-[9999] mt-1 w-[290px] pt-2 animate-in fade-in zoom-in-95 duration-100 ${
             align === "right" ? "right-0" : "left-0"
-          } w-[290px]`}
+          }`}
         >
-          {/* Top triangle pointer */}
-          <div className="absolute -top-1.5 right-6 h-3.5 w-3.5 rotate-45 border-l border-t border-gray-200/90 bg-white z-20 shadow-[-2px_-2px_4px_rgba(0,0,0,0.02)]" />
+          {/* Top caret pointer */}
+          <div className="absolute top-[2px] right-6 h-3.5 w-3.5 rotate-45 border-l border-t border-axc-border bg-white z-20" />
 
-          <div className="relative z-10 bg-white rounded-2xl border border-gray-200/90 shadow-[0_12px_32px_rgba(0,0,0,0.12)] p-4">
+          <div className="relative z-10 bg-white rounded-2xl border border-axc-border shadow-xl p-4">
             {/* Header with Navigation and Month Title */}
-          <div className="flex items-center justify-between mb-3 px-1">
+            <div className="flex items-center justify-between mb-3 px-1">
             <button
               type="button"
               onClick={handlePrevMonth}

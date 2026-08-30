@@ -62,7 +62,7 @@ export function FileUploadField({
 
 export function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
-    <div className="bg-axc-navy text-white px-4 py-2.5 flex  capitalize items-center justify-between gap-2">
+    <div className="bg-axc-navy text-white p-4 flex  rounded-tl-lg rounded-tr-lg capitalize items-center justify-between gap-2">
       <h2>{toSentenceCase(title)}</h2>
       {right}
     </div>
