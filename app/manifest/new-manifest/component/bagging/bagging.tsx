@@ -91,14 +91,14 @@ export default function BaggingPanel({
                 <button
                   type="button"
                   onClick={onSaveBag}
-                  className="px-5 py-3 bg-axc-navy text-white rounded-lg text-regular-small  capitalize cursor-pointer"
+                  className="px-3 py-2 bg-axc-navy text-white rounded-lg text-regular-small  uppercase cursor-pointer"
                 >
                   Save
                 </button>
                 <button
                   type="button"
                   onClick={onSaveBag}
-                  className="px-5 py-3 bg-axc-red text-white rounded-lg text-regular-small  capitalize cursor-pointer"
+                  className="px-3 py-2 bg-axc-red text-white rounded-lg text-regular-small  uppercase cursor-pointer"
                 >
                   Save &amp; Lock
                 </button>
@@ -169,7 +169,7 @@ export default function BaggingPanel({
                 <button
                   type="button"
                   onClick={handleSaveWeightBag}
-                  className="px-5 py-3 bg-axc-navy text-white rounded-lg text-regular-small capitalize cursor-pointer"
+                  className="px-3 py-2 bg-axc-navy text-white rounded-lg text-regular-small uppercase cursor-pointer"
                 >
                   Save
                 </button>
