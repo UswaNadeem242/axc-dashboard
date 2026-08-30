@@ -3,7 +3,6 @@
 import React from "react";
 import { User, FileText } from "lucide-react";
 
-import ManifestSummary from "./component/manifestsummary";
 import ManifestInformation from "./component/manifest-information";
 import BagDetails from "./component/bag-detail";
 import ManifestBilling from "./component/manifestbilling";
@@ -113,11 +112,6 @@ export default function ManifestPage() {
         <div className="flex-1 min-h-0 overflow-y-auto mt-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {tab === "entry" ? (
             <div className="flex flex-col gap-6 w-full pb-2">
-              <ManifestSummary
-                form={form}
-                updateField={handleUpdateField}
-                toggleEdit={handleToggleEdit}
-              />
               <ManifestInformation
                 form={form}
                 errors={errors}

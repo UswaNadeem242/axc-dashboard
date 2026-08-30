@@ -22,7 +22,7 @@ export default function ShipperFromForm({ form, setForm, errors, onReset, showTo
               <RotateCcw size={14} />
             </button>
             <label className="flex items-center gap-1 text-xs text-white/90 cursor-pointer capitalize font-medium">
-              <input type="checkbox" checked={form.shipperSaveToAddressBook} onChange={(e) => setForm({ ...form, shipperSaveToAddressBook: e.target.checked })} /> Save?
+              <input type="checkbox" checked={form.shipperSaveToAddressBook} onChange={(e) => setForm({ ...form, shipperSaveToAddressBook: e.target.checked })} />  Save to address book?
             </label>
           </div>
         }

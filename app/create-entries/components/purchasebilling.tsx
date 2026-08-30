@@ -1,5 +1,6 @@
 "use client";
-import React from "react";
+import React, { useMemo } from "react";
+import { EditIconButton } from "./form";
 import { PurchaseChargeKey, PurchaseBillingFormState } from "./formstate";
 
 const inputClass =
@@ -38,16 +39,16 @@ const CHARGE_ROWS: { key: PurchaseChargeKey; label: string }[] = [
 ];
 
 function ChargeCell({
-  label, checked, value, amount, onToggle, onValueChange, onAmountChange,
+  label, checked, value, amount, onToggle, onValueChange, onAmountChange, placeholder,
 }: {
   label: string; checked: boolean; value: string; amount: string;
-  onToggle: () => void; onValueChange: (v: string) => void; onAmountChange: (v: string) => void;
+  onToggle: () => void; onValueChange: (v: string) => void; onAmountChange: (v: string) => void; placeholder?: string;
 }) {
   return (
     <div className="flex flex-col gap-1.5 border border-gray-200 rounded-md p-2">
       <label className="flex items-center gap-1.5">
         <input type="checkbox" checked={checked} onChange={onToggle} className="h-3.5 w-3.5 accent-axc-navy shrink-0" />
-        <span className={` text-regular-medium leading-tight ${checked ? "text-axc-navy" : "text-axc-dark-gray"}`}>
+        <span className={`text-regular-medium leading-tight ${checked ? "text-axc-navy" : "text-axc-dark-gray"}`}>
           {label}
         </span>
       </label>
@@ -56,8 +57,8 @@ function ChargeCell({
           value={value}
           onChange={(e) => onValueChange(e.target.value)}
           disabled={!checked}
-          placeholder="Value"
-          className={`${inputClass} h-8 text-[12px] px-2 ${!checked ? "bg-gray-50" : ""}`}
+          placeholder={placeholder}
+          className={`${inputClass} h-8 text-[12px] px-2 ${!checked ? "bg-gray-50 cursor-pointer" : ""}`}
         />
         {checked && (
           <input
@@ -75,7 +76,7 @@ function ChargeCell({
 function BillingInputField({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-regular-medium  text-axc-dark-gray">{label}</span>
+      <span className="text-regular-medium capitalize text-axc-dark-gray">{label}</span>
       <input value={value} onChange={(e) => onChange(e.target.value)} className={`${inputClass} h-9 text-[12px]`} placeholder={placeholder} />
     </div>
   );
@@ -84,7 +85,7 @@ function BillingInputField({ label, value, onChange, placeholder }: { label: str
 function BillingSummaryField({ label, value, placeholder }: { label: string; value: string; placeholder?: string }) {
   return (
     <div className="flex flex-col gap-1">
-      <span className="text-regular-medium  text-axc-dark-gray">{label}</span>
+      <span className="text-regular-medium text-axc-dark-gray">{label}</span>
       <input value={value} readOnly className={`${inputClass} h-9 text-xs bg-gray-50 font-semibold`} placeholder={placeholder} />
     </div>
   );
@@ -94,22 +95,27 @@ function BillingToggleField({
   label, value, editable, onValueChange, onEditToggle, editLabel, placeholder
 }: {
   label: string; value: string; editable: boolean;
-  onValueChange: (v: string) => void; onEditToggle: (v: boolean) => void; editLabel: string; placeholder: string;
+  onValueChange: (v: string) => void; onEditToggle: (v: boolean) => void; editLabel: string; placeholder?: string;
 }) {
   return (
     <div className="flex flex-col gap-1">
       <span className="text-regular-medium text-axc-dark-gray">{label}</span>
-      <input
-        placeholder={placeholder}
-        value={value}
-        disabled={!editable}
-        onChange={(e) => onValueChange(e.target.value)}
-        className={`${inputClass} h-9 text-[12px] ${!editable ? "bg-gray-50" : ""}`}
-      />
-      <label className="flex items-center gap-1.5 text-xs text-axc-dark-gray">
-        <input type="checkbox" checked={editable} onChange={(e) => onEditToggle(e.target.checked)} className="h-3 w-3 accent-axc-navy" />
-        {editLabel}
-      </label>
+      <div className="relative">
+        <input
+          placeholder={placeholder}
+          value={value}
+          disabled={!editable}
+          onChange={(e) => onValueChange(e.target.value)}
+          className={`${inputClass} h-9 text-[12px] pr-10 ${!editable ? "bg-gray-50 text-gray-400 cursor-not-allowed" : "bg-white"}`}
+        />
+        <div className="absolute right-1 top-1/2 -translate-y-1/2">
+          <EditIconButton
+            active={editable}
+            onToggle={() => onEditToggle(!editable)}
+            title={editLabel}
+          />
+        </div>
+      </div>
     </div>
   );
 }
@@ -126,64 +132,89 @@ export function PurchaseBillingPanel({
   totals: {
     totalOtherCharges: string; totalDiscount: string; freightAfterDiscount: string;
     subtotal: string; taxableAmount: string; nonTaxableAmount: string;
-    cgst: string; sgst: string; grandTotal: string;
+    cgst?: string; sgst?: string; grandTotal: string;
   };
 }) {
+  const filteredChargeRows = useMemo(() => {
+    const q = (billing.searchCharge || "").toLowerCase().trim();
+    if (!q) return CHARGE_ROWS;
+    return CHARGE_ROWS.filter((row) => row.label.toLowerCase().includes(q));
+  }, [billing.searchCharge]);
+
   return (
     <div className="rounded-lg border border-axc-border bg-white shadow-sm overflow-hidden">
       <PanelHeader
         title="Purchase Billing"
-        right={
-          <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-medium">COMPANY</span>
-              <select
-                value={billing.company}
-                onChange={(e) => onChange({ company: e.target.value })}
-                className="h-7 rounded-md text-[11px] cursor-pointer outline-none  px-2"
-              >
-                <option value="" className="text-axc-navy ">Select...</option>
-              </select>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-medium">CURRENCY</span>
-              <select
-                value={billing.purchaseCurrency}
-                onChange={(e) => onChange({ purchaseCurrency: e.target.value })}
-                className="h-7 rounded-md text-[11px] cursor-pointer outline-none  px-2"
-              >
-                <option value="" className="text-axc-navy ">Select...</option>
-                <option value="USD" className="text-axc-navy ">USD</option>
-                <option value="INR" className="text-axc-navy ">INR</option>
-                <option value="EUR" className="text-axc-navy ">EUR</option>
-                <option value="GBP" className="text-axc-navy ">GBP</option>
-              </select>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-[11px] font-medium">VAT TYPE</span>
-              <select
-                value={billing.vatType}
-                onChange={(e) => onChange({ vatType: e.target.value })}
-                className="h-7 rounded-md text-[11px] cursor-pointer outline-none  px-2"
-              >
-                <option value="GST" className="text-axc-navy ">GST</option>
-                <option value="VAT" className="text-axc-navy ">VAT</option>
-                <option value="NONE" className="text-axc-navy ">NONE</option>
-              </select>
-            </div>
-            <label className="flex items-center gap-1.5 text-[11px] font-medium">
-              <input type="checkbox" checked={billing.vatApplicable} onChange={(e) => onChange({ vatApplicable: e.target.checked })} className="h-3.5 w-3.5 accent-white" />
-              VAT APPLICABLE
-            </label>
-            <label className="flex items-center gap-1.5 text-[11px] font-medium">
-              <input type="checkbox" checked={billing.editVat} onChange={(e) => onChange({ editVat: e.target.checked })} className="h-3.5 w-3.5 accent-white" />
-              EDIT
-            </label>
-          </div>
-        }
       />
 
       <div className="p-4 space-y-3">
+        {/* Row 1: Company, Currency, and Vat Type (3 in one row) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3">
+          <div className="flex items-center gap-2.5 w-full">
+            <span className="text-regular-medium text-axc-dark-gray shrink-0 w-16 xl:w-20">Company</span>
+            <select
+              disabled
+              value={billing.company}
+              onChange={(e) => onChange({ company: e.target.value })}
+              className={`${inputClass} h-9 text-[12px] bg-gray-50 cursor-not-allowed text-gray-500 w-full`}
+            >
+              <option value="">{billing.company || "Select..."}</option>
+              <option value="AXC">AXC</option>
+              <option value="company1">Company A</option>
+              <option value="company2">Company B</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2.5 w-full">
+            <span className="text-regular-medium text-axc-dark-gray shrink-0 w-16 xl:w-20">Currency</span>
+            <select
+              disabled
+              value={billing.purchaseCurrency}
+              onChange={(e) => onChange({ purchaseCurrency: e.target.value })}
+              className={`${inputClass} h-9 text-[12px] bg-gray-50 cursor-not-allowed text-gray-500 w-full`}
+            >
+              <option value="">{billing.purchaseCurrency || "Select..."}</option>
+              <option value="USD">USD</option>
+              <option value="INR">INR</option>
+              <option value="EUR">EUR</option>
+              <option value="GBP">GBP</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2.5 w-full">
+            <span className="text-regular-medium text-axc-dark-gray shrink-0 w-16 xl:w-20">Vat Type</span>
+            <select
+              disabled
+              value={billing.vatType}
+              onChange={(e) => onChange({ vatType: e.target.value })}
+              className={`${inputClass} h-9 text-[12px] bg-gray-50 cursor-not-allowed text-gray-500 flex-1 min-w-0`}
+            >
+              <option value="GST">GST</option>
+            </select>
+
+
+          </div>
+
+
+          <div className="flex items-center gap-2.5 justify-between border border-axc-border px-3 py-1 rounded-md ">
+            <label className={`flex items-center gap-1.5 text-regular-medium ${!billing.editVat ? "text-gray-400 cursor-not-allowed" : billing.vatApplicable ? "text-axc-navy cursor-pointer" : "text-axc-dark-gray cursor-pointer"}`}>
+              <input
+                type="checkbox"
+                disabled={!billing.editVat}
+                checked={billing.vatApplicable}
+                onChange={(e) => onChange({ vatApplicable: e.target.checked })}
+                className="h-3.5 w-3.5 accent-axc-navy disabled:opacity-50 disabled:cursor-not-allowed"
+              />
+              Vat Applicable
+            </label>
+
+            <EditIconButton
+              active={billing.editVat}
+              onToggle={() => onChange({ editVat: !billing.editVat })}
+              title="Edit VAT"
+            />
+          </div>
+        </div>
         <div className={gridClass}>
           <BillingToggleField
             placeholder="Freight"
@@ -196,7 +227,7 @@ export function PurchaseBillingPanel({
           />
           <div className="flex flex-col gap-1">
             <span className="text-xs  font-semibold text-axc-dark-gray">Freight Per Kg</span>
-            <input value={billing.freightPerKg} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50`} placeholder="Freight Per Kg" />
+            <input value={billing.freightPerKg} readOnly className={`${inputClass} h-9 text-sm bg-gray-50`} placeholder="Freight Per Kg" />
           </div>
           <div className="flex flex-col gap-1">
             <span className="text-xs  font-semibold text-axc-dark-gray">Search Charge</span>
@@ -209,20 +240,22 @@ export function PurchaseBillingPanel({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 pt-1">
-          {CHARGE_ROWS.map((row) => (
-            <ChargeCell
-              key={row.key}
-              label={row.label}
-              checked={billing.charges[row.key].checked}
-              value={billing.charges[row.key].value}
-              amount={billing.charges[row.key].amount}
-              onToggle={() => toggleCharge(row.key)}
-              onValueChange={(v) => updateCharge(row.key, "value", v)}
-              onAmountChange={(v) => updateCharge(row.key, "amount", v)}
-            />
-          ))}
-        </div>
+        {filteredChargeRows.length > 0 && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 pt-1">
+            {filteredChargeRows.map((row) => (
+              <ChargeCell
+                key={row.key}
+                label={row.label}
+                checked={billing.charges[row.key].checked}
+                value={billing.charges[row.key].value}
+                amount={billing.charges[row.key].amount}
+                onToggle={() => toggleCharge(row.key)}
+                onValueChange={(v) => updateCharge(row.key, "value", v)}
+                onAmountChange={(v) => updateCharge(row.key, "amount", v)}
+              />
+            ))}
+          </div>
+        )}
 
         <div className={gridClass}>
           <BillingSummaryField label="Total Other Charges" value={totals.totalOtherCharges} />
@@ -256,39 +289,25 @@ export function PurchaseBillingPanel({
 
           <BillingSummaryField label="Taxable Amount" value={totals.taxableAmount} placeholder="Taxable Amount" />
           <BillingInputField label="VAT %" value={billing.vatPercent} onChange={(v) => onChange({ vatPercent: v })} placeholder="VAT %" />
-
-          <BillingToggleField
-            placeholder="CGST"
-            label="CGST"
-            value={totals.cgst}
-            editable={billing.editCgst}
-            onValueChange={(v) => onChange({ cgst: v })}
-            onEditToggle={(v) => onChange({ editCgst: v })}
-            editLabel="EDIT CGST"
-          />
-          <BillingToggleField
-            placeholder="SGST"
-            label="SGST"
-            value={totals.sgst}
-            editable={billing.editSgst}
-            onValueChange={(v) => onChange({ sgst: v })}
-            onEditToggle={(v) => onChange({ editSgst: v })}
-            editLabel="EDIT SGST"
-          />
         </div>
 
         <div className="flex items-center gap-2 pt-1 border-t border-gray-100">
-          <span className="text-regular-bold w-[190px] shrink-0 text-gray-800">GRAND TOTAL</span>
-          <input
-            value={billing.editTotal ? billing.grandTotal : totals.grandTotal}
-            disabled={!billing.editTotal}
-            onChange={(e) => onChange({ grandTotal: e.target.value })}
-            className={`${inputClass} h-9 text-[13px] font-bold max-w-[160px] ${!billing.editTotal ? "bg-gray-50" : ""}`}
-          />
-          <label className="flex items-center gap-1.5 text-[11px] text-gray-500">
-            <input type="checkbox" checked={billing.editTotal} onChange={(e) => onChange({ editTotal: e.target.checked })} className="h-3.5 w-3.5 accent-axc-navy" />
-            EDIT TOTAL
-          </label>
+          <span className="text-regular-bold w-[190px] shrink-0 text-axc-dark-gray">Grand Total</span>
+          <div className="relative max-w-[300px] w-full">
+            <input
+              value={billing.editTotal ? billing.grandTotal : totals.grandTotal}
+              disabled={!billing.editTotal}
+              onChange={(e) => onChange({ grandTotal: e.target.value })}
+              className={`${inputClass} h-9 text-[13px] font-bold pr-10 ${!billing.editTotal ? "bg-gray-50 text-gray-400 cursor-not-allowed" : "bg-white"}`}
+            />
+            <div className="absolute right-1 top-1/2 -translate-y-1/2">
+              <EditIconButton
+                active={billing.editTotal}
+                onToggle={() => onChange({ editTotal: !billing.editTotal })}
+                title="EDIT TOTAL"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

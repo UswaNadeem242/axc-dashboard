@@ -1,9 +1,10 @@
 "use client";
 import React from "react";
 import { DeliveryFormState, TrackingEvent } from "./formstate";
-import { PanelHeader, EditIconButton } from "./form";
+import { PanelHeader, EditIconButton, inputClass } from "./form";
 import { TrackingEventsPanel } from "./tracking";
 import CommonTable from "../../src/common/table";
+import CustomDatePicker from "../../src/common/datepicker";
 
 interface DeliverySummaryRow {
   label: string;
@@ -38,9 +39,6 @@ export function DeliveryPanel({
   onUpdateEvent: (id: string, patch: Partial<TrackingEvent>) => void;
   onRemoveEvent: (id: string) => void;
 }) {
-  const inputClass =
-    "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-regular-small text-axc-gray placeholder:text-axc-gray transition placeholder:text-regular-small ";
-
   const deliverySummaryData: DeliverySummaryRow[] = [
     {
       label: "Expected Delivery Date",
@@ -94,70 +92,73 @@ export function DeliveryPanel({
   ];
 
   return (
-    <div className="flex flex-col xl:grid xl:grid-cols-12 gap-6 items-stretch w-full">
-      <div className="flex flex-col w-full xl:col-span-3 h-full">
-        {/* xl:sticky xl:top-0 xl:self-start */}
-        <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
-          <PanelHeader title="Delivery Summary" />
-          <div className="p-4 flex flex-col gap-3">
-            <div className="grid grid-cols-1 gap-4">
-              <div className="flex flex-col gap-1">
-                <label className="text-regular-medium text-axc-dark-gray capitalize">
-                  Forwarding Number
-                </label>
-                <input
-                  placeholder="Forwarding Number"
-                  className={inputClass}
-                  value={delivery.forwardingNumber}
-                  onChange={(e) => updateField("forwardingNumber", e.target.value)}
-                />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-regular-medium text-axc-dark-gray capitalize">
-                  Forwarding Number 2
-                </label>
-                <input
-                  placeholder="Forwarding Number"
-                  className={inputClass}
-                  value={delivery.forwardingNumber2}
-                  onChange={(e) => updateField("forwardingNumber2", e.target.value)}
-                />
-              </div>
-            </div>
+    <div className="flex flex-col gap-6 w-full">
+      {/* Forwarding Numbers (outside all fields) */}
+      <div className="bg-white rounded-lg border border-axc-border shadow-sm p-4 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+          <div className="flex flex-col gap-1">
+            <label className="text-regular-medium text-axc-dark-gray capitalize">
+              Forwarding Number
+            </label>
+            <input
+              placeholder="Forwarding Number"
+              className={inputClass}
+              value={delivery.forwardingNumber}
+              onChange={(e) => updateField("forwardingNumber", e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <label className="text-regular-medium text-axc-dark-gray capitalize">
+              Forwarding Number 2
+            </label>
+            <input
+              placeholder="Forwarding Number 2"
+              className={inputClass}
+              value={delivery.forwardingNumber2}
+              onChange={(e) => updateField("forwardingNumber2", e.target.value)}
+            />
+          </div>
+          <div>
             <button
               type="button"
               onClick={onUpdateForwarding}
               disabled={updating}
-              className="w-full h-9 bg-axc-navy hover:bg-axc-navy/80 text-white rounded-md text-xs font-bold transition disabled:opacity-60"
+              className="w-full sm:w-auto h-9 px-6 bg-axc-navy hover:bg-axc-navy/80 text-white rounded-md text-xs font-bold transition disabled:opacity-60 cursor-pointer"
             >
               {updating ? "UPDATING..." : "UPDATE"}
             </button>
           </div>
-
-          <div className="border-t border-axc-border mx-4 mb-4 flex-1 flex flex-col">
-            <CommonTable
-              headings={deliverySummaryHeadings}
-              data={deliverySummaryData}
-
-              rowKey="label"
-              hidePagination={true}
-              itemsPerPage={deliverySummaryData.length}
-            />
-          </div>
         </div>
       </div>
-      <div className="xl:col-span-9 w-full flex flex-col h-full">
-        <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
-          <PanelHeader title="Delivery" />
+
+      <div className="flex flex-col xl:grid xl:grid-cols-12 gap-6 items-stretch w-full">
+        <div className="flex flex-col w-full xl:col-span-12 h-full">
+          {/* xl:sticky xl:top-0 xl:self-start */}
+          <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
+            {/* <PanelHeader title="Delivery Summary" /> */}
+            <div className="p-4 flex-1 flex flex-col">
+              <CommonTable
+                headings={deliverySummaryHeadings}
+                data={deliverySummaryData}
+                rowKey="label"
+                hidePagination={true}
+                itemsPerPage={deliverySummaryData.length}
+              />
+            </div>
+          </div>
+        </div>
+        <div className="xl:col-span-12 w-full flex flex-col h-full">
+          <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
+            <PanelHeader title="Delivery" />
           <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-4 flex-1">
             <Field label="Expected Date">
               <div className="relative">
-                <input
-                  type="date"
-                  className={`${inputClass} pr-9`}
+                <CustomDatePicker
                   value={delivery.expectedDate}
                   disabled={!delivery.editExpectedDate}
-                  onChange={(e) => updateField("expectedDate", e.target.value)}
+                  onChange={(val) => updateField("expectedDate", val)}
+                  placeholder="Expected Date"
+                  className="pr-9"
                 />
                 <div className="absolute right-1 top-1/2 -translate-y-1/2">
                   <EditIconButton
@@ -178,11 +179,10 @@ export function DeliveryPanel({
               />
             </Field>
             <Field label="Delivery Date">
-              <input
-                type="date"
-                className={inputClass}
+              <CustomDatePicker
                 value={delivery.deliveryDate}
-                onChange={(e) => updateField("deliveryDate", e.target.value)}
+                onChange={(val) => updateField("deliveryDate", val)}
+                placeholder="Delivery Date"
               />
             </Field>
 
@@ -200,13 +200,12 @@ export function DeliveryPanel({
 
             <Field label="Connection Date">
               <div className="relative">
-                <input
-                  placeholder="Connection Date"
-                  type="date"
-                  className={`${inputClass} pr-9`}
+                <CustomDatePicker
                   value={delivery.connectionDate}
                   disabled={!delivery.editConnectionDate}
-                  onChange={(e) => updateField("connectionDate", e.target.value)}
+                  onChange={(val) => updateField("connectionDate", val)}
+                  placeholder="Connection Date"
+                  className="pr-9"
                 />
                 <div className="absolute right-1 top-1/2 -translate-y-1/2">
                   <EditIconButton
@@ -229,12 +228,10 @@ export function DeliveryPanel({
             </Field>
 
             <Field label="Appointment Date">
-              <input
-                placeholder="Appointment Date"
-                type="date"
-                className={inputClass}
+              <CustomDatePicker
                 value={delivery.appointmentDate}
-                onChange={(e) => updateField("appointmentDate", e.target.value)}
+                onChange={(val) => updateField("appointmentDate", val)}
+                placeholder="Appointment Date"
               />
             </Field>
 
@@ -373,27 +370,29 @@ export function DeliveryPanel({
 
           </div>
 
-          <div className="flex flex-wrap gap-x-6 gap-y-1 px-5 py-4 border-t border-axc-border text-sm  text-regular-semibold text-axc-dark-gray">
+          <div className="flex flex-wrap gap-x-6 gap-y-1 px-5 py-4 border-t border-axc-border text-sm text-regular-semibold text-axc-dark-gray">
             <p>TOTAL PCS - {delivery.totalPcs}</p>
             <p>TOTAL PICKUP SCAN PARCELS - {delivery.totalPickupScanParcels}</p>
             <p>TOTAL INSCAN PARCELS - {delivery.totalInscanParcels}</p>
           </div>
         </div>
       </div>
+    </div>
 
-      <div className="w-full col-span-12">
-        <div className="bg-white rounded-xl border border-axc-border shadow-sm overflow-hidden flex flex-col p-4">
-          <TrackingEventsPanel
-            awbTrackingNo={awbTrackingNo}
-            events={events}
-            onAddEvent={onAddEvent}
-            onUpdateEvent={onUpdateEvent}
-            onRemoveEvent={onRemoveEvent}
-          />
-        </div>
+    {/* Tracking Events Panel */}
+    <div className="w-full">
+      <div className="bg-white rounded-xl border border-axc-border shadow-sm overflow-hidden flex flex-col p-4">
+        <TrackingEventsPanel
+          awbTrackingNo={awbTrackingNo}
+          events={events}
+          onAddEvent={onAddEvent}
+          onUpdateEvent={onUpdateEvent}
+          onRemoveEvent={onRemoveEvent}
+        />
       </div>
     </div>
-  );
+  </div>
+);
 }
 
 function Field({

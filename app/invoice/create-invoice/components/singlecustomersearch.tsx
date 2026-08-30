@@ -1,8 +1,9 @@
 "use client";
 import React from "react";
 import CommonDropdown from "../../../src/common/dropdown";
+import CustomDatePicker from "../../../src/common/datepicker";
 import { SingleInvoiceSearchState } from "./invoicestate";
-import { FieldLabel, PanelHeader, inputClass } from "./invoiceform";
+import { FieldLabel, PanelHeader, inputClass, disabledInputClass } from "./invoiceform";
 
 interface Props {
   search: SingleInvoiceSearchState;
@@ -13,7 +14,7 @@ interface Props {
 
 export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors = {} }: Props) {
   return (
-    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
+    <div className="bg-white rounded-lg border border-axc-border shadow-sm flex flex-col h-full">
       <PanelHeader title="Add Invoice" />
 
       <div className="p-4 flex flex-col justify-between flex-1 gap-3 text-xs">
@@ -24,8 +25,9 @@ export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors 
               type="text"
               value={search.customer}
               onChange={(e) => setSearch((prev) => ({ ...prev, customer: e.target.value }))}
-              className={inputClass}
+              className={disabledInputClass}
               placeholder="Customer"
+              disabled
             />
             {errors.customer && <span className="text-[10px] text-red-500">{errors.customer}</span>}
           </div>
@@ -57,8 +59,9 @@ export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors 
               type="text"
               value={search.gstNumber}
               onChange={(e) => setSearch((prev) => ({ ...prev, gstNumber: e.target.value }))}
-              className={inputClass}
+              className={disabledInputClass}
               placeholder="GST number"
+              disabled
             />
             {errors.gstNumber && <span className="text-[10px] text-red-500">{errors.gstNumber}</span>}
           </div>
@@ -76,21 +79,19 @@ export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors 
 
           <div className="flex flex-col gap-1">
             <FieldLabel>From Date</FieldLabel>
-            <input
-              type="date"
+            <CustomDatePicker
               value={search.fromDate}
-              onChange={(e) => setSearch((prev) => ({ ...prev, fromDate: e.target.value }))}
-              className={inputClass}
+              onChange={(val) => setSearch((prev) => ({ ...prev, fromDate: val }))}
+              placeholder="Select From Date"
             />
           </div>
 
           <div className="flex flex-col gap-1">
             <FieldLabel>Till Date</FieldLabel>
-            <input
-              type="date"
+            <CustomDatePicker
               value={search.tillDate}
-              onChange={(e) => setSearch((prev) => ({ ...prev, tillDate: e.target.value }))}
-              className={inputClass}
+              onChange={(val) => setSearch((prev) => ({ ...prev, tillDate: val }))}
+              placeholder="Select Till Date"
             />
           </div>
 

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useRef } from "react";
-import { PanelHeader } from "./form";
 import CommonTable from "../../src/common/table";
 import { Upload } from "lucide-react";
 
@@ -26,46 +25,66 @@ interface KycExistingFiles {
 
 interface AwbKycTabProps {
   showToast?: (message: string, type?: "success" | "info") => void;
-  onSave?: (data: { customer: KycState; shipper: KycState }) => void;
+  onSave?: (data: { customer: KycState; shipper: KycState; shipperMaster: KycState }) => void;
   existingCustomerFiles?: Record<string, KycExistingFiles>;
   existingShipperFiles?: Record<string, KycExistingFiles>;
+  existingShipperMasterFiles?: Record<string, KycExistingFiles>;
 }
 
 const EMPTY_ROW: KycRowData = { docNumber: "", name: "", page1: null, page2: null };
 
-const CUSTOMER_FIELDS: KycField[] = [
-  { key: "aadharNumber", label: "Aadhar Number" },
-  { key: "authorizationLetter", label: "Authorization Letter" },
-  { key: "drivingLicence", label: "Driving Licence" },
-  { key: "electricBill", label: "Electric Bill" },
-  { key: "gstCertificate", label: "GST Certificate" },
-  { key: "iecCertificate", label: "IEC Certificate" },
-  { key: "lutNumber", label: "LUT Number" },
-  { key: "others", label: "Others" },
-  { key: "panCard", label: "PAN Card (If Company, Please Provide Company PAN Card)" },
-  { key: "passport", label: "Passport" },
-  { key: "telephoneBill", label: "Telephone Bill" },
+export const CUSTOMER_FIELDS: KycField[] = [
+  { key: "aadharNumber", label: "AADHAR NUMBER" },
+  { key: "authorizationLetter", label: "AUTHORIZATION LETTER" },
+  { key: "drivingLicence", label: "DRIVING LICENCE" },
+  { key: "electricBill", label: "ELECTRIC BILL" },
+  { key: "gstCertificate", label: "GST CERTIFICATE" },
+  { key: "iecCertificate", label: "IEC CERTIFICATE" },
+  { key: "lutNumber", label: "LUT NUMBER" },
+  { key: "others", label: "OTHERS" },
+  { key: "panCard", label: "PAN CARD (IF COMPANY, PLEASE PROVIDE COMPANY PAN CARD)" },
+  { key: "passport", label: "PASSPORT" },
+  { key: "telephoneBill", label: "TELEPHONE BILL" },
   { key: "vat", label: "VAT" },
-  { key: "voterIdCard", label: "Voter ID Card" },
+  { key: "voterIdCard", label: "VOTER ID CARD" },
 ];
 
-const SHIPPER_FIELDS: KycField[] = [
-  { key: "aadharNumber", label: "Aadhar Number" },
-  { key: "authorizationLetter", label: "Authorization Letter" },
-  { key: "drivingLicence", label: "Driving Licence" },
+export const SHIPPER_DOCKET_FIELDS: KycField[] = [
+  { key: "aadharNumber", label: "AADHAR NUMBER" },
+  { key: "authorizationLetter", label: "AUTHORIZATION LETTER" },
+  { key: "drivingLicence", label: "DRIVING LICENCE" },
   { key: "eori", label: "EORI" },
-  { key: "gstinDiplomats", label: "GSTIN (Diplomats)" },
-  { key: "gstinGovt", label: "GSTIN (Govt.)" },
-  { key: "gstinNormal", label: "GSTIN (Normal)" },
-  { key: "iecCertificate", label: "IEC Certificate" },
+  { key: "gstinDiplomats", label: "GSTIN (DIPLOMATS)" },
+  { key: "gstinGovt", label: "GSTIN (GOVT.)" },
+  { key: "gstinNormal", label: "GSTIN (NORMAL)" },
+  { key: "iecCertificate", label: "IEC CERTIFICATE" },
   { key: "ncn", label: "NCN" },
-  { key: "others", label: "Others" },
-  { key: "panCard", label: "PAN Card (If Company, Please Provide Company PAN Card)" },
-  { key: "passport", label: "Passport" },
-  { key: "pnicNumber", label: "PNIC Number" },
-  { key: "tanNumber", label: "TAN Number" },
+  { key: "others", label: "OTHERS" },
+  { key: "panCard", label: "PAN CARD (IF COMPANY, PLEASE PROVIDE COMPANY PAN CARD)" },
+  { key: "passport", label: "PASSPORT" },
+  { key: "pnicNumber", label: "PNIC NUMBER" },
+  { key: "tanNumber", label: "TAN NUMBER" },
   { key: "vat", label: "VAT" },
-  { key: "voterIdCard", label: "Voter ID Card" },
+  { key: "voterIdCard", label: "VOTER ID CARD" },
+];
+
+export const SHIPPER_MASTER_FIELDS: KycField[] = [
+  { key: "aadharNumber", label: "AADHAR NUMBER" },
+  { key: "authorizationLetter", label: "AUTHORIZATION LETTER" },
+  { key: "drivingLicence", label: "DRIVING LICENCE" },
+  { key: "eori", label: "EORI" },
+  { key: "gstinDiplomats", label: "GSTIN (DIPLOMATS)" },
+  { key: "gstinGovt", label: "GSTIN (GOVT.)" },
+  { key: "gstinNormal", label: "GSTIN (NORMAL)" },
+  { key: "iecCertificate", label: "IEC CERTIFICATE" },
+  { key: "ncn", label: "NCN" },
+  { key: "others", label: "OTHERS" },
+  { key: "panCard", label: "PAN CARD (IF COMPANY, PLEASE PROVIDE COMPANY PAN CARD)" },
+  { key: "passport", label: "PASSPORT" },
+  { key: "pnicNumber", label: "PNIC NUMBER" },
+  { key: "tanNumber", label: "TAN NUMBER" },
+  { key: "vat", label: "VAT" },
+  { key: "voterIdCard", label: "VOTER ID CARD" },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -81,6 +100,7 @@ interface KycTableRow {
   page2: File | null;
   existingFiles?: KycExistingFiles;
 }
+
 function KycFileCell({
   file,
   existingFileUrl,
@@ -125,14 +145,17 @@ function KycFileCell({
     </div>
   );
 }
+
 function KycSection({
   title,
+  subtitle,
   fields,
   values,
   existingFiles,
   onRowChange,
 }: {
   title: string;
+  subtitle?: string;
   fields: KycField[];
   values: KycState;
   existingFiles?: Record<string, KycExistingFiles>;
@@ -153,14 +176,14 @@ function KycSection({
 
   const headings = [
     {
-      label: "Document Type",
+      label: "DOCUMENT TYPE",
       key: "label",
       render: (row: KycTableRow) => (
-        <span className="text-regular-medium text-axc-dark-gray">{row.label}</span>
+        <span className="text-regular-medium text-axc-dark-gray font-semibold">{row.label}</span>
       ),
     },
     {
-      label: "Document Number",
+      label: "DOCUMENT NUMBER",
       key: "docNumber",
       render: (row: KycTableRow) => (
         <input
@@ -172,7 +195,7 @@ function KycSection({
       ),
     },
     {
-      label: "Name As Per Document",
+      label: "NAME AS PER DOCUMENT",
       key: "name",
       render: (row: KycTableRow) => (
         <input
@@ -184,7 +207,7 @@ function KycSection({
       ),
     },
     {
-      label: "Upload Page 1",
+      label: "UPLOAD PAGE 1",
       key: "page1",
       render: (row: KycTableRow) => (
         <KycFileCell
@@ -195,7 +218,7 @@ function KycSection({
       ),
     },
     {
-      label: "Upload Page 2",
+      label: "UPLOAD PAGE 2",
       key: "page2",
       render: (row: KycTableRow) => (
         <KycFileCell
@@ -209,14 +232,18 @@ function KycSection({
 
   return (
     <div className="w-full flex flex-col gap-3">
-      {/* <PanelHeader title={title} /> */}
-      <h1>
-        {title}
-      </h1>
-      <div className="">
-        {/* bg-white border border-axc-border rounded-lg p-4 */}
+      <div className="flex items-center gap-2 flex-wrap">
+        <h2 className="text-regular-bold text-axc-dark-gray uppercase tracking-wide">
+          {title}
+        </h2>
+        {subtitle && (
+          <span className="text-regular-medium text-red-600 font-semibold uppercase">
+            {subtitle}
+          </span>
+        )}
+      </div>
+      <div>
         <CommonTable
-        
           headings={headings}
           data={tableData}
           rowKey="key"
@@ -227,12 +254,13 @@ function KycSection({
     </div>
   );
 }
+
 function SaveKycButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="bg-axc-navy hover:bg-axc-navy/80 text-white text-regular-medium capitalize  px-5 py-4 rounded-lg transition shadow-sm shrink-0"
+      className="bg-axc-navy hover:bg-axc-navy/80 text-white text-regular-medium capitalize px-5 py-4 rounded-lg transition shadow-sm shrink-0 cursor-pointer"
     >
       Save KYC
     </button>
@@ -244,9 +272,11 @@ export function AwbKycTab({
   onSave,
   existingCustomerFiles,
   existingShipperFiles,
+  existingShipperMasterFiles,
 }: AwbKycTabProps) {
   const [customer, setCustomer] = React.useState<KycState>({});
   const [shipper, setShipper] = React.useState<KycState>({});
+  const [shipperMaster, setShipperMaster] = React.useState<KycState>({});
 
   const updateCustomer = (key: string, patch: Partial<KycRowData>) => {
     setCustomer((prev) => ({ ...prev, [key]: { ...EMPTY_ROW, ...prev[key], ...patch } }));
@@ -256,27 +286,45 @@ export function AwbKycTab({
     setShipper((prev) => ({ ...prev, [key]: { ...EMPTY_ROW, ...prev[key], ...patch } }));
   };
 
+  const updateShipperMaster = (key: string, patch: Partial<KycRowData>) => {
+    setShipperMaster((prev) => ({ ...prev, [key]: { ...EMPTY_ROW, ...prev[key], ...patch } }));
+  };
+
   const handleSave = () => {
-    onSave?.({ customer, shipper });
+    onSave?.({ customer, shipper, shipperMaster });
     showToast?.("KYC saved successfully!", "success");
   };
 
   return (
-    <div className="w-full flex flex-col gap-6">
+    <div className="w-full flex flex-col gap-8">
+      {/* Section 1: Customer */}
       <KycSection
-        title="Customer"
+        title="I. CUSTOMER"
+        subtitle="(Document uploaded here are save in shipper master)"
         fields={CUSTOMER_FIELDS}
         values={customer}
         existingFiles={existingCustomerFiles}
         onRowChange={updateCustomer}
       />
 
+      {/* Section 2: Shipper At Docket Level */}
       <KycSection
-        title="Shipper At Docket Level"
-        fields={SHIPPER_FIELDS}
+        title="II. SHIPPER AT DOCKET LEVEL"
+        subtitle="(Document uploaded here are save in shipper master)"
+        fields={SHIPPER_DOCKET_FIELDS}
         values={shipper}
         existingFiles={existingShipperFiles}
         onRowChange={updateShipper}
+      />
+
+      {/* Section 3: Shipper (Document Uploaded Here Are Save In Shipper Master) */}
+      <KycSection
+        title="III. SHIPPER"
+        subtitle="(DOCUMENT UPLOADED HERE ARE SAVE IN SHIPPER MASTER)"
+        fields={SHIPPER_MASTER_FIELDS}
+        values={shipperMaster}
+        existingFiles={existingShipperMasterFiles}
+        onRowChange={updateShipperMaster}
       />
 
       <div className="flex justify-end">
