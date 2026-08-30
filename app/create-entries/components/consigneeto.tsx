@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, ArrowUp } from "lucide-react";
 import { AwbFormErrors, AwbFormState } from "./formstate";
 import { FieldError, FieldLabel, FileUploadField, PanelHeader, errorInputClass, inputClass } from "./form";
 interface Props {
@@ -21,23 +21,42 @@ export default function ConsigneeToForm({ form, setForm, errors, onReset, showTo
               <RotateCcw size={14} />
             </button>
             <label className="flex items-center gap-1 text-xs text-white/90 cursor-pointer capitalize font-medium">
-              <input type="checkbox" checked={form.consigneeSaveToAddressBook} onChange={(e) => setForm({ ...form, consigneeSaveToAddressBook: e.target.checked })} />  Save?
+              <input type="checkbox" checked={form.consigneeSaveToAddressBook} onChange={(e) => setForm({ ...form, consigneeSaveToAddressBook: e.target.checked })} />  Save to address book?
             </label>
           </div>
         }
       />
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-2.5">
-        <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">
+        <div className="flex flex-col gap-1 ">
           <FieldLabel>Search Address Book</FieldLabel>
           <input type="text" value={form.consigneeSearchAddressBook} onChange={(e) => setForm({ ...form, consigneeSearchAddressBook: e.target.value })} className={inputClass} placeholder="Search Address Book" />
         </div>
         <div className="flex flex-col gap-1">
           <FieldLabel>Code</FieldLabel>
           <div className="flex items-center gap-2">
-            <input type="text" value={form.consigneeCode} onChange={(e) => setForm({ ...form, consigneeCode: e.target.value })} className={`${inputClass} flex-1`} placeholder="Code" />
-            <label className="flex items-center gap-1.5 text-[10px] text-axc-dark-gray cursor-pointer whitespace-nowrap">
-              <input type="checkbox" checked={form.consigneeUpdateAddressBook} onChange={(e) => setForm({ ...form, consigneeUpdateAddressBook: e.target.checked })} className="w-4 h-4" /> UPDATE?
-            </label>
+            <div className="relative flex-1">
+              <input
+                type="text"
+                value={form.consigneeCode}
+                onChange={(e) => setForm({ ...form, consigneeCode: e.target.value })}
+                className={`${inputClass} w-full pr-10`}
+                placeholder="Code"
+              />
+              <div className="absolute right-1 top-1/2 -translate-y-1/2">
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, consigneeUpdateAddressBook: !form.consigneeUpdateAddressBook })}
+                  title={form.consigneeUpdateAddressBook ? "Address Book Update Enabled" : "Update Address Book"}
+                  className={`flex items-center justify-center h-7 w-7 rounded transition cursor-pointer ${form.consigneeUpdateAddressBook
+                      ? "bg-axc-navy text-white shadow-sm"
+                      : "text-axc-gray hover:bg-gray-100 hover:text-axc-dark-gray"
+                    }`}
+                >
+                  <ArrowUp size={14} />
+                </button>
+              </div>
+            </div>
+
           </div>
         </div>
         <div className="flex flex-col gap-1">

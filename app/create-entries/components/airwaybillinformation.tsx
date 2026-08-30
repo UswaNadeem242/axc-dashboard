@@ -2,6 +2,7 @@
 
 import React from "react";
 import CommonDropdown from "../../src/common/dropdown";
+import CustomDatePicker from "../../src/common/datepicker";
 import { AwbFormErrors, AwbFormState } from "./formstate";
 import { EditIconButton, FieldError, FieldLabel, PanelHeader, errorInputClass, inputClass } from "./form";
 
@@ -38,15 +39,14 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
         </div>
 
         <div className="flex flex-col gap-1">
-          <FieldLabel required>Customer</FieldLabel>
-          <input type="text" value={form.customer} onChange={(e) => setForm({ ...form, customer: e.target.value })} className={`${errors.customer ? errorInputClass : inputClass} bg-gray-50 focus:bg-white`} placeholder="Customer" />
-          <FieldError message={errors.customer} />
+          <FieldLabel required>Branch</FieldLabel>
+          <CommonDropdown value={form.branch} onChange={(val) => setForm({ ...form, branch: val })} className="border-axc-border" options={[{ value: "MUMBAI", label: "MUMBAI" }, { value: "DELHI", label: "DELHI" }]} />
         </div>
 
         <div className="flex flex-col gap-1">
-          <FieldLabel>Company</FieldLabel>
+          <FieldLabel required>Company</FieldLabel>
           <div className="relative">
-            <CommonDropdown value={form.company} onChange={(val) => setForm({ ...form, company: val })} className="w-full bg-gray-50 focus:bg-white border-axc-border pr-10" placeholder="SELECT COMPANY..." options={[{ value: "company1", label: "Company A" }, { value: "company2", label: "Company B" }]} />
+            <CommonDropdown value={form.company} onChange={(val) => setForm({ ...form, company: val })} className="w-full border-axc-border pr-10" options={[{ value: "AXC", label: "AXC" }]} />
             <div className="absolute right-1 top-1/2 -translate-y-1/2">
               <EditIconButton active={form.editCompany} onToggle={() => setForm({ ...form, editCompany: !form.editCompany })} title="Edit Company" />
             </div>
@@ -54,21 +54,23 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
         </div>
 
         <div className="flex flex-col gap-1">
-          <FieldLabel required>Origin</FieldLabel>
-          <div className="grid grid-cols-2 gap-2">
-            <input type="text" placeholder="Origin" value={form.origin} onChange={(e) => setForm({ ...form, origin: e.target.value })} className={errors.origin ? errorInputClass : inputClass} />
-            <input type="text" placeholder="ZONE" value={form.originZone} onChange={(e) => setForm({ ...form, originZone: e.target.value })} className={`${inputClass} bg-gray-50`} />
-          </div>
-          <FieldError message={errors.origin} />
+          <FieldLabel required>Customer</FieldLabel>
+          <CommonDropdown value={form.customer} onChange={(val) => setForm({ ...form, customer: val })} className="border-axc-border" options={[{ value: "AMAZON", label: "AMAZON" }, { value: "FLIPKART", label: "FLIPKART" }]} />
         </div>
 
         <div className="flex flex-col gap-1">
-          <FieldLabel required>Destination</FieldLabel>
-          <div className="grid grid-cols-2 gap-2">
-            <input type="text" placeholder="Destination" value={form.destination} onChange={(e) => setForm({ ...form, destination: e.target.value })} className={errors.destination ? errorInputClass : inputClass} />
-            <input type="text" placeholder="ZONE" value={form.destinationZone} onChange={(e) => setForm({ ...form, destinationZone: e.target.value })} className={`${inputClass} bg-gray-50`} />
-          </div>
-          <FieldError message={errors.destination} />
+          <FieldLabel required>Customer Code</FieldLabel>
+          <input type="text" value={form.customerCode} onChange={(e) => setForm({ ...form, customerCode: e.target.value })} className={inputClass} placeholder="Customer Code" />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <FieldLabel required>Sector</FieldLabel>
+          <CommonDropdown value={form.sector} onChange={(val) => setForm({ ...form, sector: val })} className="border-axc-border" options={[{ value: "INTERNATIONAL", label: "INTERNATIONAL" }, { value: "DOMESTIC", label: "DOMESTIC" }]} />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <FieldLabel required>Destination Hub</FieldLabel>
+          <CommonDropdown value={form.destinationHub} onChange={(val) => setForm({ ...form, destinationHub: val })} className="border-axc-border" options={[{ value: "DELHI", label: "DELHI" }, { value: "MUMBAI", label: "MUMBAI" }]} />
         </div>
 
         <div className="flex flex-col gap-1">
@@ -78,7 +80,11 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
 
         <div className="flex flex-col gap-1">
           <FieldLabel required>Booking Date</FieldLabel>
-          <input type="date" value={form.bookingDate} onChange={(e) => setForm({ ...form, bookingDate: e.target.value })} className={inputClass} />
+          <CustomDatePicker
+            value={form.bookingDate}
+            onChange={(val) => setForm({ ...form, bookingDate: val })}
+            placeholder="Select Booking Date"
+          />
         </div>
 
         <div className="flex flex-col gap-1">
@@ -121,7 +127,11 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Invoice Date</FieldLabel>
-          <input type="date" value={form.invoiceDate} onChange={(e) => setForm({ ...form, invoiceDate: e.target.value })} className={inputClass} />
+          <CustomDatePicker
+            value={form.invoiceDate}
+            onChange={(val) => setForm({ ...form, invoiceDate: val })}
+            placeholder="Select Invoice Date"
+          />
         </div>
 
         <div className="flex flex-col gap-1">
