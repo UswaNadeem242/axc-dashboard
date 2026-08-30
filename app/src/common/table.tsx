@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { showToast } from "./toast";
-import { Eye, Pencil, Trash2, Copy, PackageCheck, FileText } from "lucide-react";
+import { Eye, Pencil, Trash2 } from "lucide-react";
 import CommonPagination from "./pagination";
 
 interface Heading {
@@ -21,8 +20,6 @@ interface CommonTableProps {
   onView?: (row: any) => void;
   onEdit?: (row: any) => void;
   onDelete?: (row: any) => void;
-  onBagging?: (row: any) => void;
-  onPdf?: (row: any) => void;
   itemsPerPage?: number;
   currentPage?: number;
   totalPages?: number;
@@ -39,6 +36,7 @@ interface CommonTableProps {
   loading?: boolean;
   loadingMessage?: string;
   hidePagination?: boolean;
+  className?: string;
 }
 
 const CommonTable = ({
@@ -47,8 +45,6 @@ const CommonTable = ({
   onView,
   onEdit,
   onDelete,
-  onBagging,
-  onPdf,
   totalPages: propTotalPages,
   currentPage = 1,
   onPageChange,
@@ -65,6 +61,7 @@ const CommonTable = ({
   loading = false,
   loadingMessage = "Loading...",
   hidePagination = false,
+  className = "",
 }: CommonTableProps) => {
   const computedTotalPages = propTotalPages ?? Math.max(1, Math.ceil(data.length / itemsPerPage));
   const activePage = Math.min(Math.max(1, currentPage), computedTotalPages);
@@ -72,20 +69,9 @@ const CommonTable = ({
   const colSpan = headings.length + (selectable ? 1 : 0);
 
   // =========================================================
-  // COPY ROW
-  // =========================================================
-  const copyRow = async (row: any) => {
-    await navigator.clipboard.writeText(JSON.stringify(row, null, 2));
-    showToast({ variant: "success", message: "Row copied." });
-  };
-
-  // =========================================================
   // TRUNCATE
   // =========================================================
-  const truncateText = (
-    text: string,
-    maxLength = 8
-  ) => {
+  const truncateText = (text: string, maxLength = 8) => {
     if (!text) return "-";
     return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
   };
@@ -105,6 +91,7 @@ const CommonTable = ({
     if (!onSelectionChange) return;
     onSelectionChange(selectedIds.includes(id) ? selectedIds.filter((item) => item !== id) : [...selectedIds, id]);
   };
+
   const getStatusClasses = (status: string) => {
     switch (status) {
       case "Arrived":
@@ -119,11 +106,13 @@ const CommonTable = ({
   };
 
   return (
-    <div className="flex flex-col">
+    <div className={`flex flex-col ${className}`}>
       <div className="flex flex-col overflow-hidden rounded-lg border border-axc-border">
-        <div className="overflow-x-auto scrollbar-none max-h-[calc(100vh-260px)] overflow-y-auto [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+        <div
+          className="overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent  [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg"
+        >
           <table className="w-max min-w-full border-collapse text-left text-sm">
-            <thead className="sticky top-0 z-10">
+            <thead>
               <tr className="bg-axc-navy text-white">
                 {selectable && (
                   <th className="w-10 bg-axc-navy rounded-l-sm px-4 py-3">
@@ -134,26 +123,23 @@ const CommonTable = ({
                   <th
                     key={heading.key}
                     onClick={() => heading.sortable && onSort?.(heading.key)}
-                    className={`bg-axc-navy px-4 py-3 font-medium capitalize whitespace-nowrap ${index === 0 && !selectable ? "rounded-l-sm" : ""} ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${heading.sortable ? "cursor-pointer select-none" : ""}`}
+                    className={`bg-axc-navy px-4 py-3  text-regular-semibold uppercase  whitespace-nowrap ${index === 0 && !selectable ? "rounded-l-sm" : ""} ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${heading.sortable ? "cursor-pointer select-none" : ""} `}
                   >
-                    <span className="inline-flex items-center gap-1">
-                      {heading.label}
-                    </span>
+                    <span className="inline-flex items-center gap-1">{heading.label}</span>
                   </th>
                 ))}
-
               </tr>
             </thead>
             <tbody className="divide-y divide-axc-border">
               {loading ? (
                 <tr>
-                  <td colSpan={colSpan} className="px-4 py-12 text-center text-[12px] text-axc-gray">
+                  <td colSpan={colSpan} className="px-4 py-12 text-center text-sm text-axc-gray">
                     {loadingMessage}
                   </td>
                 </tr>
               ) : paginatedData.length === 0 ? (
                 <tr>
-                  <td colSpan={colSpan} className="px-4 py-12 text-center text-[12px] text-axc-gray">
+                  <td colSpan={colSpan} className="px-4 py-12 text-center text-sm text-axc-gray">
                     {emptyMessage}
                   </td>
                 </tr>
@@ -162,7 +148,12 @@ const CommonTable = ({
                   <tr key={index} className="bg-white transition hover:bg-axc-light-bg">
                     {selectable && (
                       <td className="px-4 py-3">
-                        <input type="checkbox" checked={selectedIds.includes(row[rowKey])} onChange={() => toggleRow(row[rowKey])} className="h-3.5 w-3.5 accent-axc-blue" />
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.includes(row[rowKey])}
+                          onChange={() => toggleRow(row[rowKey])}
+                          className="h-3.5 w-3.5 accent-axc-blue"
+                        />
                       </td>
                     )}
                     {headings.map((heading) => (
@@ -182,7 +173,7 @@ const CommonTable = ({
                                 <button
                                   type="button"
                                   onClick={() => onView(row)}
-                                  className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10"
+                                  className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
                                   title="View"
                                 >
                                   <Eye size={16} />
@@ -192,50 +183,21 @@ const CommonTable = ({
                                 <button
                                   type="button"
                                   onClick={() => onEdit(row)}
-                                  className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30  p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10"
+                                  className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30  p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10 cursor-pointer"
                                   title="Edit"
                                 >
                                   <Pencil size={16} />
                                 </button>
                               )}
-                              {onBagging && (
-                                <button
-                                  type="button"
-                                  onClick={() => onBagging(row)}
-                                  className="inline-flex items-center justify-center rounded-md border border-axc-navy/30  p-1.5 text-axc-navy transition hover:bg-axc-navy/10"
-                                  title="Bagging"
-                                >
-                                  <PackageCheck size={17} />
-                                </button>
-                              )}
+
                               {onDelete && (
                                 <button
                                   type="button"
                                   onClick={() => onDelete(row)}
-                                  className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
+                                  className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
                                   title="Delete"
                                 >
                                   <Trash2 size={16} />
-                                </button>
-                              )}
-                              {/* {onCopy && (
-                                <button
-                                  type="button"
-                                  onClick={() => copyRow(row)}
-                                  className="inline-flex items-center justify-center rounded-md border border-axc-dark-gray/30  p-1.5 text-axc-dark-gray transition hover:bg-axc-dark-gray/10"
-                                  title="Copy"
-                                >
-                                  <Copy size={16} />
-                                </button>
-                              )} */}
-                              {onPdf && (
-                                <button
-                                  type="button"
-                                  onClick={() => onPdf(row)}
-                                  className="inline-flex items-center justify-center rounded-md border border-axc-blue/30  p-1.5 text-axc-blue transition hover:bg-axc-blue/10"
-                                  title="View PDF"
-                                >
-                                  <FileText size={16} />
                                 </button>
                               )}
                             </div>

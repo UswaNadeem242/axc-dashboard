@@ -18,7 +18,7 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
         title="Air Waybill Information"
         right={<span className=" text-white text-xs px-2 py-0.5 rounded font-medium">BALANCE: WAIT...</span>}
       />
-      <div className="p-5 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3 text-xs">
+      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3">
         <div className="flex flex-col gap-1">
           <FieldLabel required>AWB Number</FieldLabel>
           <div className="relative">
@@ -143,9 +143,9 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
           <table className="w-full text-[10px] text-center border-collapse">
             <thead>
               <tr className="bg-axc-navy border-b border-axc-border">
-                <th className="py-2 border-r text-sm border-axc-border font-normal text-white"></th>
-                <th className="py-2 border-r text-sm border-axc-border font-normal text-white">Customer</th>
-                <th className="py-2 text-sm text-white font-normal">Vendor</th>
+                <th className="py-3 border-r text-sm border-axc-border font-normal text-white"></th>
+                <th className="py-3 border-r text-sm border-axc-border font-normal text-white">Customer</th>
+                <th className="py-3 text-sm text-white font-normal">Vendor</th>
               </tr>
             </thead>
             <tbody>

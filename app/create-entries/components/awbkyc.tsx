@@ -208,10 +208,15 @@ function KycSection({
   ];
 
   return (
-    <div className="w-full flex flex-col gap-6">
-      <PanelHeader title={title} />
-      <div className="bg-white border border-axc-border rounded-[8px] p-4">
+    <div className="w-full flex flex-col gap-3">
+      {/* <PanelHeader title={title} /> */}
+      <h1>
+        {title}
+      </h1>
+      <div className="">
+        {/* bg-white border border-axc-border rounded-lg p-4 */}
         <CommonTable
+        
           headings={headings}
           data={tableData}
           rowKey="key"
@@ -227,7 +232,7 @@ function SaveKycButton({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="bg-axc-navy hover:bg-axc-navy/80 text-white text-xs font-bold uppercase px-5 py-4 rounded-lg transition shadow-sm shrink-0"
+      className="bg-axc-navy hover:bg-axc-navy/80 text-white text-regular-medium capitalize  px-5 py-4 rounded-lg transition shadow-sm shrink-0"
     >
       Save KYC
     </button>

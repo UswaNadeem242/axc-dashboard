@@ -82,7 +82,7 @@ export function EditIconButton({
 
 export function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
-    <div className="bg-axc-navy text-white px-4 py-2.5 flex items-center justify-between gap-2">
+    <div className="bg-axc-navy text-white p-4 flex items-center justify-between gap-2">
       <h3>{toSentenceCase(title)}</h3>
       {right}
     </div>

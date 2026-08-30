@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X , PlusCircleIcon,} from "lucide-react";
+import { X, PlusCircleIcon } from "lucide-react";
 
-import CommonTable from "../../src/common/table";
-import { ManifestHeading, ManifestEntry, initialManifestData } from "../../src/constant";
-import FilterSearch from "../../src/common/filtersearch";
-import Button from "../../src/common/button";
-import { showToast } from "../../src/common/toast";
+import CommonTable from "../src/common/table";
+import { ManifestHeading, ManifestEntry, initialManifestData } from "../src/constant";
+import FilterSearch from "../src/common/filtersearch";
+import Button from "../src/common/button";
+import { showToast } from "../src/common/toast";
 
 export default function AllManifestPage() {
   const [data, setData] = useState<ManifestEntry[]>([]);
@@ -22,7 +22,7 @@ export default function AllManifestPage() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("manifest_entries");
-      if (stored) { 
+      if (stored) {
         try {
           const parsed: ManifestEntry[] = JSON.parse(stored);
           if (parsed.length > initialManifestData.length) {
@@ -57,6 +57,7 @@ export default function AllManifestPage() {
   };
 
   const handleEdit = (row: ManifestEntry) => console.log("Edit Manifest:", row.manifestNo);
+  const handleView = (row: ManifestEntry) => console.log("View Manifest:", row.manifestNo);
 
   const handleDelete = (row: ManifestEntry) => {
     const confirmed = confirm(`Are you sure you want to delete manifest ${row.manifestNo}?`);
@@ -65,9 +66,6 @@ export default function AllManifestPage() {
     setSelectedIds((prev) => prev.filter((id) => id !== row.manifestNo));
     showToast({ variant: "success", message: "Manifest deleted." });
   };
-
-  const handleBagging = (row: ManifestEntry) => console.log("Bagging Manifest:", row.manifestNo);
-  const handlePdf = (row: ManifestEntry) => console.log("View Manifest PDF:", row.manifestNo);
 
   const filteredData = data.filter((item) => {
     const query = searchQuery.toLowerCase();
@@ -100,8 +98,8 @@ export default function AllManifestPage() {
   }, [searchQuery]);
 
   return (
-    <div className="relative bg-white p-3 rounded-[8px] w-full h-[calc(100vh-160px)] flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
+    <div className="relative bg-white p-3 rounded-[8px] w-full h-[calc(100vh-160px)] flex flex-col  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
+      <div className="flex flex-wrap justify-between items-center gap-3 mb-4 ">
         <div className="flex flex-wrap items-center gap-3">
           {selectedIds.length > 0 && (
             <span className="text-xs font-semibold text-axc-gray">{selectedIds.length} selected</span>
@@ -122,7 +120,7 @@ export default function AllManifestPage() {
           />
         </div>
 
-        <Button className="px-5 py-4 rounded-lg text-regular-small"label="New Manifest" href="/manifest/new-manifest" variant="primary" icon={PlusCircleIcon}/>
+        <Button label="New Manifest" href="/manifest/new-manifest" variant="primary" icon={PlusCircleIcon} />
       </div>
 
       {activeTags.length > 0 && (
@@ -162,8 +160,7 @@ export default function AllManifestPage() {
         data={filteredData}
         onEdit={handleEdit}
         onDelete={handleDelete}
-        onBagging={handleBagging}
-        onPdf={handlePdf}
+        onView={handleView}
         currentPage={page}
         totalPages={totalPages}
         onPageChange={(p) => setPage(p)}

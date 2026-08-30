@@ -13,11 +13,11 @@ interface Props {
 
 export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors = {} }: Props) {
   return (
-    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
       <PanelHeader title="Add Invoice" />
 
-      <div className="p-4 flex flex-col gap-3 text-xs">
-        <div className="grid grid-cols-2 gap-3">
+      <div className="p-4 flex flex-col justify-between flex-1 gap-3 text-xs">
+        <div className="grid grid-cols-3 gap-3">
           <div className="flex flex-col gap-1">
             <FieldLabel required>Customer</FieldLabel>
             <input
@@ -143,7 +143,7 @@ export function SingleCustomerSearchPanel({ search, setSearch, onSearch, errors 
           <button
             type="button"
             onClick={onSearch}
-            className="px-5 py-4 bg-axc-yellow text-white rounded-lg text-regular-small shadow-sm transition uppercase cursor-pointer"
+            className="px-5 py-3 bg-axc-yellow text-white rounded text-xs font-bold shadow-sm transition uppercase cursor-pointer"
           >
             Search
           </button>

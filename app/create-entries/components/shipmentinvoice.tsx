@@ -21,7 +21,7 @@ export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, se
         </label>
       </div>
       {form.createShipmentInvoice && (
-        <div className="flex flex-col gap-4 p-5 animate-in fade-in duration-200 text-xs font-sans text-gray-800">
+        <div className="flex flex-col gap-4 p-4 animate-in fade-in duration-200  text-gray-800">
           <div className="flex flex-wrap items-center gap-x-8 gap-y-3">
             <div className="flex items-center gap-4">
               <span className="text-axc-dark-gray font-semibold text-sm">Invoice Type</span>
@@ -50,11 +50,11 @@ export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, se
                 <CommonDropdown value={form.invoiceNote} onChange={(val) => setForm({ ...form, invoiceNote: val })} className="!py-2 !px-2 border-axc-border" options={[{ value: "GIFT", label: "GIFT" }, { value: "SAMPLE", label: "SAMPLE" }, { value: "COMMERCIAL", label: "COMMERCIAL" }]} />
               </div>
             </div>
-            <input type="text" value={form.invoiceDeclaration} onChange={(e) => setForm({ ...form, invoiceDeclaration: e.target.value })} className="w-full border border-axc-border rounded px-3 py-2 text-regular-small bg-white focus:outline-none" />
+            <input type="text" value={form.invoiceDeclaration} onChange={(e) => setForm({ ...form, invoiceDeclaration: e.target.value })} className="w-full border border-axc-border rounded px-5 py-3 text-regular-medium bg-white focus:outline-none" />
           </div>
 
           <div className="mt-2">
-            <div className="bg-axc-navy rounded-tl-lg rounded-tr-lg text-white text-sm font-bold px-3 py-2   tracking-wide">Shipment Invoice Items</div>
+            <div className="bg-axc-navy rounded-tl-lg rounded-tr-lg text-white text-regular-medium font-bold p-3  capitalize  tracking-wide">Shipment Invoice Items</div>
             <div className="border border-axc-border border-t-0 overflow-x-auto">
               <table className="w-full text-[11px] border-collapse min-w-[950px]">
                 <thead>
@@ -132,7 +132,7 @@ export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, se
             </div>
             <div className="mt-3">
 
-              <button type="button" onClick={addInvoiceItem} className="px-3 py-2 bg-axc-dark-yellow  text-white rounded text-regular-small transition uppercase cursor-pointer flex justify-center items-center "><Plus size={15} />ADD ITEM</button>
+              <button type="button" onClick={addInvoiceItem} className="px-5 py-3 bg-axc-dark-yellow  text-white rounded-lg text-regular-medium transition capitalize cursor-pointer flex justify-center items-center "><Plus size={15} />Add Item</button>
             </div>
           </div>
         </div>

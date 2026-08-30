@@ -7,8 +7,8 @@ const inputClass =
 
 function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
-    <div className="bg-axc-navy text-white text-[13px] font-semibold px-4 py-2.5 flex items-center justify-between gap-2 flex-wrap">
-      <span>{title}</span>
+    <div className="bg-axc-navy text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
+      <h3>{title}</h3>
       {right}
     </div>
   );
@@ -31,7 +31,7 @@ const CHARGE_ROWS: { key: PurchaseChargeKey; label: string }[] = [
   { key: "oversized", label: "Oversized" },
   { key: "peakSurcharge", label: "Peak Surcharge" },
   { key: "pickupCharges", label: "Pickup Charges" },
-  { key: "remoteArea", label: "REMOTE AREA" },
+  { key: "remoteArea", label: "Remote  Area" },
   { key: "remoteAreaSurcharge", label: "Remote Area Surcharge" },
   { key: "residentialSurcharge", label: "Residential Surcharge" },
   { key: "residentialSurchargeManual", label: "Residential Surcharge" },
@@ -183,7 +183,7 @@ export function PurchaseBillingPanel({
         }
       />
 
-      <div className="p-4 space-y-4">
+      <div className="p-4 space-y-3">
         <div className={gridClass}>
           <BillingToggleField
             placeholder="Freight"

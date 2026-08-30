@@ -39,7 +39,7 @@ export function DeliveryPanel({
   onRemoveEvent: (id: string) => void;
 }) {
   const inputClass =
-    "w-full h-9 px-2.5 rounded-md border border-axc-border text-regular-medium placeholder:text-regular-medium placeholder:text-axc-gray  placeholder:text-regular-small text-axc-dark-gray focus:outline-none ";
+    "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-regular-small text-axc-gray placeholder:text-axc-gray transition placeholder:text-regular-small ";
 
   const deliverySummaryData: DeliverySummaryRow[] = [
     {
@@ -94,12 +94,13 @@ export function DeliveryPanel({
   ];
 
   return (
-    <div className="flex flex-col xl:grid xl:grid-cols-12 gap-6 items-start w-full">
-      <div className="flex flex-col gap-6 w-full xl:col-span-4 xl:sticky xl:top-0 xl:self-start">
-        <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
+    <div className="flex flex-col xl:grid xl:grid-cols-12 gap-6 items-stretch w-full">
+      <div className="flex flex-col w-full xl:col-span-3 h-full">
+        {/* xl:sticky xl:top-0 xl:self-start */}
+        <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
           <PanelHeader title="Delivery Summary" />
           <div className="p-4 flex flex-col gap-3">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div className="flex flex-col gap-1">
                 <label className="text-regular-medium text-axc-dark-gray capitalize">
                   Forwarding Number
@@ -133,7 +134,7 @@ export function DeliveryPanel({
             </button>
           </div>
 
-          <div className="border-t border-axc-border mx-4 mb-4">
+          <div className="border-t border-axc-border mx-4 mb-4 flex-1 flex flex-col">
             <CommonTable
               headings={deliverySummaryHeadings}
               data={deliverySummaryData}
@@ -145,10 +146,10 @@ export function DeliveryPanel({
           </div>
         </div>
       </div>
-      <div className="xl:col-span-8 w-full flex flex-col gap-6">
-        <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
+      <div className="xl:col-span-9 w-full flex flex-col h-full">
+        <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
           <PanelHeader title="Delivery" />
-          <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-4">
+          <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-4 flex-1">
             <Field label="Expected Date">
               <div className="relative">
                 <input
@@ -378,8 +379,10 @@ export function DeliveryPanel({
             <p>TOTAL INSCAN PARCELS - {delivery.totalInscanParcels}</p>
           </div>
         </div>
+      </div>
 
-        <div className="bg-white rounded-xl border border-axc-border shadow-sm overflow-hidden flex flex-col p-5">
+      <div className="w-full col-span-12">
+        <div className="bg-white rounded-xl border border-axc-border shadow-sm overflow-hidden flex flex-col p-4">
           <TrackingEventsPanel
             awbTrackingNo={awbTrackingNo}
             events={events}

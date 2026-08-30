@@ -61,41 +61,50 @@ h6 {
   line-height: 1.2;
   /* color: #111827; */
 }
-h1{
-  font-size:24px;
+
+h1 {
+  font-size: 24px;
   font-weight: 700;
 }
-h2{
+
+h2 {
   font-weight: 600;
   font-size: 18px;
 }
-h3{
+
+h3 {
   font-size: 16px;
   font-weight: 600;
 }
+
 /*regular text paragraph*/
-.text-regular{
-  font-size :14px;
-  font-weight:400;
+.text-regular {
+  font-size: 14px;
+  font-weight: 400;
 }
-.text-regular-medium{
-  font-size:14px;
-  font-weight:500;
+
+.text-regular-medium {
+  font-size: 14px;
+  font-weight: 500;
 }
-.text-regular-semibold{
+
+.text-regular-semibold {
   font-size: 14px;
   font-weight: 600;
 }
-.text-regular-bold{
+
+.text-regular-bold {
   font-size: 14px;
   font-weight: 700;
 }
+
 /*small-text*/
-.text-regular-small{
+.text-regular-small {
   font-size: 12px;
-  font-weight:400;
-  
+  font-weight: 400;
+
 }
+
 /* option style */
 .option-style {
   background-color: #ffffff;
@@ -104,21 +113,40 @@ h3{
   padding: 8px;
 }
 
-/* Hide scrollbars globally — cleaner UX, no per-element patching needed */
-* {
-  scrollbar-width: none !important;        /* Firefox */
-  -ms-overflow-style: none !important;     /* IE/Edge */
+/* Custom scrollbar utility */
+.custom-scrollbar {
+  scrollbar-width: thin !important;
+  scrollbar-color: #94a3b8 #f1f5f9 !important;
+  -ms-overflow-style: auto !important;
 }
 
-*::-webkit-scrollbar {
-  display: none !important;               /* Chrome, Safari, Opera */
+.custom-scrollbar::-webkit-scrollbar {
+  display: block !important;
+  width: 4px !important;
+  height: 4px !important;
 }
 
-/* Utility kept for explicitness */
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9 !important;
+  border-radius: 4px !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #DCDEDB !important;
+  border-radius: 4px !important;
+  border: 1px solid #DCDEDB !important;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #DCDEDB !important;
+}
+
+/* Utility to explicitly hide scrollbar where needed */
 .scrollbar-none {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
 }
+
 .scrollbar-none::-webkit-scrollbar {
   display: none !important;
 }
