@@ -8,6 +8,7 @@ import { ManifestHeading, ManifestEntry, initialManifestData } from "../src/cons
 import FilterSearch from "../src/common/filtersearch";
 import Button from "../src/common/button";
 import { showToast } from "../src/common/toast";
+import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
 
 export default function AllManifestPage() {
   const [data, setData] = useState<ManifestEntry[]>([]);
@@ -16,6 +17,9 @@ export default function AllManifestPage() {
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
+
+  const [deleteTarget, setDeleteTarget] = useState<ManifestEntry | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const itemsPerPage = 10;
 
@@ -60,11 +64,22 @@ export default function AllManifestPage() {
   const handleView = (row: ManifestEntry) => console.log("View Manifest:", row.manifestNo);
 
   const handleDelete = (row: ManifestEntry) => {
-    const confirmed = confirm(`Are you sure you want to delete manifest ${row.manifestNo}?`);
-    if (!confirmed) return;
-    setData((prev) => prev.filter((item) => item.manifestNo !== row.manifestNo));
-    setSelectedIds((prev) => prev.filter((id) => id !== row.manifestNo));
+    setDeleteTarget(row);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    setData((prev) => prev.filter((item) => item.manifestNo !== deleteTarget.manifestNo));
+    setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.manifestNo));
     showToast({ variant: "success", message: "Manifest deleted." });
+    setIsDeleting(false);
+    setDeleteTarget(null);
+  };
+
+  const cancelDelete = () => {
+    if (isDeleting) return;
+    setDeleteTarget(null);
   };
 
   const filteredData = data.filter((item) => {
@@ -169,6 +184,14 @@ export default function AllManifestPage() {
         rowKey="manifestNo"
         selectedIds={selectedIds}
         onSelectionChange={setSelectedIds}
+      />
+
+      <DeleteConfirmationDialog
+        isOpen={!!deleteTarget}
+        itemName={deleteTarget?.manifestNo}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        isLoading={isDeleting}
       />
     </div>
   );

@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import CommonPagination from "./pagination";
+import CommonScroll from "./commonscroll";
 
 interface Heading {
   label: string;
@@ -107,12 +108,18 @@ const CommonTable = ({
 
   return (
     <div className={`flex flex-col ${className}`}>
-      <div className="flex flex-col overflow-hidden rounded-lg border border-axc-border">
-        <div
-          className="overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent  [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg"
-        >
-          <table className="w-max min-w-full border-collapse text-left text-sm">
-            <thead>
+      <CommonScroll
+        orientation="horizontal"
+        align="start"
+        className="rounded-lg border border-axc-border"
+        contentClassName=""
+        scrollbarThickness={6}
+        maxThumbPercent={15}
+        showArrows={true}
+        gap={8}
+      >
+        <table className="w-max min-w-full border-collapse text-left text-sm">
+          <thead>
               <tr className="bg-axc-navy/10 text-black">
                 {selectable && (
                   <th className="w-10 bg-axc-navy/10 rounded-l-sm px-4 py-3">
@@ -230,8 +237,7 @@ const CommonTable = ({
               )}
             </tbody>
           </table>
-        </div>
-      </div>
+        </CommonScroll>
 
       {!hidePagination && computedTotalPages >= 1 && (
         <div className="mt-2 flex shrink-0 justify-end">

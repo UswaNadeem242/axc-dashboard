@@ -7,13 +7,20 @@ import {
   PlusCircleIcon,
 } from "lucide-react";
 import CommonTable from "../src/common/table";
-import { AwbEntryheading, AwbEntry, initialData } from "../src/constant";
+import {
+  AwbEntryheading,
+  AwbEntry,
+  initialData,
+  awbFilterCategories,
+  awbFilterOptions,
+} from "../src/constant";
 import FilterSearch from "../src/common/filtersearch";
 import Button from "../src/common/button";
+import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
 
 export default function AwbEntriesPage() {
   const router = useRouter();
-  
+
   const [data, setData] = useState<AwbEntry[]>([]);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -22,10 +29,23 @@ export default function AwbEntriesPage() {
   const [filterType, setFilterType] = useState("");
   const [activeTags, setActiveTags] = useState<string[]>([]);
 
+  const [deleteTarget, setDeleteTarget] = useState<AwbEntry | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const handleSearchSubmit = (val: string) => {
     const trimmed = val.trim();
-    if (trimmed && !activeTags.includes(trimmed)) {
-      setActiveTags((prev) => [...prev, trimmed]);
+    if (!trimmed) return;
+
+    let tag = trimmed;
+    if (filterType) {
+      const opt = awbFilterOptions.find((o) => o.value === filterType);
+      if (opt && opt.value) {
+        tag = `${opt.label}: ${trimmed}`;
+      }
+    }
+
+    if (!activeTags.includes(tag)) {
+      setActiveTags((prev) => [...prev, tag]);
       setSearchQuery("");
     }
   };
@@ -60,10 +80,21 @@ export default function AwbEntriesPage() {
   }, [data]);
 
   const handleDelete = (row: AwbEntry) => {
-    if (confirm(`Are you sure you want to delete AWB ${row.awbNumber}?`)) {
-      setData((prev) => prev.filter((item) => item.awbNumber !== row.awbNumber));
-      setSelectedIds((prev) => prev.filter((id) => id !== row.awbNumber));
-    }
+    setDeleteTarget(row);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    setData((prev) => prev.filter((item) => item.awbNumber !== deleteTarget.awbNumber));
+    setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.awbNumber));
+    setIsDeleting(false);
+    setDeleteTarget(null);
+  };
+
+  const cancelDelete = () => {
+    if (isDeleting) return;
+    setDeleteTarget(null);
   };
 
   const handleTrack = (row: AwbEntry) => console.log("Track AWB", row.awbNumber);
@@ -75,23 +106,57 @@ export default function AwbEntriesPage() {
   const handleView = (row: AwbEntry) => router.push(`/create-entries?edit=${row.awbNumber}`);
 
   const filteredData = data.filter((item) => {
-    const query = searchQuery.toLowerCase();
-    const matchesQuery =
-      !query ||
-      (item.awbNumber || "").toLowerCase().includes(query) ||
-      (item.customer || "").toLowerCase().includes(query) ||
-      (item.forwardingNumber || "").toLowerCase().includes(query) ||
-      (item.consignee || "").toLowerCase().includes(query) ||
-      (item.shipper || "").toLowerCase().includes(query);
+    const query = searchQuery.trim().toLowerCase();
+
+    let matchesQuery = true;
+    if (query) {
+      if (filterType && filterType in item) {
+        matchesQuery = String((item as Record<string, any>)[filterType] ?? "")
+          .toLowerCase()
+          .includes(query);
+      } else {
+        matchesQuery =
+          (item.awbNumber || "").toLowerCase().includes(query) ||
+          (item.customer || "").toLowerCase().includes(query) ||
+          (item.forwardingNumber || "").toLowerCase().includes(query) ||
+          (item.consignee || "").toLowerCase().includes(query) ||
+          (item.shipper || "").toLowerCase().includes(query) ||
+          (item.origin || "").toLowerCase().includes(query) ||
+          (item.destination || "").toLowerCase().includes(query) ||
+          (item.product || "").toLowerCase().includes(query) ||
+          (item.service || "").toLowerCase().includes(query) ||
+          (item.vendor || "").toLowerCase().includes(query) ||
+          (item.masterCode || "").toLowerCase().includes(query) ||
+          (item.status || "").toLowerCase().includes(query);
+      }
+    }
 
     const matchesTags = activeTags.every((tag) => {
       const t = tag.toLowerCase();
+      if (t.includes(":")) {
+        const [fieldLabel, val] = t.split(":").map((s) => s.trim());
+        const matchedOption = awbFilterOptions.find(
+          (o) => o.label.toLowerCase() === fieldLabel
+        );
+        if (matchedOption && matchedOption.value in item) {
+          return String((item as Record<string, any>)[matchedOption.value] ?? "")
+            .toLowerCase()
+            .includes(val);
+        }
+      }
       return (
         (item.awbNumber || "").toLowerCase().includes(t) ||
         (item.customer || "").toLowerCase().includes(t) ||
         (item.forwardingNumber || "").toLowerCase().includes(t) ||
         (item.consignee || "").toLowerCase().includes(t) ||
-        (item.shipper || "").toLowerCase().includes(t)
+        (item.shipper || "").toLowerCase().includes(t) ||
+        (item.origin || "").toLowerCase().includes(t) ||
+        (item.destination || "").toLowerCase().includes(query) ||
+        (item.product || "").toLowerCase().includes(t) ||
+        (item.service || "").toLowerCase().includes(t) ||
+        (item.vendor || "").toLowerCase().includes(t) ||
+        (item.masterCode || "").toLowerCase().includes(t) ||
+        (item.status || "").toLowerCase().includes(t)
       );
     });
 
@@ -104,17 +169,13 @@ export default function AwbEntriesPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [searchQuery]);
+  }, [searchQuery, filterType, activeTags]);
 
   return (
     <div className="relative bg-white p-4 rounded-lg w-full flex-1 flex flex-col min-h-0  shadow-sm border border-axc-border  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4 shrink-0">
         <FilterSearch
-          options={[
-            { label: "Select", value: "" },
-            { label: "AWB Number", value: "awb" },
-            { label: "Customer", value: "customer" },
-          ]}
+          groups={awbFilterCategories}
           selectedOption={filterType}
           onOptionChange={setFilterType}
           searchValue={searchQuery}
@@ -162,11 +223,8 @@ export default function AwbEntriesPage() {
           headings={AwbEntryheading}
           data={filteredData}
           onEdit={handleEdit}
-          
-          
           onDelete={handleDelete}
           onView={handleView}
-          
           currentPage={page}
           totalPages={totalPages}
           onPageChange={(p) => setPage(p)}
@@ -177,7 +235,14 @@ export default function AwbEntriesPage() {
           onSelectionChange={setSelectedIds}
         />
       </div>
+
+      <DeleteConfirmationDialog
+        isOpen={!!deleteTarget}
+        itemName={deleteTarget?.awbNumber}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }
-

@@ -6,7 +6,7 @@ import { FileText, Printer, Trash2 } from "lucide-react";
 import SearchInput from "../src/common/search";
 import Dropdown from "../src/common/dropdown";
 import ToggleSwitch from "./toggleswitch";
-import DeleteConfirmationDialog from "./deleteConfirmation";
+import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
 import CommonTable from "../src/common/table";
 
 interface ActivityLog {

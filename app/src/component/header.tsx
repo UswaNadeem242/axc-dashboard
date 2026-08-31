@@ -91,7 +91,7 @@ export default function Header() {
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors group"
                 >
-                  <User size={18} className="text-[#A82338] shrink-0 stroke-[1.8]" />
+                  <User size={18} className="text-navy shrink-0 stroke-[1.8]" />
                   <span>My Profile</span>
                 </Link>
 
@@ -101,7 +101,7 @@ export default function Header() {
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors group"
                 >
-                  <Settings size={18} className="text-[#A82338] shrink-0 stroke-[1.8]" />
+                  <Settings size={18} className="text-navy shrink-0 stroke-[1.8]" />
                   <span>Settings</span>
                 </Link>
 
@@ -111,7 +111,7 @@ export default function Header() {
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors w-full cursor-pointer group"
                 >
-                  <LogOut size={18} className="text-[#A82338] shrink-0 stroke-[1.8]" />
+                  <LogOut size={18} className="text-navy shrink-0 stroke-[1.8]" />
                   <span>Logout</span>
                 </button>
               </div>

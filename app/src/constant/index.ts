@@ -1256,3 +1256,121 @@ export const analytics: Analytics[] = [
   { id: "A2", metric: "Bounce Rate", growth: "-1.2%", status: "Good" },
   { id: "A3", metric: "Active Users", growth: "+12%", status: "Excellent" }
 ];
+
+export interface FilterGroupOption {
+  group: string;
+  options: { label: string; value: string }[];
+}
+
+export const awbFilterCategories: FilterGroupOption[] = [
+  {
+    group: "AWB & Identification",
+    options: [
+      { label: "AWB Number", value: "awbNumber" },
+      { label: "AWB Range", value: "awbRange" },
+      { label: "Forwarding Number", value: "forwardingNumber" },
+      { label: "Forwarding Number 2", value: "forwardingNumber2" },
+      { label: "Reference Number", value: "referenceNumber" },
+      { label: "Reference Name", value: "referenceName" },
+      { label: "FedEx Reference Number", value: "fedexReference" },
+      { label: "USPS Number", value: "uspsNumber" },
+      { label: "Bag Number", value: "bagNumber" },
+      { label: "Run Number", value: "runNumber" },
+      { label: "Runsheet No", value: "runsheetNo" },
+      { label: "Parcel Number", value: "parcelNumber" },
+      { label: "ID", value: "id" },
+    ],
+  },
+  {
+    group: "Customer & Accounts",
+    options: [
+      { label: "Customer Code", value: "customerCode" },
+      { label: "Customer Name", value: "customer" },
+      { label: "Parent Customer Code", value: "parentCustomerCode" },
+      { label: "Customer Type", value: "customerType" },
+      { label: "Vendor Code", value: "vendorCode" },
+      { label: "Vendor Name", value: "vendor" },
+      { label: "Forwarder Code", value: "forwarderCode" },
+      { label: "Created By Email", value: "createdByEmail" },
+    ],
+  },
+  {
+    group: "Origin & Destination",
+    options: [
+      { label: "Origin Code", value: "originCode" },
+      { label: "Origin Hub Code", value: "originHubCode" },
+      { label: "Origin", value: "origin" },
+      { label: "Destination Code", value: "destinationCode" },
+      { label: "Destination City", value: "destinationCity" },
+      { label: "Destination Hub Code", value: "destinationHubCode" },
+      { label: "Destination", value: "destination" },
+    ],
+  },
+  {
+    group: "Shipper Details",
+    options: [
+      { label: "Shipper Code", value: "shipperCode" },
+      { label: "Shipper Name", value: "shipper" },
+      { label: "Shipper Company Name", value: "shipperCompanyName" },
+      { label: "Shipper City", value: "shipperCity" },
+      { label: "Shipper State", value: "shipperState" },
+      { label: "Shipper Contact", value: "shipperContact" },
+      { label: "Shipper Pincode", value: "shipperPincode" },
+    ],
+  },
+  {
+    group: "Consignee Details",
+    options: [
+      { label: "Consignee Code", value: "consigneeCode" },
+      { label: "Consignee Name", value: "consignee" },
+      { label: "Consignee Company Name", value: "consigneeCompanyName" },
+      { label: "Consignee Contact", value: "consigneeContact" },
+      { label: "Consignee State", value: "consigneeState" },
+      { label: "Consignee Pincode", value: "consigneePincode" },
+    ],
+  },
+  {
+    group: "Dates & Timelines",
+    options: [
+      { label: "Booking Date", value: "bookingDate" },
+      { label: "Booking Time", value: "bookingTime" },
+      { label: "Created Date", value: "createdDate" },
+      { label: "Inscan Date", value: "inscanDate" },
+      { label: "Inscan & Incoming Inscan Date", value: "incomingInscanDate" },
+      { label: "Manifest Date", value: "manifestDate" },
+      { label: "Invoice Date", value: "invoiceDate" },
+      { label: "Void Date", value: "voidDate" },
+    ],
+  },
+  {
+    group: "Shipment, Service & Status",
+    options: [
+      { label: "AWB State", value: "awbState" },
+      { label: "AWB Status", value: "status" },
+      { label: "Mode", value: "mode" },
+      { label: "Service Code", value: "serviceCode" },
+      { label: "Service Type", value: "serviceType" },
+      { label: "Shipment Type", value: "shipmentType" },
+      { label: "Dispatch Type", value: "dispatchType" },
+      { label: "Product Code", value: "productCode" },
+      { label: "Product", value: "product" },
+      { label: "Content", value: "content" },
+      { label: "Insurance Type", value: "insuranceType" },
+      { label: "Company", value: "company" },
+      { label: "Print By Company", value: "printByCompany" },
+      { label: "Calendar Year", value: "calendarYear" },
+      { label: "Invoice Created", value: "invoiceCreated" },
+      { label: "Invoice Number", value: "invoiceNumber" },
+      { label: "Weight Range", value: "weightRange" },
+      { label: "Freight Range", value: "freightRange" },
+      { label: "Remarks", value: "remarks" },
+      { label: "Instructions", value: "instructions" },
+      { label: "Show Un-Inscanned AWBs", value: "showUninscanned" },
+    ],
+  },
+];
+
+export const awbFilterOptions = [
+  { label: "Select", value: "" },
+  ...awbFilterCategories.flatMap((cat) => cat.options),
+];
