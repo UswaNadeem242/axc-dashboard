@@ -4,6 +4,12 @@ import React from "react";
 import { Plus, Trash } from "lucide-react";
 import { PanelHeader, inputClass, disabledInputClass } from "./formfield";
 import { ManifestBagRow } from "./state";
+import Dropdown from "@/app/src/common/dropdown";
+
+const TRACK_BY_OPTIONS = [
+  { value: "PARCEL NUMBER", label: "Parcel Number" },
+  { value: "AWB NUMBER", label: "AWB Number" },
+];
 
 interface BagDetailsProps {
   rows: ManifestBagRow[];
@@ -15,7 +21,7 @@ interface BagDetailsProps {
 
 export default function BagDetails({ rows, updateRow, addRow, removeRow, selectAll }: BagDetailsProps) {
   return (
-    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-visible flex flex-col">
       <PanelHeader
         title="Bag Details"
         right={
@@ -29,24 +35,24 @@ export default function BagDetails({ rows, updateRow, addRow, removeRow, selectA
         }
       />
 
-      <div className="flex flex-col gap-3 p-5 text-xs">
+      <div className="flex flex-col gap-3 p-4 text-xs">
         <div className="border border-axc-border rounded-lg overflow-x-auto">
           <table className="w-full text-[11px] border-collapse min-w-[1100px]">
             <thead>
-              <tr className="bg-gray-50 border-b border-axc-border text-regular-medium text-axc-dark-gray capitalize text-left">
-                <th className="py-2 px-2 border-r border-axc-border w-8"></th>
-                <th className="py-2 px-2 border-r border-axc-border">Bag No.</th>
-                <th className="py-2 px-2 border-r border-axc-border">EDI Bag No.</th>
-                <th className="py-2 px-2 border-r border-axc-border">Bag ID</th>
-                <th className="py-2 px-2 border-r border-axc-border">Track By</th>
-                <th className="py-2 px-2 border-r border-axc-border">AWB No.</th>
-                <th className="py-2 px-2 border-r border-axc-border">Forwarder No.</th>
-                <th className="py-2 px-2 border-r border-axc-border">Booking Date</th>
-                <th className="py-2 px-2 border-r border-axc-border">Weight</th>
-                <th className="py-2 px-2 border-r border-axc-border">Pcs.</th>
-                <th className="py-2 px-2 border-r border-axc-border">Destn.</th>
-                <th className="py-2 px-2 border-r border-axc-border">Service</th>
-                <th className="py-2 px-2 border-r border-axc-border">Duty</th>
+              <tr className="bg-axc-navy/10 border-b border-axc-border text-regular-medium text-axc-dark-gray capitalize text-left">
+                <th className="py-2 px-2  border-axc-border w-8"></th>
+                <th className="py-2 px-2  border-axc-border">Bag No.</th>
+                <th className="py-2 px-2  border-axc-border">EDI Bag No.</th>
+                <th className="py-2 px-2  border-axc-border">Bag ID</th>
+                <th className="py-2 px-2  border-axc-border">Track By</th>
+                <th className="py-2 px-2  border-axc-border">AWB No.</th>
+                <th className="py-2 px-2  border-axc-border">Forwarder No.</th>
+                <th className="py-2 px-2  border-axc-border">Booking Date</th>
+                <th className="py-2 px-2  border-axc-border">Weight</th>
+                <th className="py-2 px-2  border-axc-border">Pcs.</th>
+                <th className="py-2 px-2  border-axc-border">Destn.</th>
+                <th className="py-2 px-2  border-axc-border">Service</th>
+                <th className="py-2 px-2  border-axc-border">Duty</th>
                 <th className="py-2 px-2 text-center">Action</th>
               </tr>
             </thead>
@@ -85,15 +91,13 @@ export default function BagDetails({ rows, updateRow, addRow, removeRow, selectA
                   <td className="border-r border-axc-border p-1">
                     <input disabled value={row.bagId} className={`${disabledInputClass} py-2 text-center`} />
                   </td>
-                  <td className="border-r border-axc-border p-1">
-                    <select
+                  <td className="border-r border-axc-border p-1 min-w-[140px]">
+                    <Dropdown
                       value={row.trackBy}
-                      onChange={(e) => updateRow(row.id, "trackBy", e.target.value as ManifestBagRow["trackBy"])}
-                      className={`${inputClass} py-2`}
-                    >
-                      <option value="PARCEL NUMBER">Parcel Number</option>
-                      <option value="AWB NUMBER">AWB Number</option>
-                    </select>
+                      onChange={(val) => updateRow(row.id, "trackBy", val as ManifestBagRow["trackBy"])}
+                      options={TRACK_BY_OPTIONS}
+                      className="!py-1 !px-2 !text-xs !h-8"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1">
                     <input
