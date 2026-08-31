@@ -108,10 +108,18 @@ const CommonTable = ({
 
   return (
     <div className={`flex flex-col ${className}`}>
-      <div className="flex flex-col overflow-hidden rounded-lg border border-axc-border">
-        <CommonScroll orientation="horizontal" align="start" contentClassName="px-1" scrollbarThickness={6} maxThumbPercent={15}  showArrows={true}>
-          <table className="w-max min-w-full border-collapse text-left text-sm">
-            <thead>
+      <CommonScroll
+        orientation="horizontal"
+        align="start"
+        className="rounded-lg border border-axc-border p-1"
+        contentClassName=""
+        scrollbarThickness={6}
+        maxThumbPercent={15}
+        showArrows={true}
+        gap={8}
+      >
+        <table className="w-max min-w-full border-collapse text-left text-sm">
+          <thead>
               <tr className="bg-axc-navy text-white">
                 {selectable && (
                   <th className="w-10 bg-axc-navy rounded-l-sm px-4 py-3">
@@ -230,7 +238,6 @@ const CommonTable = ({
             </tbody>
           </table>
         </CommonScroll>
-      </div>
 
       {!hidePagination && computedTotalPages >= 1 && (
         <div className="mt-2 flex shrink-0 justify-end">

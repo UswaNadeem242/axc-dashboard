@@ -35,7 +35,7 @@ export default function DeleteConfirmationDialog({
   return (
     <>
       <div
-        className={`fixed inset-0 z-[100] transition-opacity duration-200 ${
+        className={`fixed inset-0 bg-black/50 z-[100] transition-opacity duration-200 ${
           visible ? "opacity-100" : "opacity-0"
         }`}
         onClick={onCancel}
@@ -47,11 +47,11 @@ export default function DeleteConfirmationDialog({
         }`}
       >
         <div
-          className="w-full max-w-[440px] overflow-hidden rounded-2xl bg-white "
+          className="w-full max-w-[500px] overflow-hidden rounded-2xl bg-white "
           onClick={(event) => event.stopPropagation()}
         >
-          <div className="flex items-center justify-between border-b border-axc-border px-6 py-5">
-            <h2 className="text-[18px] font-bold text-axc-dark-gray">Confirmation</h2>
+          <div className="flex items-center justify-between border-b border-axc-border px-8 py-6">
+            <h2 >Confirmation</h2>
 
             <button
               type="button"
@@ -62,16 +62,16 @@ export default function DeleteConfirmationDialog({
             </button>
           </div>
 
-          <div className="flex flex-col items-center px-6 py-9 text-center">
+          <div className="flex flex-col items-center px-8 py-16 text-center">
             <h2>Are you sure you want to delete?</h2>
           </div>
 
-          <div className="flex justify-center gap-4 px-6 pb-7">
+          <div className="flex justify-center gap-4 px-8 pb-8">
             <button
               type="button"
               onClick={onCancel}
               disabled={isLoading}
-              className="h-[42px] min-w-[110px] cursor-pointer rounded-xl bg-axc-dark-gray px-5 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="h-[42px] min-w-[110px] cursor-pointer rounded-lg bg-axc-gray px-5 text-regular-small text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               No
             </button>
@@ -80,7 +80,7 @@ export default function DeleteConfirmationDialog({
               type="button"
               onClick={onConfirm}
               disabled={isLoading}
-              className="flex h-[42px] min-w-[110px] cursor-pointer items-center justify-center gap-2 rounded-xl bg-axc-yellow px-5 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+              className="flex h-[42px] min-w-[110px] cursor-pointer items-center justify-center gap-2 rounded-lg bg-axc-red px-5 text-regular-small text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
             >
               {isLoading && (
                 <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" />
@@ -91,5 +91,6 @@ export default function DeleteConfirmationDialog({
         </div>
       </div>
     </>
+
   );
 }

@@ -15,6 +15,7 @@ interface CommonScrollProps {
   scrollbarWidth?: string | number;
   align?: "start" | "center" | "end";
   maxThumbPercent?: number;
+  gap?: number; 
 }
 
 export default function CommonScroll({
@@ -29,6 +30,7 @@ export default function CommonScroll({
   scrollbarWidth,
   align = "center",
   maxThumbPercent = 25,
+  gap = 12,
 }: CommonScrollProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollBack, setCanScrollBack] = useState(false);
@@ -36,7 +38,7 @@ export default function CommonScroll({
   const [thumb, setThumb] = useState({ size: 25, offset: 0 });
   const isHorizontal = orientation === "horizontal";
   const isFillHeight = !isHorizontal && height === "100%";
-  const THUMB_INSET = 2; // px gap so the thumb never touches the track's edges
+  const THUMB_INSET = 2; 
 
   const trackLength = isHorizontal
     ? typeof scrollbarWidth === "number"
@@ -127,13 +129,6 @@ export default function CommonScroll({
   const arrowButtonClasses =
     "flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-full text-axc-gray transition-colors hover:bg-axc-light-bg hover:text-axc-dark-gray disabled:cursor-not-allowed disabled:opacity-30 disabled:hover:bg-transparent";
 
-  // "align" is meant for fixed/short heights (e.g. "154px") where the track
-  // column may be shorter than the content and needs to sit at the top/
-  // middle/bottom of it. In fill-parent mode (height="100%") we instead
-  // force a stretch so the root wrapper AND the arrows/track column both
-  // get a real, definite height — otherwise the track's own height:100%
-  // has nothing to resolve against and silently collapses to 0, so it
-  // never renders.
   const alignClass = isFillHeight
     ? "items-stretch"
     : align === "start"
@@ -145,7 +140,6 @@ export default function CommonScroll({
 
   return (
     <div className={`flex ${isHorizontal ? "flex-col" : `flex-row ${alignClass}`} ${isFillHeight ? "h-full" : ""} ${className}`}>
-      {/* Scrollable content viewport — native scrollbar hidden, our custom track drives scrolling. */}
       <div
         ref={scrollRef}
         onScroll={updateScrollState}
@@ -158,14 +152,11 @@ export default function CommonScroll({
       >
         {children}
       </div>
-
-      {/* Track row/column: back-arrow — track — forward-arrow. items-center keeps the
-          track and the arrow icons visually centered on the same axis instead of
-          each sitting at its own left edge. */}
       <div
         className={`flex shrink-0 items-center ${
-          isHorizontal ? `mt-2 flex-row ${justifyClass}` : `ml-2 flex-col ${justifyClass}`
+          isHorizontal ? `flex-row ${justifyClass}` : `flex-col ${justifyClass}`
         } ${isFillHeight ? "h-full" : ""} gap-1`}
+        style={isHorizontal ? { marginTop: gap } : { marginLeft: gap }}
       >
         {showArrows &&
           (isHorizontal ? (
