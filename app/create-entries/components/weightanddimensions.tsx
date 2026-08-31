@@ -75,7 +75,7 @@ export default function WeightsAndDimensions({ form, setForm }: Props) {
                 <FieldLabel>Chargeable Weight</FieldLabel>
                 <input type="text" value={form.chargeableWeight} onChange={(e) => setForm({ ...form, chargeableWeight: e.target.value })} className={`${inputClass} bg-gray-50`} placeholder="Chargeable Weight" />
               </div>
-              <div className="flex flex-col gap-1">
+              <div className="flex flex-col gap-1 col-span-2">
                 <FieldLabel>CTN</FieldLabel>
                 <input type="text" value={form.parcelCtn} onChange={(e) => setForm({ ...form, parcelCtn: e.target.value })} className={inputClass} placeholder="CTN" />
               </div>

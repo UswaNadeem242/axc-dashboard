@@ -160,38 +160,82 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
           <textarea rows={4} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} className={`${inputClass} focus:outline-none border-axc-border border`} placeholder="Content here" />
         </div>
 
-        <div className="flex flex-col gap-1">
-          <FieldLabel>Contract ID</FieldLabel>
-          {/* <input type="text" value={form.contractId} onChange={(e) => setForm({ ...form, contractId: e.target.value })} className={inputClass} /> */}
-        </div>
-
-        <div className=" border border-axc-border rounded-lg overflow-hidden sm:col-span-2 xl:col-span-3">
-          <table className="w-full text-[10px] text-center border-collapse">
-            <thead>
-              <tr className="bg-axc-navy border-b border-axc-border">
-                <th className="py-3 border-r text-sm border-axc-border font-normal text-white"></th>
-                <th className="py-3 border-r text-sm border-axc-border font-normal text-white">Customer</th>
-                <th className="py-3 text-sm text-white font-normal">Vendor</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="border-b border-axc-border">
-                <td className="py-2.5 px-3 border-r text-regular-small text-axc-dark-gray border-axc-border bg-gray-50 text-left ">Rate Contract</td>
-                <td className="border-r border-axc-border"><input type="text" value={form.rateContractCustomer} onChange={(e) => setForm({ ...form, rateContractCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
-                <td><input type="text" value={form.rateContractVendor} onChange={(e) => setForm({ ...form, rateContractVendor: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
-              </tr>
-              <tr className="border-b border-axc-border">
-                <td className="py-2.5 px-3 border-r   border-axc-border bg-gray-50 text-left   text-regular-small text-axc-dark-gray">CFT Contract</td>
-                <td className="border-r border-axc-border"><input type="text" value={form.cftContractCustomer} onChange={(e) => setForm({ ...form, cftContractCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
-                <td><input type="text" value={form.cftContractVendor} onChange={(e) => setForm({ ...form, cftContractVendor: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
-              </tr>
-              <tr>
-                <td className="py-2.5 px-3 border-r  border-axc-border bg-gray-50 text-left   text-regular-small text-axc-dark-gray">TAT</td>
-                <td className="border-r border-axc-border"><input type="text" value={form.tatCustomer} onChange={(e) => setForm({ ...form, tatCustomer: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
-                <td><input type="text" value={form.tatVendor} onChange={(e) => setForm({ ...form, tatVendor: e.target.value })} className="w-full border-none focus:outline-none text-center py-0.5" /></td>
-              </tr>
-            </tbody>
-          </table>
+        <div className="flex flex-col  sm:col-span-2 xl:col-span-3 border border-axc-border rounded-md">
+          <PanelHeader title="Contract ID" />
+          <div className="p-4">
+            <div className="border border-axc-border rounded-lg overflow-hidden bg-white ">
+            <table className="w-full text-center border-collapse">
+              <thead>
+                <tr className="bg-axc-navy/10 border-b border-axc-border">
+                  <th className="w-1/3 py-3 border-r border-axc-border text-sm font-medium text-axc-dark-gray"></th>
+                  <th className="w-1/3 py-3 border-r border-axc-border text-sm font-medium text-axc-dark-gray">Customer</th>
+                  <th className="w-1/3 py-3 text-sm font-medium text-axc-dark-gray">Vendor</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-axc-border">
+                <tr>
+                  <td className="py-2.5 px-4 border-r border-axc-border text-regular-small text-axc-dark-gray text-left">Rate Contract</td>
+                  <td className="border-r border-axc-border px-2">
+                    <input
+                      type="text"
+                      value={form.rateContractCustomer}
+                      onChange={(e) => setForm({ ...form, rateContractCustomer: e.target.value })}
+                      className="w-full border-none focus:outline-none text-center py-1 text-regular-small bg-transparent"
+                    />
+                  </td>
+                  <td className="px-2">
+                    <input
+                      type="text"
+                      value={form.rateContractVendor}
+                      onChange={(e) => setForm({ ...form, rateContractVendor: e.target.value })}
+                      className="w-full border-none focus:outline-none text-center py-1 text-regular-small bg-transparent"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-2.5 px-4 border-r border-axc-border text-regular-small text-axc-dark-gray text-left">CFT Contract</td>
+                  <td className="border-r border-axc-border px-2">
+                    <input
+                      type="text"
+                      value={form.cftContractCustomer}
+                      onChange={(e) => setForm({ ...form, cftContractCustomer: e.target.value })}
+                      className="w-full border-none focus:outline-none text-center py-1 text-regular-small bg-transparent"
+                    />
+                  </td>
+                  <td className="px-2">
+                    <input
+                      type="text"
+                      value={form.cftContractVendor}
+                      onChange={(e) => setForm({ ...form, cftContractVendor: e.target.value })}
+                      className="w-full border-none focus:outline-none text-center py-1 text-regular-small bg-transparent"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className="py-2.5 px-4 border-r border-axc-border text-regular-small text-axc-dark-gray text-left">TAT</td>
+                  <td className="border-r border-axc-border px-2">
+                    <input
+                      type="text"
+                      value={form.tatCustomer}
+                      onChange={(e) => setForm({ ...form, tatCustomer: e.target.value })}
+                      className="w-full border-none focus:outline-none text-center py-1 text-regular-small bg-transparent"
+                    />
+                  </td>
+                  <td className="px-2">
+                    <input
+                      type="text"
+                      value={form.tatVendor}
+                      onChange={(e) => setForm({ ...form, tatVendor: e.target.value })}
+                      className="w-full border-none focus:outline-none text-center py-1 text-regular-small bg-transparent"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          </div>
+          
+          
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:col-span-2 xl:col-span-3 mt-2">
@@ -232,7 +276,7 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
               options={[
                 { value: "Shipper", label: "Shipper" },
                 { value: "Receiver", label: "Receiver" },
-               
+
               ]}
             />
           </div>

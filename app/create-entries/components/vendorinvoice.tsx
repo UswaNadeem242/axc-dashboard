@@ -29,7 +29,7 @@ function InvoiceRow({
         <div className="flex flex-col gap-1">
           <span className="text-regular-medium text-axc-dark-gray">{remarksLabel}</span>
           <input
-            placeholder={remarksPlaceholder}
+            placeholder={placeholder}
             value={remarksValue ?? ""}
             onChange={(e) => onRemarksChange?.(e.target.value)}
             className={`${inputClass} h-9 text-[12px]`}
