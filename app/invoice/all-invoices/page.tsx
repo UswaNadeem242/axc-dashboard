@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Mail, MessageCircle, FileText, FileSpreadsheet, Pencil, Trash2,  PlusCircle, PlusCircleIcon,} from "lucide-react";
+import { X, Mail, MessageCircle, FileText, FileSpreadsheet, Pencil, Trash2, PlusCircle, PlusCircleIcon, Eye } from "lucide-react";
 
 import CommonTable from "../../src/common/table";
 import { InvoiceHeading, InvoiceEntry, initialInvoiceData } from "../../src/constant";
 import FilterSearch from "../../src/common/filtersearch";
 import Button from "../../src/common/button";
 import { showToast } from "../../src/common/toast";
+import DeleteConfirmationDialog from "../../src/common/deleteConfirmation";
 
 export default function AllInvoicePage() {
   const [data, setData] = useState<InvoiceEntry[]>([]);
@@ -16,6 +17,8 @@ export default function AllInvoicePage() {
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
+  const [deleteTarget, setDeleteTarget] = useState<InvoiceEntry | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const itemsPerPage = 10;
 
@@ -56,18 +59,34 @@ export default function AllInvoicePage() {
     setActiveTags((prev) => prev.filter((tag) => tag !== tagToRemove));
   };
 
+  const handleView = (row: InvoiceEntry) => console.log("View Invoice:", row.invoiceNumber);
   const handleEmail = (row: InvoiceEntry) => console.log("Email Invoice:", row.invoiceNumber);
   const handleWhatsapp = (row: InvoiceEntry) => console.log("Whatsapp Invoice:", row.invoiceNumber);
   const handlePdf = (row: InvoiceEntry) => console.log("View Invoice PDF:", row.invoiceNumber);
   const handleExcel = (row: InvoiceEntry) => console.log("Export Invoice Excel:", row.invoiceNumber);
   const handleEdit = (row: InvoiceEntry) => console.log("Edit Invoice:", row.invoiceNumber);
 
+  // Opens the confirmation dialog instead of deleting immediately.
   const handleDelete = (row: InvoiceEntry) => {
-    const confirmed = confirm(`Are you sure you want to delete invoice ${row.invoiceNumber}?`);
-    if (!confirmed) return;
-    setData((prev) => prev.filter((item) => item.invoiceNumber !== row.invoiceNumber));
-    setSelectedIds((prev) => prev.filter((id) => id !== row.invoiceNumber));
+    setDeleteTarget(row);
+  };
+
+  const cancelDelete = () => {
+    if (isDeleting) return;
+    setDeleteTarget(null);
+  };
+
+  // Runs the actual delete once the user confirms in the dialog.
+  const confirmDelete = () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+
+    setData((prev) => prev.filter((item) => item.invoiceNumber !== deleteTarget.invoiceNumber));
+    setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.invoiceNumber));
     showToast({ variant: "success", message: "Invoice deleted." });
+
+    setIsDeleting(false);
+    setDeleteTarget(null);
   };
 
   const filteredData = data.filter((item) => {
@@ -175,40 +194,16 @@ export default function AllInvoicePage() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => handleEmail(row)}
-              className="inline-flex items-center justify-center rounded-md border border-axc-blue/30  p-1.5 text-axc-blue transition hover:bg-axc-blue/10"
-              title="Email"
-            >
-              <Mail size={16} />
-            </button>
-            <button
-              type="button"
-              onClick={() => handleWhatsapp(row)}
-              className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30  p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10"
-              title="Whatsapp"
-            >
-              <MessageCircle size={16} />
-            </button>
-            <button
-              type="button"
-              onClick={() => handlePdf(row)}
-              className="inline-flex items-center justify-center rounded-md border border-amber-600/30  p-1.5 text-amber-600 transition hover:bg-amber-600/10"
-              title="View PDF"
-            >
-              <FileText size={16} />
-            </button>
-            <button
-              type="button"
-              onClick={() => handleExcel(row)}
-              className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30  p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10"
-              title="Export Excel"
-            >
-              <FileSpreadsheet size={16} />
-            </button>
+              onClick={() => handleView(row)}
+              className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
+              title="View"
+              >
+             <Eye size={16} />
+             </button>
             <button
               type="button"
               onClick={() => handleEdit(row)}
-              className="inline-flex items-center justify-center rounded-md border border-axc-navy/30  p-1.5 text-axc-navy transition hover:bg-axc-navy/10"
+              className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30  p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10"
               title="Edit"
             >
               <Pencil size={16} />
@@ -223,6 +218,14 @@ export default function AllInvoicePage() {
             </button>
           </div>
         )}
+      />
+
+      <DeleteConfirmationDialog
+        isOpen={deleteTarget !== null}
+        itemName={deleteTarget?.invoiceNumber}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        isLoading={isDeleting}
       />
     </div>
   );

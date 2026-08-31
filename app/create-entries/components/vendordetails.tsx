@@ -51,7 +51,7 @@ export function VendorDetailsPanel({
   return (
     <div className="rounded-lg border border-axc-border bg-white shadow-sm overflow-hidden">
       <PanelHeader
-        title="VENDOR DETAILS"
+        title="Vendor Details"
         right={
           <label className="flex items-center gap-1.5 text-sm  font-semibold text-white">
             <input
@@ -77,9 +77,9 @@ export function VendorDetailsPanel({
 
         {/* Weight table — styled like Shipment Invoice Items */}
         <div className="mt-2">
-          <div className="bg-axc-navy text-white text-regular-medium rounded-tl-lg rounded-tr-lg  p-3 capitalize tracking-wide">
+          {/* <div className="bg-axc-navy text-white text-regular-medium rounded-tl-lg rounded-tr-lg  p-3 capitalize tracking-wide">
             Vendor Weight Details
-          </div>
+          </div> */}
           <div className="border border-axc-border border-t-0 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <table className="w-full text-xs border-collapse min-w-[750px]">
               <thead>
@@ -116,11 +116,9 @@ export function VendorDetailsPanel({
                       <button
                         type="button"
                         onClick={() => onRemoveWeightRow(row.id)}
-                        className=" cursor-pointer  inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
+                        className="cursor-pointer inline-flex items-center justify-center rounded-md border border-axc-red-dark/30 p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
                       >
                         <Trash size={14} />
-                        {/* <span className="inline-block w-3.5 h-3.5 rounded-full border border-axc-red text-center leading-3 font-extrabold text-[9px] shrink-0">x</span>
-                        REMOVE */}
                       </button>
                     </td>
                   </tr>
@@ -150,7 +148,7 @@ export function VendorDetailsPanel({
             <button
               type="button"
               onClick={onAddWeightRow}
-              className="px-3 py-2 bg-axc-dark-yellow  flex items-center justify-center gap-2 text-white rounded text-sm font-semibold shadow-sm transition uppercase cursor-pointer"
+              className="px-3 py-2 bg-axc-dark-yellow flex items-center justify-center gap-2 text-white rounded text-sm font-semibold shadow-sm transition uppercase cursor-pointer"
             >
               <Plus size={14} />
               ADD ROW

@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   X,
   PlusCircle,
@@ -9,8 +10,11 @@ import CommonTable from "../src/common/table";
 import { AwbEntryheading, AwbEntry, initialData } from "../src/constant";
 import FilterSearch from "../src/common/filtersearch";
 import Button from "../src/common/button";
+import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
 
 export default function AwbEntriesPage() {
+  const router = useRouter();
+
   const [data, setData] = useState<AwbEntry[]>([]);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -18,6 +22,9 @@ export default function AwbEntriesPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("");
   const [activeTags, setActiveTags] = useState<string[]>([]);
+
+  const [deleteTarget, setDeleteTarget] = useState<AwbEntry | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleSearchSubmit = (val: string) => {
     const trimmed = val.trim();
@@ -57,10 +64,21 @@ export default function AwbEntriesPage() {
   }, [data]);
 
   const handleDelete = (row: AwbEntry) => {
-    if (confirm(`Are you sure you want to delete AWB ${row.awbNumber}?`)) {
-      setData((prev) => prev.filter((item) => item.awbNumber !== row.awbNumber));
-      setSelectedIds((prev) => prev.filter((id) => id !== row.awbNumber));
-    }
+    setDeleteTarget(row);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    setData((prev) => prev.filter((item) => item.awbNumber !== deleteTarget.awbNumber));
+    setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.awbNumber));
+    setIsDeleting(false);
+    setDeleteTarget(null);
+  };
+
+  const cancelDelete = () => {
+    if (isDeleting) return;
+    setDeleteTarget(null);
   };
 
   const handleTrack = (row: AwbEntry) => console.log("Track AWB", row.awbNumber);
@@ -68,8 +86,8 @@ export default function AwbEntriesPage() {
   const handlePdf1 = (row: AwbEntry) => console.log("View PDF 1", row.awbNumber);
   const handlePdf2 = (row: AwbEntry) => console.log("View PDF 2", row.awbNumber);
   const handleInv = (row: AwbEntry) => console.log("View INV", row.awbNumber);
-  const handleEdit = (row: AwbEntry) => console.log("Edit AWB", row.awbNumber);
-  const handleView = (row: AwbEntry) => console.log("View AWB", row.awbNumber);
+  const handleEdit = (row: AwbEntry) => router.push(`/create-entries?edit=${row.awbNumber}`);
+  const handleView = (row: AwbEntry) => router.push(`/create-entries?edit=${row.awbNumber}`);
 
   const filteredData = data.filter((item) => {
     const query = searchQuery.toLowerCase();
@@ -159,7 +177,6 @@ export default function AwbEntriesPage() {
           headings={AwbEntryheading}
           data={filteredData}
           onEdit={handleEdit}
-          
           onDelete={handleDelete}
           onView={handleView}
           currentPage={page}
@@ -172,6 +189,14 @@ export default function AwbEntriesPage() {
           onSelectionChange={setSelectedIds}
         />
       </div>
+
+      <DeleteConfirmationDialog
+        isOpen={!!deleteTarget}
+        itemName={deleteTarget?.awbNumber}
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

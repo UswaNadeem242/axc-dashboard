@@ -1,8 +1,10 @@
 export interface ManifestFormState {
   manifestNo: string;
 
+  forwarderCode?: string;
   forwarder: string;
   editForwarder: boolean;
+  vendorCode?: string;
   vendor: string;
   editVendor: boolean;
 

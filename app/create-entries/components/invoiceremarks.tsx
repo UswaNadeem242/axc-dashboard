@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
 import { InvoiceRemarksFormState, RefundDetailsFormState } from "./formstate";
+import CustomDatePicker from "../../src/common/datepicker";
+import { PanelHeader } from "./form";
 
 const inputClass =
   "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full  text-regular-small  text-axc-gray  placeholder:text-axc-gray placeholder:text-regular-small   outline-none    transition";
-
-import { PanelHeader } from "./form";
 
 export function InvoiceRemarksPanel({
   remarks, onChange,
@@ -40,7 +40,7 @@ export function RefundDetailsPanel({
   refund, onChange,
 }: { refund: RefundDetailsFormState; onChange: (patch: Partial<RefundDetailsFormState>) => void }) {
   return (
-    <div className="rounded-lg border border-axc-border bg-white shadow-sm overflow-hidden">
+    <div className="rounded-lg border border-axc-border bg-white shadow-sm flex flex-col">
       <PanelHeader title="Refund Details" />
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
@@ -48,9 +48,13 @@ export function RefundDetailsPanel({
           <input value={refund.refundAmount} onChange={(e) => onChange({ refundAmount: e.target.value })} className={`${inputClass} h-9 text-[12px]`} placeholder="Refund Amount
 "/>
         </div>
-        <div>
+        <div className="relative z-20">
           <span className="block text-regular-medium text-axc-dark-gray  mb-1">Refund Date</span>
-          <input type="date" value={refund.refundDate} onChange={(e) => onChange({ refundDate: e.target.value })} className={`${inputClass} h-9 text-[12px]`} placeholder="00/00/0000" />
+          <CustomDatePicker
+            value={refund.refundDate}
+            onChange={(val) => onChange({ refundDate: val })}
+            placeholder="Select Refund Date"
+          />
         </div>
         <div>
           <span className="block text-regular-medium text-axc-dark-gray  mb-1">Refund Reason</span>

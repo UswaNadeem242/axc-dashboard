@@ -2,6 +2,8 @@
 import React from "react";
 import { PanelHeader, FieldLabel, FieldError, inputClass, errorInputClass } from "../formfield";
 import type { useBaggingForm } from "./baggingstate";
+import Dropdown from "@/app/src/common/dropdown";
+import CustomDatePicker from "@/app/src/common/datepicker";
 
 type BaggingFormState = ReturnType<typeof useBaggingForm>;
 type BaggingPanelProps = Omit<BaggingFormState, "awbDetails">;
@@ -17,7 +19,7 @@ function StatBox({ label, value }: { label: string; value: number | string }) {
 
 function TotalBox({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="  bg-axc-red rounded text-center py-1.5 flex-1">
+    <div className="bg-axc-red rounded text-center py-1.5 flex-1">
       <div className="text-regular-small text-white capitalize tracking-wide">{label}</div>
       <div className="text-regular-medium font-bold text-white">{value}</div>
     </div>
@@ -27,7 +29,7 @@ function TotalBox({ label, value }: { label: string; value: number | string }) {
 function TableCard({ title, children, action }: { title: string; children: React.ReactNode; action?: React.ReactNode }) {
   return (
     <div className="mt-2">
-      <div className="bg-axc-navy rounded-tl-lg rounded-tr-lg text-white text-sm font-bold px-3 py-2 tracking-wide">
+      <div className="bg-axc-navy rounded-tl-lg rounded-tr-lg text-white text-sm font-bold px-3 py-3 tracking-wide">
         {title}
       </div>
       <div className="border border-axc-border border-t-0 overflow-x-auto">{children}</div>
@@ -59,7 +61,7 @@ export default function BaggingPanel({
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="bg-white rounded-lg border border-axc-border shadow-sm flex flex-col overflow-hidden">
+      <div className="bg-white rounded-lg border border-axc-border shadow-sm flex flex-col">
         <PanelHeader title="Bagging" />
         <div className="p-4 flex flex-col gap-4">
           <div className="flex flex-col gap-1">
@@ -91,14 +93,14 @@ export default function BaggingPanel({
                 <button
                   type="button"
                   onClick={onSaveBag}
-                  className="px-5 py-3 bg-axc-navy text-white rounded-lg text-regular-small  capitalize cursor-pointer"
+                  className="px-3 py-2 bg-axc-navy text-white rounded-lg text-regular-small  uppercase cursor-pointer"
                 >
                   Save
                 </button>
                 <button
                   type="button"
                   onClick={onSaveBag}
-                  className="px-5 py-3 bg-axc-red text-white rounded-lg text-regular-small  capitalize cursor-pointer"
+                  className="px-3 py-2 bg-axc-red text-white rounded-lg text-regular-small  uppercase cursor-pointer"
                 >
                   Save &amp; Lock
                 </button>
@@ -135,17 +137,17 @@ export default function BaggingPanel({
                     />
                   </td>
                   {!form.parcelWiseBagging && (
-                    <td className="border-r border-axc-border p-1 align-top">
-                      <select
+                    <td className="border-r border-axc-border p-1 align-top min-w-[110px]">
+                      <Dropdown
                         value={bagRow.pcs}
-                        onChange={(e) => updateBagRow("pcs", e.target.value)}
-                        className={`${inputClass} text-center`}
-                      >
-                        <option value="">SELECT...</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                      </select>
+                        onChange={(val) => updateBagRow("pcs", val)}
+                        placeholder="SELECT..."
+                        options={[
+                          { value: "1", label: "1" },
+                          { value: "2", label: "2" },
+                          { value: "3", label: "3" },
+                        ]}
+                      />
                     </td>
                   )}
                   <td className="p-1 align-top">
@@ -169,7 +171,7 @@ export default function BaggingPanel({
                 <button
                   type="button"
                   onClick={handleSaveWeightBag}
-                  className="px-5 py-3 bg-axc-navy text-white rounded-lg text-regular-small capitalize cursor-pointer"
+                  className="px-3 py-2 bg-axc-navy text-white rounded-lg text-regular-small uppercase cursor-pointer"
                 >
                   Save
                 </button>
@@ -228,13 +230,12 @@ export default function BaggingPanel({
                 placeholder="Flight No."
               />
             </div>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1 relative z-20">
               <FieldLabel>Manifest Date</FieldLabel>
-              <input
-                type="date"
+              <CustomDatePicker
                 value={form.manifestDate}
-                onChange={(e) => updateField("manifestDate", e.target.value)}
-                className={inputClass}
+                onChange={(val) => updateField("manifestDate", val)}
+                placeholder="Select date"
               />
             </div>
             <div className="flex flex-col gap-1">
