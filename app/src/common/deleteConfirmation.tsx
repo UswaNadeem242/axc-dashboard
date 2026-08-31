@@ -35,7 +35,7 @@ export default function DeleteConfirmationDialog({
   return (
     <>
       <div
-        className={`fixed inset-0 z-[100] bg-black/50 backdrop-blur-[2px] transition-opacity duration-200 ${
+        className={`fixed inset-0 z-[100] transition-opacity duration-200 ${
           visible ? "opacity-100" : "opacity-0"
         }`}
         onClick={onCancel}
@@ -47,7 +47,7 @@ export default function DeleteConfirmationDialog({
         }`}
       >
         <div
-          className="w-full max-w-[440px] overflow-hidden rounded-2xl bg-white shadow-[0_20px_50px_-12px_rgba(0,0,0,0.3)]"
+          className="w-full max-w-[440px] overflow-hidden rounded-2xl bg-white "
           onClick={(event) => event.stopPropagation()}
         >
           <div className="flex items-center justify-between border-b border-axc-border px-6 py-5">
@@ -63,9 +63,7 @@ export default function DeleteConfirmationDialog({
           </div>
 
           <div className="flex flex-col items-center px-6 py-9 text-center">
-            <h2 >
-              Are you sure you want to delete?
-            </h2>
+            <h2>Are you sure you want to delete?</h2>
           </div>
 
           <div className="flex justify-center gap-4 px-6 pb-7">
