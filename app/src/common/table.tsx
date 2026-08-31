@@ -111,7 +111,7 @@ const CommonTable = ({
       <CommonScroll
         orientation="horizontal"
         align="start"
-        className="rounded-lg border border-axc-border p-1"
+        className="rounded-lg border border-axc-border"
         contentClassName=""
         scrollbarThickness={6}
         maxThumbPercent={15}
@@ -120,7 +120,7 @@ const CommonTable = ({
       >
         <table className="w-max min-w-full border-collapse text-left text-sm">
           <thead>
-              <tr className="bg-axc-navy text-white">
+              <tr className="bg-axc-navy/10 text-black">
                 {selectable && (
                   <th className="w-10 bg-axc-navy/10 rounded-l-sm px-4 py-3">
                     <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-3.5 w-3.5 accent-white" />
