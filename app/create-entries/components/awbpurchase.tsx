@@ -8,7 +8,7 @@ import {
   PurchaseBillingFormState, VendorDetailsFormState, VendorInvoiceFormState,
 } from "./formstate";
 
-export function AwbPurchaseBillingTab() {
+export function AwbPurchaseBillingTab({ isEdit }: { isEdit?: boolean }) {
   const {
     billing, setBilling,
     vendorDetails, setVendorDetails,
@@ -51,6 +51,7 @@ export function AwbPurchaseBillingTab() {
               onWeightRowChange={updateWeightRow}
               onAddWeightRow={addWeightRow}
               onRemoveWeightRow={removeWeightRow}
+              isEdit={isEdit}
             />
           </div>
         </div>
@@ -61,9 +62,9 @@ export function AwbPurchaseBillingTab() {
           type="button"
           onClick={handleSavePurchaseBilling}
           disabled={saving}
-          className="px-5 py-4 bg-axc-navy  cursor-pointer text-white rounded-lg text-xs font-bold transition shadow-sm disabled:opacity-60"
+          className="px-5 py-4 bg-axc-navy  cursor-pointer text-white rounded-lg text-regular-small  transition shadow-sm"
         >
-          {saving ? "SAVING..." : saved ? "SAVED" : "SAVE BILLING"}
+          {saving ? "SAVING..." : saved ? "SAVED" : "Save Billing"}
         </button>
       </div>
     </div>

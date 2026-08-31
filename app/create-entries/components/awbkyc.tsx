@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import CommonTable from "../../src/common/table";
-import { Upload } from "lucide-react";
+import { Upload, X, ExternalLink } from "lucide-react";
 
 interface KycField {
   key: string;
@@ -87,25 +86,13 @@ export const SHIPPER_MASTER_FIELDS: KycField[] = [
   { key: "voterIdCard", label: "VOTER ID CARD" },
 ];
 
-/* ------------------------------------------------------------------ */
-/*  Row shape fed into CommonTable                                     */
-/* ------------------------------------------------------------------ */
-
-interface KycTableRow {
-  key: string;
-  label: string;
-  docNumber: string;
-  name: string;
-  page1: File | null;
-  page2: File | null;
-  existingFiles?: KycExistingFiles;
-}
-
 function KycFileCell({
+  label = "Upload",
   file,
   existingFileUrl,
   onChange,
 }: {
+  label?: string;
   file: File | null;
   existingFileUrl?: string;
   onChange: (f: File | null) => void;
@@ -113,18 +100,33 @@ function KycFileCell({
   const inputRef = useRef<HTMLInputElement>(null);
 
   return (
-    <div className="flex flex-col gap-1.5 min-w-[160px]">
-      <div className="flex items-center gap-2 border border-axc-border rounded-md px-2 py-1.5 bg-white">
+    <div className="flex flex-col gap-1 flex-1 min-w-0">
+      <div className="flex items-center gap-1.5 border border-axc-border rounded-md px-2 py-1.5 bg-white shadow-2xs  transition">
         <button
           type="button"
           onClick={() => inputRef.current?.click()}
-          className="shrink-0 border border-axc-border bg-axc-light-bg hover:bg-axc-border/30 text-axc-dark-gray text-regular-medium cursor-pointer px-3 py-1.5 rounded-md transition"
+          className="shrink-0 flex items-center gap-1 border border-axc-border bg-axc-light-bg hover:bg-axc-border/40 text-axc-dark-gray text-regular-small cursor-pointer px-2.5 py-1 rounded transition"
+          title={`Upload ${label}`}
         >
-          <Upload size={14} />
+          <Upload size={13} />
+          <span className="text-[11px] font-semibold">{label}</span>
         </button>
-        <span className="text-[11px] text-axc-gray truncate">
+        <span
+          className="text-[11px] text-axc-gray truncate flex-1 min-w-0"
+          title={file ? file.name : "No file chosen"}
+        >
           {file ? file.name : "No file chosen"}
         </span>
+        {file && (
+          <button
+            type="button"
+            onClick={() => onChange(null)}
+            className="text-gray-400 hover:text-red-500 cursor-pointer p-0.5"
+            title="Remove file"
+          >
+            <X size={13} />
+          </button>
+        )}
         <input
           ref={inputRef}
           type="file"
@@ -137,9 +139,10 @@ function KycFileCell({
           href={existingFileUrl}
           target="_blank"
           rel="noreferrer"
-          className="self-start bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-3 py-1 rounded-md transition"
+          className="self-start inline-flex items-center gap-1 bg-red-600 hover:bg-red-700 text-white text-[10px] font-bold px-2.5 py-0.5 rounded transition"
         >
-          View File
+          <ExternalLink size={10} />
+          View File ({label})
         </a>
       )}
     </div>
@@ -161,95 +164,101 @@ function KycSection({
   existingFiles?: Record<string, KycExistingFiles>;
   onRowChange: (key: string, patch: Partial<KycRowData>) => void;
 }) {
-  const tableData: KycTableRow[] = fields.map((f) => {
-    const row = values[f.key] ?? EMPTY_ROW;
-    return {
-      key: f.key,
-      label: f.label,
-      docNumber: row.docNumber,
-      name: row.name,
-      page1: row.page1,
-      page2: row.page2,
-      existingFiles: existingFiles?.[f.key],
-    };
-  });
-
-  const headings = [
-    {
-      label: "DOCUMENT TYPE",
-      key: "label",
-      render: (row: KycTableRow) => (
-        <span className="text-regular-medium text-axc-dark-gray font-semibold">{row.label}</span>
-      ),
-    },
-    {
-      label: "DOCUMENT NUMBER",
-      key: "docNumber",
-      render: (row: KycTableRow) => (
-        <input
-          type="text"
-          value={row.docNumber}
-          onChange={(e) => onRowChange(row.key, { docNumber: e.target.value })}
-          className="w-full min-w-[130px] border border-axc-border rounded-md px-2 py-1.5 text-[12px] bg-white focus:outline-none focus:ring-1 focus:ring-axc-navy"
-        />
-      ),
-    },
-    {
-      label: "NAME AS PER DOCUMENT",
-      key: "name",
-      render: (row: KycTableRow) => (
-        <input
-          type="text"
-          value={row.name}
-          onChange={(e) => onRowChange(row.key, { name: e.target.value })}
-          className="w-full min-w-[130px] border border-axc-border rounded-md px-2 py-1.5 text-[12px] bg-white focus:outline-none focus:ring-1 focus:ring-axc-navy"
-        />
-      ),
-    },
-    {
-      label: "UPLOAD PAGE 1",
-      key: "page1",
-      render: (row: KycTableRow) => (
-        <KycFileCell
-          file={row.page1}
-          existingFileUrl={row.existingFiles?.page1}
-          onChange={(f) => onRowChange(row.key, { page1: f })}
-        />
-      ),
-    },
-    {
-      label: "UPLOAD PAGE 2",
-      key: "page2",
-      render: (row: KycTableRow) => (
-        <KycFileCell
-          file={row.page2}
-          existingFileUrl={row.existingFiles?.page2}
-          onChange={(f) => onRowChange(row.key, { page2: f })}
-        />
-      ),
-    },
-  ];
-
   return (
-    <div className="w-full flex flex-col gap-3">
-      <div className="flex items-center gap-2 flex-wrap">
-        <h2 className="text-regular-bold text-axc-dark-gray uppercase tracking-wide">
-          {title}
-        </h2>
-        {subtitle && (
-          <span className="text-regular-medium text-red-600 font-semibold uppercase">
-            {subtitle}
-          </span>
-        )}
+    <div className="w-full bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
+      {/* Section Header */}
+      <div className="bg-axc-navy/60 border-b border-axc-border px-4 py-5 white  flex items-center justify-between flex-wrap gap-
+        text-white p-4  rounded-tl-lg  rounded-tr-lg   gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <h2 className="text-regular-bold text-white capitalize tracking-wide">
+            {title}
+          </h2>
+          {subtitle && (
+            <span className="text-regular-small text-red-600 font-semibold uppercase">
+              {subtitle}
+            </span>
+          )}
+        </div>
+        <span className="text-[12px] text-axc-gray font-medium">
+          {fields.length} Documents
+        </span>
       </div>
-      <div>
-        <CommonTable
-          headings={headings}
-          data={tableData}
-          rowKey="key"
-          hidePagination={true}
-          itemsPerPage={fields.length}
-        />
+
+      {/* Document Items List */}
+      <div className="p-4 flex flex-col gap-3">
+        {fields.map((field) => {
+          const row = values[field.key] ?? EMPTY_ROW;
+          const existing = existingFiles?.[field.key];
+          const hasData = Boolean(row.docNumber || row.name || row.page1 || row.page2 || existing?.page1 || existing?.page2);
+
+          return (
+            <div
+              key={field.key}
+              className={`rounded-lg border p-3.5 flex flex-col gap-2.5 transition duration-150 ${hasData
+                  ? "border-axc-navy/40 bg-axc-navy/5 shadow-xs"
+                  : "border-axc-border bg-white "
+                }`}
+            >
+              {/* Top Label */}
+              <div className="flex items-center justify-between">
+                <span className="text-regular-medium font-bold text-axc-dark-gray tracking-wide">
+                  {field.label}
+                </span>
+                {hasData && (
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 border border-emerald-300">
+                    Filled
+                  </span>
+                )}
+              </div>
+
+              {/* 3 Columns under the label */}
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+                {/* Column 1: Document Number */}
+                <div className="md:col-span-3 flex flex-col gap-1">
+                  <label className="text-regular-medium text-axc-dark-gray  tracking-wider">
+                    Document Number
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter Document Number"
+                    value={row.docNumber}
+                    onChange={(e) => onRowChange(field.key, { docNumber: e.target.value })}
+                    className="w-full border border-axc-border rounded-md px-3 py-1.5 text-regular-small bg-white focus:outline-none focus:ring-1 focus:ring-axc-navy placeholder:text-gray-400"
+                  />
+                </div>
+
+                {/* Column 2: Name as per Document */}
+                <div className="md:col-span-3 flex flex-col gap-1">
+                  <label className="text-regular-medium text-axc-dark-gray  tracking-wider">
+                    Name As Per Document
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Enter Name As Per Document"
+                    value={row.name}
+                    onChange={(e) => onRowChange(field.key, { name: e.target.value })}
+                    className="w-full border border-axc-border rounded-md px-3 py-1.5 text-regular-small bg-white focus:outline-none focus:ring-1 focus:ring-axc-navy placeholder:text-gray-400"
+                  />
+                </div>
+
+                {/* Column 3: Upload Files */}
+                <div className="md:col-span-6 flex flex-col gap-1">
+                  <label className="text-regular-medium text-axc-dark-gray tracking-wider">
+                    Upload File
+                  </label>
+                  <div className="w-full">
+                    <KycFileCell
+                      label="Upload"
+                      file={row.page1}
+                      existingFileUrl={existing?.page1}
+                      onChange={(f) => onRowChange(field.key, { page1: f })}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -260,7 +269,7 @@ function SaveKycButton({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="bg-axc-navy hover:bg-axc-navy/80 text-white text-regular-medium capitalize px-5 py-4 rounded-lg transition shadow-sm shrink-0 cursor-pointer"
+      className="bg-axc-navy hover:bg-axc-navy/80 text-white text-regular-medium capitalize px-6 py-3 rounded-lg transition shadow-sm shrink-0 cursor-pointer font-semibold"
     >
       Save KYC
     </button>
@@ -296,7 +305,7 @@ export function AwbKycTab({
   };
 
   return (
-    <div className="w-full flex flex-col gap-8">
+    <div className="w-full flex flex-col gap-6">
       {/* Section 1: Customer */}
       <KycSection
         title="I. CUSTOMER"
@@ -327,7 +336,7 @@ export function AwbKycTab({
         onRowChange={updateShipperMaster}
       />
 
-      <div className="flex justify-end">
+      <div className="flex justify-end pt-2 pb-4">
         <SaveKycButton onClick={handleSave} />
       </div>
     </div>

@@ -11,6 +11,7 @@ import {
   X,
   FileText,
   FileSpreadsheet,
+  Sparkles,
 } from "lucide-react";
 import { PanelHeader } from "./form";
 
@@ -56,6 +57,37 @@ function formatBytes(bytes: number, decimals = 1): string {
   const sizes = ["B", "KB", "MB", "GB"];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
+}
+
+export function createSamplePdfFile(name: string, sizeMultiplier = 1): File {
+  const pdfHeader = `%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> >> >> /MediaBox [0 0 612 792] /Contents 4 0 R >>\nendobj\n4 0 obj\n<< /Length 140 >>\nstream\nBT /F1 18 Tf 50 720 Td (${name}) Tj ET\nBT /F1 12 Tf 50 690 Td (Sample AWB Attached Document - AXC Logistics Dashboard) Tj ET\nendstream\nendobj\nxref\n0 5\n0000000000 65535 f \n0000000010 00000 n \n0000000060 00000 n \n0000000117 00000 n \n0000000281 00000 n \ntrailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n450\n%%EOF\n` + " ".repeat(sizeMultiplier * 1024 * 35);
+  const blob = new Blob([pdfHeader], { type: "application/pdf" });
+  return new File([blob], name, { type: "application/pdf" });
+}
+
+export function createSampleExcelFile(name: string, sizeMultiplier = 1): File {
+  const csvContent = "AWB No,Shipper,Consignee,Pieces,Weight (KG),Status\nAXC-10029,Alpha Traders,Gulf Logistics,4,28.5,In Transit\nAXC-10030,Apex Global,FastForward LLC,12,145.0,Delivered\n" + "X".repeat(sizeMultiplier * 1024 * 20);
+  const blob = new Blob([csvContent], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  return new File([blob], name, {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+}
+
+export function getDefaultSampleAttachments(): Record<string, File> {
+  return {
+    ewayBillCopy: createSamplePdfFile("Eway_Declaration_Bill_Copy.pdf", 3),
+    shippingBill: createSamplePdfFile("Shipping_Bill_AXC_2026.pdf", 4),
+    codInvoice: createSamplePdfFile("COD_Invoice_Receipt.pdf", 2),
+    packingList: createSamplePdfFile("Packing_List_Items.pdf", 2),
+    lut: createSamplePdfFile("LUT_Authorization_Certificate.pdf", 1),
+    dangerousGood: createSamplePdfFile("Dangerous_Goods_Declaration_DGD.pdf", 3),
+    excelManifest: createSampleExcelFile("Manifest_Shipment_Data.xlsx", 5),
+    invoiceCopy: createSamplePdfFile("Commercial_Invoice_Copy.pdf", 3),
+    customsDeclaration: createSamplePdfFile("Customs_Export_Declaration.pdf", 4),
+    vendorBill: createSampleExcelFile("Vendor_Billing_Sheet_Q3.xlsx", 6),
+  };
 }
 
 function detectFileType(file: File): "pdf" | "excel" {
@@ -222,15 +254,14 @@ function AttachmentCard({
 
   return (
     <div
-      className={`relative bg-white rounded-xl border transition-all duration-200 flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md ${
-        error
+      className={`relative bg-white rounded-xl border transition-all duration-200 flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md ${error
           ? "border-red-400 ring-1 ring-red-300"
           : file
-          ? "border-gray-200"
-          : isDragging
-          ? "border-axc-navy ring-2 ring-axc-navy/20 bg-blue-50/20"
-          : "border-gray-200"
-      }`}
+            ? "border-gray-200"
+            : isDragging
+              ? "border-axc-navy ring-2 ring-axc-navy/20 bg-blue-50/20"
+              : "border-gray-200"
+        }`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -334,7 +365,7 @@ function AttachmentCard({
                 type="button"
                 onClick={handleDownload}
                 title="Download File"
-                className="w-6 h-6 rounded border border-red-300 bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center transition cursor-pointer"
+                className="w-6 h-6 rounded border border-red-300 bg-red-50 hover:bg-red-100 text-axc-red flex items-center justify-center transition cursor-pointer"
               >
                 <Download size={12} />
               </button>
@@ -346,7 +377,7 @@ function AttachmentCard({
                 type="button"
                 onClick={() => inputRef.current?.click()}
                 title="Replace File"
-                className="text-[10px] font-bold text-axc-navy hover:underline px-1 cursor-pointer"
+                className="text-regular-small text-axc-navy hover:underline px-1 cursor-pointer"
               >
                 Replace
               </button>
@@ -354,7 +385,7 @@ function AttachmentCard({
                 type="button"
                 onClick={onRemove}
                 title="Remove File"
-                className="w-6 h-6 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition cursor-pointer"
+                className="w-6 h-6 rounded text-axc-red hover:bg-red-50 flex items-center justify-center transition cursor-pointer"
               >
                 <Trash2 size={12} />
               </button>
@@ -468,7 +499,7 @@ export function AwbAttachmentsTab({
   showToast,
   onSave,
 }: AwbAttachmentsTabProps) {
-  const [files, setFiles] = useState<Record<string, File | null>>({});
+  const [files, setFiles] = useState<Record<string, File | null>>(() => getDefaultSampleAttachments());
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [activeFilter, setActiveFilter] = useState<"all" | "pdf" | "excel" | "uploaded">("all");
   const [previewFile, setPreviewFile] = useState<File | null>(null);
@@ -553,22 +584,20 @@ export function AwbAttachmentsTab({
           <button
             type="button"
             onClick={() => setActiveFilter("all")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${
-              activeFilter === "all"
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${activeFilter === "all"
                 ? "bg-axc-navy text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+              }`}
           >
             All Files ({fields.length})
           </button>
           <button
             type="button"
             onClick={() => setActiveFilter("pdf")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-              activeFilter === "pdf"
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${activeFilter === "pdf"
                 ? "bg-axc-navy text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+              }`}
           >
             <FileText size={13} />
             PDFs ({fields.filter((f) => f.kind === "pdf").length})
@@ -576,11 +605,10 @@ export function AwbAttachmentsTab({
           <button
             type="button"
             onClick={() => setActiveFilter("excel")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-              activeFilter === "excel"
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${activeFilter === "excel"
                 ? "bg-axc-navy text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+              }`}
           >
             <FileSpreadsheet size={13} />
             Excel Files ({fields.filter((f) => f.kind === "excel").length})
@@ -588,26 +616,40 @@ export function AwbAttachmentsTab({
           <button
             type="button"
             onClick={() => setActiveFilter("uploaded")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
-              activeFilter === "uploaded"
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${activeFilter === "uploaded"
                 ? "bg-axc-navy text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+              }`}
           >
             <CheckCircle2 size={13} />
             Uploaded ({totalUploadedCount})
           </button>
         </div>
 
-        {totalUploadedCount > 0 && (
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setFiles({})}
-            className="text-xs font-bold text-red-600 hover:underline cursor-pointer px-2"
+            onClick={() => {
+              setFiles(getDefaultSampleAttachments());
+              setErrors({});
+              showToast?.("Auto-filled attachments with PDF & Excel files!", "info");
+            }}
+            className="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer bg-axc-navy text-white hover:opacity-90 shadow-2xs"
+            title="Auto populate fields with sample PDF and Excel files"
           >
-            Clear All
+            <Sparkles size={13} />
+            Auto Fill Files
           </button>
-        )}
+          {totalUploadedCount > 0 && (
+            <button
+              type="button"
+              onClick={() => setFiles({})}
+              className="text-xs font-bold text-red-600 hover:underline cursor-pointer px-2"
+            >
+              Clear All
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Grid of Attachment Cards (Responsive 1-6 columns matching reference design) */}
@@ -626,11 +668,11 @@ export function AwbAttachmentsTab({
       </div>
 
       {/* Save Button */}
-      <div className="flex justify-end gap-3 bg-white p-4 rounded-xl border border-axc-border shadow-xs">
+      <div className="flex justify-end gap-3 bg-white">
         <button
           type="button"
           onClick={handleSave}
-          className="px-6 py-2.5 bg-axc-navy hover:bg-axc-navy/90 text-white rounded-lg text-xs font-bold uppercase transition shadow-sm cursor-pointer"
+          className="px-5 py-4 bg-axc-navy  cursor-pointer text-white rounded-lg text-regular-small transition shadow-sm"
         >
           Save Attachment
         </button>

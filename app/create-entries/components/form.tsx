@@ -37,14 +37,21 @@ export function FileUploadField({
 }) {
   const [fileName, setFileName] = useState("");
   return (
-    <label className="flex items-center gap-2 border border-axc-border rounded px-2 py-2.5 text-[11px] text-gray-500 bg-white cursor-pointer hover:bg-gray-50 transition">
-      <span className="px-2 py-1 bg-gray-100 rounded text-regular-small  text-gray-600 shrink-0"><Upload size={14} /></span>
-      <span className={`truncate ${fileName ? "text-gray-700 font-medium" : "text-gray-400"}`}>{fileName || placeholder}</span>
-      <input type="file" className="hidden" onChange={(e) => {
-        const f = e.target.files?.[0] || null;
-        setFileName(f ? f.name : "");
-        onFileChange?.(f);
-      }}
+    <label className="flex flex-col items-center justify-center gap-2 border border-axc-border text-center rounded px-2 py-5 text-regular-small text-gray-500 bg-white cursor-pointer hover:bg-gray-50 transition">
+      <span className="p-2 bg-gray-100 rounded text-regular-small text-gray-600 shrink-0">
+        <Upload size={20} />
+      </span>
+      <span className={`truncate max-w-full ${fileName ? "text-gray-700 font-medium" : "text-gray-400"}`}>
+        {fileName || placeholder}
+      </span>
+      <input
+        type="file"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0] || null;
+          setFileName(f ? f.name : "");
+          onFileChange?.(f);
+        }}
       />
     </label>
   );
@@ -71,7 +78,7 @@ export function EditIconButton({
 
 export function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
-    <div className="bg-axc-navy text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
+    <div className="bg-axc-navy/60 text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
       <h3>{toSentenceCase(title)}</h3>
       {right}
     </div>

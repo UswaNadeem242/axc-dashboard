@@ -2,6 +2,7 @@
 import React from "react";
 import { Trash2, Plus } from "lucide-react";
 import CommonTable from "../../../src/common/table";
+import Dropdown from "../../../src/common/dropdown";
 import { ManifestChargeRow } from "./state";
 
 interface ManifestBillingProps {
@@ -19,10 +20,10 @@ const inputClass =
   "w-full h-8 px-2 rounded-md border border-axc-border text-xs text-axc-dark-gray focus:outline-none focus:ring-1 focus:ring-axc-navy";
 
 const TYPE_OPTIONS = ["SALE", "PURCHASE"];
-const CO_LOADER_OPTIONS: string[] = [];
-const VENDOR_OPTIONS: string[] = [];
-const COMPANY_OPTIONS: string[] = [];
-const CHARGE_OPTIONS: string[] = [];
+const CO_LOADER_OPTIONS = ["CO-LOADER 1", "CO-LOADER 2", "CO-LOADER 3"];
+const VENDOR_OPTIONS = ["VENDOR 1", "VENDOR 2", "VENDOR 3"];
+const COMPANY_OPTIONS = ["COMPANY 1", "COMPANY 2", "COMPANY 3"];
+const CHARGE_OPTIONS = ["FREIGHT", "DOCUMENTATION", "CUSTOMS", "HANDLING", "INSURANCE", "OTHER"];
 
 export default function ManifestBilling({
   charges,
@@ -34,21 +35,26 @@ export default function ManifestBilling({
     row: ManifestChargeRow,
     field: keyof ManifestChargeRow,
     options: string[],
-    placeholder: string
-  ) => (
-    <select
-      className={inputClass}
-      value={row[field]}
-      onChange={(e) => updateCharge(row.id, field, e.target.value)}
-    >
-      <option value="">{placeholder}</option>
-      {options.map((option) => (
-        <option key={option} value={option}>
-          {option}
-        </option>
-      ))}
-    </select>
-  );
+    placeholder: string,
+    minWidth = "min-w-[140px]"
+  ) => {
+    const formattedOptions = options.map((opt) => ({
+      value: opt,
+      label: opt,
+    }));
+
+    return (
+      <div className={minWidth}>
+        <Dropdown
+          value={(row[field] as string) || ""}
+          onChange={(val) => updateCharge(row.id, field, val)}
+          options={formattedOptions}
+          placeholder={placeholder}
+          className="!py-1 !px-2 !text-xs !h-8"
+        />
+      </div>
+    );
+  };
 
   const textCell = (row: ManifestChargeRow, field: keyof ManifestChargeRow) => (
     <input
@@ -73,35 +79,35 @@ export default function ManifestBilling({
       key: "type",
       truncate: false,
       render: (row: ManifestChargeRow) =>
-        selectCell(row, "type", TYPE_OPTIONS, "SELECT..."),
+        selectCell(row, "type", TYPE_OPTIONS, "SELECT...", "min-w-[130px]"),
     },
     {
       label: "Co-Loader",
       key: "coLoader",
       truncate: false,
       render: (row: ManifestChargeRow) =>
-        selectCell(row, "coLoader", CO_LOADER_OPTIONS, "SELECT CO-LOADER..."),
+        selectCell(row, "coLoader", CO_LOADER_OPTIONS, "SELECT CO-LOADER...", "min-w-[170px]"),
     },
     {
       label: "Vendor",
       key: "vendor",
       truncate: false,
       render: (row: ManifestChargeRow) =>
-        selectCell(row, "vendor", VENDOR_OPTIONS, "SELECT VENDOR..."),
+        selectCell(row, "vendor", VENDOR_OPTIONS, "SELECT VENDOR...", "min-w-[160px]"),
     },
     {
       label: "Company",
       key: "company",
       truncate: false,
       render: (row: ManifestChargeRow) =>
-        selectCell(row, "company", COMPANY_OPTIONS, "SELECT..."),
+        selectCell(row, "company", COMPANY_OPTIONS, "SELECT...", "min-w-[140px]"),
     },
     {
       label: "Charge",
       key: "charge",
       truncate: false,
       render: (row: ManifestChargeRow) =>
-        selectCell(row, "charge", CHARGE_OPTIONS, "SELECT..."),
+        selectCell(row, "charge", CHARGE_OPTIONS, "SELECT...", "min-w-[140px]"),
     },
     { label: "Amount", key: "amount", truncate: false, render: (row: ManifestChargeRow) => textCell(row, "amount") },
     { label: "Remark", key: "remark", truncate: false, render: (row: ManifestChargeRow) => textareaCell(row, "remark") },
@@ -134,7 +140,7 @@ export default function ManifestBilling({
       <button
         type="button"
         onClick={addCharge}
-        className="self-end flex items-center gap-1.5 px-4 py-2 bg-axc-navy hover:opacity-90 text-white rounded-md text-xs font-bold transition cursor-pointer"
+        className="self-end flex items-center gap-1.5 px-5 py-4 bg-axc-navy hover:opacity-90 text-white rounded-md text-regular-small transition cursor-pointer"
       >
         <Plus size={14} />
         ADD CHARGE
