@@ -38,7 +38,7 @@ export default function ManifestInformation({
       <PanelHeader title="Manifest Information" />
       <div className="p-5 grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-4 items-start">
         {/* ================= COLUMN 1 ================= */}
-        <div className="flex flex-col gap-3 h-full">
+        <div className="flex flex-col gap-3">
           {/* 1. MANIFEST NO. */}
           <div className="flex flex-col gap-1">
             <FieldLabel>Manifest No.</FieldLabel>
@@ -50,42 +50,24 @@ export default function ManifestInformation({
             />
           </div>
 
-          {/* 2. FORWARDER */}
+          {/* 2. DATE */}
           <div className="flex flex-col gap-1">
-            <FieldLabel>Forwarder</FieldLabel>
-            <div className="flex gap-2">
-              <input
-                value={form.forwarderCode || ""}
-                onChange={(e) => updateField("forwarderCode", e.target.value)}
-                className={`${inputClass} w-2/5`}
-                placeholder="Forwarder"
-              />
-              <input
-                disabled
-                value={form.forwarder}
-                className={`${disabledInputClass} w-3/5`}
-                placeholder="Forwarder Name"
-              />
-            </div>
+            <FieldLabel>Date</FieldLabel>
+            <CustomDatePicker
+              value={form.date}
+              onChange={(val) => updateField("date", val)}
+              placeholder="Select date"
+            />
           </div>
 
-          {/* 3. VENDOR */}
+          {/* 3. TIME */}
           <div className="flex flex-col gap-1">
-            <FieldLabel>Vendor</FieldLabel>
-            <div className="flex gap-2">
-              <input
-                value={form.vendorCode || ""}
-                onChange={(e) => updateField("vendorCode", e.target.value)}
-                className={`${inputClass} w-2/5`}
-                placeholder="Vender"
-              />
-              <input
-                disabled
-                value={form.vendor}
-                className={`${disabledInputClass} w-3/5`}
-                placeholder="Vendor Name"
-              />
-            </div>
+            <FieldLabel>Time</FieldLabel>
+            <CustomTimePicker
+              value={form.time}
+              onChange={(val) => updateField("time", val)}
+              placeholder="Select time"
+            />
           </div>
 
           {/* 4. MASTER NO. */}
@@ -110,38 +92,56 @@ export default function ManifestInformation({
             />
           </div>
 
-          {/* 6. COMMENT */}
-          <div className="flex flex-col gap-1 flex-1 min-h-[140px]">
-            <FieldLabel>Comment</FieldLabel>
-            <textarea
-              value={form.comment}
-              onChange={(e) => updateField("comment", e.target.value)}
-              className={`${inputClass} flex-1 text-xs outline-none resize-none min-h-[120px]`}
-              placeholder="Comment here"
+          {/* 6. TOTAL ACTUAL WT */}
+          <div className="flex flex-col gap-1">
+            <FieldLabel>Total Actual Wt</FieldLabel>
+            <input
+              disabled
+              value={form.totalActualWt}
+              className={disabledInputClass}
+              placeholder="Total Actual Wt"
             />
           </div>
         </div>
 
         {/* ================= COLUMN 2 ================= */}
         <div className="flex flex-col gap-3">
-          {/* 1. DATE */}
+          {/* 1. FORWARDER */}
           <div className="flex flex-col gap-1">
-            <FieldLabel>Date</FieldLabel>
-            <CustomDatePicker
-              value={form.date}
-              onChange={(val) => updateField("date", val)}
-              placeholder="Select date"
-            />
+            <FieldLabel>Forwarder</FieldLabel>
+            <div className="flex gap-2">
+              <input
+                value={form.forwarderCode || ""}
+                onChange={(e) => updateField("forwarderCode", e.target.value)}
+                className={`${inputClass} w-2/5`}
+                placeholder="Forwarder"
+              />
+              <input
+                disabled
+                value={form.forwarder}
+                className={`${disabledInputClass} w-3/5`}
+                placeholder="Forwarder Name"
+              />
+            </div>
           </div>
 
-          {/* 2. TIME */}
+          {/* 2. VENDOR */}
           <div className="flex flex-col gap-1">
-            <FieldLabel>Time</FieldLabel>
-            <CustomTimePicker
-              value={form.time}
-              onChange={(val) => updateField("time", val)}
-              placeholder="Select time"
-            />
+            <FieldLabel>Vendor</FieldLabel>
+            <div className="flex gap-2">
+              <input
+                value={form.vendorCode || ""}
+                onChange={(e) => updateField("vendorCode", e.target.value)}
+                className={`${inputClass} w-2/5`}
+                placeholder="Vender"
+              />
+              <input
+                disabled
+                value={form.vendor}
+                className={`${disabledInputClass} w-3/5`}
+                placeholder="Vendor Name"
+              />
+            </div>
           </div>
 
           {/* 3. RUN NUMBER */}
@@ -214,23 +214,14 @@ export default function ManifestInformation({
             </div>
           </div>
 
-          {/* 6. ARRIVAL DATE */}
+          {/* 6. TOTAL VOLUMETRIC WT */}
           <div className="flex flex-col gap-1">
-            <FieldLabel>Arrival Date</FieldLabel>
-            <CustomDatePicker
-              value={form.arrivalDate}
-              onChange={(val) => updateField("arrivalDate", val)}
-              placeholder="Select arrival date"
-            />
-          </div>
-
-          {/* 7. ARRIVAL TIME */}
-          <div className="flex flex-col gap-1">
-            <FieldLabel>Arrival Time</FieldLabel>
-            <CustomTimePicker
-              value={form.arrivalTime}
-              onChange={(val) => updateField("arrivalTime", val)}
-              placeholder="Select arrival time"
+            <FieldLabel>Total Volumetric Wt</FieldLabel>
+            <input
+              disabled
+              value={form.totalVolumetricWt}
+              className={disabledInputClass}
+              placeholder="Total Volumetric Wt"
             />
           </div>
         </div>
@@ -278,7 +269,25 @@ export default function ManifestInformation({
             />
           </div>
 
+          {/* 4. ARRIVAL DATE */}
+          <div className="flex flex-col gap-1">
+            <FieldLabel>Arrival Date</FieldLabel>
+            <CustomDatePicker
+              value={form.arrivalDate}
+              onChange={(val) => updateField("arrivalDate", val)}
+              placeholder="Select arrival date"
+            />
+          </div>
 
+          {/* 5. ARRIVAL TIME */}
+          <div className="flex flex-col gap-1">
+            <FieldLabel>Arrival Time</FieldLabel>
+            <CustomTimePicker
+              value={form.arrivalTime}
+              onChange={(val) => updateField("arrivalTime", val)}
+              placeholder="Select arrival time"
+            />
+          </div>
 
           {/* 6. TOTAL CHARGEABLE WT */}
           <div className="flex flex-col gap-1">
@@ -290,43 +299,35 @@ export default function ManifestInformation({
               placeholder="Total Chargeable Wt"
             />
           </div>
+        </div>
 
-          {/* 7. EDI EXCEL FILE */}
-          <div className="flex flex-col gap-1">
+        {/* 7. EDI EXCEL FILE (Full Width) */}
+        <div className="col-span-1 lg:col-span-3 flex flex-col gap-1">
+          <div className="flex items-center gap-1.5">
             <FieldLabel>EDI Excel File</FieldLabel>
-            <FileUploadField />
-            <p className="text-[10px] text-axc-red font-bold mt-0.5 uppercase">
+            <span className="text-[10px] text-axc-red font-bold uppercase">
               (Upload excel file only)
-            </p>
+            </span>
           </div>
+          <FileUploadField />
+        </div>
 
-          {/* 8. MAWB IMAGE */}
-          <div className="flex flex-col gap-1">
-            <FieldLabel>MAWB Image</FieldLabel>
-            <FileUploadField multiple />
-          </div>
+        {/* 8. MAWB IMAGE (Full Width) */}
+        <div className="col-span-1 lg:col-span-3 flex flex-col gap-1">
+          <FieldLabel>MAWB Image</FieldLabel>
+          <FileUploadField multiple />
+        </div>
 
-          {/* 4. TOTAL ACTUAL WT */}
-          <div className="flex flex-col gap-1">
-            <FieldLabel>Total Actual Wt</FieldLabel>
-            <input
-              disabled
-              value={form.totalActualWt}
-              className={disabledInputClass}
-              placeholder="Total Actual Wt"
-            />
-          </div>
-
-          {/* 5. TOTAL VOLUMETRIC WT */}
-          <div className="flex flex-col gap-1">
-            <FieldLabel>Total Volumetric Wt</FieldLabel>
-            <input
-              disabled
-              value={form.totalVolumetricWt}
-              className={disabledInputClass}
-              placeholder="Total Volumetric Wt"
-            />
-          </div>
+        {/* COMMENT (Full Width) */}
+        <div className="col-span-1 lg:col-span-3 flex flex-col gap-1">
+          <FieldLabel>Comment</FieldLabel>
+          <textarea
+          rows={6}
+            value={form.comment}
+            onChange={(e) => updateField("comment", e.target.value)}
+            className={`${inputClass} w-full text-xs outline-none resize-none`}
+            placeholder="Comment here"
+          />
         </div>
       </div>
 
