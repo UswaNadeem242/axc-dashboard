@@ -48,8 +48,8 @@ export default function ConsigneeToForm({ form, setForm, errors, onReset, showTo
                   onClick={() => setForm({ ...form, consigneeUpdateAddressBook: !form.consigneeUpdateAddressBook })}
                   title={form.consigneeUpdateAddressBook ? "Address Book Update Enabled" : "Update Address Book"}
                   className={`flex items-center justify-center h-7 w-7 rounded transition cursor-pointer ${form.consigneeUpdateAddressBook
-                      ? "bg-axc-navy text-white shadow-sm"
-                      : "text-axc-gray hover:bg-gray-100 hover:text-axc-dark-gray"
+                    ? "bg-axc-navy text-white shadow-sm"
+                    : "text-axc-gray hover:bg-gray-100 hover:text-axc-dark-gray"
                     }`}
                 >
                   <ArrowUp size={14} />
@@ -69,17 +69,8 @@ export default function ConsigneeToForm({ form, setForm, errors, onReset, showTo
           <FieldError message={errors.consigneePersonName} />
         </div>
         <div className="flex flex-col gap-1">
-          <FieldLabel required>Address 1</FieldLabel>
-          <input type="text" value={form.consigneeAddress1} onChange={(e) => setForm({ ...form, consigneeAddress1: e.target.value })} className={errors.consigneeAddress1 ? errorInputClass : inputClass} placeholder="Address 1" />
-          <FieldError message={errors.consigneeAddress1} />
-        </div>
-        <div className="flex flex-col gap-1">
-          <FieldLabel>Address 2</FieldLabel>
-          <input type="text" value={form.consigneeAddress2} onChange={(e) => setForm({ ...form, consigneeAddress2: e.target.value })} className={inputClass} placeholder="Address 2" />
-        </div>
-        <div className="flex flex-col gap-1">
-          <FieldLabel>Address 3</FieldLabel>
-          <input type="text" value={form.consigneeAddress3} onChange={(e) => setForm({ ...form, consigneeAddress3: e.target.value })} className={inputClass} placeholder="Address 3" />
+          <FieldLabel>Email Address</FieldLabel>
+          <input type="email" value={form.consigneeEmail} onChange={(e) => setForm({ ...form, consigneeEmail: e.target.value })} className={inputClass} placeholder="Email Address" />
         </div>
         <div className="flex flex-col gap-1">
           <FieldLabel>Post / Zip Code</FieldLabel>
@@ -106,9 +97,19 @@ export default function ConsigneeToForm({ form, setForm, errors, onReset, showTo
           <FieldLabel>Phone Number</FieldLabel>
           <input type="text" value={form.consigneePhone} onChange={(e) => setForm({ ...form, consigneePhone: e.target.value })} className={inputClass} placeholder="Phone Number" />
         </div>
-        <div className="flex flex-col gap-1">
-          <FieldLabel>Email Address</FieldLabel>
-          <input type="email" value={form.consigneeEmail} onChange={(e) => setForm({ ...form, consigneeEmail: e.target.value })} className={inputClass} placeholder="Email Address" />
+
+        <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">
+          <FieldLabel required>Address 1</FieldLabel>
+          <input type="text" value={form.consigneeAddress1} onChange={(e) => setForm({ ...form, consigneeAddress1: e.target.value })} className={errors.consigneeAddress1 ? errorInputClass : inputClass} placeholder="Address 1" />
+          <FieldError message={errors.consigneeAddress1} />
+        </div>
+        <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">
+          <FieldLabel>Address 2</FieldLabel>
+          <input type="text" value={form.consigneeAddress2} onChange={(e) => setForm({ ...form, consigneeAddress2: e.target.value })} className={inputClass} placeholder="Address 2" />
+        </div>
+        <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">
+          <FieldLabel>Address 3</FieldLabel>
+          <input type="text" value={form.consigneeAddress3} onChange={(e) => setForm({ ...form, consigneeAddress3: e.target.value })} className={inputClass} placeholder="Address 3" />
         </div>
 
         <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">

@@ -9,7 +9,7 @@ const inputClass =
 
 function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
-    <div className="bg-axc-navy text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
+    <div className="bg-axc-navy/60 text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
       <h3> {title}</h3>
       {right}
     </div>
@@ -20,14 +20,14 @@ function Field({
   label, value, editable = true, onChange, placeholder,
 }: { label: string; value: string; editable?: boolean; onChange?: (v: string) => void; placeholder?: string }) {
   return (
-    <div className="flex items-center gap-2.5 w-full">
-      <span className="text-regular-medium text-axc-dark-gray w-[90px] shrink-0 leading-tight">{label}</span>
+    <div className="flex flex-col gap-1 w-full">
+      <span className="text-regular-medium text-axc-dark-gray">{label}</span>
       <input
         placeholder={placeholder}
         value={value}
         disabled={!editable}
         onChange={(e) => onChange?.(e.target.value)}
-        className={`${inputClass} h-9 text-[12px] flex-1 min-w-0 ${!editable ? "bg-gray-50" : ""}`}
+        className={`${inputClass} h-9 text-[12px] w-full ${!editable ? "bg-gray-50" : ""}`}
       />
     </div>
   );
@@ -84,14 +84,14 @@ export function VendorDetailsPanel({
           <div className="border border-axc-border rounded overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <table className="w-full text-xs border-collapse min-w-[750px]">
               <thead>
-                <tr className="bg-gray-50 border-b border-axc-border text-regular-medium text-axc-dark-gray font-bold uppercase text-left">
-                  <th className="py-2 px-2 border-r border-axc-border font-semibold">Actual Wt.(Kg.)</th>
-                  <th className="py-2 px-2 border-r border-axc-border font-semibold">L(cm)</th>
-                  <th className="py-2 px-2 border-r border-axc-border font-semibold">B(cm)</th>
-                  <th className="py-2 px-2 border-r border-axc-border font-semibold">H(cm)</th>
-                  <th className="py-2 px-2 border-r border-axc-border font-semibold">Volumetric Wt.(Kg.)</th>
-                  <th className="py-2 px-2 border-r border-axc-border font-semibold">Chargeable Wt.(Kg.)</th>
-                  <th className="py-2 px-2 font-bold text-center">Action</th>
+                <tr className="bg-axc-navy/10 border-b border-axc-border text-regular-medium text-axc-dark-gray font-bold uppercase text-left">
+                  <th className="py-4 px-2 border-r border-axc-border font-semibold">Actual Wt.(Kg.)</th>
+                  <th className="py-4 px-2 border-r border-axc-border font-semibold">L(cm)</th>
+                  <th className="py-4 px-2 border-r border-axc-border font-semibold">B(cm)</th>
+                  <th className="py-4 px-2 border-r border-axc-border font-semibold">H(cm)</th>
+                  <th className="py-4 px-2 border-r border-axc-border font-semibold">Volumetric Wt.(Kg.)</th>
+                  <th className="py-4 px-2 border-r border-axc-border font-semibold">Chargeable Wt.(Kg.)</th>
+                  <th className="py-4 px-2 font-bold text-center">Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -109,7 +109,7 @@ export function VendorDetailsPanel({
                         <input
                           value={row[field]}
                           onChange={(e) => onWeightRowChange(row.id, field, e.target.value)}
-                          className="w-full bg-white border border-axc-border rounded px-1.5 py-1 text-center focus:outline-none"
+                          className="w-full bg-white border border-axc-border rounded px-1.5 py-2 text-center focus:outline-none"
                         />
                       </td>
                     ))}
@@ -130,13 +130,13 @@ export function VendorDetailsPanel({
                     <td colSpan={3} className="py-2 px-2 border-r border-axc-border text-right font-bold text-gray-700">
                       <div className="flex items-center justify-end gap-2 text-regular-medium text-black">
                         <span> Total Actual WT</span>
-                        <input type="text" readOnly value={totalActualWt} className="w-20 border border-axc-border bg-gray-100 rounded px-1.5 py-0.5 text-center text-gray-600" />
+                        <input type="text" readOnly value={totalActualWt} className="w-20 border border-axc-border bg-gray-100 rounded px-1.5 py-2.5 text-center text-gray-600" />
                       </div>
                     </td>
                     <td colSpan={2} className="py-2 px-2 border-r border-axc-border text-right font-bold text-gray-700">
                       <div className="flex items-center justify-end gap-2 text-regular-medium text-black">
                         <span>Total Chargeable WT</span>
-                        <input type="text" readOnly value={totalChargeableWt} className="w-20 border border-axc-border bg-gray-100 rounded px-1.5 py-0.5 text-center font-bold text-gray-600" />
+                        <input type="text" readOnly value={totalChargeableWt} className="w-20 border border-axc-border bg-gray-100 rounded px-1.5 py-2.5 text-center font-bold text-gray-600" />
                       </div>
                     </td>
                     <td className="py-2 px-3"></td>
@@ -167,9 +167,9 @@ export function VendorDetailsPanel({
           <Field label="Contact ID" value={vendorDetails.vendorContractId} editable={editable} onChange={(v) => onChange({ vendorContractId: v })} placeholder="Contact ID" />
           <Field label="TAT" value={vendorDetails.tat} editable={editable} onChange={(v) => onChange({ tat: v })} placeholder="TAT" />
           <Field label="Volum Weight" value={vendorDetails.volumeWeight} editable={editable} onChange={(v) => onChange({ volumeWeight: v })} placeholder="Volum Weight" />
-          <div className="flex items-center gap-2.5 w-full">
-            <span className="text-regular-medium text-axc-dark-gray w-[90px] shrink-0 leading-tight">Chargerable Weight</span>
-            <input value={vendorDetails.chargeableWeight} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50 font-semibold flex-1 min-w-0`} placeholder="Chargerable Weight" />
+          <div className="flex flex-col gap-1 w-full">
+            <span className="text-regular-medium text-axc-dark-gray">Chargeable Weight</span>
+            <input value={vendorDetails.chargeableWeight} readOnly className={`${inputClass} h-9 text-[12px] bg-gray-50 font-semibold w-full`} placeholder="Chargeable Weight" />
           </div>
         </div>
       </div>

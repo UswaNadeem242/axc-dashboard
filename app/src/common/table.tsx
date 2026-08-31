@@ -113,9 +113,9 @@ const CommonTable = ({
         >
           <table className="w-max min-w-full border-collapse text-left text-sm">
             <thead>
-              <tr className="bg-axc-navy text-white">
+              <tr className="bg-axc-navy/10 text-black">
                 {selectable && (
-                  <th className="w-10 bg-axc-navy rounded-l-sm px-4 py-3">
+                  <th className="w-10 bg-axc-navy/10 rounded-l-sm px-4 py-3">
                     <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-3.5 w-3.5 accent-white" />
                   </th>
                 )}
@@ -123,7 +123,7 @@ const CommonTable = ({
                   <th
                     key={heading.key}
                     onClick={() => heading.sortable && onSort?.(heading.key)}
-                    className={`bg-axc-navy px-4 py-3  text-regular-semibold uppercase  whitespace-nowrap ${index === 0 && !selectable ? "rounded-l-sm" : ""} ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${heading.sortable ? "cursor-pointer select-none" : ""} `}
+                    className={`bg-axc-navy/10 px-4 py-3  text-regular-semibold capitalize  whitespace-nowrap ${index === 0 && !selectable ? "rounded-l-sm" : ""} ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${heading.sortable ? "cursor-pointer select-none" : ""} `}
                   >
                     <span className="inline-flex items-center gap-1">{heading.label}</span>
                   </th>
@@ -145,7 +145,7 @@ const CommonTable = ({
                 </tr>
               ) : (
                 paginatedData.map((row, index) => (
-                  <tr key={index} className="bg-white transition hover:bg-axc-light-bg">
+                  <tr key={index} className="bg-white transition">
                     {selectable && (
                       <td className="px-4 py-3">
                         <input
