@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Eye, Pencil, Plus, Shield, Trash2, Users, X } from "lucide-react";
 
 import PagesPermissionsModal, { PagePermission } from "./pagepermision";
-import DeleteConfirmationDialog from "./deleteConfirmation";
+import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
 
 interface Role {
   id: number;
