@@ -45,21 +45,7 @@ export function TrackingEventsPanel({
     return { date: "", time: dt };
   };
 
-  const parseDateTime = (dt?: string) => {
-    if (!dt) return { date: "", time: "" };
-    if (dt.includes("T")) {
-      const [d, t] = dt.split("T");
-      return { date: d || "", time: t ? t.slice(0, 5) : "" };
-    }
-    const parts = dt.trim().split(" ");
-    if (parts.length >= 2) {
-      return { date: parts[0] || "", time: parts.slice(1).join(" ") || "" };
-    }
-    if (dt.includes("-")) {
-      return { date: dt, time: "" };
-    }
-    return { date: "", time: dt };
-  };
+  
 
   const headings = [
     {

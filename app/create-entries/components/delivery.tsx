@@ -125,12 +125,9 @@ export function DeliveryPanel({
               onClick={onUpdateForwarding}
               disabled={updating}
               className="w-full h-9 bg-axc-navy hover:bg-axc-navy/80 text-white rounded-md text-xs font-bold transition disabled:opacity-60 cursor-pointer mt-1"
-              className="w-full h-9 bg-axc-navy hover:bg-axc-navy/80 text-white rounded-md text-xs font-bold transition disabled:opacity-60 cursor-pointer mt-1"
             >
               {updating ? "UPDATING..." : "UPDATE"}
             </button>
-          </div>
-        </div>
           </div>
         </div>
 
@@ -146,6 +143,7 @@ export function DeliveryPanel({
                 hidePagination={true}
                 itemsPerPage={deliverySummaryData.length}
                 showScroll={false}
+              
               />
             </div>
           </div>

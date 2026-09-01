@@ -130,21 +130,9 @@ function CreateEntriesContent() {
                 addInvoiceItem={addInvoiceItem}
                 removeInvoiceItem={removeInvoiceItem}
               />
-                </div>
-              </div>
 
-              <ShipmentInvoiceSection
-                form={form}
-                setForm={setForm}
-                invoiceItems={invoiceItems}
-                setInvoiceItems={setInvoiceItems}
-                addInvoiceItem={addInvoiceItem}
-                removeInvoiceItem={removeInvoiceItem}
-              />
               <div className="flex justify-end gap-3">
-                <button type="submit" disabled={loading} className="px-5 py-4 bg-axc-navy  cursor-pointer text-white rounded-lg text-regular-small transition shadow-sm ">
-                  {loading ? (isEditMode ? "Updating..." : "Saving...") : (isEditMode ? "Update AWB" : "Create AWB")}
-                <button type="submit" disabled={loading} className="px-5 py-4 bg-axc-navy  cursor-pointer text-white rounded-lg text-regular-small transition shadow-sm ">
+                <button type="submit" disabled={loading} className="px-5 py-4 bg-axc-navy cursor-pointer text-white rounded-lg text-regular-small transition shadow-sm">
                   {loading ? (isEditMode ? "Updating..." : "Saving...") : (isEditMode ? "Update AWB" : "Create AWB")}
                 </button>
                 {!isEditMode && (
@@ -160,7 +148,6 @@ function CreateEntriesContent() {
             <AwbSalesBillingTab form={form} setForm={setForm} errors={errors} />
           )}
 
-          {activeTab === "purchase-billing" && <AwbPurchaseBillingTab isEdit={isEdit} />}
           {activeTab === "purchase-billing" && <AwbPurchaseBillingTab isEdit={isEdit} />}
 
           {activeTab === "attachment" && (
