@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { X, PlusCircleIcon } from "lucide-react";
 
 import CommonTable from "../src/common/table";
@@ -11,6 +12,7 @@ import { showToast } from "../src/common/toast";
 import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
 
 export default function AllManifestPage() {
+  const router = useRouter();
   const [data, setData] = useState<ManifestEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("");
@@ -60,8 +62,13 @@ export default function AllManifestPage() {
     setActiveTags((prev) => prev.filter((tag) => tag !== tagToRemove));
   };
 
-  const handleEdit = (row: ManifestEntry) => console.log("Edit Manifest:", row.manifestNo);
-  const handleView = (row: ManifestEntry) => console.log("View Manifest:", row.manifestNo);
+  const handleEdit = (row: ManifestEntry) => {
+    router.push(`/manifest/edit-manifest?id=${row.manifestNo}`);
+  };
+
+  const handleView = (row: ManifestEntry) => {
+    router.push(`/manifest/edit-manifest?id=${row.manifestNo}`);
+  };
 
   const handleDelete = (row: ManifestEntry) => {
     setDeleteTarget(row);

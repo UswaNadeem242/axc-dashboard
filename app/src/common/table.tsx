@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import CommonPagination from "./pagination";
-import CommonScroll from "./commonscroll";
 
 interface Heading {
   label: string;
@@ -108,21 +107,13 @@ const CommonTable = ({
 
   return (
     <div className={`flex flex-col ${className}`}>
-      <CommonScroll
-        orientation="horizontal"
-        align="start"
-        className="rounded-lg border border-axc-border p-1"
-        contentClassName=""
-        scrollbarThickness={6}
-        maxThumbPercent={15}
-        showArrows={true}
-        gap={8}
-      >
-        <table className="w-max min-w-full border-collapse text-left text-sm">
-          <thead>
+      <div className="flex flex-col overflow-hidden rounded-lg border border-axc-border">
+        <div className="overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent  [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
+          <table className="w-max min-w-full border-collapse text-left text-sm">
+            <thead>
               <tr className="bg-axc-navy text-white">
                 {selectable && (
-                  <th className="w-10 bg-axc-navy rounded-l-sm px-4 py-3">
+                  <th className="w-10 bg-axc-navy/10 rounded-l-sm px-4 py-3">
                     <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-3.5 w-3.5 accent-white" />
                   </th>
                 )}
@@ -130,7 +121,7 @@ const CommonTable = ({
                   <th
                     key={heading.key}
                     onClick={() => heading.sortable && onSort?.(heading.key)}
-                    className={`bg-axc-navy px-4 py-3  text-regular-semibold uppercase  whitespace-nowrap ${index === 0 && !selectable ? "rounded-l-sm" : ""} ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${heading.sortable ? "cursor-pointer select-none" : ""} `}
+                    className={`bg-axc-navy/10 px-4 py-3  text-regular-semibold capitalize  whitespace-nowrap ${index === 0 && !selectable ? "rounded-l-sm" : ""} ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${heading.sortable ? "cursor-pointer select-none" : ""} `}
                   >
                     <span className="inline-flex items-center gap-1">{heading.label}</span>
                   </th>
@@ -152,7 +143,7 @@ const CommonTable = ({
                 </tr>
               ) : (
                 paginatedData.map((row, index) => (
-                  <tr key={index} className="bg-white transition hover:bg-axc-light-bg">
+                  <tr key={index} className="bg-white transition">
                     {selectable && (
                       <td className="px-4 py-3">
                         <input
@@ -237,7 +228,8 @@ const CommonTable = ({
               )}
             </tbody>
           </table>
-        </CommonScroll>
+        </div>
+      </div>
 
       {!hidePagination && computedTotalPages >= 1 && (
         <div className="mt-2 flex shrink-0 justify-end">

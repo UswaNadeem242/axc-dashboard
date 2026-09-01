@@ -8,7 +8,7 @@ const inputClass =
 
 function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
-    <div className="bg-axc-navy text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
+    <div className="bg-axc-navy/60 text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
       <h3>{title}</h3>
       {right}
     </div>
@@ -150,8 +150,8 @@ export function PurchaseBillingPanel({
       <div className="p-4 space-y-3">
         {/* Row 1: Company, Currency, and Vat Type (3 in one row) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3">
-          <div className="flex items-center gap-2.5 w-full">
-            <span className="text-regular-medium text-axc-dark-gray shrink-0 w-16 xl:w-20">Company</span>
+          <div className="flex flex-col gap-1 w-full">
+            <span className="text-regular-medium text-axc-dark-gray">Company</span>
             <select
               disabled
               value={billing.company}
@@ -165,8 +165,8 @@ export function PurchaseBillingPanel({
             </select>
           </div>
 
-          <div className="flex items-center gap-2.5 w-full">
-            <span className="text-regular-medium text-axc-dark-gray shrink-0 w-16 xl:w-20">Currency</span>
+          <div className="flex flex-col gap-1 w-full">
+            <span className="text-regular-medium text-axc-dark-gray">Currency</span>
             <select
               disabled
               value={billing.purchaseCurrency}
@@ -181,22 +181,20 @@ export function PurchaseBillingPanel({
             </select>
           </div>
 
-          <div className="flex items-center gap-2.5 w-full">
-            <span className="text-regular-medium text-axc-dark-gray shrink-0 w-16 xl:w-20">Vat Type</span>
+          <div className="flex flex-col gap-1 w-full">
+            <span className="text-regular-medium text-axc-dark-gray">Vat Type</span>
             <select
               disabled
               value={billing.vatType}
               onChange={(e) => onChange({ vatType: e.target.value })}
-              className={`${inputClass} h-9 text-[12px] bg-gray-50 cursor-not-allowed text-gray-500 flex-1 min-w-0`}
+              className={`${inputClass} h-9 text-[12px] bg-gray-50 cursor-not-allowed text-gray-500 w-full`}
             >
               <option value="GST">GST</option>
             </select>
-
-
           </div>
 
 
-          <div className="flex items-center gap-2.5 justify-between border border-axc-border px-3 py-1 rounded-md ">
+          <div className="flex items-center gap-2.5 justify-between border border-axc-border px-3 py-1 rounded-md sm:col-span-2 xl:col-span-3">
             <label className={`flex items-center gap-1.5 text-regular-medium ${!billing.editVat ? "text-gray-400 cursor-not-allowed" : billing.vatApplicable ? "text-axc-navy cursor-pointer" : "text-axc-dark-gray cursor-pointer"}`}>
               <input
                 type="checkbox"
@@ -226,11 +224,11 @@ export function PurchaseBillingPanel({
             editLabel="EDIT AMOUNT"
           />
           <div className="flex flex-col gap-1">
-            <span className="text-xs  font-semibold text-axc-dark-gray">Freight Per Kg</span>
+            <span className="text-regular-medium text-axc-dark-gray">Freight Per Kg</span>
             <input value={billing.freightPerKg} readOnly className={`${inputClass} h-9 text-sm bg-gray-50`} placeholder="Freight Per Kg" />
           </div>
           <div className="flex flex-col gap-1">
-            <span className="text-xs  font-semibold text-axc-dark-gray">Search Charge</span>
+            <span className="text-regular-medium text-axc-dark-gray">Search Charge</span>
             <input
               value={billing.searchCharge}
               onChange={(e) => onChange({ searchCharge: e.target.value })}
@@ -291,8 +289,8 @@ export function PurchaseBillingPanel({
           <BillingInputField label="VAT %" value={billing.vatPercent} onChange={(v) => onChange({ vatPercent: v })} placeholder="VAT %" />
         </div>
 
-        <div className="flex items-center gap-2 pt-1 border-t border-gray-100">
-          <span className="text-regular-bold w-[190px] shrink-0 text-axc-dark-gray">Grand Total</span>
+        <div className="flex flex-col gap-1 pt-5 border-t border-gray-100">
+          <span className="text-regular-bold text-axc-dark-gray">Grand Total</span>
           <div className="relative max-w-[300px] w-full">
             <input
               value={billing.editTotal ? billing.grandTotal : totals.grandTotal}

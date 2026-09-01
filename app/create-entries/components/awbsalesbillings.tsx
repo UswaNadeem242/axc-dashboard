@@ -80,9 +80,9 @@ export function AwbSalesBillingTab({
           type="button"
           onClick={handleSaveBilling}
           disabled={saving}
-          className="px-5 py-4 bg-axc-navy   text-white rounded-lg text-xs font-bold transition shadow-sm"
+          className="px-5 py-4 bg-axc-navy  cursor-pointer text-white rounded-lg text-regular-small  transition shadow-sm "
         >
-          {saving ? "Saving..." : saved ? "Save" : "Save Billing  "}
+          {saving ? "SAVING..." : saved ? "SAVED" : "Save Billing"}
         </button>
       </div>
     </div>

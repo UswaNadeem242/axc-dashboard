@@ -22,7 +22,7 @@ const inputClass =
 
 function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
-    <div className="bg-axc-navy text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
+    <div className="bg-axc-navy/50 text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
       <h3> {title}</h3>
       {right}
     </div>
@@ -281,8 +281,8 @@ export function SalesBillingPanel({
           <BillingSummaryField label="CGST" value={totals.cgst} placeholder="CGST" />
           <BillingSummaryField label="SGST" value={totals.sgst} placeholder="SGST" />
         </div>
-        <div className="flex items-center gap-2 pt-1 border-t border-gray-100">
-          <span className="text-regular-bold w-[190px] shrink-0 text-axc-dark-gray">Grand Total</span>
+        <div className="flex flex-col  gap-1 pt-5 border-t border-gray-100">
+          <span className="text-regular-bold text-axc-dark-gray">Grand Total</span>
           <div className="relative max-w-[300px] w-full">
             <input
               value={billing.editTotal ? billing.grandTotal : totals.grandTotal}

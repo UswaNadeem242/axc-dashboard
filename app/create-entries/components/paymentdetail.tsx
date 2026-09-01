@@ -9,7 +9,7 @@ const inputClass =
 
 function PanelHeader({ title }: { title: string }) {
   return (
-    <div className="bg-axc-navy text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
+    <div className="bg-axc-navy/60 text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
     <h3> {title}</h3> 
     </div>
   );

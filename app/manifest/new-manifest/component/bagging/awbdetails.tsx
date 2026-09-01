@@ -31,23 +31,25 @@ function DetailRow({ label, value }: { label: string; value?: string }) {
 
 export default function AwbDetailsPanel({ awbDetails }: { awbDetails: AwbDetails }) {
   return (
-    <div className="flex flex-col gap-4 xl:sticky xl:top-0">
+    <div className="flex flex-col gap-4">
       <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden">
         <PanelHeader title="AWB Details" />
-        <div>
-          <DetailRow label="Contents" value={awbDetails.contents} />
-          <DetailRow label="Comments" value={awbDetails.comments} />
-          <DetailRow label="Remarks" value={awbDetails.remarks} />
-          <DetailRow label="Vendor Name" value={awbDetails.vendorName} />
-          <DetailRow label="Service" value={awbDetails.service} />
-          <DetailRow label="Shipper Name" value={awbDetails.shipperName} />
-          <DetailRow label="Customer Name" value={awbDetails.customerName} />
-          <DetailRow label="Consignee Address" value={awbDetails.consigneeAddress} />
-          <DetailRow label="Total Value" value={awbDetails.totalValue} />
-          <DetailRow label="PCS" value={awbDetails.pcs} />
-          <DetailRow label="Box Weight" value={awbDetails.boxWeight} />
-          <DetailRow label="Consignee Name" value={awbDetails.consigneeName} />
-          <DetailRow label="Forwarding No" value={awbDetails.forwardingNo} />
+        <div className="p-4">
+          <div className="border border-axc-border rounded-lg overflow-hidden">
+            <DetailRow label="Contents" value={awbDetails.contents} />
+            <DetailRow label="Comments" value={awbDetails.comments} />
+            <DetailRow label="Remarks" value={awbDetails.remarks} />
+            <DetailRow label="Vendor Name" value={awbDetails.vendorName} />
+            <DetailRow label="Service" value={awbDetails.service} />
+            <DetailRow label="Shipper Name" value={awbDetails.shipperName} />
+            <DetailRow label="Customer Name" value={awbDetails.customerName} />
+            <DetailRow label="Consignee Address" value={awbDetails.consigneeAddress} />
+            <DetailRow label="Total Value" value={awbDetails.totalValue} />
+            <DetailRow label="PCS" value={awbDetails.pcs} />
+            <DetailRow label="Box Weight" value={awbDetails.boxWeight} />
+            <DetailRow label="Consignee Name" value={awbDetails.consigneeName} />
+            <DetailRow label="Forwarding No" value={awbDetails.forwardingNo} />
+          </div>
         </div>
       </div>
     </div>
