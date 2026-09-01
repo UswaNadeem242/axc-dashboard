@@ -27,7 +27,7 @@ export function TrackingEventsPanel({
   onRemoveEvent: (id: string) => void;
 }) {
   const inputClass =
-    "w-full h-8 px-2 rounded-md border border-axc-border text-xs text-axc-dark-gray focus:outline-none focus:ring-1 focus:ring-axc-navy disabled:bg-gray-50 disabled:text-gray-500";
+    "w-full h-8 px-2 rounded-md border border-axc-border text-xs text-axc-dark-gray focus:outline-none";
 
   const parseDateTime = (dt?: string) => {
     if (!dt) return { date: "", time: "" };
@@ -219,6 +219,7 @@ export function TrackingEventsPanel({
         itemsPerPage={10}
         emptyMessage="No tracking events added"
         hidePagination={true}
+        showScroll={false}
       />
 
       <button

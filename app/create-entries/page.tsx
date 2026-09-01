@@ -135,7 +135,7 @@ function CreateEntriesContent() {
                   {loading ? (isEditMode ? "Updating..." : "Saving...") : (isEditMode ? "Update AWB" : "Create AWB")}
                 </button>
                 {!isEditMode && (
-                  <button type="button" onClick={handleCreateAndPrint} className="px-5 py-4 bg-axc-dark-green hover:opacity-90 text-white rounded-lg text-regular-small transition shadow-sm cursor-pointer">
+                  <button type="button" onClick={handleCreateAndPrint} className="px-5 py-4 bg-axc-red hover:opacity-90 text-white rounded-lg text-regular-small transition shadow-sm cursor-pointer">
                     Create AWB and Print Label
                   </button>
                 )}

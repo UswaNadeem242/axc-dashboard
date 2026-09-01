@@ -93,11 +93,11 @@ export function DeliveryPanel({
 
   return (
     <div className="flex flex-col gap-6 w-full">
-      {/* Top Row: Forwarding Numbers (col-span-3) & Delivery Summary Table (col-span-9) */}
-      <div className="flex flex-col xl:grid xl:grid-cols-12 gap-6 items-stretch w-full">
+      {/* Grid Layout: Forwarding Numbers (col-span-3) & Delivery Content (col-span-9) */}
+      <div className="flex flex-col xl:grid xl:grid-cols-12 gap-6 items-start w-full">
         {/* Forwarding Numbers (col-span-3) */}
-        <div className="flex flex-col w-full xl:col-span-3 h-full">
-          <div className="bg-white rounded-lg border border-axc-border shadow-sm p-4 flex flex-col justify-between h-full gap-3">
+        <div className="flex flex-col w-full xl:col-span-3 xl:sticky xl:top-0 self-start">
+          <div className="bg-white rounded-lg border border-axc-border shadow-sm p-4 flex flex-col justify-between gap-3">
             <div className="flex flex-col gap-1">
               <label className="text-regular-medium text-axc-dark-gray capitalize">
                 Forwarding Number
@@ -131,9 +131,10 @@ export function DeliveryPanel({
           </div>
         </div>
 
-        {/* Second Table: Delivery Summary (col-span-9) */}
-        <div className="flex flex-col w-full xl:col-span-9 h-full">
-          <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
+        {/* Right Column: Delivery Summary, Delivery Form, and AWB Tracking (col-span-9) */}
+        <div className="flex flex-col gap-6 w-full xl:col-span-9">
+          {/* Second Table: Delivery Summary */}
+          <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
             <div className="p-4 flex-1 flex flex-col justify-center">
               <CommonTable
                 headings={deliverySummaryHeadings}
@@ -141,16 +142,15 @@ export function DeliveryPanel({
                 rowKey="label"
                 hidePagination={true}
                 itemsPerPage={deliverySummaryData.length}
+                showScroll={false}
               />
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Delivery Form (Full Width) */}
-      <div className="w-full">
-        <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
-          <PanelHeader title="Delivery" />
+          {/* Delivery Form */}
+          <div className="w-full">
+            <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
+              <PanelHeader title="Delivery" />
             <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-4 flex-1">
               <Field label="Expected Date">
                 <div className="relative">
@@ -379,16 +379,18 @@ export function DeliveryPanel({
           </div>
         </div>
 
-      {/* Tracking Events Panel */}
-      <div className="w-full">
-        <div className="bg-white rounded-xl border border-axc-border shadow-sm overflow-visible flex flex-col p-4">
-          <TrackingEventsPanel
-            awbTrackingNo={awbTrackingNo}
-            events={events}
-            onAddEvent={onAddEvent}
-            onUpdateEvent={onUpdateEvent}
-            onRemoveEvent={onRemoveEvent}
-          />
+          {/* Tracking Events Panel */}
+          <div className="w-full">
+            <div className="bg-white rounded-xl border border-axc-border shadow-sm overflow-visible flex flex-col p-4">
+              <TrackingEventsPanel
+                awbTrackingNo={awbTrackingNo}
+                events={events}
+                onAddEvent={onAddEvent}
+                onUpdateEvent={onUpdateEvent}
+                onRemoveEvent={onRemoveEvent}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

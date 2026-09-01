@@ -89,26 +89,26 @@ export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, se
           <div className="mt-2">
             <div className="bg-axc-navy/60 rounded-tl-lg rounded-tr-lg text-white text-regular-medium font-bold p-4  capitalize  tracking-wide">Shipment Invoice Items</div>
             <div className="border border-axc-border border-t-0 overflow-x-auto p-4">
-              <table className="w-full text-sm border-collapse min-w-[950px]">
+              <table className="w-full text-sm border-collapse min-w-[950px] border border-axc-border rounded-md p-4">
                 <thead>
-                  <tr className="bg-axc-navy/10 border-b border-axc-border text-regular-medium text-axc-dark-gray text-left ">
-                    <th className="py-2 px-2 border-r border-axc-border rounded-tl-md">Box#</th>
-                    <th className="py-2 px-2 border-r border-axc-border ">Sr#</th>
-                    <th className="py-2 px-2 border-r border-axc-border  w-1/5">Description</th>
-                    <th className="py-2 px-2 border-r border-axc-border ">HS Code</th>
-                    <th className="py-2 px-2 border-r border-axc-border ">Unit Type</th>
-                    <th className="py-2 px-2 border-r border-axc-border ">Quantity</th>
-                    <th className="py-2 px-2 border-r border-axc-border ">Unit Weight</th>
-                    <th className="py-2 px-2 border-r border-axc-border ">IGST</th>
-                    <th className="py-2 px-2 border-r border-axc-border ">Unit Rates</th>
-                    <th className="py-2 px-2 border-r border-axc-border rounded-tr-md">Amount</th>
-                    <th className="py-2 px-2  text-center rounded-tr-md">Action</th>
+                  <tr className="bg-axc-navy/10  text-regular-medium text-axc-dark-gray text-left whitespace-nowrap">
+                    <th className="py-2.5 px-3 border-r border-axc-border rounded-tl-md">Box#</th>
+                    <th className="py-2.5 px-2 border-r border-axc-border">Sr#</th>
+                    <th className="py-2.5 px-2 border-r border-axc-border w-1/5">Description</th>
+                    <th className="py-2.5 px-2 border-r border-axc-border">HS Code</th>
+                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap min-w-[110px]">Unit Type</th>
+                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Quantity</th>
+                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Unit Weight</th>
+                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">IGST</th>
+                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Unit Rates</th>
+                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Amount</th>
+                    <th className="py-2.5 px-2 text-center rounded-tr-md whitespace-nowrap">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {invoiceItems.map((item, idx) => (
                     <tr key={item.id} className="border-b border-axc-border last:border-b-0 hover:bg-gray-50/50">
-                      <td className="">
+                      <td className="p-1 pl-3 min-w-[100px]">
                         <CommonDropdown value={item.boxNo} onChange={(val) => { const updated = [...invoiceItems]; updated[idx].boxNo = val; setInvoiceItems(updated); }} className="w-full py-2 !px-1.5 border-axc-border" placeholder="Select..." options={[{ value: "1", label: "Box 1" }]} />
                       </td>
                       <td className="   text-center bg-gray-50 text-gray-600 font-medium">{item.srNo}</td>
@@ -116,13 +116,13 @@ export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, se
                         <input type="text" placeholder="SEARCH HERE..." value={item.description} onChange={(e) => { const updated = [...invoiceItems]; updated[idx].description = e.target.value; setInvoiceItems(updated); }} className="w-full bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none shadow-none" />
                       </td>
                       <td className="  p-1">
-                        <input type="text" value={item.hsCode} onChange={(e) => { const updated = [...invoiceItems]; updated[idx].hsCode = e.target.value; setInvoiceItems(updated); }} className="w-full bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none text-center" />
+                        <input type="text" value={item.hsCode} onChange={(e) => { const updated = [...invoiceItems]; updated[idx].hsCode = e.target.value; setInvoiceItems(updated); }} className="w-28 bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none text-center" />
                       </td>
-                      <td className="  p-1">
+                      <td className="  p-1 min-w-[110px]">
                         <CommonDropdown value={item.unitType} onChange={(val) => { const updated = [...invoiceItems]; updated[idx].unitType = val; setInvoiceItems(updated); }} className="w-full py-2 !px-1.5 border-axc-border" placeholder="Select..." options={[{ value: "PCS", label: "PCS" }, { value: "KGS", label: "KGS" }]} />
                       </td>
                       <td className=" p-1">
-                        <input type="number" value={item.quantity} onChange={(e) => { const updated = [...invoiceItems]; updated[idx].quantity = e.target.value; updated[idx].amount = String(Number(e.target.value) * Number(updated[idx].unitRates || 0)); setInvoiceItems(updated); }} className="w-full bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none text-center" />
+                        <input type="number" value={item.quantity} onChange={(e) => { const updated = [...invoiceItems]; updated[idx].quantity = e.target.value; updated[idx].amount = String(Number(e.target.value) * Number(updated[idx].unitRates || 0)); setInvoiceItems(updated); }} className="w-28 bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none text-center" />
                       </td>
                       <td className="  p-1">
                         <input type="text" value={item.unitWeight} onChange={(e) => { const updated = [...invoiceItems]; updated[idx].unitWeight = e.target.value; setInvoiceItems(updated); }} className="w-full bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none text-center" />
@@ -137,7 +137,7 @@ export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, se
                         <input type="text" readOnly value={item.amount} className="w-full bg-gray-50 border border-axc-border rounded px-1.5 py-2 text-center cursor-not-allowed text-axc-dark-gray font-medium" />
                       </td>
                       <td className="p-1 text-center">
-                        <button type="button" onClick={() => removeInvoiceItem(item.id)}  className="inline-flex items-center justify-center rounded-md border border-axc-red/30  p-1.5 text-axc-red transition hover:bg-axc-red/10">
+                        <button type="button" onClick={() => removeInvoiceItem(item.id)} className="inline-flex cursor-pointer items-center justify-center rounded-md border border-axc-red/30  p-1.5 text-axc-red transition hover:bg-axc-red/10">
                           <Trash size={15} />
 
                         </button>
@@ -145,28 +145,38 @@ export default function ShipmentInvoiceSection({ form, setForm, invoiceItems, se
                     </tr>
                   ))}
                   <tr className=" border-t border-axc-border">
-                    <td colSpan={5} className="py-2 px-3 "></td>
+                    <td colSpan={5} className="py-2.5 px-4">
+                      <div>
+                        <button
+                          type="button"
+                          onClick={addInvoiceItem}
+                          className="p-1 text-white rounded-full ring ring-axc-yellow transition capitalize cursor-pointer flex justify-center items-center hover:bg-axc-yellow/10"
+                          title="Add Item"
+                        >
+                          <Plus size={15} strokeWidth={3} className="text-axc-yellow" />
+                        </button>
+                      </div>
+                    </td>
                     <td colSpan={2} className="py-2 px-2  text-right font-bold text-black">
-                      <div className="flex items-center justify-end gap-2 text-sm">
+                      <div className="flex items-center justify-around gap-2 text-sm">
                         <span>TOTAL WEIGHT</span>
                         <input type="text" readOnly value={invoiceItems.reduce((acc, curr) => acc + Number(curr.unitWeight || 0) * Number(curr.quantity || 0), 0)} className="w-24 border outline-none border-axc-border bg-gray-100 rounded px-1.5 py-2.5 text-center font-bold text-gray-600" />
                       </div>
                     </td>
                     <td colSpan={2} className="py-2 px-2    text-right font-bold text-black">
-                      <div className="flex items-center justify-end gap-2 text-sm">
+                      <div className="flex items-center justify-end gap-5 text-sm">
                         <span>TOTAL AMOUNT</span>
                         <input type="text" readOnly value={invoiceItems.reduce((acc, curr) => acc + Number(curr.amount || 0), 0)} className="w-24 border outline-none border-axc-border bg-gray-100 rounded px-1.5 py-2.5 text-center font-bold text-gray-600" />
                       </div>
                     </td>
                     <td colSpan={2} className="py-2 px-3"></td>
+
                   </tr>
                 </tbody>
               </table>
-            </div>
-            <div className="mt-3">
 
-              <button type="button" onClick={addInvoiceItem} className="px-5 py-3 bg-axc-dark-yellow  text-white rounded-lg text-regular-medium transition capitalize cursor-pointer flex justify-center items-center "><Plus size={15} />Add Item</button>
             </div>
+
           </div>
         </div>
       )}
