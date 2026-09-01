@@ -1,6 +1,7 @@
 "use client";
 import React from "react";
 import { useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { VendorDetailsFormState, VendorWeightRow } from "./formstate";
 import { Plus, Trash } from "lucide-react";
 
@@ -9,6 +10,7 @@ const inputClass =
 
 function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
+    <div className="bg-axc-navy/60 text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
     <div className="bg-axc-navy/60 text-white p-4  rounded-tl-lg  rounded-tr-lg flex items-center justify-between gap-2">
       <h3> {title}</h3>
       {right}
@@ -20,6 +22,8 @@ function Field({
   label, value, editable = true, onChange, placeholder,
 }: { label: string; value: string; editable?: boolean; onChange?: (v: string) => void; placeholder?: string }) {
   return (
+    <div className="flex flex-col gap-1 w-full">
+      <span className="text-regular-medium text-axc-dark-gray">{label}</span>
     <div className="flex flex-col gap-1 w-full">
       <span className="text-regular-medium text-axc-dark-gray">{label}</span>
       <input
@@ -37,6 +41,7 @@ const gridClass = "grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-
 
 export function VendorDetailsPanel({
   vendorDetails, onChange, onWeightRowChange, onAddWeightRow, onRemoveWeightRow, isEdit,
+  vendorDetails, onChange, onWeightRowChange, onAddWeightRow, onRemoveWeightRow, isEdit,
 }: {
   vendorDetails: VendorDetailsFormState;
   onChange: (patch: Partial<VendorDetailsFormState>) => void;
@@ -45,6 +50,8 @@ export function VendorDetailsPanel({
   onRemoveWeightRow: (id: string) => void;
   isEdit?: boolean;
 }) {
+  const searchParams = useSearchParams();
+  const isEditMode = isEdit ?? Boolean(searchParams?.get("edit") || searchParams?.get("awb"));
   const searchParams = useSearchParams();
   const isEditMode = isEdit ?? Boolean(searchParams?.get("edit") || searchParams?.get("awb"));
   const editable = vendorDetails.editVendorDetails;
@@ -80,10 +87,20 @@ export function VendorDetailsPanel({
         </div>
 
         {/* Weight table — table is visible on create & edit, ADD ROW and row editing only on edit */}
+        {/* Weight table — table is visible on create & edit, ADD ROW and row editing only on edit */}
         <div className="mt-2">
+          <div className="border border-axc-border rounded overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           <div className="border border-axc-border rounded overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <table className="w-full text-xs border-collapse min-w-[750px]">
               <thead>
+                <tr className="bg-axc-navy/10 border-b border-axc-border text-regular-medium text-axc-dark-gray font-bold uppercase text-left">
+                  <th className="py-4 px-2 border-r border-axc-border font-semibold">Actual Wt.(Kg.)</th>
+                  <th className="py-4 px-2 border-r border-axc-border font-semibold">L(cm)</th>
+                  <th className="py-4 px-2 border-r border-axc-border font-semibold">B(cm)</th>
+                  <th className="py-4 px-2 border-r border-axc-border font-semibold">H(cm)</th>
+                  <th className="py-4 px-2 border-r border-axc-border font-semibold">Volumetric Wt.(Kg.)</th>
+                  <th className="py-4 px-2 border-r border-axc-border font-semibold">Chargeable Wt.(Kg.)</th>
+                  <th className="py-4 px-2 font-bold text-center">Action</th>
                 <tr className="bg-axc-navy/10 border-b border-axc-border text-regular-medium text-axc-dark-gray font-bold uppercase text-left">
                   <th className="py-4 px-2 border-r border-axc-border font-semibold">Actual Wt.(Kg.)</th>
                   <th className="py-4 px-2 border-r border-axc-border font-semibold">L(cm)</th>
@@ -103,6 +120,7 @@ export function VendorDetailsPanel({
                           value={row[field]}
                           onChange={(e) => onWeightRowChange(row.id, field, e.target.value)}
                           className="w-full bg-white border border-axc-border rounded px-1.5 py-2 text-center focus:outline-none"
+                          className="w-full bg-white border border-axc-border rounded px-1.5 py-2 text-center focus:outline-none"
                         />
                       </td>
                     ))}
@@ -117,7 +135,7 @@ export function VendorDetailsPanel({
                     </td>
                   </tr>
                 ))}
-                {vendorDetails.weightRows.length > 0 && (
+                {isEditMode && vendorDetails.weightRows.length > 0 && (
                   <tr className="bg-gray-50/50 border-t border-axc-border">
 
                     <td className="py-2 px-2 border-r border-axc-border">
@@ -136,11 +154,13 @@ export function VendorDetailsPanel({
                       <div className="flex items-center justify-end gap-2 text-regular-medium text-black">
                         <span> Total Actual WT</span>
                         <input type="text" readOnly value={totalActualWt} className="w-20 border border-axc-border bg-gray-100 rounded px-1.5 py-2.5 text-center text-gray-600" />
+                        <input type="text" readOnly value={totalActualWt} className="w-20 border border-axc-border bg-gray-100 rounded px-1.5 py-2.5 text-center text-gray-600" />
                       </div>
                     </td>
                     <td colSpan={2} className="py-2 px-2 border-r border-axc-border text-right font-bold text-gray-700">
                       <div className="flex items-center justify-end gap-2 text-regular-medium text-black">
                         <span>Total Chargeable WT</span>
+                        <input type="text" readOnly value={totalChargeableWt} className="w-20 border border-axc-border bg-gray-100 rounded px-1.5 py-2.5 text-center font-bold text-gray-600" />
                         <input type="text" readOnly value={totalChargeableWt} className="w-20 border border-axc-border bg-gray-100 rounded px-1.5 py-2.5 text-center font-bold text-gray-600" />
                       </div>
                     </td>
@@ -156,6 +176,10 @@ export function VendorDetailsPanel({
         <Field label="Actual Weight" value={vendorDetails.actualWeight} editable={editable} onChange={(v) => onChange({ actualWeight: v })} placeholder="Actual Weight" />
 
         <div className={gridClass}>
+          <Field label="CFT ID" value={vendorDetails.cftId} editable={editable} onChange={(v) => onChange({ cftId: v })} placeholder="CFT ID" />
+          <Field label="CFT VALUE" value={vendorDetails.cftValue} editable={editable} onChange={(v) => onChange({ cftValue: v })} placeholder="CFT VALUE" />
+          <Field label="Contact ID" value={vendorDetails.vendorContractId} editable={editable} onChange={(v) => onChange({ vendorContractId: v })} placeholder="Contact ID" />
+          <Field label="TAT" value={vendorDetails.tat} editable={editable} onChange={(v) => onChange({ tat: v })} placeholder="TAT" />
           <Field label="CFT ID" value={vendorDetails.cftId} editable={editable} onChange={(v) => onChange({ cftId: v })} placeholder="CFT ID" />
           <Field label="CFT VALUE" value={vendorDetails.cftValue} editable={editable} onChange={(v) => onChange({ cftValue: v })} placeholder="CFT VALUE" />
           <Field label="Contact ID" value={vendorDetails.vendorContractId} editable={editable} onChange={(v) => onChange({ vendorContractId: v })} placeholder="Contact ID" />
