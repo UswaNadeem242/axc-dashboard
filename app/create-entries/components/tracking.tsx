@@ -45,7 +45,7 @@ export function TrackingEventsPanel({
     return { date: "", time: dt };
   };
 
-  
+
 
   const headings = [
     {
@@ -200,9 +200,9 @@ export function TrackingEventsPanel({
         <button
           type="button"
           onClick={() => onRemoveEvent(ev.id)}
-         className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
+          className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
         >
-            <Trash className="w-4 h-4" size={15}/>
+          <Trash className="w-4 h-4" size={15} />
         </button>
       ),
     },
@@ -222,16 +222,14 @@ export function TrackingEventsPanel({
         emptyMessage="No tracking events added"
         hidePagination={true}
         showScroll={false}
-      />
-
-      <button
-       type="button"
-       onClick={onAddEvent}
-       className="self-start flex items-center gap-1.5 px-3 py-2 bg-axc-dark-yellow text-white rounded-md text-sm font-medium cursor-pointer transition"
+      /><button
+        type="button"
+        onClick={onAddEvent}
+        className="self-start flex items-center gap-1.5 p-1 ring ring-axc-yellow rounded-full   text-axc-yellow  cursor-pointer transition"
+        title="Add Item"
       >
-       <Plus size={15} />
-       ADD ITEM
-       </button>
+        <Plus size={15} strokeWidth={3} className="text-axc-yellow" />
+      </button>
     </div>
   );
 }
