@@ -86,19 +86,25 @@ export default function Dropdown({ options, value, onChange, items, title = "Act
             <div className="absolute top-[2px] right-6 h-3.5 w-3.5 rotate-45 border-l border-t border-axc-border bg-white z-20" />
 
             {/* Rounded Popover Card with clearly defined border-axc-border */}
-            <div className="relative z-10 max-h-64 overflow-y-auto rounded-2xl border border-axc-border bg-white shadow-xl divide-y divide-gray-100">
-              {options?.map((option) => (
-                <ListboxOption
-                  key={option.value}
-                  value={option.value}
-                  className="relative cursor-pointer select-none py-3 px-4 text-[#374151] data-[focus]:bg-[#F9FAFB] data-[selected]:bg-[#F9FAFB] data-[selected]:font-semibold data-[selected]:text-axc-navy text-[14px] font-medium transition-colors flex items-center justify-between"
-                >
-                  <span className="block truncate">{option.label}</span>
-                  {option.value === value && (
-                    <Check size={16} className="text-axc-navy shrink-0 ml-2" />
-                  )}
-                </ListboxOption>
-              ))}
+            <div className="relative z-10 max-h-64 overflow-y-auto rounded-2xl border border-axc-border bg-white shadow-xl divide-y divide-gray-100 min-w-[180px]">
+              {options && options.length > 0 ? (
+                options.map((option) => (
+                  <ListboxOption
+                    key={option.value}
+                    value={option.value}
+                    className="relative cursor-pointer select-none py-3 px-4 text-[#374151] data-[focus]:bg-[#F9FAFB] data-[selected]:bg-[#F9FAFB] data-[selected]:font-semibold data-[selected]:text-axc-navy text-[14px] font-medium transition-colors flex items-center justify-between"
+                  >
+                    <span className="block truncate">{option.label}</span>
+                    {option.value === value && (
+                      <Check size={16} className="text-axc-navy shrink-0 ml-2" />
+                    )}
+                  </ListboxOption>
+                ))
+              ) : (
+                <div className="py-3 px-4 text-xs text-gray-400 text-center select-none">
+                  No options available
+                </div>
+              )}
             </div>
           </div>
         </ListboxOptions>
