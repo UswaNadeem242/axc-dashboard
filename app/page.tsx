@@ -215,6 +215,7 @@ export default function Home() {
             headings={headings}
             data={flightData}
             hidePagination={true}
+            showScroll={false}
             className="px-4 pb-4"
             onView={(row) => {
               console.log("View", row);

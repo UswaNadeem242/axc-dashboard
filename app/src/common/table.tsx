@@ -111,96 +111,89 @@ const CommonTable = ({
     }
   };
 
-  return (
-    <div className={`flex flex-col ${className}`}>
-      <CommonScroll
-        orientation="horizontal"
-        align="start"
-        className="rounded-lg border border-axc-border"
-        contentClassName=""
-        scrollbarThickness={6}
-        maxThumbPercent={15}
-        showArrows={true}
-        gap={8}
-      >
-        <table className="w-max min-w-full border-collapse text-left text-sm">
-          <thead>
-              <tr className="bg-axc-navy/10 text-black">
-                {selectable && (
-                  <th className="w-10 bg-axc-navy/10 rounded-l-sm px-4 py-3">
-                    <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-3.5 w-3.5 accent-white" />
-                  </th>
-                )}
-                {headings.map((heading, index) => (
-                  <th
-                    key={heading.key}
-                    onClick={() => heading.sortable && onSort?.(heading.key)}
-                    className={`bg-axc-navy/10 px-4 py-3  text-regular-semibold capitalize  whitespace-nowrap ${index === 0 && !selectable ? "rounded-l-sm" : ""} ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${heading.sortable ? "cursor-pointer select-none" : ""} `}
-                  >
-                    <span className="inline-flex items-center gap-1">{heading.label}</span>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-axc-border">
-              {loading ? (
-                <tr>
-                  <td colSpan={colSpan} className="px-4 py-12 text-center text-sm text-axc-gray">
-                    {loadingMessage}
-                  </td>
-                </tr>
-              ) : paginatedData.length === 0 ? (
-                <tr>
-                  <td colSpan={colSpan} className="px-4 py-12 text-center text-sm text-axc-gray">
-                    {emptyMessage}
-                  </td>
-                </tr>
-              ) : (
-                paginatedData.map((row, index) => (
-                  <tr key={index} className="bg-white transition">
-                    {selectable && (
-                      <td className="px-4 py-3">
-                        <input
-                          type="checkbox"
-                          checked={selectedIds.includes(row[rowKey])}
-                          onChange={() => toggleRow(row[rowKey])}
-                          className="h-3.5 w-3.5 accent-axc-blue"
-                        />
-                      </td>
-                    )}
-                    {headings.map((heading) => (
-                      <td key={heading.key} className="px-4 py-3">
-                        {heading.render ? (
-                          heading.render(row)
-                        ) : heading.key === "status" ? (
-                          <span className={`rounded-full px-3 py-1 text-[10px] font-bold ${getStatusClasses(row.status)}`}>
-                            {row.status}
-                          </span>
-                        ) : heading.key === "action" ? (
-                          renderActions ? (
-                            renderActions(row)
-                          ) : (
-                            <div className="flex items-center gap-2">
-                              {onView && (
-                                <button
-                                  type="button"
-                                  onClick={() => onView(row)}
-                                  className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
-                                  title="View"
-                                >
-                                  <Eye size={16} />
-                                </button>
-                              )}
-                              {onEdit && (
-                                <button
-                                  type="button"
-                                  onClick={() => onEdit(row)}
-                                  className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30  p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10 cursor-pointer"
-                                  title="Edit"
-                                >
-                                  <Pencil size={16} />
-                                </button>
-                              )}
+  const tableElement = (
+    <table className="w-max min-w-full border-collapse text-left text-sm">
+      <thead>
+        <tr className="bg-axc-navy/10 text-black">
+          {selectable && (
+            <th className="w-10 bg-axc-navy/10 rounded-l-sm px-4 py-3">
+              <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-3.5 w-3.5 accent-white" />
+            </th>
+          )}
+          {headings.map((heading, index) => (
+            <th
+              key={heading.key}
+              onClick={() => heading.sortable && onSort?.(heading.key)}
+              className={`bg-axc-navy/10 px-4 py-3 text-regular-semibold capitalize whitespace-nowrap ${
+                index === 0 && !selectable ? "rounded-l-sm" : ""
+              } ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${
+                heading.sortable ? "cursor-pointer select-none" : ""
+              } ${heading.className ?? ""}`}
+            >
+              <span className="inline-flex items-center gap-1">{heading.label}</span>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-axc-border">
+        {loading ? (
+          <tr>
+            <td colSpan={colSpan} className="px-4 py-12 text-center text-sm text-axc-gray">
+              {loadingMessage}
+            </td>
+          </tr>
+        ) : paginatedData.length === 0 ? (
+          <tr>
+            <td colSpan={colSpan} className="px-4 py-12 text-center text-sm text-axc-gray">
+              {emptyMessage}
+            </td>
+          </tr>
+        ) : (
+          paginatedData.map((row, index) => (
+            <tr key={index} className="bg-white transition">
+              {selectable && (
+                <td className="px-4 py-3">
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.includes(row[rowKey])}
+                    onChange={() => toggleRow(row[rowKey])}
+                    className="h-3.5 w-3.5 accent-axc-blue"
+                  />
+                </td>
+              )}
+              {headings.map((heading) => (
+                <td key={heading.key} className="px-4 py-3">
+                  {heading.render ? (
+                    heading.render(row)
+                  ) : heading.key === "status" ? (
+                    <span className={`rounded-full px-3 py-1 text-[10px] font-bold ${getStatusClasses(row.status)}`}>
+                      {row.status}
+                    </span>
+                  ) : heading.key === "action" ? (
+                    renderActions ? (
+                      renderActions(row)
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        {onView && (
+                          <button
+                            type="button"
+                            onClick={() => onView(row)}
+                            className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
+                            title="View"
+                          >
+                            <Eye size={16} />
+                          </button>
+                        )}
+                        {onEdit && (
+                          <button
+                            type="button"
+                            onClick={() => onEdit(row)}
+                            className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30 p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10 cursor-pointer"
+                            title="Edit"
+                          >
+                            <Pencil size={16} />
+                          </button>
+                        )}
 
                         {onDelete && (
                           <button

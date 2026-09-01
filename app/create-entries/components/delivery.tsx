@@ -5,6 +5,8 @@ import { PanelHeader, EditIconButton, inputClass } from "./form";
 import { TrackingEventsPanel } from "./tracking";
 import CommonTable from "../../src/common/table";
 import CustomDatePicker from "../../src/common/datepicker";
+import CustomTimePicker from "../../src/common/timepicker";
+
 
 interface DeliverySummaryRow {
   label: string;
@@ -172,13 +174,11 @@ export function DeliveryPanel({
                   </div>
                 </Field>
                 <Field label="Expected Time">
-                  <input
-                    placeholder="Expected Time"
-                    type="time"
-                    className={inputClass}
+                   <CustomTimePicker
                     value={delivery.expectedTime}
-                    onChange={(e) => updateField("expectedTime", e.target.value)}
-                  />
+                    onChange={(val) => updateField("expectedTime", val)}
+                     placeholder="Select expected time"
+                      />
                 </Field>
                 <Field label="Delivery Date">
                   <CustomDatePicker
@@ -189,12 +189,11 @@ export function DeliveryPanel({
                 </Field>
 
                 <Field label="Delivery Time">
-                  <input
-                    type="time"
-                    className={inputClass}
+                  <CustomTimePicker
                     value={delivery.deliveryTime}
-                    onChange={(e) => updateField("deliveryTime", e.target.value)}
-                  />
+                    onChange={(val) => updateField("deliveryTime", val)}
+                     placeholder="Select delivery time"
+                      />
                 </Field>
                 <Field label="API Crossed EDD Days">
                   <input className={inputClass} disabled value={delivery.apiCrossedEddDays} placeholder="API Crossed EDD Days" />
@@ -220,13 +219,11 @@ export function DeliveryPanel({
                 </Field>
 
                 <Field label="Connection Time">
-                  <input
-                    placeholder="Connection Time"
-                    type="time"
-                    className={inputClass}
+                  <CustomTimePicker
                     value={delivery.connectionTime}
-                    onChange={(e) => updateField("connectionTime", e.target.value)}
-                  />
+                    onChange={(val) => updateField("connectionTime", val)}
+                     placeholder="Select connection time"
+                      />
                 </Field>
 
                 <Field label="Appointment Date">
@@ -238,12 +235,11 @@ export function DeliveryPanel({
                 </Field>
 
                 <Field label="Appointment Time">
-                  <input
-                    type="time"
-                    className={inputClass}
+                   <CustomTimePicker
                     value={delivery.appointmentTime}
-                    onChange={(e) => updateField("appointmentTime", e.target.value)}
-                  />
+                    onChange={(val) => updateField("appointmentTime", val)}
+                     placeholder="Select appointment time"
+                      />
                 </Field>
 
                 <Field label="POD Uploaded Date">
