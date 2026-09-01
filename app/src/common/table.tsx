@@ -37,6 +37,8 @@ interface CommonTableProps {
   loading?: boolean;
   loadingMessage?: string;
   hidePagination?: boolean;
+  showScroll?: boolean;
+  hideScroll?: boolean;
   className?: string;
 }
 
@@ -62,12 +64,15 @@ const CommonTable = ({
   loading = false,
   loadingMessage = "Loading...",
   hidePagination = false,
+  showScroll = true,
+  hideScroll = false,
   className = "",
 }: CommonTableProps) => {
   const computedTotalPages = propTotalPages ?? Math.max(1, Math.ceil(data.length / itemsPerPage));
   const activePage = Math.min(Math.max(1, currentPage), computedTotalPages);
   const paginatedData = data.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
   const colSpan = headings.length + (selectable ? 1 : 0);
+  const isScrollEnabled = showScroll && !hideScroll;
 
   // =========================================================
   // TRUNCATE
@@ -108,13 +113,19 @@ const CommonTable = ({
 
   return (
     <div className={`flex flex-col ${className}`}>
-      <div className="flex flex-col overflow-hidden rounded-lg border border-axc-border">
-        <div
-          className="overflow-x-auto overflow-y-hidden [&::-webkit-scrollbar]:h-1 [&::-webkit-scrollbar-track]:bg-transparent  [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg"
-        >
-          <table className="w-max min-w-full border-collapse text-left text-sm">
-            <thead>
-              <tr className="bg-axc-navy text-white">
+      <CommonScroll
+        orientation="horizontal"
+        align="start"
+        className="rounded-lg border border-axc-border"
+        contentClassName=""
+        scrollbarThickness={6}
+        maxThumbPercent={15}
+        showArrows={true}
+        gap={8}
+      >
+        <table className="w-max min-w-full border-collapse text-left text-sm">
+          <thead>
+              <tr className="bg-axc-navy/10 text-black">
                 {selectable && (
                   <th className="w-10 bg-axc-navy/10 rounded-l-sm px-4 py-3">
                     <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-3.5 w-3.5 accent-white" />
@@ -191,47 +202,68 @@ const CommonTable = ({
                                 </button>
                               )}
 
-                              {onDelete && (
-                                <button
-                                  type="button"
-                                  onClick={() => onDelete(row)}
-                                  className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
-                                  title="Delete"
-                                >
-                                  <Trash2 size={16} />
-                                </button>
-                              )}
-                            </div>
-                          )
-                        ) : (
-                          (() => {
-                            const value = row[heading.key];
-                            if (value === null || value === undefined || value === "") return "-";
-                            if (typeof value === "string") {
-                              if (heading.truncate === false) return <span className="whitespace-nowrap">{value}</span>;
-                              return (
-                                <div className="group relative inline-block max-w-30">
-                                  <span className="block truncate cursor-pointer">{truncateText(value, 8)}</span>
-                                  {value.length > 8 && (
-                                    <div className="invisible absolute left-1/2 top-full z-50 mt-2 w-max max-w-xs -translate-x-1/2 rounded-lg bg-axc-dark-gray px-3 py-2 text-xs text-white opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">
-                                      {value}
-                                      <div className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-axc-dark-gray" />
-                                    </div>
-                                  )}
-                                </div>
-                              );
-                            }
-                            return value;
-                          })()
+                        {onDelete && (
+                          <button
+                            type="button"
+                            onClick={() => onDelete(row)}
+                            className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30 p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
+                            title="Delete"
+                          >
+                            <Trash2 size={16} />
+                          </button>
                         )}
-                      </td>
-                    ))}
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                      </div>
+                    )
+                  ) : (
+                    (() => {
+                      const value = row[heading.key];
+                      if (value === null || value === undefined || value === "") return "-";
+                      if (typeof value === "string") {
+                        if (heading.truncate === false) return <span className="whitespace-nowrap">{value}</span>;
+                        return (
+                          <div className="group relative inline-block max-w-30">
+                            <span className="block truncate cursor-pointer">{truncateText(value, 8)}</span>
+                            {value.length > 8 && (
+                              <div className="invisible absolute left-1/2 top-full z-50 mt-2 w-max max-w-xs -translate-x-1/2 rounded-lg bg-axc-dark-gray px-3 py-2 text-xs text-white opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">
+                                {value}
+                                <div className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-axc-dark-gray" />
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }
+                      return value;
+                    })()
+                  )}
+                </td>
+              ))}
+            </tr>
+          ))
+        )}
+      </tbody>
+    </table>
+  );
+
+  return (
+    <div className={`flex flex-col ${className}`}>
+      {isScrollEnabled ? (
+        <CommonScroll
+          orientation="horizontal"
+          align="start"
+          className="rounded-lg border border-axc-border"
+          contentClassName=""
+          scrollbarThickness={6}
+          maxThumbPercent={15}
+          showArrows={true}
+          gap={8}
+        >
+          {tableElement}
         </CommonScroll>
+      ) : (
+        <div className="rounded-lg border border-axc-border overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {tableElement}
+        </div>
+      )}
 
       {!hidePagination && computedTotalPages >= 1 && (
         <div className="mt-2 flex shrink-0 justify-end">

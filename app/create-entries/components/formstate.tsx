@@ -355,6 +355,18 @@ export interface VendorDetailsFormState {
   volumeWeight: string;
   chargeableWeight: string;
 }
+export function defaultVendorWeightRow(): VendorWeightRow {
+  return {
+    id: typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9),
+    actualWeight: "",
+    length: "",
+    breadth: "",
+    height: "",
+    volumetricWeight: "",
+    chargeableWeight: "",
+  };
+}
+
 export function defaultVendorDetails(): VendorDetailsFormState {
   return {
     editVendorDetails: false,
@@ -364,7 +376,7 @@ export function defaultVendorDetails(): VendorDetailsFormState {
     originZone: "",
     destinationZone: "",
     pcs: "",
-    weightRows: [],
+    weightRows: [defaultVendorWeightRow()],
     actualWeight: "",
     cftId: "",
     cftValue: "1",

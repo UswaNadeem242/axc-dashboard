@@ -38,7 +38,7 @@ export default function Dropdown({ options, value, onChange, items, title = "Act
           <div className="absolute right-0 z-50 mt-1 w-52 pt-2">
             {/* Top caret pointer */}
             <div className="absolute top-[2px] right-6 h-3.5 w-3.5 rotate-45 border-l border-t border-axc-border bg-white z-20" />
-            <MenuItems className="relative z-10 overflow-hidden rounded-2xl border border-axc-border bg-white shadow-xl divide-y divide-gray-100 focus:outline-none">
+            <MenuItems className="relative z-10 overflow-hidden rounded-2xl border border-axc-border bg-white divide-y divide-gray-100 focus:outline-none">
               {items.map((item) => (
                 <MenuItem key={item.label}>
                   {({ focus }) => (
@@ -79,14 +79,14 @@ export default function Dropdown({ options, value, onChange, items, title = "Act
         <ListboxOptions
           anchor={{ to: "bottom start", gap: 4 }}
           transition
-          className="z-[9999] w-[var(--button-width)] min-w-[220px] focus:outline-none transition ease-out duration-100 data-[closed]:opacity-0 data-[closed]:scale-95"
+          className="z-[9999] w-[var(--button-width)] focus:outline-none transition ease-out duration-100 data-[closed]:opacity-0 data-[closed]:scale-95"
         >
           <div className="relative pt-2">
             {/* Top caret pointer */}
             <div className="absolute top-[2px] right-6 h-3.5 w-3.5 rotate-45 border-l border-t border-axc-border bg-white z-20" />
 
             {/* Rounded Popover Card with clearly defined border-axc-border */}
-            <div className="relative z-10 max-h-64 overflow-y-auto rounded-2xl border border-axc-border bg-white shadow-xl divide-y divide-gray-100 min-w-[180px]">
+            <div className="relative z-10 max-h-64 overflow-y-auto rounded-2xl border border-axc-border bg-white divide-y divide-gray-100">
               {options && options.length > 0 ? (
                 options.map((option) => (
                   <ListboxOption

@@ -72,8 +72,6 @@ export default function Home() {
           })}
         </div>
 
-      {/* SCROLLABLE REMAINING CONTENT */}
-      <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-6 pr-1">
         {/* ROW 2: ANALYTICS (WIDE) & QUICK LINKS (SMALL) */}
         <div className="grid grid-cols-12 gap-6">
           <div className="col-span-12 lg:col-span-9">
@@ -85,7 +83,7 @@ export default function Home() {
           </div>
 
           {/* Quick Links (Right, Small) */}
-          <div className="col-span-12 lg:col-span-3">
+          <div className="col-span-12 lg:col-span-3 ">
             <Card title="Quick Actions" icon={Package} className="rounded-2xl p-4">
               <div className="flex flex-col gap-3">
                 {quickActions?.slice(0, 4).map((action, index) => {

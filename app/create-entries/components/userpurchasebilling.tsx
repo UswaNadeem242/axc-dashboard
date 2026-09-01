@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import {
   PurchaseBillingFormState, PurchaseChargeKey,
   VendorDetailsFormState, VendorInvoiceFormState, VendorWeightRow,
-  defaultPurchaseBilling, defaultVendorDetails, defaultVendorInvoice,
+  defaultPurchaseBilling, defaultVendorDetails, defaultVendorInvoice, defaultVendorWeightRow,
 } from "./formstate";
 
 function toNum(v: string) {
@@ -39,15 +39,7 @@ export function usePurchaseBilling() {
   };
 
   const addWeightRow = () => {
-    const row: VendorWeightRow = {
-      id: crypto.randomUUID(),
-      actualWeight: "",
-      length: "",
-      breadth: "",
-      height: "",
-      volumetricWeight: "",
-      chargeableWeight: "",
-    };
+    const row = defaultVendorWeightRow();
     setVendorDetails((prev) => ({ ...prev, weightRows: [...prev.weightRows, row] }));
   };
 

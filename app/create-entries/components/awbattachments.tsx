@@ -14,6 +14,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import { PanelHeader } from "./form";
+import ExcelIcon from "@/public/icon/excel";
+import PdfIcon from "@/public/icon/pdf";
 
 export type FileKind = "pdf" | "excel" | "any";
 
@@ -90,6 +92,8 @@ export function getDefaultSampleAttachments(): Record<string, File> {
   };
 }
 
+
+
 function detectFileType(file: File): "pdf" | "excel" {
   const name = file.name.toLowerCase();
   const type = file.type.toLowerCase();
@@ -114,13 +118,14 @@ function detectFileType(file: File): "pdf" | "excel" {
 function PdfIllustration({ className = "w-16 h-20" }: { className?: string }) {
   return (
     <div className={`relative flex flex-col items-center justify-center ${className}`}>
-      <svg
+      <PdfIcon />
+      {/* <svg
         viewBox="0 0 52 64"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         className="w-full h-full drop-shadow-[0_2px_4px_rgba(239,68,68,0.15)]"
       >
-        {/* Document Body */}
+        
         <path
           d="M5 8C5 4.68629 7.68629 2 11 2H33L47 16V56C47 59.3137 44.3137 62 41 62H11C7.68629 62 5 59.3137 5 56V8Z"
           fill="#FFFFFF"
@@ -128,7 +133,7 @@ function PdfIllustration({ className = "w-16 h-20" }: { className?: string }) {
           strokeWidth="2.8"
           strokeLinejoin="round"
         />
-        {/* Fold Corner */}
+        
         <path
           d="M33 2V16H47"
           fill="#FEE2E2"
@@ -136,7 +141,7 @@ function PdfIllustration({ className = "w-16 h-20" }: { className?: string }) {
           strokeWidth="2.8"
           strokeLinejoin="round"
         />
-        {/* Acrobat Red Swirl Symbol */}
+       
         <path
           d="M17 34C17 31 21.5 25 26 25C30.5 25 35 31 35 34C35 38 29.5 40 26 40C22.5 40 17 38 17 34Z"
           stroke="#EF4444"
@@ -159,7 +164,7 @@ function PdfIllustration({ className = "w-16 h-20" }: { className?: string }) {
       </svg>
       <span className="text-[11px] font-black text-gray-800 tracking-wider -mt-1 uppercase">
         PDF
-      </span>
+      </span> */}
     </div>
   );
 }
@@ -167,31 +172,7 @@ function PdfIllustration({ className = "w-16 h-20" }: { className?: string }) {
 function ExcelIllustration({ className = "w-16 h-16" }: { className?: string }) {
   return (
     <div className={`relative flex items-center justify-center ${className}`}>
-      <svg
-        viewBox="0 0 60 60"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-full h-full drop-shadow-[0_2px_5px_rgba(16,124,65,0.2)]"
-      >
-        {/* Back Spreadsheets Card */}
-        <rect x="16" y="8" width="38" height="44" rx="4" fill="#107C41" />
-        {/* Table Rows in Back */}
-        <rect x="24" y="16" width="22" height="4.5" rx="1" fill="#1E5C38" opacity="0.9" />
-        <rect x="24" y="24.5" width="22" height="4.5" rx="1" fill="#1E5C38" opacity="0.9" />
-        <rect x="24" y="33" width="22" height="4.5" rx="1" fill="#1E5C38" opacity="0.9" />
-        <rect x="24" y="41.5" width="22" height="4.5" rx="1" fill="#1E5C38" opacity="0.9" />
-        {/* Front Elevated Green Square */}
-        <rect x="6" y="15" width="30" height="30" rx="3.5" fill="#185C37" />
-        <rect x="8" y="17" width="26" height="26" rx="2.5" fill="#21A366" />
-        {/* White X Logo */}
-        <path
-          d="M15 24L27 36M27 24L15 36"
-          stroke="white"
-          strokeWidth="3.2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <ExcelIcon />
     </div>
   );
 }
@@ -254,13 +235,13 @@ function AttachmentCard({
 
   return (
     <div
-      className={`relative bg-white rounded-xl border transition-all duration-200 flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md ${error
-          ? "border-red-400 ring-1 ring-red-300"
-          : file
-            ? "border-gray-200"
-            : isDragging
-              ? "border-axc-navy ring-2 ring-axc-navy/20 bg-blue-50/20"
-              : "border-gray-200"
+      className={`relative bg-white rounded-md border transition-all duration-200 flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md ${error
+        ? "border- ring-1 ring-red-300"
+        : file
+          ? "border-gray-200"
+          : isDragging
+            ? "border-axc-navy ring-2 ring-axc-navy/20 bg-blue-50/20"
+            : "border-gray-200"
         }`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
@@ -296,12 +277,12 @@ function AttachmentCard({
             {/* File Info */}
             <div className="w-full px-0.5 mt-1">
               <p
-                className="text-[11px] font-medium text-gray-700 truncate leading-tight"
+                className="text-regular-medium text-axc-dark-gray truncate leading-tight"
                 title={file.name}
               >
                 {file.name}
               </p>
-              <p className="text-[10px] text-gray-400 font-semibold mt-0.5">
+              <p className="text-xs text-axc-gray mt-0.5">
                 {formatBytes(file.size)}
               </p>
             </div>
@@ -561,13 +542,13 @@ export function AwbAttachmentsTab({
       {/* Header with Stats */}
       <PanelHeader
         title="Attachments & Documents"
-        right={
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white/10 text-white border border-white/20">
-              {totalUploadedCount} of {fields.length} Uploaded
-            </span>
-          </div>
-        }
+        // right={
+        //   <div className="flex items-center gap-3">
+        //     <span className="text-xs font-semibold px-3 py-1 rounded-full bg-white/10 text-white border border-white/20">
+        //       {totalUploadedCount} of {fields.length} Uploaded
+        //     </span>
+        //   </div>
+        // }
       />
 
       {/* Success Toast */}
@@ -579,14 +560,14 @@ export function AwbAttachmentsTab({
       )}
 
       {/* Filter Tabs & Quick Actions */}
-      <div className="flex items-center justify-between gap-4 flex-wrap bg-white p-3 rounded-xl border border-axc-border shadow-xs">
+      {/* <div className="flex items-center justify-between gap-4 flex-wrap bg-white p-3 rounded-xl border border-axc-border shadow-xs">
         <div className="flex items-center gap-2 flex-wrap">
           <button
             type="button"
             onClick={() => setActiveFilter("all")}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold transition cursor-pointer ${activeFilter === "all"
-                ? "bg-axc-navy text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+              ? "bg-axc-navy text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             All Files ({fields.length})
@@ -594,9 +575,9 @@ export function AwbAttachmentsTab({
           <button
             type="button"
             onClick={() => setActiveFilter("pdf")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${activeFilter === "pdf"
-                ? "bg-axc-navy text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            className={`px-3 py-1.5 rounded-lg text-regular-small  transition flex items-center gap-1.5 cursor-pointer ${activeFilter === "pdf"
+              ? "bg-axc-navy text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             <FileText size={13} />
@@ -605,9 +586,9 @@ export function AwbAttachmentsTab({
           <button
             type="button"
             onClick={() => setActiveFilter("excel")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${activeFilter === "excel"
-                ? "bg-axc-navy text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            className={`px-3 py-1.5 rounded-lg text-regular-small  transition flex items-center gap-1.5 cursor-pointer ${activeFilter === "excel"
+              ? "bg-axc-navy text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             <FileSpreadsheet size={13} />
@@ -616,9 +597,9 @@ export function AwbAttachmentsTab({
           <button
             type="button"
             onClick={() => setActiveFilter("uploaded")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${activeFilter === "uploaded"
-                ? "bg-axc-navy text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            className={`px-3 py-1.5 rounded-lg text-regular-small  transition flex items-center gap-1.5 cursor-pointer ${activeFilter === "uploaded"
+              ? "bg-axc-navy text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
           >
             <CheckCircle2 size={13} />
@@ -634,7 +615,7 @@ export function AwbAttachmentsTab({
               setErrors({});
               showToast?.("Auto-filled attachments with PDF & Excel files!", "info");
             }}
-            className="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer bg-axc-navy text-white hover:opacity-90 shadow-2xs"
+            className="px-3 py-1.5 rounded-lg text-regular-small  transition flex items-center gap-1.5 cursor-pointer bg-axc-navy text-white hover:opacity-90 shadow-2xs"
             title="Auto populate fields with sample PDF and Excel files"
           >
             <Sparkles size={13} />
@@ -644,13 +625,13 @@ export function AwbAttachmentsTab({
             <button
               type="button"
               onClick={() => setFiles({})}
-              className="text-xs font-bold text-red-600 hover:underline cursor-pointer px-2"
+              className="text-regular-small  text-red-600 hover:underline cursor-pointer px-2"
             >
               Clear All
             </button>
           )}
         </div>
-      </div>
+      </div> */}
 
       {/* Grid of Attachment Cards (Responsive 1-6 columns matching reference design) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
@@ -672,7 +653,7 @@ export function AwbAttachmentsTab({
         <button
           type="button"
           onClick={handleSave}
-          className="px-5 py-4 bg-axc-navy  cursor-pointer text-white rounded-lg text-regular-small transition shadow-sm"
+          className="px-5 py-4 bg-axc-navy cursor-pointer text-white rounded-lg text-regular-small transition shadow-sm"
         >
           Save Attachment
         </button>
