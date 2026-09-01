@@ -27,7 +27,7 @@ export function TrackingEventsPanel({
   onRemoveEvent: (id: string) => void;
 }) {
   const inputClass =
-    "w-full h-8 px-2 rounded-md border border-axc-border text-xs text-axc-dark-gray focus:outline-none focus:ring-1 focus:ring-axc-navy disabled:bg-gray-50 disabled:text-gray-500";
+    "w-full h-8 px-2 rounded-md border border-axc-border text-xs text-axc-dark-gray focus:outline-none";
 
   const parseDateTime = (dt?: string) => {
     if (!dt) return { date: "", time: "" };
@@ -44,6 +44,8 @@ export function TrackingEventsPanel({
     }
     return { date: "", time: dt };
   };
+
+
 
   const headings = [
     {
@@ -198,9 +200,9 @@ export function TrackingEventsPanel({
         <button
           type="button"
           onClick={() => onRemoveEvent(ev.id)}
-         className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
+          className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
         >
-            <Trash className="w-4 h-4" size={15}/>
+          <Trash className="w-4 h-4" size={15} />
         </button>
       ),
     },
@@ -219,16 +221,15 @@ export function TrackingEventsPanel({
         itemsPerPage={10}
         emptyMessage="No tracking events added"
         hidePagination={true}
-      />
-
-      <button
-       type="button"
-       onClick={onAddEvent}
-       className="self-start flex items-center gap-1.5 px-3 py-2 bg-axc-dark-yellow text-white rounded-md text-sm font-medium cursor-pointer transition"
+        showScroll={false}
+      /><button
+        type="button"
+        onClick={onAddEvent}
+        className="self-start flex items-center gap-1.5 p-1 ring ring-axc-yellow rounded-full   text-axc-yellow  cursor-pointer transition"
+        title="Add Item"
       >
-       <Plus size={15} />
-       ADD ITEM
-       </button>
+        <Plus size={15} strokeWidth={3} className="text-axc-yellow" />
+      </button>
     </div>
   );
 }

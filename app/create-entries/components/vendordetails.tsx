@@ -95,14 +95,7 @@ export function VendorDetailsPanel({
                 </tr>
               </thead>
               <tbody>
-                {/* {(!isEditMode || vendorDetails.weightRows.length === 0) && (
-                  <tr>
-                    <td colSpan={7} className="py-4 px-3 text-center text-gray-400 text-regular-semibold">
-                      No weight rows added yet.
-                    </td>
-                  </tr>
-                )} */}
-                {isEditMode && vendorDetails.weightRows.map((row) => (
+                {vendorDetails.weightRows.map((row) => (
                   <tr key={row.id} className="border-b border-axc-border last:border-b-0 hover:bg-gray-50/50">
                     {(["actualWeight", "length", "breadth", "height", "volumetricWeight", "chargeableWeight"] as const).map((field) => (
                       <td key={field} className="border-r border-axc-border p-1">
@@ -124,9 +117,21 @@ export function VendorDetailsPanel({
                     </td>
                   </tr>
                 ))}
-                {isEditMode && vendorDetails.weightRows.length > 0 && (
+                {vendorDetails.weightRows.length > 0 && (
                   <tr className="bg-gray-50/50 border-t border-axc-border">
-                    <td className="py-2 px-2 border-r border-axc-border"></td>
+
+                    <td className="py-2 px-2 border-r border-axc-border">
+                      <div>
+                        <button
+                          type="button"
+                          onClick={onAddWeightRow}
+                          className="p-1 text-white rounded-full ring ring-axc-yellow transition capitalize cursor-pointer flex justify-center items-center hover:bg-axc-yellow/10"
+                          title="Add Item"
+                        >
+                          <Plus size={15} strokeWidth={3} className="text-axc-yellow" />
+                        </button>
+                      </div>
+                    </td>
                     <td colSpan={3} className="py-2 px-2 border-r border-axc-border text-right font-bold text-gray-700">
                       <div className="flex items-center justify-end gap-2 text-regular-medium text-black">
                         <span> Total Actual WT</span>
@@ -145,18 +150,7 @@ export function VendorDetailsPanel({
               </tbody>
             </table>
           </div>
-          {isEditMode && (
-            <div className="mt-3">
-              <button
-                type="button"
-                onClick={onAddWeightRow}
-                className="px-3 py-2 bg-axc-dark-yellow flex items-center justify-center gap-2 text-white rounded text-sm font-semibold shadow-sm transition uppercase cursor-pointer"
-              >
-                <Plus size={14} />
-                ADD ROW
-              </button>
-            </div>
-          )}
+
         </div>
 
         <Field label="Actual Weight" value={vendorDetails.actualWeight} editable={editable} onChange={(v) => onChange({ actualWeight: v })} placeholder="Actual Weight" />

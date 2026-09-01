@@ -22,61 +22,13 @@ import CommonScroll from "./src/common/commonscroll";
 import { headings, flightData, ticket, quickActions, statsCards } from "./src/constant";
 import Card from "./src/common/cardbase";
 import Link from "next/link";
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  Legend
-} from "recharts";
 import ChartArea from "./src/component/analytic/areachart";
 import { ChartPie } from "./src/component/analytic/donet";
 
-
-
-
 export default function Home() {
   return (
-    <div className="bg-white p-6 rounded-lg flex-1 min-h-0 flex flex-col gap-6 overflow-hidden">
-      {/* ROW 1: CARDS (Fixed / Sticky at Top) */}
-      <div className="shrink-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6 gap-4">
-        {statsCards?.map((card) => {
-          const Icon = card.icon;
-          const TrendIcon = card.isIncrease ? ArrowUpRight : ArrowDownRight;
-          const trendColor = card.isIncrease ? "text-emerald-600" : "text-red-500";
-          return (
-            <div
-              key={card.id}
-              className="rounded-2xl border border-axc-border bg-white p-4 shadow-sm cursor-pointer transition-all duration-200"
-            >
-              <div className="flex flex-row justify-between gap-2">
-                <div>
-                  <p className="mt-1 text-regular text-axc-gray truncate">{card.label}</p>
-                  <h2 className="mt-1 text-axc-navy-dark">{card.count}</h2>
-                </div>
-                <div className="flex items-center ">
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${card.iconBgColor} ${card.iconTextColor}`}>
-                    <Icon size={20} />
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-2 flex items-center gap-1 text-[10px]">
-                <TrendIcon size={12} className={trendColor} />
-                <span className="text-axc-dark-gray text-regular">{card.trend}</span>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* SCROLLABLE REMAINING CONTENT */}
+    <div className="bg-white p-6 rounded-lg flex-1 min-h-0 flex flex-col overflow-hidden">
+      {/* Scroller now wraps the ENTIRE page content, including the stats cards */}
       <CommonScroll
         orientation="vertical"
         align="start"
@@ -86,10 +38,42 @@ export default function Home() {
         scrollbarThickness={6}
         showArrows={true}
         maxThumbPercent={25}
+        gap={6}
       >
+        {/* ROW 1: CARDS (now scrolls with everything else) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6 gap-4">
+          {statsCards?.map((card) => {
+            const Icon = card.icon;
+            const TrendIcon = card.isIncrease ? ArrowUpRight : ArrowDownRight;
+            const trendColor = card.isIncrease ? "text-emerald-600" : "text-red-500";
+            return (
+              <div
+                key={card.id}
+                className="rounded-2xl border border-axc-border bg-white p-4 shadow-sm cursor-pointer transition-all duration-200"
+              >
+                <div className="flex flex-row justify-between gap-2">
+                  <div>
+                    <p className="mt-1 text-regular text-axc-gray truncate">{card.label}</p>
+                    <h2 className="mt-1 text-axc-navy-dark">{card.count}</h2>
+                  </div>
+                  <div className="flex items-center ">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${card.iconBgColor} ${card.iconTextColor}`}>
+                      <Icon size={20} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-2 flex items-center gap-1 text-[10px]">
+                  <TrendIcon size={12} className={trendColor} />
+                  <span className="text-axc-dark-gray text-regular">{card.trend}</span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
         {/* ROW 2: ANALYTICS (WIDE) & QUICK LINKS (SMALL) */}
         <div className="grid grid-cols-12 gap-6">
-          {/* Analytics (Left, Wide) */}
           <div className="col-span-12 lg:col-span-9">
             <Card title="AWB & Billing Performance" icon={TrendingUp} className="rounded-2xl p-4">
               <div className="h-[300px] w-full">
@@ -98,7 +82,6 @@ export default function Home() {
             </Card>
           </div>
 
-          {/* Quick Links (Right, Small) */}
           <div className="col-span-12 lg:col-span-3 ">
             <Card title="Quick Actions" icon={Package} className="rounded-2xl p-4">
               <div className="flex flex-col gap-3">
@@ -129,26 +112,22 @@ export default function Home() {
 
         {/* ROW 3: ANALYTICS (SMALL), NOTIFICATIONS, ORDER STATUS */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Small Analytics */}
           <Card title="Status Distribution" icon={PieIcon} className="rounded-2xl p-6">
             <ChartPie />
           </Card>
 
-          {/* Notifications */}
           <Card
             title="Notifications Summary"
             icon={MessageCircle}
             titleClassName="text-sm"
             action={
               <Link href="/awb-entries" className="flex items-center gap-1 text-xs font-bold text-axc-navy ">
-                {/* Optional Action */}
               </Link>
             }
             className="rounded-2xl p-4"
           >
             <div className="flex flex-col justify-between h-[240px]">
               <div className="flex items-center justify-around gap-2 my-auto">
-                {/* Circular Item 1 */}
                 <div className="flex flex-col items-center">
                   <div className="relative flex h-14 w-14 items-center justify-center rounded-full bg-axc-navy text-white shadow-md">
                     <Mail size={22} />
@@ -192,7 +171,6 @@ export default function Home() {
             </div>
           </Card>
 
-          {/* Order Status */}
           <Card
             title="Order Status"
             icon={Package}
