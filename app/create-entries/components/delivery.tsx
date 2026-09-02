@@ -223,7 +223,6 @@ export function DeliveryPanel({
 
                 <Field label="Connection Time">
                   <CustomTimePicker
-                  <CustomTimePicker
                     value={delivery.connectionTime}
                     onChange={(val) => updateField("connectionTime", val)}
                     placeholder="Select connection time"
