@@ -6,12 +6,12 @@ import CommonPagination from "./pagination";
 import CommonScroll from "./commonscroll";
 
 interface Heading {
-  label: string;
+  label: React.ReactNode;
   key: string;
   className?: string;
   sortable?: boolean;
   truncate?: boolean;
-  render?: (row: any) => React.ReactNode;
+  render?: (row: any, index?: number) => React.ReactNode;
 }
 
 interface CommonTableProps {
@@ -120,19 +120,20 @@ const CommonTable = ({
               <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-3.5 w-3.5 accent-white" />
             </th>
           )}
-          {headings.map((heading, index) => (
-            <th
-              key={heading.key}
-              onClick={() => heading.sortable && onSort?.(heading.key)}
-              className={`bg-axc-navy/10 px-4 py-3 text-regular-semibold capitalize whitespace-nowrap ${
-                index === 0 && !selectable ? "rounded-l-sm" : ""
-              } ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${
-                heading.sortable ? "cursor-pointer select-none" : ""
-              } ${heading.className ?? ""}`}
-            >
-              <span className="inline-flex items-center gap-1">{heading.label}</span>
-            </th>
-          ))}
+          {headings.map((heading, index) => {
+            const isSorted = sortKey === heading.key;
+            return (
+              <th
+                key={heading.key}
+                onClick={() => heading.sortable && onSort?.(heading.key)}
+                className={`bg-axc-navy/10 px-4 py-3 text-xs font-bold text-axc-dark-gray uppercase whitespace-nowrap ${index === 0 && !selectable ? "rounded-l-sm" : ""
+                  } ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${heading.sortable ? "cursor-pointer select-none hover:bg-axc-navy/20 transition-colors" : ""
+                  } ${heading.className ?? ""}`}
+              >
+                <div className="inline-flex items-center gap-1">{heading.label}</div>
+              </th>
+            );
+          })}
         </tr>
       </thead>
       <tbody className="divide-y divide-axc-border">
@@ -164,7 +165,7 @@ const CommonTable = ({
               {headings.map((heading) => (
                 <td key={heading.key} className="px-4 py-3">
                   {heading.render ? (
-                    heading.render(row)
+                    heading.render(row, (activePage - 1) * itemsPerPage + index)
                   ) : heading.key === "status" ? (
                     <span className={`rounded-full px-3 py-1 text-[10px] font-bold ${getStatusClasses(row.status)}`}>
                       {row.status}
@@ -217,9 +218,9 @@ const CommonTable = ({
                           <div className="group relative inline-block max-w-30">
                             <span className="block truncate cursor-pointer">{truncateText(value, 8)}</span>
                             {value.length > 8 && (
-                              <div className="invisible absolute left-1/2 top-full z-50 mt-2 w-max max-w-xs -translate-x-1/2 rounded-lg bg-axc-dark-gray px-3 py-2 text-xs text-white opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">
+                              <div className="invisible absolute left-1/2 bottom-full z-[99] mb-2 w-max max-w-xs -translate-x-1/2 rounded-lg bg-axc-navy/60 px-3 py-2 text-xs text-white opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">
                                 {value}
-                                <div className="absolute -top-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-axc-dark-gray" />
+                                <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-axc-navy/60" />
                               </div>
                             )}
                           </div>
@@ -260,7 +261,7 @@ const CommonTable = ({
 
       {!hidePagination && computedTotalPages >= 1 && (
         <div className="mt-2 flex shrink-0 justify-end">
-          <CommonPagination currentPage={activePage} totalPages={computedTotalPages} onPageChange={onPageChange ?? (() => {})} />
+          <CommonPagination currentPage={activePage} totalPages={computedTotalPages} onPageChange={onPageChange ?? (() => { })} />
         </div>
       )}
     </div>

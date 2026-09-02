@@ -11,7 +11,6 @@ import {
   AwbEntryheading,
   AwbEntry,
   initialData,
-  awbFilterCategories,
   awbFilterOptions,
 } from "../src/constant";
 import FilterSearch from "../src/common/filtersearch";
@@ -47,6 +46,7 @@ export default function AwbEntriesPage() {
     if (!activeTags.includes(tag)) {
       setActiveTags((prev) => [...prev, tag]);
       setSearchQuery("");
+      setFilterType("");
     }
   };
 
@@ -127,6 +127,7 @@ export default function AwbEntriesPage() {
           (item.service || "").toLowerCase().includes(query) ||
           (item.vendor || "").toLowerCase().includes(query) ||
           (item.masterCode || "").toLowerCase().includes(query) ||
+          (item.bookingDate || "").toLowerCase().includes(query) ||
           (item.status || "").toLowerCase().includes(query);
       }
     }
@@ -151,11 +152,12 @@ export default function AwbEntriesPage() {
         (item.consignee || "").toLowerCase().includes(t) ||
         (item.shipper || "").toLowerCase().includes(t) ||
         (item.origin || "").toLowerCase().includes(t) ||
-        (item.destination || "").toLowerCase().includes(query) ||
+        (item.destination || "").toLowerCase().includes(t) ||
         (item.product || "").toLowerCase().includes(t) ||
         (item.service || "").toLowerCase().includes(t) ||
         (item.vendor || "").toLowerCase().includes(t) ||
         (item.masterCode || "").toLowerCase().includes(t) ||
+        (item.bookingDate || "").toLowerCase().includes(t) ||
         (item.status || "").toLowerCase().includes(t)
       );
     });
@@ -163,9 +165,108 @@ export default function AwbEntriesPage() {
     return matchesQuery && matchesTags;
   });
 
+  const [sortKey, setSortKey] = useState<string>("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  const handleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDirection("asc");
+    }
+  };
+
+  const sortedData = [...filteredData].sort((a, b) => {
+    if (!sortKey) return 0;
+    const aVal = (a as Record<string, any>)[sortKey] ?? "";
+    const bVal = (b as Record<string, any>)[sortKey] ?? "";
+    if (typeof aVal === "number" && typeof bVal === "number") {
+      return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
+    }
+    return sortDirection === "asc"
+      ? String(aVal).localeCompare(String(bVal))
+      : String(bVal).localeCompare(String(aVal));
+  });
+
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
-  const totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
+  const totalPages = Math.max(1, Math.ceil(sortedData.length / itemsPerPage));
+  const paginatedData = sortedData.slice((page - 1) * itemsPerPage, page * itemsPerPage);
+
+  const tableHeadings = AwbEntryheading.map((h) => {
+    if (h.key === "srNo") {
+      return {
+        ...h,
+        render: (_row: AwbEntry, idx?: number) => (
+          <span className="font-medium text-axc-dark-gray">{idx !== undefined ? idx + 1 : _row.srNo}</span>
+        ),
+      };
+    }
+    if (h.key === "selectAwb") {
+      const allSelected =
+        paginatedData.length > 0 &&
+        paginatedData.every((row) => selectedIds.includes(row.awbNumber));
+
+      return {
+        ...h,
+        label: (
+          <div className="flex flex-col items-center justify-center gap-1.5 py-0.5">
+            <span className="text-xs font-semibold uppercase whitespace-nowrap">SELECT AWB</span>
+            <input
+              type="checkbox"
+              checked={allSelected}
+              onChange={() => {
+                if (allSelected) {
+                  setSelectedIds((prev) =>
+                    prev.filter((id) => !paginatedData.some((row) => row.awbNumber === id))
+                  );
+                } else {
+                  setSelectedIds((prev) =>
+                    Array.from(new Set([...prev, ...paginatedData.map((row) => row.awbNumber)]))
+                  );
+                }
+              }}
+              className="h-3.5 w-3.5 accent-axc-navy cursor-pointer"
+            />
+          </div>
+        ),
+        render: (row: AwbEntry) => (
+          <div className="flex items-center justify-center">
+            <input
+              type="checkbox"
+              checked={selectedIds.includes(row.awbNumber)}
+              onChange={() => {
+                setSelectedIds((prev) =>
+                  prev.includes(row.awbNumber)
+                    ? prev.filter((id) => id !== row.awbNumber)
+                    : [...prev, row.awbNumber]
+                );
+              }}
+              className="h-3.5 w-3.5 accent-axc-navy cursor-pointer"
+            />
+          </div>
+        ),
+      };
+    }
+    if (h.key === "masterCode") {
+      return {
+        ...h,
+        label: (
+          <div className="flex flex-col text-left font-bold text-xs uppercase leading-[14px]">
+            <span>INVOICE</span>
+            <span>RANGE</span>
+            <span>MASTER</span>
+            <div className="flex items-center gap-1">
+              <span>CODE</span>
+
+            </div>
+          </div>
+        ),
+      };
+    }
+    return h;
+  });
 
   useEffect(() => {
     setPage(1);
@@ -175,7 +276,7 @@ export default function AwbEntriesPage() {
     <div className="relative bg-white p-4 rounded-lg w-full flex-1 flex flex-col min-h-0  shadow-sm border border-axc-border  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4 shrink-0">
         <FilterSearch
-          groups={awbFilterCategories}
+          options={awbFilterOptions}
           selectedOption={filterType}
           onOptionChange={setFilterType}
           searchValue={searchQuery}
@@ -220,8 +321,8 @@ export default function AwbEntriesPage() {
 
       <div className="flex-1 min-h-0 flex flex-col">
         <CommonTable
-          headings={AwbEntryheading}
-          data={filteredData}
+          headings={tableHeadings}
+          data={sortedData}
           onEdit={handleEdit}
           onDelete={handleDelete}
           onView={handleView}
@@ -229,7 +330,9 @@ export default function AwbEntriesPage() {
           totalPages={totalPages}
           onPageChange={(p) => setPage(p)}
           itemsPerPage={itemsPerPage}
-          selectable
+          sortKey={sortKey}
+          sortDirection={sortDirection}
+          onSort={handleSort}
           rowKey="awbNumber"
           selectedIds={selectedIds}
           onSelectionChange={setSelectedIds}
