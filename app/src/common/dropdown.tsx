@@ -96,6 +96,8 @@ export default function Dropdown({
         >
           <div className="relative pt-2">
             <div className="absolute top-[2px] right-6 h-3.5 w-3.5 rotate-45 border-l border-t border-axc-border bg-white z-20" />
+
+            {/* Rounded Popover Card with clearly defined border-axc-border */}
             <div className="relative z-10 max-h-64 overflow-y-auto rounded-2xl border border-axc-border bg-white divide-y divide-gray-100">
               {options && options.length > 0 ? (
                 options.map((option) => (
