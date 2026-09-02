@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Trash2, Plus } from "lucide-react";
+import { Trash, Plus } from "lucide-react";
 import CommonTable from "../../../src/common/table";
 import Dropdown from "../../../src/common/dropdown";
 import { ManifestChargeRow } from "./state";
@@ -47,7 +47,7 @@ export default function ManifestBilling({
       <div className={minWidth}>
         <Dropdown
           value={(row[field] as string) || ""}
-          onChange={(val) => updateCharge(row.id, field, val)}
+          onChange={(val) => updateCharge(row.id, field, val as ManifestChargeRow[typeof field])}
           options={formattedOptions}
           placeholder={placeholder}
           className="!py-1 !px-2 !text-xs !h-8"
@@ -59,8 +59,8 @@ export default function ManifestBilling({
   const textCell = (row: ManifestChargeRow, field: keyof ManifestChargeRow) => (
     <input
       className={inputClass}
-      value={row[field]}
-      onChange={(e) => updateCharge(row.id, field, e.target.value)}
+      value={row[field] as string}
+      onChange={(e) => updateCharge(row.id, field, e.target.value as ManifestChargeRow[typeof field])}
     />
   );
 
@@ -68,8 +68,8 @@ export default function ManifestBilling({
     <textarea
       className={`${inputClass} h-8 resize-y`}
       rows={1}
-      value={row[field]}
-      onChange={(e) => updateCharge(row.id, field, e.target.value)}
+      value={row[field] as string}
+      onChange={(e) => updateCharge(row.id, field, e.target.value as ManifestChargeRow[typeof field])}
     />
   );
 
@@ -115,14 +115,14 @@ export default function ManifestBilling({
       label: "Action",
       key: "action",
       render: (row: ManifestChargeRow) => (
-        <button
-          type="button"
-          onClick={() => removeCharge(row.id)}
-          className="text-axc-red hover:opacity-70 cursor-pointer"
-          title="Remove"
-        >
-          <Trash2 size={16} />
-        </button>
+         <button
+              type="button"
+              onClick={() => removeCharge(row.id)}
+              title="Remove"
+             className="inline-flex items-center justify-center cursor-pointer rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
+            >
+            <Trash size={15} />
+          </button>
       ),
     },
   ];
@@ -133,18 +133,21 @@ export default function ManifestBilling({
         headings={headings}
         data={charges}
         rowKey="id"
+        showScroll={false}
         emptyMessage="No charges added"
         hidePagination
       />
 
-      <button
-        type="button"
-        onClick={addCharge}
-        className="self-end flex items-center gap-1.5 px-5 py-4 bg-axc-navy hover:opacity-90 text-white rounded-md text-regular-small transition cursor-pointer"
-      >
-        <Plus size={14} />
-        ADD CHARGE
-      </button>
+      <div className="flex justify-end">
+        <button
+          type="button"
+          onClick={addCharge}
+          className="p-1 text-white rounded-full ring ring-axc-yellow transition capitalize cursor-pointer flex justify-center items-center hover:bg-axc-yellow/10"
+          title="Add Charge"
+        >
+          <Plus size={15} strokeWidth={3} className="text-axc-yellow" />
+        </button>
+      </div>
     </div>
   );
 }
