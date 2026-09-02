@@ -166,30 +166,26 @@ export default function ManifestInformation({
           </div>
 
           {/* 4. FLIGHT NO */}
-          <div className="flex flex-col gap-1">
-            <FieldLabel>Flight No</FieldLabel>
-            <div className="relative">
-              <select
-                disabled={!form.editFlightNo}
+        <div className="flex flex-col gap-1">
+          <FieldLabel>Flight No</FieldLabel>
+           <div className="relative">
+              <Dropdown
                 value={form.flightNo}
-                onChange={(e) => updateField("flightNo", e.target.value)}
-                className={`${form.editFlightNo ? inputClass : disabledInputClass} w-full pr-16 appearance-none`}
-              >
-                <option value="">SELECT FLIGHT NO...</option>
-                <option value="AI-101">AI-101</option>
-                <option value="EK-501">EK-501</option>
-              </select>
-              <div className="absolute right-9 top-1/2 -translate-y-1/2 pointer-events-none">
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2.5 4.5L6 8L9.5 4.5" stroke="#6B7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </div>
-              <div className="absolute right-1 top-1/2 -translate-y-1/2">
-                <EditIconButton
-                  active={form.editFlightNo}
-                  onToggle={() => toggleEdit("editFlightNo")}
-                  title="Edit Flight No"
-                />
+                 onChange={(val) => updateField("flightNo", val)}
+                  disabled={!form.editFlightNo}
+                   placeholder="SELECT FLIGHT NO..."
+                    options={[
+                        { value: "AI-101", label: "AI-101" },
+                        { value: "EK-501", label: "EK-501" },
+                          ]}
+                   className="pr-10"
+                  />
+            <div className="absolute right-1 top-1/2 -translate-y-1/2">
+             <EditIconButton
+                 active={form.editFlightNo}
+                 onToggle={() => toggleEdit("editFlightNo")}
+                title="Edit Flight No"
+               />
               </div>
             </div>
           </div>

@@ -82,6 +82,7 @@ export default function Home() {
             </Card>
           </div>
 
+          {/* Quick Links (Right, Small) */}
           <div className="col-span-12 lg:col-span-3 ">
             <Card title="Quick Actions" icon={Package} className="rounded-2xl p-4">
               <div className="flex flex-col gap-3">
@@ -214,6 +215,7 @@ export default function Home() {
             headings={headings}
             data={flightData}
             hidePagination={true}
+            showScroll={false}
             className="px-4 pb-4"
             onView={(row) => {
               console.log("View", row);

@@ -160,6 +160,7 @@ export default function ActivityLogsTab() {
         currentPage={currentPage}
         onPageChange={setCurrentPage}
         itemsPerPage={10}
+        showScroll={false}
         selectable
         rowKey="id"
         selectedIds={selectedIds}

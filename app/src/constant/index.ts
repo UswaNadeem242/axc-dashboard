@@ -302,19 +302,19 @@ export interface AwbEntry {
 export const AwbEntryheading = [
   { label: "SR.NO.", key: "srNo" },
   { label: "SELECT AWB", key: "selectAwb" },
-  { label: "AWB NUMBER", key: "awbNumber" },
-  { label: "BOOKING DATE", key: "bookingDate" },
-  { label: "FORWARDING", key: "forwardingNumber" },
-  { label: "CUSTOMER", key: "customer" },
-  { label: "INVOICE", key: "masterCode" },
-  { label: "PRODUCT", key: "product" },
+  { label: "AWB NUMBER", key: "awbNumber", sortable: true },
+  { label: "BOOKING DATE", key: "bookingDate", sortable: true },
+  { label: "FORWARDING NUMBER", key: "forwardingNumber", sortable: true },
+  { label: "CUSTOMER", key: "customer", sortable: true },
+  { label: "INVOICE RANGE MASTER CODE", key: "masterCode", sortable: true, className: "max-w-[130px] whitespace-normal leading-tight" },
+  { label: "PRODUCT", key: "product", sortable: true },
   { label: "PCS", key: "pcs" },
-  { label: "SERVICE", key: "service" },
-  { label: "VENDOR", key: "vendor" },
-  { label: "ORIGIN", key: "origin" },
-  { label: "DESTINATION", key: "destination" },
-  { label: "CONSIGNEE", key: "consignee" },
-  { label: "SHIPPER", key: "shipper" },
+  { label: "SERVICE", key: "service", sortable: true },
+  { label: "VENDOR", key: "vendor", sortable: true },
+  { label: "ORIGIN", key: "origin", sortable: true },
+  { label: "DESTINATION", key: "destination", sortable: true },
+  { label: "CONSIGNEE", key: "consignee", sortable: true },
+  { label: "SHIPPER", key: "shipper", sortable: true },
   { label: "ACTION", key: "action" },
 ];
 
@@ -1372,5 +1372,9 @@ export const awbFilterCategories: FilterGroupOption[] = [
 
 export const awbFilterOptions = [
   { label: "Select", value: "" },
-  ...awbFilterCategories.flatMap((cat) => cat.options),
+  { label: "AWB Number", value: "awbNumber" },
+  { label: "Forwarding Number", value: "forwardingNumber" },
+  { label: "Service", value: "service" },
+  { label: "Product", value: "product" },
+  { label: "Booking Date", value: "bookingDate" },
 ];

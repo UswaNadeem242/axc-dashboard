@@ -204,9 +204,7 @@ export default function UserTab() {
     <>
       {toast && <Toast msg={toast} />}
 
-      {/* Fixed-height outer box — same pattern as CustomerReport.
-          Everything inside is flex-col; the table area (CommonTable)
-          is the only part that scrolls. */}
+      
       <div className="relative bg-white p-3 rounded-[8px] w-full h-[calc(100vh-160px)] flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div className="flex flex-wrap items-center gap-3">
@@ -267,6 +265,7 @@ export default function UserTab() {
           currentPage={currentPage}
           onPageChange={setCurrentPage}
           itemsPerPage={10}
+          showScroll={false}
           renderActions={renderActions}
           selectable
           rowKey="id"

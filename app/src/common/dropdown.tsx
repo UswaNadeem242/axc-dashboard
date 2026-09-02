@@ -23,9 +23,19 @@ interface DropdownProps {
   title?: string;
   placeholder?: string;
   className?: string;
+  disabled?: boolean;
 }
 
-export default function Dropdown({ options, value, onChange, items, title = "Actions", placeholder = "Select...", className = "" }: DropdownProps) {
+export default function Dropdown({
+  options,
+  value,
+  onChange,
+  items,
+  title = "Actions",
+  placeholder = "Select...",
+  className = "",
+  disabled = false,
+}: DropdownProps) {
   if (items) {
     return (
       <Menu as="div" className={`relative inline-block text-left ${className}`}>
@@ -36,7 +46,6 @@ export default function Dropdown({ options, value, onChange, items, title = "Act
 
         <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
           <div className="absolute right-0 z-50 mt-1 w-52 pt-2">
-            {/* Top caret pointer */}
             <div className="absolute top-[2px] right-6 h-3.5 w-3.5 rotate-45 border-l border-t border-axc-border bg-white z-20" />
             <MenuItems className="relative z-10 overflow-hidden rounded-2xl border border-axc-border bg-white divide-y divide-gray-100 focus:outline-none">
               {items.map((item) => (
@@ -65,10 +74,14 @@ export default function Dropdown({ options, value, onChange, items, title = "Act
   const selectedOption = options?.find((opt) => opt.value === value);
 
   return (
-    <Listbox value={value || ""} onChange={onChange}>
+    <Listbox value={value || ""} onChange={onChange} disabled={disabled}>
       <div className="relative w-full">
         <ListboxButton
-          className={`relative w-full text-left bg-white border border-axc-border rounded-md px-3 py-2.5 outline-none cursor-pointer flex items-center justify-between text-[13px] font-normal text-gray-700 transition ${className}`}
+          className={`relative w-full text-left border rounded-md px-3 py-2.5 outline-none flex items-center justify-between text-[13px] font-normal transition ${
+            disabled
+              ? "bg-gray-50 border-axc-border text-gray-400 cursor-not-allowed"
+              : "bg-white border-axc-border text-gray-700 cursor-pointer"
+          } ${className}`}
         >
           <span className={`block truncate ${selectedOption ? "text-gray-800 font-medium" : "text-gray-400"}`}>
             {selectedOption ? selectedOption.label : placeholder}
@@ -82,7 +95,6 @@ export default function Dropdown({ options, value, onChange, items, title = "Act
           className="z-[9999] w-[var(--button-width)] focus:outline-none transition ease-out duration-100 data-[closed]:opacity-0 data-[closed]:scale-95"
         >
           <div className="relative pt-2">
-            {/* Top caret pointer */}
             <div className="absolute top-[2px] right-6 h-3.5 w-3.5 rotate-45 border-l border-t border-axc-border bg-white z-20" />
 
             {/* Rounded Popover Card with clearly defined border-axc-border */}

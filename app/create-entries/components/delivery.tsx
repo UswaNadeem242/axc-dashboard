@@ -5,6 +5,7 @@ import { PanelHeader, EditIconButton, inputClass } from "./form";
 import { TrackingEventsPanel } from "./tracking";
 import CommonTable from "../../src/common/table";
 import CustomDatePicker from "../../src/common/datepicker";
+import CustomTimePicker from "../../src/common/timepicker";
 
 interface DeliverySummaryRow {
   label: string;
@@ -42,21 +43,18 @@ export function DeliveryPanel({
   const deliverySummaryData: DeliverySummaryRow[] = [
     {
       label: "Expected Delivery Date",
-
       customer: delivery.expectedDeliveryDateCustomer || "-",
       vendor: delivery.expectedDeliveryDateVendor || "-",
       highlight: false,
     },
     {
       label: "Actual TAT",
-
       customer: delivery.actualTatCustomer || "-",
       vendor: delivery.actualTatVendor || "-",
       highlight: true,
     },
     {
       label: "Crossed EDD Days",
-
       customer: delivery.crossedEddDaysCustomer || "-",
       vendor: delivery.crossedEddDaysVendor || "-",
       highlight: false,
@@ -131,9 +129,9 @@ export function DeliveryPanel({
           </div>
         </div>
 
-        {/* Right Column: Delivery Summary, Delivery Form, and AWB Tracking (col-span-9) */}
+        {/* Right Column: Delivery Summary & Delivery Form (col-span-9) */}
         <div className="flex flex-col gap-6 w-full xl:col-span-9">
-          {/* Second Table: Delivery Summary */}
+          {/* Delivery Summary */}
           <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
             <div className="p-4 flex-1 flex flex-col justify-center">
               <CommonTable
@@ -143,7 +141,6 @@ export function DeliveryPanel({
                 hidePagination={true}
                 itemsPerPage={deliverySummaryData.length}
                 showScroll={false}
-              
               />
             </div>
           </div>
@@ -197,7 +194,12 @@ export function DeliveryPanel({
                   />
                 </Field>
                 <Field label="API Crossed EDD Days">
-                  <input className={inputClass} disabled value={delivery.apiCrossedEddDays} placeholder="API Crossed EDD Days" />
+                  <input
+                    className={inputClass}
+                    disabled
+                    value={delivery.apiCrossedEddDays}
+                    placeholder="API Crossed EDD Days"
+                  />
                 </Field>
 
                 <Field label="Connection Date">
@@ -220,12 +222,10 @@ export function DeliveryPanel({
                 </Field>
 
                 <Field label="Connection Time">
-                  <input
-                    placeholder="Connection Time"
-                    type="time"
-                    className={inputClass}
+                  <CustomTimePicker
                     value={delivery.connectionTime}
-                    onChange={(e) => updateField("connectionTime", e.target.value)}
+                    onChange={(val) => updateField("connectionTime", val)}
+                    placeholder="Select connection time"
                   />
                 </Field>
 
@@ -238,20 +238,29 @@ export function DeliveryPanel({
                 </Field>
 
                 <Field label="Appointment Time">
-                  <input
-                    type="time"
-                    className={inputClass}
+                  <CustomTimePicker
                     value={delivery.appointmentTime}
-                    onChange={(e) => updateField("appointmentTime", e.target.value)}
+                    onChange={(val) => updateField("appointmentTime", val)}
+                    placeholder="Select appointment time"
                   />
                 </Field>
 
                 <Field label="POD Uploaded Date">
-                  <input className={inputClass} disabled value={delivery.podUploadedDate} placeholder="POD Uploaded Date" />
+                  <input
+                    className={inputClass}
+                    disabled
+                    value={delivery.podUploadedDate}
+                    placeholder="POD Uploaded Date"
+                  />
                 </Field>
 
                 <Field label="POD Uploaded Time">
-                  <input className={inputClass} disabled value={delivery.podUploadedTime} placeholder="POD Uploaded Time" />
+                  <input
+                    className={inputClass}
+                    disabled
+                    value={delivery.podUploadedTime}
+                    placeholder="POD Uploaded Time"
+                  />
                 </Field>
 
                 <Field label="Delivery Cost">
@@ -349,30 +358,35 @@ export function DeliveryPanel({
                       <EditIconButton
                         active={delivery.codAmountCollectedChecked}
                         onToggle={() =>
-                          updateField("codAmountCollectedChecked", !delivery.codAmountCollectedChecked)
+                          updateField(
+                            "codAmountCollectedChecked",
+                            !delivery.codAmountCollectedChecked
+                          )
                         }
                         title="Edit COD Amount Collected"
                       />
                     </div>
                   </div>
                 </Field>
-                <div className="flex items-center gap-2 mt-1">
 
-                  <label htmlFor="podHardCopy" className="text-regular-medium text-axc-dark-gray capitalize cursor-pointer">
-                    POD Hard Copy
-                  </label>
+                <div className="flex items-center gap-2 mt-6">
                   <input
                     type="checkbox"
                     id="podHardCopy"
-                    className="cursor-pointer"
+                    className="cursor-pointer h-4 w-4 rounded border-gray-300 text-axc-navy focus:ring-axc-navy"
                     checked={delivery.podHardCopy}
                     onChange={(e) => updateField("podHardCopy", e.target.checked)}
                   />
+                  <label
+                    htmlFor="podHardCopy"
+                    className="text-regular-medium text-axc-dark-gray capitalize cursor-pointer select-none"
+                  >
+                    POD Hard Copy
+                  </label>
                 </div>
-
               </div>
 
-              <div className="flex justify-end items-end w-full flex-wrap gap-x-6 gap-y-1 px-5 py-7 border-t border-axc-border text-sm text-regular-semibold text-axc-dark-gray">
+              <div className="flex justify-end items-end w-full flex-wrap gap-x-6 gap-y-1 px-5 py-4 border-t border-axc-border text-sm text-regular-semibold text-axc-dark-gray">
                 <p>TOTAL PCS - {delivery.totalPcs}</p>
                 <p>TOTAL PICKUP SCAN PARCELS - {delivery.totalPickupScanParcels}</p>
                 <p>TOTAL INSCAN PARCELS - {delivery.totalInscanParcels}</p>
