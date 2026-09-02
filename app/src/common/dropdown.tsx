@@ -23,7 +23,7 @@ interface DropdownProps {
   title?: string;
   placeholder?: string;
   className?: string;
-  disabled?: boolean; // ADDED
+  disabled?: boolean;
 }
 
 export default function Dropdown({
@@ -34,7 +34,7 @@ export default function Dropdown({
   title = "Actions",
   placeholder = "Select...",
   className = "",
-  disabled = false, // ADDED
+  disabled = false,
 }: DropdownProps) {
   if (items) {
     return (
