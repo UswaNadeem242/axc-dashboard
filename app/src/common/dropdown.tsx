@@ -23,7 +23,7 @@ interface DropdownProps {
   title?: string;
   placeholder?: string;
   className?: string;
-  disabled?: boolean; // ADDED
+  disabled?: boolean;
 }
 
 export default function Dropdown({
@@ -34,7 +34,7 @@ export default function Dropdown({
   title = "Actions",
   placeholder = "Select...",
   className = "",
-  disabled = false, // ADDED
+  disabled = false,
 }: DropdownProps) {
   if (items) {
     return (
@@ -47,7 +47,6 @@ export default function Dropdown({
         <Transition as={Fragment} enter="transition ease-out duration-100" enterFrom="opacity-0 scale-95" enterTo="opacity-100 scale-100" leave="transition ease-in duration-75" leaveFrom="opacity-100 scale-100" leaveTo="opacity-0 scale-95">
           <div className="absolute right-0 z-50 mt-1 w-52 pt-2">
             <div className="absolute top-[2px] right-6 h-3.5 w-3.5 rotate-45 border-l border-t border-axc-border bg-white z-20" />
-            <MenuItems className="relative z-10 overflow-hidden rounded-2xl border border-axc-border bg-white divide-y divide-gray-100 focus:outline-none">
             <MenuItems className="relative z-10 overflow-hidden rounded-2xl border border-axc-border bg-white divide-y divide-gray-100 focus:outline-none">
               {items.map((item) => (
                 <MenuItem key={item.label}>
@@ -93,7 +92,6 @@ export default function Dropdown({
         <ListboxOptions
           anchor={{ to: "bottom start", gap: 4 }}
           transition
-          className="z-[9999] w-[var(--button-width)] focus:outline-none transition ease-out duration-100 data-[closed]:opacity-0 data-[closed]:scale-95"
           className="z-[9999] w-[var(--button-width)] focus:outline-none transition ease-out duration-100 data-[closed]:opacity-0 data-[closed]:scale-95"
         >
           <div className="relative pt-2">
