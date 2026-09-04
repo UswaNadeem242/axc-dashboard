@@ -169,11 +169,11 @@ export function DeliveryPanel({
                   </div>
                 </Field>
                 <Field label="Expected Time">
-                   <CustomTimePicker
+                  <CustomTimePicker
                     value={delivery.expectedTime}
                     onChange={(val) => updateField("expectedTime", val)}
-                     placeholder="Select expected time"
-                      />
+                    placeholder="Select expected time"
+                  />
                 </Field>
                 <Field label="Delivery Date">
                   <CustomDatePicker
@@ -187,8 +187,8 @@ export function DeliveryPanel({
                   <CustomTimePicker
                     value={delivery.deliveryTime}
                     onChange={(val) => updateField("deliveryTime", val)}
-                     placeholder="Select delivery time"
-                      />
+                    placeholder="Select delivery time"
+                  />
                 </Field>
                 <Field label="API Crossed EDD Days">
                   <input
@@ -220,14 +220,10 @@ export function DeliveryPanel({
 
                 <Field label="Connection Time">
                   <CustomTimePicker
-                  <CustomTimePicker
                     value={delivery.connectionTime}
                     onChange={(val) => updateField("connectionTime", val)}
                     placeholder="Select connection time"
                   />
-                    onChange={(val) => updateField("connectionTime", val)}
-                     placeholder="Select connection time"
-                      />
                 </Field>
 
                 <Field label="Appointment Date">
