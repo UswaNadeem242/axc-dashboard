@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Image from "next/image";
-import { X, MapPin, Phone, Mail, ChevronDown, User, IndianRupee, Truck, ArrowLeft } from "lucide-react";
+import { X, MapPin, Phone, Mail, ChevronDown, User, IndianRupee, Truck, ArrowLeft, Eye } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 
 const SectionHeader = ({ title }: { title: string }) => (
@@ -843,7 +843,7 @@ export default function AwbViewPage() {
           onClick={() => setActiveTab("awb-details")}
           className={`flex items-center gap-2 pb-3 text-sm font-medium border-b-2 transition-colors px-2 cursor-pointer ${activeTab === "awb-details" ? "border-axc-navy text-axc-navy" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}`}
         >
-          <User size={16} />
+          <Eye size={16} />
           AWB Details
         </button>
         <button
