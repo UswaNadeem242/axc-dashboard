@@ -184,13 +184,11 @@ export function DeliveryPanel({
                 </Field>
 
                 <Field label="Delivery Time">
-                  <input
-                    type="time"
-                    className={inputClass}
+                  <CustomTimePicker
                     value={delivery.deliveryTime}
                     onChange={(val) => updateField("deliveryTime", val)}
-                     placeholder="Select delivery time"
-                      />
+                    placeholder="Select delivery time"
+                  />
                 </Field>
                 <Field label="API Crossed EDD Days">
                   <input
