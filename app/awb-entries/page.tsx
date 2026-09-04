@@ -103,7 +103,7 @@ export default function AwbEntriesPage() {
   const handlePdf2 = (row: AwbEntry) => console.log("View PDF 2", row.awbNumber);
   const handleInv = (row: AwbEntry) => console.log("View INV", row.awbNumber);
   const handleEdit = (row: AwbEntry) => router.push(`/create-entries?edit=${row.awbNumber}`);
-  const handleView = (row: AwbEntry) => router.push(`/create-entries?edit=${row.awbNumber}`);
+  const handleView = (row: AwbEntry) => router.push(`/awb-entries/view/${row.awbNumber}`);
 
   const filteredData = data.filter((item) => {
     const query = searchQuery.trim().toLowerCase();
