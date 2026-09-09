@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { PanelHeader, FieldLabel, FieldError, inputClass, errorInputClass } from "../formfield";
+import { PanelHeader, FieldLabel, FieldError, inputClass, errorInputClass } from "../component/formfield";
 import type { useBaggingForm, PartialAwbRow } from "./baggingstate";
 import Dropdown from "@/app/src/common/dropdown";
 import CustomDatePicker from "@/app/src/common/datepicker";

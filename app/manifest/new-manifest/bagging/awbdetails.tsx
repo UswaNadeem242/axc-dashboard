@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { PanelHeader } from "../formfield";
+import { PanelHeader } from "../component/formfield";
 
 type AwbDetails = {
   contents?: string;
