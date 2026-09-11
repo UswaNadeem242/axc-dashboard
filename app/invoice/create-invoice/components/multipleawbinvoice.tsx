@@ -132,28 +132,86 @@ export function AwbTableSection({
                     {index + 1}
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.shipperName)}
+                    <input
+                      type="text"
+                      placeholder="Shipper Name"
+                      value={row.shipperName}
+                      onChange={(e) =>
+                        updateAwbRow(row.id, "shipperName", e.target.value)
+                      }
+                      className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.shipperCode)}
+                    <input
+                      type="text"
+                      placeholder="Shipper Code"
+                      value={row.shipperCode}
+                      onChange={(e) =>
+                        updateAwbRow(row.id, "shipperCode", e.target.value)
+                      }
+                      className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.awbCount)}
+                    <input
+                      type="text"
+                      value={row.awbCount}
+                      onChange={(e) =>
+                        updateAwbRow(row.id, "awbCount", e.target.value)
+                      }
+                      className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.chargeableWeight)}
+                    <input
+                      type="text"
+                      value={row.chargeableWeight}
+                      onChange={(e) =>
+                        updateAwbRow(row.id, "chargeableWeight", e.target.value)
+                      }
+                      className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.freightAmount)}
+                    <input
+                      type="text"
+                      value={row.freightAmount}
+                      onChange={(e) =>
+                        updateAwbRow(row.id, "freightAmount", e.target.value)
+                      }
+                      className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.freightZeroAwb)}
+                    <input
+                      type="text"
+                      value={row.freightZeroAwb}
+                      onChange={(e) =>
+                        updateAwbRow(row.id, "freightZeroAwb", e.target.value)
+                      }
+                      className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.vat)}
+                    <input
+                      type="text"
+                      value={row.vat}
+                      onChange={(e) =>
+                        updateAwbRow(row.id, "vat", e.target.value)
+                      }
+                      className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.grandTotal)}
+                    <input
+                      type="text"
+                      value={row.grandTotal}
+                      onChange={(e) =>
+                        updateAwbRow(row.id, "grandTotal", e.target.value)
+                      }
+                      className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
+                    />
                   </td>
                   <td className="p-1 text-center">
                     <button

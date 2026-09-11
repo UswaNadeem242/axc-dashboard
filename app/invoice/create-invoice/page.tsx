@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { User, Users, CreditCard, FileText } from "lucide-react";
+import { User, Users, CreditCard, FileText, AlertTriangle, X } from "lucide-react";
 import { AwbSingleCustomerInvoiceTab } from "./components/awbsinglecustomerinvoice";
 import { AwbMultipleCustomerInvoiceTab } from "./components/awbmultiplecustomerinvoice";
 import { AwbMultipleTab } from "./components/awbmultipleinvoice";
@@ -27,9 +27,25 @@ const developedTabs = new Set([
   "multiple-customer",
   "multiple-awb",
 ]);
+const tabWarnings: Record<string, string> = {
+  "multiple-customer":
+    "To Create Multiple Customer Invoice, Enable Auto Generate Invoice Number Setting",
+  "multiple-awb":
+    "To Create Multiple AWB Invoice, Enable Auto Generate Invoice Number Setting",
+};
 
 export default function CreateInvoicePage() {
   const [activeTab, setActiveTab] = useState("single-customer");
+  const [dismissedWarnings, setDismissedWarnings] = useState<
+    Record<string, boolean>
+  >({});
+
+  const currentWarning = tabWarnings[activeTab];
+  const showWarning = Boolean(currentWarning) && !dismissedWarnings[activeTab];
+
+  const dismissWarning = (tabId: string) => {
+    setDismissedWarnings((prev) => ({ ...prev, [tabId]: true }));
+  };
 
   return (
     <div className="flex flex-col gap-4 w-full h-full min-h-0 overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -60,6 +76,20 @@ export default function CreateInvoicePage() {
             ))}
           </div>
         </div>
+        {showWarning && (
+          <div className="shrink-0 mt-4 flex items-center gap-2 bg-axc-red text-white text-regular-small px-4 py-2.5 rounded-md">
+            <AlertTriangle size={14} className="shrink-0" />
+            <span className="flex-1">{currentWarning}</span>
+            <button
+              type="button"
+              onClick={() => dismissWarning(activeTab)}
+              className="shrink-0 hover:opacity-70 transition-opacity cursor-pointer"
+              aria-label="Dismiss warning"
+            >
+              <X size={14} />
+            </button>
+          </div>
+        )}
 
         <div className="flex-1 min-h-0 overflow-y-auto mt-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {activeTab === "single-customer" && <AwbSingleCustomerInvoiceTab />}
