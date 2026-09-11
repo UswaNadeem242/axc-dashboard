@@ -1,16 +1,34 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Mail, MessageCircle, FileText, FileSpreadsheet, Pencil, Trash2, PlusCircle, PlusCircleIcon, Eye } from "lucide-react";
+import { useRouter } from "next/navigation";
+import {
+  X,
+  Mail,
+  MessageCircle,
+  FileText,
+  FileSpreadsheet,
+  Pencil,
+  Trash2,
+  PlusCircle,
+  PlusCircleIcon,
+  Eye,
+} from "lucide-react";
 
 import CommonTable from "../../src/common/table";
-import { InvoiceHeading, InvoiceEntry, initialInvoiceData } from "../../src/constant";
+import {
+  InvoiceHeading,
+  InvoiceEntry,
+  initialInvoiceData,
+} from "../../src/constant";
 import FilterSearch from "../../src/common/filtersearch";
 import Button from "../../src/common/button";
 import { showToast } from "../../src/common/toast";
 import DeleteConfirmationDialog from "../../src/common/deleteConfirmation";
 
 export default function AllInvoicePage() {
+  const router = useRouter();
+
   const [data, setData] = useState<InvoiceEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState("");
@@ -21,23 +39,23 @@ export default function AllInvoicePage() {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const itemsPerPage = 10;
-
   useEffect(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("invoice_entries");
       if (stored) {
         try {
           const parsed: InvoiceEntry[] = JSON.parse(stored);
-          if (parsed.length > initialInvoiceData.length) {
-            setData(parsed);
-            return;
-          }
+          setData(parsed);
+          return;
         } catch (error) {
           console.error("Failed to load invoice data:", error);
         }
       }
       setData(initialInvoiceData);
-      localStorage.setItem("invoice_entries", JSON.stringify(initialInvoiceData));
+      localStorage.setItem(
+        "invoice_entries",
+        JSON.stringify(initialInvoiceData),
+      );
     }
   }, []);
 
@@ -59,14 +77,21 @@ export default function AllInvoicePage() {
     setActiveTags((prev) => prev.filter((tag) => tag !== tagToRemove));
   };
 
-  const handleView = (row: InvoiceEntry) => console.log("View Invoice:", row.invoiceNumber);
-  const handleEmail = (row: InvoiceEntry) => console.log("Email Invoice:", row.invoiceNumber);
-  const handleWhatsapp = (row: InvoiceEntry) => console.log("Whatsapp Invoice:", row.invoiceNumber);
-  const handlePdf = (row: InvoiceEntry) => console.log("View Invoice PDF:", row.invoiceNumber);
-  const handleExcel = (row: InvoiceEntry) => console.log("Export Invoice Excel:", row.invoiceNumber);
-  const handleEdit = (row: InvoiceEntry) => console.log("Edit Invoice:", row.invoiceNumber);
+  const handleView = (row: InvoiceEntry) =>
+    console.log("View Invoice:", row.invoiceNumber);
+  const handleEmail = (row: InvoiceEntry) =>
+    console.log("Email Invoice:", row.invoiceNumber);
+  const handleWhatsapp = (row: InvoiceEntry) =>
+    console.log("Whatsapp Invoice:", row.invoiceNumber);
+  const handlePdf = (row: InvoiceEntry) =>
+    console.log("View Invoice PDF:", row.invoiceNumber);
+  const handleExcel = (row: InvoiceEntry) =>
+    console.log("Export Invoice Excel:", row.invoiceNumber);
 
-  // Opens the confirmation dialog instead of deleting immediately.
+  const handleEdit = (row: InvoiceEntry) => {
+    const type = row.customerType || "single-customer";
+    router.push(`/invoice/edit-invoice?id=${row.invoiceNumber}&type=${type}`);
+  };
   const handleDelete = (row: InvoiceEntry) => {
     setDeleteTarget(row);
   };
@@ -75,14 +100,16 @@ export default function AllInvoicePage() {
     if (isDeleting) return;
     setDeleteTarget(null);
   };
-
-  // Runs the actual delete once the user confirms in the dialog.
   const confirmDelete = () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
 
-    setData((prev) => prev.filter((item) => item.invoiceNumber !== deleteTarget.invoiceNumber));
-    setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.invoiceNumber));
+    setData((prev) =>
+      prev.filter((item) => item.invoiceNumber !== deleteTarget.invoiceNumber),
+    );
+    setSelectedIds((prev) =>
+      prev.filter((id) => id !== deleteTarget.invoiceNumber),
+    );
     showToast({ variant: "success", message: "Invoice deleted." });
 
     setIsDeleting(false);
@@ -124,7 +151,9 @@ export default function AllInvoicePage() {
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
         <div className="flex flex-wrap items-center gap-3">
           {selectedIds.length > 0 && (
-            <span className="text-regular-medium  text-axc-gray">{selectedIds.length} selected</span>
+            <span className="text-regular-medium  text-axc-gray">
+              {selectedIds.length} selected
+            </span>
           )}
           <FilterSearch
             options={[
@@ -142,9 +171,13 @@ export default function AllInvoicePage() {
           />
         </div>
 
-      
-        <Button className="px-5 py-4 rounded-lg text-regular-small" label="New Invoice" href="/invoice/create-invoice" variant="primary" icon={PlusCircleIcon}  />
-
+        <Button
+          className="px-5 py-4 rounded-lg text-regular-small"
+          label="New Invoice"
+          href="/invoice/create-invoice"
+          variant="primary"
+          icon={PlusCircleIcon}
+        />
       </div>
 
       {activeTags.length > 0 && (
@@ -197,9 +230,9 @@ export default function AllInvoicePage() {
               onClick={() => handleView(row)}
               className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
               title="View"
-              >
-             <Eye size={16} />
-             </button>
+            >
+              <Eye size={16} />
+            </button>
             <button
               type="button"
               onClick={() => handleEdit(row)}
