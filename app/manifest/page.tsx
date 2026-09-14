@@ -70,6 +70,10 @@ export default function AllManifestPage() {
     router.push(`/manifest/view/${row.manifestNo}`);
   };
 
+  const handleBag = (row: ManifestEntry) => {
+    router.push(`/manifest/edit-bagging?id=${row.manifestNo}`);
+  };
+
   const handleDelete = (row: ManifestEntry) => {
     setDeleteTarget(row);
   };
@@ -183,6 +187,7 @@ export default function AllManifestPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onView={handleView}
+        onBag={handleBag}
         currentPage={page}
         totalPages={totalPages}
         onPageChange={(p) => setPage(p)}

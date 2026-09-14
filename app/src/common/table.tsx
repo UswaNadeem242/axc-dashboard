@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2, Package } from "lucide-react";
 import CommonPagination from "./pagination";
 import CommonScroll from "./commonscroll";
 
@@ -21,6 +21,7 @@ interface CommonTableProps {
   onView?: (row: any) => void;
   onEdit?: (row: any) => void;
   onDelete?: (row: any) => void;
+  onBag?: (row: any) => void;
   itemsPerPage?: number;
   currentPage?: number;
   totalPages?: number;
@@ -48,6 +49,7 @@ const CommonTable = ({
   onView,
   onEdit,
   onDelete,
+  onBag,
   totalPages: propTotalPages,
   currentPage = 1,
   onPageChange,
@@ -73,10 +75,6 @@ const CommonTable = ({
   const paginatedData = data.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
   const colSpan = headings.length + (selectable ? 1 : 0);
   const isScrollEnabled = showScroll && !hideScroll;
-
-  // =========================================================
-  // TRUNCATE
-  // =========================================================
   const truncateText = (text: string, maxLength = 8) => {
     if (!text) return "-";
     return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
@@ -196,6 +194,17 @@ const CommonTable = ({
                           </button>
                         )}
 
+                        {onBag && (
+                          <button
+                            type="button"
+                            onClick={() => onBag(row)}
+                            className="inline-flex items-center justify-center rounded-md border border-axc-yellow/30 p-1.5 text-axc-dark-yellow transition hover:bg-axc-yellow/10 cursor-pointer"
+                            title="Bagging"
+                          >
+                            <Package size={16} />
+                          </button>
+                        )}
+
                         {onDelete && (
                           <button
                             type="button"
@@ -214,18 +223,10 @@ const CommonTable = ({
                       if (value === null || value === undefined || value === "") return "-";
                       if (typeof value === "string") {
                         if (heading.truncate === false) return <span className="whitespace-nowrap">{value}</span>;
-
-                        // If the text is longer than 30 characters, give the cell more room
-                        // and allow a longer truncated preview before showing "..."
-                        const isLong = value.length > 30;
-                        const maxLen = isLong ? 30 : 8;
-
                         return (
-                          <div className={`group relative inline-block ${isLong ? "max-w-[260px]" : "max-w-30"}`}>
-                            <span className="block truncate cursor-pointer">
-                              {truncateText(value, maxLen)}
-                            </span>
-                            {value.length > maxLen && (
+                          <div className="group relative inline-block max-w-30">
+                            <span className="block truncate cursor-pointer">{truncateText(value, 8)}</span>
+                            {value.length > 8 && (
                               <div className="invisible absolute left-1/2 bottom-full z-[99] mb-2 w-max max-w-xs -translate-x-1/2 rounded-lg bg-axc-navy/60 px-3 py-2 text-xs text-white opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">
                                 {value}
                                 <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-axc-navy/60" />
