@@ -259,7 +259,7 @@ export function AwbTableSection({
                     colSpan={1}
                     className="py-2 px-2 border-r border-axc-border text-right font-bold text-black"
                   >
-                    <div className="flex items-center justify-end gap-2 text-sm">
+                    <div className="flex items-center justify-around gap-2 text-sm">
                       <span>Grand Total</span>
                       <input
                         type="text"

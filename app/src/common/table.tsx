@@ -110,7 +110,7 @@ const CommonTable = ({
   };
 
   const tableElement = (
-    <table className="w-max min-w-[1400px] border-collapse text-left text-sm">
+    <table className="w-full min-w-max  border-collapse text-left text-sm">
       <thead>
         <tr className="bg-axc-navy/10 text-black">
           {selectable && (
@@ -128,7 +128,7 @@ const CommonTable = ({
                   } ${index === headings.length - 1 ? "rounded-tr-sm" : ""} ${heading.sortable ? "cursor-pointer select-none hover:bg-axc-navy/20 transition-colors" : ""
                   } ${heading.className ?? ""}`}
               >
-                <div className="inline-flex items-center gap-1">{heading.label}</div>
+                <div className="inline-flex items-center whitespace-nowrap gap-1">{heading.label}</div>
               </th>
             );
           })}

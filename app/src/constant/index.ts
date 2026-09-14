@@ -306,7 +306,7 @@ export const AwbEntryheading = [
   { label: "BOOKING DATE", key: "bookingDate", sortable: true },
   { label: "FORWARDING NUMBER", key: "forwardingNumber", sortable: true },
   { label: "CUSTOMER", key: "customer", sortable: true },
-  { label: "INVOICE RANGE MASTER CODE", key: "masterCode", sortable: true, className: "max-w-[130px] whitespace-normal leading-tight" },
+  { label: "INVOICE RANGE MASTER CODE", key: "masterCode", sortable: true },
   { label: "PRODUCT", key: "product", sortable: true },
   { label: "PCS", key: "pcs" },
   { label: "SERVICE", key: "service", sortable: true },
@@ -1377,4 +1377,4 @@ export const awbFilterOptions = [
   { label: "Service", value: "service" },
   { label: "Product", value: "product" },
   { label: "Booking Date", value: "bookingDate" },
-];
+];

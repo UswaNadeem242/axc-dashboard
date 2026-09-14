@@ -252,15 +252,11 @@ export default function AwbEntriesPage() {
     if (h.key === "masterCode") {
       return {
         ...h,
-        label: (
-          <div className="flex flex-col text-left font-bold text-xs uppercase leading-[14px]">
-            <span>INVOICE RANGE </span>
-          
-            <div className="flex items-center gap-1">
-              <span>MASTER CODE</span>
+          label: (
+  <span className="whitespace-nowrap text-left font-bold text-xs uppercase leading-[14px]">
+    INVOICE RANGE MASTER CODE
+  </span>
 
-            </div>
-          </div>
         ),
       };
     }
