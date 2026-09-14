@@ -106,7 +106,7 @@ export function SingleCustomerInvoiceDetails({
             type="button"
             onClick={onCreateInvoice}
             disabled={loading}
-            className="px-5 py-3 bg-axc-navy text-white rounded text-xs font-bold shadow-sm transition uppercase cursor-pointer disabled:opacity-60"
+            className="px-5 py-3 bg-axc-navy text-white rounded text-xs font-bold shadow-sm transition  cursor-pointer disabled:opacity-60"
           >
             {loading ? "Creating..." : "Create Invoice"}
           </button>
@@ -159,33 +159,33 @@ export function AwbTableSection({
           <table className="w-full text-[11px] border-collapse min-w-[950px]">
             <thead>
               <tr className="bg-axc-navy/10 border-b border-axc-border text-regular-medium text-axc-dark-gray  text-left">
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   AWB Number
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Booking Date
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Forwarding Number
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Destination
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Product
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">PCS</th>
-                <th className="py-2 px-2 border-r border-axc-border">FSC</th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">PCS</th>
+                <th className="py-2.5 px-2 border-r border-axc-border">FSC</th>
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Chargeable Weight
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Freight Amount
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Grand Total
                 </th>
-                <th className="py-2 px-2 text-center">Action</th>
+                <th className="py-2.5 px-2 text-center">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -258,7 +258,7 @@ export function AwbTableSection({
                     className="py-2 px-3 border-r border-axc-border"
                   ></td>
                   <td
-                    colSpan={2}
+                    colSpan={1}
                     className="py-2 px-2 border-r border-axc-border text-right font-bold text-black"
                   >
                     <div className="flex items-center justify-end gap-2 text-sm">

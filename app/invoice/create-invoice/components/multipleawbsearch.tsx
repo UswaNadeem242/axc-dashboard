@@ -197,7 +197,7 @@ export function MultipleAwbSearchPanel({
           <button
             type="button"
             onClick={onSearch}
-            className="px-5 py-3 bg-axc-yellow text-white rounded text-xs font-bold shadow-sm transition uppercase cursor-pointer"
+            className="px-5 py-3 bg-axc-yellow text-white rounded text-xs font-bold shadow-sm transition  cursor-pointer"
           >
             Search
           </button>

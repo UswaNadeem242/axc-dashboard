@@ -115,28 +115,28 @@ export function AwbTableSection({
           <table className="w-full text-[11px] border-collapse min-w-[950px]">
             <thead>
               <tr className="bg-axc-navy/10 border-b border-axc-border text-regular-medium text-axc-dark-gray  text-left">
-                <th className="py-2 px-2 border-r border-axc-border">Sr.No.</th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">Sr.No.</th>
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Customer Name
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Customer Code
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   AWB Count
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Chargeable Weight
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Freight Amount
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Freight Zero AWB
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">VAT</th>
-                <th className="py-2 px-2">Grand Total</th>
-                <th className="py-2 px-2 text-center">Action</th>
+                <th className="py-2.5 px-2 border-r border-axc-border">VAT</th>
+                <th className="py-2.5 px-2">Grand Total</th>
+                <th className="py-2.5 px-2 text-center">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -252,20 +252,24 @@ export function AwbTableSection({
               {awbRows.length > 0 && (
                 <tr className="bg-gray-50/50 border-t border-axc-border">
                   <td
-                    colSpan={7}
+                    colSpan={8}
                     className="py-2 px-3 border-r border-axc-border"
                   ></td>
-                  <td className="py-2 px-2 border-r border-axc-border text-right font-bold text-black">
-                    Grand Total
+                 <td
+                    colSpan={1}
+                    className="py-2 px-2 border-r border-axc-border text-right font-bold text-black"
+                  >
+                    <div className="flex items-center justify-end gap-2 text-sm">
+                      <span>Grand Total</span>
+                      <input
+                        type="text"
+                        readOnly
+                        value={totalGrandTotal}
+                        className="w-24 border outline-none border-axc-border bg-gray-100 rounded px-1.5 py-2.5 text-center font-bold text-gray-600"
+                      />
+                    </div>
                   </td>
-                  <td className="py-2 px-2">
-                    <input
-                      type="text"
-                      readOnly
-                      value={totalGrandTotal}
-                      className="w-24 border outline-none border-axc-border bg-gray-100 rounded px-1.5 py-2.5 text-center font-bold text-gray-600"
-                    />
-                  </td>
+                  <td className="py-2 px-3"></td>
                 </tr>
               )}
             </tbody>

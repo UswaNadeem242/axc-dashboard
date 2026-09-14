@@ -89,30 +89,30 @@ export function AwbTableSection({
           <table className="w-full text-[11px] border-collapse min-w-[950px]">
             <thead>
               <tr className="bg-axc-navy/10 border-b border-axc-border text-regular-medium text-axc-dark-gray  text-left">
-                <th className="py-2 px-2 border-r border-axc-border">Sr.No.</th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">Sr.No.</th>
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Shipper Name
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Shipper Code
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   AWB Count
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Chargeable Weight
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Freight Amount
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Freight Zero AWB
                 </th>
-                <th className="py-2 px-2 border-r border-axc-border">VAT</th>
-                <th className="py-2 px-2 border-r border-axc-border">
+                <th className="py-2.5 px-2 border-r border-axc-border">VAT</th>
+                <th className="py-2.5 px-2 border-r border-axc-border">
                   Grand Total
                 </th>
-                <th className="py-2 px-2 text-center">Action</th>
+                <th className="py-2.5 px-2 text-center">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -232,7 +232,7 @@ export function AwbTableSection({
                     className="py-2 px-3 border-r border-axc-border"
                   ></td>
                   <td
-                    colSpan={2}
+                    colSpan={1}
                     className="py-2 px-2 border-r border-axc-border text-right font-bold text-black"
                   >
                     <div className="flex items-center justify-end gap-2 text-sm">

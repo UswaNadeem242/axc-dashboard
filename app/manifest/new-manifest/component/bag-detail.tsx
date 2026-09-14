@@ -39,21 +39,21 @@ export default function BagDetails({ rows, updateRow, addRow, removeRow, selectA
         <div className="border border-axc-border rounded-lg overflow-x-auto">
           <table className="w-full text-[11px] border-collapse min-w-[1100px]">
             <thead>
-              <tr className="bg-axc-navy/10 border-b border-axc-border text-regular-medium text-axc-dark-gray capitalize text-left">
-                <th className="py-2 px-2  border-axc-border w-8"></th>
-                <th className="py-2 px-2  border-axc-border">Bag No.</th>
-                <th className="py-2 px-2  border-axc-border">EDI Bag No.</th>
-                <th className="py-2 px-2  border-axc-border">Bag ID</th>
-                <th className="py-2 px-2  border-axc-border">Track By</th>
-                <th className="py-2 px-2  border-axc-border">AWB No.</th>
-                <th className="py-2 px-2  border-axc-border">Forwarder No.</th>
-                <th className="py-2 px-2  border-axc-border">Booking Date</th>
-                <th className="py-2 px-2  border-axc-border">Weight</th>
-                <th className="py-2 px-2  border-axc-border">Pcs.</th>
-                <th className="py-2 px-2  border-axc-border">Destn.</th>
-                <th className="py-2 px-2  border-axc-border">Service</th>
-                <th className="py-2 px-2  border-axc-border">Duty</th>
-                <th className="py-2 px-2 text-center">Action</th>
+              <tr className="bg-axc-navy/10 border-b border-axc-border text-regular-medium text-axc-dark-gray  text-left">
+                <th className="py-2.5 px-2  border-axc-border w-8"></th>
+                <th className="py-2.5 px-2  border-axc-border">Bag No.</th>
+                <th className="py-2.5 px-2  border-axc-border">EDI Bag No.</th>
+                <th className="py-2.5 px-2  border-axc-border">Bag ID</th>
+                <th className="py-2.5 px-2  border-axc-border">Track By</th>
+                <th className="py-2.5 px-2  border-axc-border">AWB No.</th>
+                <th className="py-2.5 px-2  border-axc-border">Forwarder No.</th>
+                <th className="py-2.5 px-2  border-axc-border">Booking Date</th>
+                <th className="py-2.5 px-2  border-axc-border">Weight</th>
+                <th className="py-2.5 px-2  border-axc-border">Pcs.</th>
+                <th className="py-2.5 px-2  border-axc-border">Destn.</th>
+                <th className="py-2.5 px-2  border-axc-border">Service</th>
+                <th className="py-2.5 px-2  border-axc-border">Duty</th>
+                <th className="py-2.5 px-2 text-center">Action</th>
               </tr>
             </thead>
             <tbody>

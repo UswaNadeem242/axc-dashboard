@@ -138,11 +138,11 @@ export default function ManifestBilling({
         hidePagination
       />
 
-      <div className="flex justify-end">
+      <div className="flex justify-start">
         <button
           type="button"
           onClick={addCharge}
-          className="p-1 text-white rounded-full ring ring-axc-yellow transition capitalize cursor-pointer flex justify-center items-center hover:bg-axc-yellow/10"
+          className="p-1 text-white rounded-full ring ring-axc-yellow transition  cursor-pointer flex justify-center items-center hover:bg-axc-yellow/10"
           title="Add Charge"
         >
           <Plus size={15} strokeWidth={3} className="text-axc-yellow" />

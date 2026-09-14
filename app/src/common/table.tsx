@@ -116,7 +116,7 @@ const CommonTable = ({
       <thead>
         <tr className="bg-axc-navy/10 text-black">
           {selectable && (
-            <th className="w-10 bg-axc-navy/10 rounded-l-sm px-4 py-3">
+            <th className="w-10 bg-axc-navy/10 rounded-tl-sm px-4 py-3">
               <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-3.5 w-3.5 accent-white" />
             </th>
           )}
@@ -126,8 +126,8 @@ const CommonTable = ({
               <th
                 key={heading.key}
                 onClick={() => heading.sortable && onSort?.(heading.key)}
-                className={`bg-axc-navy/10 px-4 py-3 text-xs font-bold text-axc-dark-gray uppercase whitespace-nowrap ${index === 0 && !selectable ? "rounded-l-sm" : ""
-                  } ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${heading.sortable ? "cursor-pointer select-none hover:bg-axc-navy/20 transition-colors" : ""
+                className={`bg-axc-navy/10 px-4 py-3 text-xs font-bold text-axc-dark-gray uppercase whitespace-nowrap ${index === 0 && !selectable ? "rounded-tl-sm" : ""
+                  } ${index === headings.length - 1 ? "rounded-tr-sm" : ""} ${heading.sortable ? "cursor-pointer select-none hover:bg-axc-navy/20 transition-colors" : ""
                   } ${heading.className ?? ""}`}
               >
                 <div className="inline-flex items-center gap-1">{heading.label}</div>
@@ -214,10 +214,18 @@ const CommonTable = ({
                       if (value === null || value === undefined || value === "") return "-";
                       if (typeof value === "string") {
                         if (heading.truncate === false) return <span className="whitespace-nowrap">{value}</span>;
+
+                        // If the text is longer than 30 characters, give the cell more room
+                        // and allow a longer truncated preview before showing "..."
+                        const isLong = value.length > 30;
+                        const maxLen = isLong ? 30 : 8;
+
                         return (
-                          <div className="group relative inline-block max-w-30">
-                            <span className="block truncate cursor-pointer">{truncateText(value, 8)}</span>
-                            {value.length > 8 && (
+                          <div className={`group relative inline-block ${isLong ? "max-w-[260px]" : "max-w-30"}`}>
+                            <span className="block truncate cursor-pointer">
+                              {truncateText(value, maxLen)}
+                            </span>
+                            {value.length > maxLen && (
                               <div className="invisible absolute left-1/2 bottom-full z-[99] mb-2 w-max max-w-xs -translate-x-1/2 rounded-lg bg-axc-navy/60 px-3 py-2 text-xs text-white opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">
                                 {value}
                                 <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-axc-navy/60" />
