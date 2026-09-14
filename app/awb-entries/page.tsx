@@ -249,17 +249,7 @@ export default function AwbEntriesPage() {
         ),
       };
     }
-    if (h.key === "masterCode") {
-      return {
-        ...h,
-          label: (
-  <span className="whitespace-nowrap text-left font-bold text-xs uppercase leading-[14px]">
-    INVOICE RANGE MASTER CODE
-  </span>
-
-        ),
-      };
-    }
+  
     return h;
   });
 
