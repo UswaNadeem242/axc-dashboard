@@ -254,11 +254,10 @@ export default function AwbEntriesPage() {
         ...h,
         label: (
           <div className="flex flex-col text-left font-bold text-xs uppercase leading-[14px]">
-            <span>INVOICE</span>
-            <span>RANGE</span>
-            <span>MASTER</span>
+            <span>INVOICE RANGE </span>
+          
             <div className="flex items-center gap-1">
-              <span>CODE</span>
+              <span>MASTER CODE</span>
 
             </div>
           </div>

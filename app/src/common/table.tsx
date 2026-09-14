@@ -112,7 +112,7 @@ const CommonTable = ({
   };
 
   const tableElement = (
-    <table className="w-max min-w-full border-collapse text-left text-sm">
+    <table className="w-max min-w-[1400px] border-collapse text-left text-sm">
       <thead>
         <tr className="bg-axc-navy/10 text-black">
           {selectable && (
