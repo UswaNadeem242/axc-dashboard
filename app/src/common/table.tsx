@@ -111,7 +111,7 @@ const CommonTable = ({
 
   const tableElement = (
     <table className="w-full min-w-max  border-collapse text-left text-sm">
-      <thead>
+      <thead className="text-center">
         <tr className="bg-axc-navy/10 text-black">
           {selectable && (
             <th className="w-10 bg-axc-navy/10 rounded-tl-sm px-4 py-3">
@@ -161,7 +161,7 @@ const CommonTable = ({
                 </td>
               )}
               {headings.map((heading) => (
-                <td key={heading.key} className="px-4 py-3">
+                <td key={heading.key} className="px-4 py-3 text-center">
                   {heading.render ? (
                     heading.render(row, (activePage - 1) * itemsPerPage + index)
                   ) : heading.key === "status" ? (

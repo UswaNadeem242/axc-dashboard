@@ -310,7 +310,8 @@ export default function AwbEntriesPage() {
           data={sortedData}
           onEdit={handleEdit}
           onDelete={handleDelete}
-          onView={handleView}
+          // onView={handleView}
+          onView={() => {}}
           currentPage={page}
           totalPages={totalPages}
           onPageChange={(p) => setPage(p)}
