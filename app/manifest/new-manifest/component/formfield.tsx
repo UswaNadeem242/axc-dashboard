@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import { Pencil, Check, Upload } from "lucide-react";
+import React, { useState, useRef } from "react";
+import { Pencil, Check, Upload, FileText, Trash2 } from "lucide-react";
 import { toSentenceCase } from "@/app/create-entries/components/form";
 
 export function EditCheckbox({
@@ -82,38 +82,160 @@ export function FieldError({ message }: { message?: string }) {
   return <p className="text-[10px] text-axc-red font-semibold mt-1">{message}</p>;
 }
 
+/* ---------------------------------------------------------
+   FILE UPLOAD FIELD (with per-file progress bar)
+--------------------------------------------------------- */
+
+interface UploadingFile {
+  id: string;
+  file: File;
+  uploaded: number; // bytes uploaded so far
+}
+
+function formatBytes(bytes: number) {
+  if (bytes <= 0) return "0 MB";
+  const mb = bytes / (1024 * 1024);
+  return `${mb < 10 ? mb.toFixed(1) : Math.round(mb)} MB`;
+}
+
 export function FileUploadField({
   onFileChange,
-  placeholder = "No file chosen",
+  onFilesChange,
+  placeholder = "Drop your files here or browse",
   multiple = false,
 }: {
   onFileChange?: (file: File | null) => void;
+  onFilesChange?: (files: File[]) => void;
   placeholder?: string;
   multiple?: boolean;
 }) {
-  const [fileName, setFileName] = useState("");
+  const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Simulates an upload progressing over time, filling the bar until it reaches the file's full size.
+  function simulateUpload(id: string, totalSize: number) {
+    const stepMs = 200;
+    const stepSize = Math.max(totalSize / 18, 80 * 1024); // ~18 steps to finish, min 80KB/step
+
+    const interval = setInterval(() => {
+      setUploadingFiles((prev) => {
+        let finished = false;
+        const next = prev.map((uf) => {
+          if (uf.id !== id) return uf;
+          const uploaded = Math.min(uf.uploaded + stepSize, totalSize);
+          if (uploaded >= totalSize) finished = true;
+          return { ...uf, uploaded };
+        });
+        if (finished) clearInterval(interval);
+        return next;
+      });
+    }, stepMs);
+  }
+
+  function handleFiles(fileList: FileList | null) {
+    if (!fileList || fileList.length === 0) return;
+    const newFiles = Array.from(fileList);
+
+    if (!multiple) {
+      const file = newFiles[0];
+      const id = `${file.name}-${Date.now()}`;
+      setUploadingFiles([{ id, file, uploaded: 0 }]);
+      onFileChange?.(file);
+      simulateUpload(id, file.size);
+      return;
+    }
+
+    const added: UploadingFile[] = newFiles.map((file, i) => ({
+      id: `${file.name}-${Date.now()}-${i}`,
+      file,
+      uploaded: 0,
+    }));
+    setUploadingFiles((prev) => [...prev, ...added]);
+    added.forEach((uf) => simulateUpload(uf.id, uf.file.size));
+    onFilesChange?.(newFiles);
+  }
+
+  function removeFile(id: string) {
+    setUploadingFiles((prev) => prev.filter((f) => f.id !== id));
+  }
+
   return (
-    <label className="flex flex-col items-center justify-center gap-2 border border-axc-border rounded-lg py-5 px-4 text-center bg-white cursor-pointer hover:bg-gray-50/70 transition w-full">
-      <span className="p-2 bg-gray-100/90 rounded-md text-gray-600 flex items-center justify-center shrink-0">
-        <Upload size={18} />
-      </span>
-      <span className={`text-xs truncate max-w-full ${fileName ? "text-gray-700 font-medium" : "text-gray-400"}`}>
-        {fileName || placeholder}
-      </span>
-      <input
-        type="file"
-        multiple={multiple}
-        className="hidden"
-        onChange={(e) => {
-          const f = e.target.files?.[0] || null;
-          setFileName(f ? f.name : "");
-          onFileChange?.(f);
+    <div className="w-full flex flex-col gap-3">
+      <label
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={(e) => {
+          e.preventDefault();
+          handleFiles(e.dataTransfer.files);
         }}
-      />
-    </label>
+        className="flex flex-col items-center justify-center gap-2 border border-dashed border-axc-border rounded-lg py-6 px-4 text-center bg-white cursor-pointer hover:bg-gray-50/70 transition w-full"
+      >
+        <span className="p-2 bg-gray-100/90 rounded-md text-gray-600 flex items-center justify-center shrink-0">
+          <Upload size={18} />
+        </span>
+        <span className="text-xs text-gray-400">{placeholder}</span>
+        <input
+          ref={inputRef}
+          type="file"
+          multiple={multiple}
+          className="hidden"
+          onChange={(e) => handleFiles(e.target.files)}
+        />
+      </label>
+
+      {uploadingFiles.length > 0 && (
+        <div className="flex flex-col gap-2">
+          {uploadingFiles.map((uf) => {
+            const percent = Math.min(100, Math.round((uf.uploaded / uf.file.size) * 100));
+            const done = percent >= 100;
+
+            return (
+              <div
+                key={uf.id}
+                className="border border-axc-border rounded-md px-3 py-2.5 bg-white flex items-center gap-3 w-1/5"
+              >
+                <span className="p-1.5 bg-gray-100 rounded text-gray-500 shrink-0">
+                  <FileText size={14} />
+                </span>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs font-medium text-gray-700 truncate">{uf.file.name}</p>
+                    <button
+                      type="button"
+                      onClick={() => removeFile(uf.id)}
+                      className="text-gray-400 hover:text-axc-red transition shrink-0 cursor-pointer"
+                      title="Remove file"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+
+                  <p className="text-[10px] text-gray-400 mt-0.5">
+                    {formatBytes(uf.uploaded)} of {formatBytes(uf.file.size)}
+                  </p>
+                  <div className="mt-1.5 flex items-center h-1.5 w-3/4 overflow-hidden rounded-full">
+                    <div
+                      className={`h-full bg-green-500 transition-all duration-200 ease-linear ${
+                        done ? "rounded-full" : "rounded-l-full"
+                      }`}
+                      style={{ width: `${percent}%` }}
+                    />
+                    {!done && (
+                      <div
+                        className="h-full rounded-r-full bg-red-400 transition-all duration-200 ease-linear"
+                        style={{ width: `${100 - percent}%` }}
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
 }
-
 
 export function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
