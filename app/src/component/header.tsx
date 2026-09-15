@@ -87,7 +87,7 @@ export default function Header() {
               <div className="relative z-10 overflow-hidden rounded-2xl divide-y divide-gray-100">
                 {/* My Profile */}
                 <Link
-                  href="/users"
+                  href="#"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors group"
                 >
@@ -97,7 +97,7 @@ export default function Header() {
 
                 {/* Settings */}
                 <Link
-                  href="/users"
+                  href="#"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors group"
                 >

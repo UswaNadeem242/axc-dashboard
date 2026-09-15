@@ -311,6 +311,7 @@ export default function AwbEntriesPage() {
           onEdit={handleEdit}
           onDelete={handleDelete}
           onView={handleView}
+          // onView={() => {}}
           currentPage={page}
           totalPages={totalPages}
           onPageChange={(p) => setPage(p)}

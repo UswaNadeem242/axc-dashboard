@@ -187,25 +187,26 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
           </button>
         </div>
       ) : (
-        <div className="mt-4 rounded-2xl border border-[#FDE8B5] bg-[#FFF9E6] p-4 transition-all duration-300">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
-                <FileText size={20} />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-amber-950">Quick AWB Entry</p>
-                <p className="text-[10px] text-amber-700/80">Create New Air Waybill</p>
-              </div>
-            </div>
-            <button
-              type="button"
-              className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-amber-500 shadow-sm border border-amber-100 hover:bg-amber-50 transition-colors"
-            >
-              <Plus size={16} />
-            </button>u
-          </div>
-        </div>
+        <></>
+        // <div className="mt-4 rounded-2xl border border-[#FDE8B5] bg-[#FFF9E6] p-4 transition-all duration-300">
+        //   <div className="flex items-center justify-between gap-3">
+        //     <div className="flex items-center gap-2.5">
+        //       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-100 text-amber-600">
+        //         <FileText size={20} />
+        //       </div>
+        //       <div>
+        //         <p className="text-xs font-bold text-amber-950">Quick AWB Entry</p>
+        //         <p className="text-[10px] text-amber-700/80">Create New Air Waybill</p>
+        //       </div>
+        //     </div>
+        //     <button
+        //       type="button"
+        //       className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-amber-500 shadow-sm border border-amber-100 hover:bg-amber-50 transition-colors"
+        //     >
+        //       <Plus size={16} />
+        //     </button>u
+        //   </div>
+        // </div>
       )}
     </aside>
   );

@@ -66,12 +66,12 @@ export default function AllManifestPage() {
     router.push(`/manifest/edit-manifest?id=${row.manifestNo}`);
   };
 
-  const handleView = (row: ManifestEntry) => {
-    router.push(`/manifest/view/${row.manifestNo}`);
-  };
-
   const handleBag = (row: ManifestEntry) => {
     router.push(`/manifest/edit-bagging?id=${row.manifestNo}`);
+  };
+
+  const handleView = (row: ManifestEntry) => {
+    router.push(`/manifest/view/${row.manifestNo}`);
   };
 
   const handleDelete = (row: ManifestEntry) => {
