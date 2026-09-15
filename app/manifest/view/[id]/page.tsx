@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { ArrowLeft, FileText } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { ManifestEntry } from "@/app/src/constant";
+import { ManifestEntry, ManifestChargeRow } from "@/app/src/constant";
 
 const SectionHeader = ({ title }: { title: string }) => (
   <div className="bg-axc-navy/60 px-5 py-4 rounded-tl-lg rounded-tr-lg text-white capitalize">
@@ -29,6 +29,49 @@ const Field = ({
     <span className="text-axc-gray flex-1 font-semibold">{value || "-"}</span>
   </div>
 );
+
+const DUMMY_BILLING_RECORDS: ManifestChargeRow[] = [
+  {
+    id: 1,
+    type: "Freight",
+    coLoader: "AXC Co-Load",
+    vendor: "Speedex Logistics",
+    company: "AXC Cargo Pvt Ltd",
+    charge: "Line Haul Charge",
+    amount: "12,500.00",
+    remark: "Standard rate",
+  },
+  {
+    id: 2,
+    type: "Handling",
+    coLoader: "-",
+    vendor: "Speedex Logistics",
+    company: "AXC Cargo Pvt Ltd",
+    charge: "Ground Handling",
+    amount: "1,800.00",
+    remark: "Per bag",
+  },
+  {
+    id: 3,
+    type: "Fuel Surcharge",
+    coLoader: "Skyward Cargo",
+    vendor: "Speedex Logistics",
+    company: "AXC Cargo Pvt Ltd",
+    charge: "Fuel Adjustment",
+    amount: "950.00",
+    remark: "As per fuel index",
+  },
+  {
+    id: 4,
+    type: "Duty",
+    coLoader: "-",
+    vendor: "Customs Clearing Co.",
+    company: "AXC Cargo Pvt Ltd",
+    charge: "Customs Duty",
+    amount: "3,200.00",
+    remark: "Pending approval",
+  },
+];
 
 export default function ManifestViewPage() {
   const params = useParams();
@@ -63,8 +106,8 @@ export default function ManifestViewPage() {
     );
   }
 
-  // Sample data for billing to show layout as per image (or fetch from localstorage if available)
-  const billingRecords: any[] = []; // Usually fetched from manifestData.billing or similar
+  // Dummy data used to preview layout; swap with manifestData.billing when available
+  const billingRecords: ManifestChargeRow[] = DUMMY_BILLING_RECORDS;
 
   return (
     <div className="relative bg-white p-6 rounded-lg w-full flex-1 flex flex-col min-h-0 shadow-sm border border-axc-border overflow-x-hidden overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-lg">
@@ -141,22 +184,22 @@ export default function ManifestViewPage() {
 
       {activeTab === "billing" && (
         <div className="border border-axc-border rounded-lg overflow-x-auto bg-white">
-           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-axc-navy/10 text-axc-navy font-bold uppercase text-xs">
+          <table className="w-full text-left text-sm whitespace-nowrap">
+            <thead className="bg-axc-navy/10 text-axc-black font-bold  text-xs">
               <tr>
-                <th className="px-4 py-3 border-b border-axc-border">TYPE</th>
-                <th className="px-4 py-3 border-b border-axc-border">CO-LOADER</th>
-                <th className="px-4 py-3 border-b border-axc-border">VENDOR</th>
-                <th className="px-4 py-3 border-b border-axc-border">COMPANY</th>
-                <th className="px-4 py-3 border-b border-axc-border">CHARGE</th>
-                <th className="px-4 py-3 border-b border-axc-border">AMOUNT</th>
-                <th className="px-4 py-3 border-b border-axc-border">REMARK</th>
+                <th className="px-4 py-3 border-b border-axc-border">Type</th>
+                <th className="px-4 py-3 border-b border-axc-border">Co-Loader</th>
+                <th className="px-4 py-3 border-b border-axc-border">Vendor</th>
+                <th className="px-4 py-3 border-b border-axc-border">Company</th>
+                <th className="px-4 py-3 border-b border-axc-border">Charge</th>
+                <th className="px-4 py-3 border-b border-axc-border">Amount</th>
+                <th className="px-4 py-3 border-b border-axc-border">Remark</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-axc-border">
               {billingRecords.length > 0 ? (
-                billingRecords.map((record, index) => (
-                  <tr key={index}>
+                billingRecords.map((record) => (
+                  <tr key={record.id}>
                     <td className="px-4 py-3">{record.type || "-"}</td>
                     <td className="px-4 py-3">{record.coLoader || "-"}</td>
                     <td className="px-4 py-3">{record.vendor || "-"}</td>

@@ -26,15 +26,11 @@ const Field = ({
     <span className="text-axc-gray flex-1">{value}</span>
   </div>
 );
-
-/* Three fields per row, with automatic dividers between columns. */
 const Row3 = ({ children }: { children: React.ReactNode }) => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-axc-border bg-white [&>*+*]:md:border-l [&>*+*]:md:border-axc-border">
     {children}
   </div>
 );
-
-/* Two fields per row, same divider behaviour. */
 const Row2 = ({ children }: { children: React.ReactNode }) => (
   <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-axc-border bg-white [&>*+*]:md:border-l [&>*+*]:md:border-axc-border">
     {children}
@@ -61,7 +57,6 @@ const ChargeField = ({ label, charge }: { label: string; charge: any }) => (
   </div>
 );
 
-/* Shared by AWB Details and Sales Billing so the two tabs stay identical. */
 const ContractIdSection = ({ formData }: { formData: any }) => (
   <div className="mt-4">
     <SectionHeader title="Contract ID" />
@@ -99,6 +94,96 @@ const ContractIdSection = ({ formData }: { formData: any }) => (
     </div>
   </div>
 );
+const getDummyInvoiceItems = () => [
+  {
+    boxNo: "BOX-01",
+    srNo: "1",
+    description: "Cotton T-Shirts",
+    hsCode: "610910",
+    unitType: "PCS",
+    quantity: "10",
+    unitWeight: "0.20",
+    igst: "5%",
+    unitRates: "250",
+    amount: "2500",
+  },
+  {
+    boxNo: "BOX-01",
+    srNo: "2",
+    description: "Denim Jeans",
+    hsCode: "620342",
+    unitType: "PCS",
+    quantity: "5",
+    unitWeight: "0.60",
+    igst: "12%",
+    unitRates: "800",
+    amount: "4000",
+  },
+  {
+    boxNo: "BOX-02",
+    srNo: "3",
+    description: "Leather Wallet",
+    hsCode: "420231",
+    unitType: "PCS",
+    quantity: "3",
+    unitWeight: "0.15",
+    igst: "18%",
+    unitRates: "600",
+    amount: "1800",
+  },
+];
+
+const getDummyWeightRows = () => [
+  {
+    actualWeight: "2.50",
+    length: "30",
+    breadth: "20",
+    height: "15",
+    volumetricWeight: "1.80",
+    chargeableWeight: "2.50",
+  },
+  {
+    actualWeight: "1.20",
+    length: "25",
+    breadth: "18",
+    height: "10",
+    volumetricWeight: "0.90",
+    chargeableWeight: "1.20",
+  },
+];
+
+const getDummyTrackingEvents = () => [
+  {
+    dateTime: "2026-09-10 09:15",
+    description: "Shipment Booked",
+    location: "Lahore Hub",
+    type: "Pickup",
+    state: "Processed",
+    remark: "Picked up from shipper",
+    createdDate: "2026-09-10",
+    createdBy: "System",
+  },
+  {
+    dateTime: "2026-09-11 14:40",
+    description: "In Transit",
+    location: "Karachi Hub",
+    type: "Transit",
+    state: "In Progress",
+    remark: "Departed origin hub",
+    createdDate: "2026-09-11",
+    createdBy: "System",
+  },
+  {
+    dateTime: "2026-09-13 11:05",
+    description: "Out for Delivery",
+    location: "Destination City",
+    type: "Delivery",
+    state: "In Progress",
+    remark: "With delivery courier",
+    createdDate: "2026-09-13",
+    createdBy: "System",
+  },
+];
 
 const AwbDetailsView = ({
   id,
@@ -110,170 +195,172 @@ const AwbDetailsView = ({
   formData: any;
   awbData: any;
   invoiceItems: any[];
-}) => (
-  <div className="border border-axc-border rounded-tl-lg rounded-tr-lg">
-    <SectionHeader title="Weights and Dimensions" />
-    <Row3>
-      <Field label="Pcs:" value={formData?.pcs || awbData?.pcs || "-"} />
-      <Field label="Actual Weight:" value={formData?.actualWeight || "-"} />
-      <Field label="Volumetric Weight:" value={formData?.volumetricWeight || "-"} />
-    </Row3>
-    <Row3>
-      <Field label="Consigner Weight:" value={formData?.consignerWeight || "-"} />
-      <Field label="Add. Weight:" value={formData?.addWeight || "-"} />
-      <Field label="Chargeable Weight:" value={formData?.chargeableWeight || "-"} />
-    </Row3>
-    <Row3>
-      <Field label="Parcel Type:" value={formData?.parcelType || "-"} />
-      <Field label="Box No.:" value={formData?.boxNo || "-"} />
-      <Field label="Actual Wt:" value={formData?.parcelActualWt || "-"} />
-    </Row3>
-    <Row3>
-      <Field label="L (cm):" value={formData?.parcelL || "-"} />
-      <Field label="B (cm):" value={formData?.parcelB || "-"} />
-      <Field label="H (cm):" value={formData?.parcelH || "-"} />
-    </Row3>
-    <Row3>
-      <Field label="Volumetric Wt:" value={formData?.parcelVolumetricWt || "-"} />
-      <Field label="Chargeable Wt:" value={formData?.parcelChargeableWt || "-"} />
-      <Field label="Ctn:" value={formData?.parcelCtn || "-"} />
-    </Row3>
+}) => {
+  const displayInvoiceItems = invoiceItems && invoiceItems.length > 0 ? invoiceItems : getDummyInvoiceItems();
 
-    <SectionHeader title="Air Waybill Information" />
-    <Row3>
-      <Field label="AWB Number:" value={id} />
-      <Field label="Branch:" value={formData?.branch || "-"} />
-      <Field label="Company:" value={formData?.company || "-"} />
-    </Row3>
-    <Row3>
-      <Field label="Customer:" value={formData?.customer || awbData?.customer || "-"} />
-      <Field label="Customer Code:" value={formData?.customerCode || "-"} />
-      <Field label="Sector:" value={formData?.sector || "-"} />
-    </Row3>
-    <Row3>
-      <Field label="Destination Hub:" value={formData?.destinationHub || "-"} />
-      <Field label="Product:" value={formData?.product || awbData?.product || "-"} />
-      <Field label="Booking Date:" value={formData?.bookingDate || awbData?.bookingDate || "-"} />
-    </Row3>
-    <Row3>
-      <Field label="Service:" value={formData?.service || awbData?.service || "-"} />
-      <Field label="Vendor:" value={formData?.vendor || awbData?.vendor || "-"} />
-      <Field label="Forwarding No:" value={formData?.forwardingNumber || awbData?.forwardingNumber || "-"} />
-    </Row3>
-    <Row3>
-      <Field label="Forwarding No 2:" value={formData?.forwardingNumber2 || "-"} />
-      <Field label="Reference No:" value={formData?.referenceNumber || "-"} />
-      <Field label="Shipment Value:" value={formData?.shipmentValue || "-"} />
-    </Row3>
-    <Row2>
-      <Field label="Invoice Date:" value={formData?.invoiceDate || "-"} />
-      <Field label="Invoice Number:" value={formData?.invoiceNumber || "-"} />
-    </Row2>
-    <Row1>
-      <div className="flex flex-col text-sm py-2.5 px-4">
-        <span className="text-axc-dark-gray text-regular-medium mb-1">Content:</span>
-        <span className="text-axc-gray">{formData?.content || "-"}</span>
-      </div>
-    </Row1>
-
-    <ContractIdSection formData={formData} />
-
-    <div className="mt-4">
-      <SectionHeader title="Shipper / Consigner / From" />
+  return (
+    <div className="border border-axc-border rounded-tl-lg rounded-tr-lg">
+      <SectionHeader title="Weights and Dimensions" />
       <Row3>
-        <Field label="Code:" value={formData?.shipperCode || "-"} />
-        <Field label="Company:" value={formData?.shipperCompany || "-"} />
-        <Field label="Person Name:" value={formData?.shipperPersonName || awbData?.shipper || "-"} />
+        <Field label="Pcs:" value={formData?.pcs || awbData?.pcs || "-"} />
+        <Field label="Actual Weight:" value={formData?.actualWeight || "-"} />
+        <Field label="Volumetric Weight:" value={formData?.volumetricWeight || "-"} />
       </Row3>
       <Row3>
-        <Field label="Email Address:" value={formData?.shipperEmail || "-"} />
-        <Field label="Phone Number:" value={formData?.shipperPhone || "-"} />
-        <Field label="Post / Zip Code:" value={formData?.shipperZipCode || "-"} />
+        <Field label="Consigner Weight:" value={formData?.consignerWeight || "-"} />
+        <Field label="Add. Weight:" value={formData?.addWeight || "-"} />
+        <Field label="Chargeable Weight:" value={formData?.chargeableWeight || "-"} />
       </Row3>
       <Row3>
-        <Field label="City:" value={formData?.shipperCity || "-"} />
-        <Field label="State / County:" value={formData?.shipperState || "-"} />
-        <Field
-          label="Country:"
-          value={formData?.shipperCountry || formData?.origin || awbData?.origin || "-"}
-        />
+        <Field label="Parcel Type:" value={formData?.parcelType || "-"} />
+        <Field label="Box No.:" value={formData?.boxNo || "-"} />
+        <Field label="Actual Wt:" value={formData?.parcelActualWt || "-"} />
+      </Row3>
+      <Row3>
+        <Field label="L (cm):" value={formData?.parcelL || "-"} />
+        <Field label="B (cm):" value={formData?.parcelB || "-"} />
+        <Field label="H (cm):" value={formData?.parcelH || "-"} />
+      </Row3>
+      <Row3>
+        <Field label="Volumetric Wt:" value={formData?.parcelVolumetricWt || "-"} />
+        <Field label="Chargeable Wt:" value={formData?.parcelChargeableWt || "-"} />
+        <Field label="Ctn:" value={formData?.parcelCtn || "-"} />
+      </Row3>
+
+      <SectionHeader title="Air Waybill Information" />
+      <Row3>
+        <Field label="AWB Number:" value={id} />
+        <Field label="Branch:" value={formData?.branch || "-"} />
+        <Field label="Company:" value={formData?.company || "-"} />
+      </Row3>
+      <Row3>
+        <Field label="Customer:" value={formData?.customer || awbData?.customer || "-"} />
+        <Field label="Customer Code:" value={formData?.customerCode || "-"} />
+        <Field label="Sector:" value={formData?.sector || "-"} />
+      </Row3>
+      <Row3>
+        <Field label="Destination Hub:" value={formData?.destinationHub || "-"} />
+        <Field label="Product:" value={formData?.product || awbData?.product || "-"} />
+        <Field label="Booking Date:" value={formData?.bookingDate || awbData?.bookingDate || "-"} />
+      </Row3>
+      <Row3>
+        <Field label="Service:" value={formData?.service || awbData?.service || "-"} />
+        <Field label="Vendor:" value={formData?.vendor || awbData?.vendor || "-"} />
+        <Field label="Forwarding No:" value={formData?.forwardingNumber || awbData?.forwardingNumber || "-"} />
+      </Row3>
+      <Row3>
+        <Field label="Forwarding No 2:" value={formData?.forwardingNumber2 || "-"} />
+        <Field label="Reference No:" value={formData?.referenceNumber || "-"} />
+        <Field label="Shipment Value:" value={formData?.shipmentValue || "-"} />
       </Row3>
       <Row2>
-        <Field label="KYC Type:" value={formData?.shipperKycType || "-"} />
-        <Field label="KYC Number:" value={formData?.shipperKycNumber || "-"} />
+        <Field label="Invoice Date:" value={formData?.invoiceDate || "-"} />
+        <Field label="Invoice Number:" value={formData?.invoiceNumber || "-"} />
       </Row2>
       <Row1>
-        <Field label="Address 1:" value={formData?.shipperAddress1 || "-"} />
-        <Field label="Address 2:" value={formData?.shipperAddress2 || "-"} />
-        <Field label="Address 3:" value={formData?.shipperAddress3 || "-"} />
-      </Row1>
-    </div>
-
-    <div className="mt-4">
-      <SectionHeader title="Consignee / Receiver / To" />
-      <Row3>
-        <Field label="Code:" value={formData?.consigneeCode || "-"} />
-        <Field label="Company:" value={formData?.consigneeCompany || "-"} />
-        <Field label="Person Name:" value={formData?.consigneePersonName || awbData?.consignee || "-"} />
-      </Row3>
-      <Row3>
-        <Field label="Email Address:" value={formData?.consigneeEmail || "-"} />
-        <Field label="Post / Zip Code:" value={formData?.consigneeZipCode || "-"} />
-        <Field label="City:" value={formData?.consigneeCity || "-"} />
-      </Row3>
-      <Row3>
-        <Field label="State / County:" value={formData?.consigneeState || "-"} />
-        <Field
-          label="Country:"
-          value={formData?.consigneeCountry || formData?.destination || awbData?.destination || "-"}
-        />
-        <Field label="Phone Number:" value={formData?.consigneePhone || "-"} />
-      </Row3>
-      <Row1>
-        <Field label="Address 1:" value={formData?.consigneeAddress1 || "-"} />
-        <Field label="Address 2:" value={formData?.consigneeAddress2 || "-"} />
-        <Field label="Address 3:" value={formData?.consigneeAddress3 || "-"} />
-      </Row1>
-    </div>
-
-    <div className="mt-4">
-      <SectionHeader title="Create Shipment Invoice?" />
-      <Row3>
-        <Field label="Invoice Type:" value={formData?.invoiceType || "-"} />
-        <Field label="Currency:" value={formData?.invoiceCurrency || "-"} />
-        <Field label="Incoterms:" value={formData?.incoterms || "-"} />
-      </Row3>
-      <Row1>
-        <Field label="Note:" value={formData?.invoiceNote || "-"} />
         <div className="flex flex-col text-sm py-2.5 px-4">
-          <span className="text-axc-dark-gray text-regular-medium mb-1">Declaration:</span>
-          <span className="text-axc-gray">{formData?.invoiceDeclaration || "-"}</span>
+          <span className="text-axc-dark-gray text-regular-medium mb-1">Content:</span>
+          <span className="text-axc-gray">{formData?.content || "-"}</span>
         </div>
       </Row1>
-    </div>
 
-    <div className="mt-4">
-      <SectionHeader title="Shipment Invoice Items" />
-      <div className="overflow-x-auto p-4 rounded-lg">
-        <table className="w-full text-regular-small rounded-lg text-left border border-axc-border">
-          <thead className="bg-axc-navy/10 text-axc-dark-gray capitalize text-xs">
-            <tr>
-              <th className="px-3 py-3 border-b border-axc-border">BoxId</th>
-              <th className="px-3 py-3 border-b border-axc-border">SrNo</th>
-              <th className="px-3 py-3 border-b border-axc-border">Description</th>
-              <th className="px-3 py-3 border-b border-axc-border">HS Code</th>
-              <th className="px-3 py-3 border-b border-axc-border">Unit Type</th>
-              <th className="px-3 py-3 border-b border-axc-border">Quantity</th>
-              <th className="px-3 py-3 border-b border-axc-border">Unit Weight</th>
-              <th className="px-3 py-3 border-b border-axc-border">IGST</th>
-              <th className="px-3 py-3 border-b border-axc-border">Unit Rates</th>
-              <th className="px-3 py-3 border-b border-axc-border">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {invoiceItems && invoiceItems.length > 0 ? (
-              invoiceItems.map((item, idx) => (
-                <tr key={idx} className="border-b last:border-b-0">
+      <ContractIdSection formData={formData} />
+
+      <div className="mt-4">
+        <SectionHeader title="Shipper / Consigner / From" />
+        <Row3>
+          <Field label="Code:" value={formData?.shipperCode || "-"} />
+          <Field label="Company:" value={formData?.shipperCompany || "-"} />
+          <Field label="Person Name:" value={formData?.shipperPersonName || awbData?.shipper || "-"} />
+        </Row3>
+        <Row3>
+          <Field label="Email Address:" value={formData?.shipperEmail || "-"} />
+          <Field label="Phone Number:" value={formData?.shipperPhone || "-"} />
+          <Field label="Post / Zip Code:" value={formData?.shipperZipCode || "-"} />
+        </Row3>
+        <Row3>
+          <Field label="City:" value={formData?.shipperCity || "-"} />
+          <Field label="State / County:" value={formData?.shipperState || "-"} />
+          <Field
+            label="Country:"
+            value={formData?.shipperCountry || formData?.origin || awbData?.origin || "-"}
+          />
+        </Row3>
+        <Row2>
+          <Field label="KYC Type:" value={formData?.shipperKycType || "-"} />
+          <Field label="KYC Number:" value={formData?.shipperKycNumber || "-"} />
+        </Row2>
+        <Row1>
+          <Field label="Address 1:" value={formData?.shipperAddress1 || "-"} />
+          <Field label="Address 2:" value={formData?.shipperAddress2 || "-"} />
+          <Field label="Address 3:" value={formData?.shipperAddress3 || "-"} />
+        </Row1>
+      </div>
+
+      <div className="mt-4">
+        <SectionHeader title="Consignee / Receiver / To" />
+        <Row3>
+          <Field label="Code:" value={formData?.consigneeCode || "-"} />
+          <Field label="Company:" value={formData?.consigneeCompany || "-"} />
+          <Field label="Person Name:" value={formData?.consigneePersonName || awbData?.consignee || "-"} />
+        </Row3>
+        <Row3>
+          <Field label="Email Address:" value={formData?.consigneeEmail || "-"} />
+          <Field label="Post / Zip Code:" value={formData?.consigneeZipCode || "-"} />
+          <Field label="City:" value={formData?.consigneeCity || "-"} />
+        </Row3>
+        <Row3>
+          <Field label="State / County:" value={formData?.consigneeState || "-"} />
+          <Field
+            label="Country:"
+            value={formData?.consigneeCountry || formData?.destination || awbData?.destination || "-"}
+          />
+          <Field label="Phone Number:" value={formData?.consigneePhone || "-"} />
+        </Row3>
+        <Row1>
+          <Field label="Address 1:" value={formData?.consigneeAddress1 || "-"} />
+          <Field label="Address 2:" value={formData?.consigneeAddress2 || "-"} />
+          <Field label="Address 3:" value={formData?.consigneeAddress3 || "-"} />
+        </Row1>
+      </div>
+
+      <div className="mt-4">
+        <SectionHeader title="Create Shipment Invoice?" />
+        <Row3>
+          <Field label="Invoice Type:" value={formData?.invoiceType || "-"} />
+          <Field label="Currency:" value={formData?.invoiceCurrency || "-"} />
+          <Field label="Incoterms:" value={formData?.incoterms || "-"} />
+        </Row3>
+        <Row1>
+          <Field label="Note:" value={formData?.invoiceNote || "-"} />
+          <div className="flex flex-col text-sm py-2.5 px-4">
+            <span className="text-axc-dark-gray text-regular-medium mb-1">Declaration:</span>
+            <span className="text-axc-gray">{formData?.invoiceDeclaration || "-"}</span>
+          </div>
+        </Row1>
+      </div>
+
+      <div className="mt-4">
+        <SectionHeader title="Shipment Invoice Items" />
+        <div className="overflow-x-auto p-4 rounded-lg">
+          <table className="w-full text-regular-small rounded-lg text-left border border-gray-200">
+            <thead className="bg-axc-navy/10 text-axc-dark-gray capitalize text-xs">
+              <tr>
+                <th className="px-3 py-3 border-b border-gray-200">BoxId</th>
+                <th className="px-3 py-3 border-b border-gray-200">SrNo</th>
+                <th className="px-3 py-3 border-b border-gray-200">Description</th>
+                <th className="px-3 py-3 border-b border-gray-200">HS Code</th>
+                <th className="px-3 py-3 border-b border-gray-200">Unit Type</th>
+                <th className="px-3 py-3 border-b border-gray-200">Quantity</th>
+                <th className="px-3 py-3 border-b border-gray-200">Unit Weight</th>
+                <th className="px-3 py-3 border-b border-gray-200">IGST</th>
+                <th className="px-3 py-3 border-b border-gray-200">Unit Rates</th>
+                <th className="px-3 py-3 border-b border-gray-200">Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayInvoiceItems.map((item, idx) => (
+                <tr key={idx} className="border-gray-200">
                   <td className="px-3 py-2">{item.boxNo || "-"}</td>
                   <td className="px-3 py-2">{item.srNo || "-"}</td>
                   <td className="px-3 py-2">{item.description || "-"}</td>
@@ -285,158 +372,157 @@ const AwbDetailsView = ({
                   <td className="px-3 py-2">{item.unitRates || "-"}</td>
                   <td className="px-3 py-2">{item.amount || "-"}</td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={10} className="px-3 py-4 text-center text-gray-500">
-                  No invoice items found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
-const PurchaseBillingView = ({ vendorInvoiceData, purchaseBillingData, vendorDetailsData }: any) => (
-  <div className="border border-axc-border rounded-lg">
-    {/* VENDOR INVOICE */}
-    <SectionHeader title="Vendor Invoice" />
-    <Row1>
-      <Field label="Past Vendor Invoice:" value={vendorInvoiceData?.pastVendorInvoice || "-"} />
-    </Row1>
-    <Row2>
-      <Field label="Vendor Invoice 1:" value={vendorInvoiceData?.vendorInvoice1 || "-"} />
-      <Field label="Invoice Remarks 1:" value={vendorInvoiceData?.invoiceRemarks1 || "-"} />
-    </Row2>
-    <Row2>
-      <Field label="Vendor Invoice 2:" value={vendorInvoiceData?.vendorInvoice2 || "-"} />
-      <Field label="Invoice Remarks 2:" value={vendorInvoiceData?.invoiceRemarks2 || "-"} />
-    </Row2>
-    <Row2>
-      <Field label="Vendor Invoice 3:" value={vendorInvoiceData?.vendorInvoice3 || "-"} />
-      <Field label="Invoice Remarks 3:" value={vendorInvoiceData?.invoiceRemarks3 || "-"} />
-    </Row2>
-    <Row2>
-      <Field label="Vendor Invoice 4:" value={vendorInvoiceData?.vendorInvoice4 || "-"} />
-      <Field label="Invoice Remarks 4:" value={vendorInvoiceData?.invoiceRemarks4 || "-"} />
-    </Row2>
+const PurchaseBillingView = ({ vendorInvoiceData, purchaseBillingData, vendorDetailsData }: any) => {
+  const displayWeightRows =
+    vendorDetailsData?.weightRows && vendorDetailsData.weightRows.length > 0
+      ? vendorDetailsData.weightRows
+      : getDummyWeightRows();
 
-    {/* PURCHASE BILLING */}
-    <div className="mt-4">
-      <SectionHeader title="Purchase Billing" />
-      <Row3>
-        <Field label="Company:" value={purchaseBillingData?.company || "-"} />
-        <Field label="Currency:" value={purchaseBillingData?.purchaseCurrency || "-"} />
-        <Field label="VAT Type:" value={purchaseBillingData?.vatType || "-"} />
-      </Row3>
+  return (
+    <div className="border border-axc-border rounded-lg">
+      {/* VENDOR INVOICE */}
+      <SectionHeader title="Vendor Invoice" />
       <Row1>
-        <Field label="VAT Applicable:" value={purchaseBillingData?.vatApplicable ? "Yes" : "No"} />
+        <Field label="Past Vendor Invoice:" value={vendorInvoiceData?.pastVendorInvoice || "-"} />
       </Row1>
-      <Row3>
-        <Field label="Freight:" value={purchaseBillingData?.freight || "0.00"} />
-        <Field label="Freight Per Kg:" value={purchaseBillingData?.freightPerKg || "-"} />
-        <Field label="Search Charge:" value={purchaseBillingData?.searchCharge || "-"} />
-      </Row3>
-      <Row3>
-        <ChargeField label="Additional Handling" charge={purchaseBillingData?.charges?.additionalHandling} />
-        <ChargeField
-          label="Additional Handling Charge Weight"
-          charge={purchaseBillingData?.charges?.additionalHandlingCharge}
-        />
-        <ChargeField label="Address Correction Fees" charge={purchaseBillingData?.charges?.addressCorrectionFees} />
-      </Row3>
-      <Row3>
-        <ChargeField label="AHS Weight" charge={purchaseBillingData?.charges?.ahsWeight} />
-        <ChargeField label="Brand Charges" charge={purchaseBillingData?.charges?.brandCharges} />
-        <ChargeField label="Collection Charges" charge={purchaseBillingData?.charges?.collectionCharges} />
-      </Row3>
-      <Row3>
-        <ChargeField label="DAS Charge" charge={purchaseBillingData?.charges?.dasCharges} />
-        <ChargeField label="DDP CAD Charge" charge={purchaseBillingData?.charges?.ddpCadCharges} />
-        <ChargeField label="Delivery Area Surcharge" charge={purchaseBillingData?.charges?.deliveryAreaSurcharge} />
-      </Row3>
-      <Row3>
-        <ChargeField
-          label="Delivery Area Surcharge Extended"
-          charge={purchaseBillingData?.charges?.deliveryAreaSurchargeExtended}
-        />
-        <ChargeField label="Drop Off Charges" charge={purchaseBillingData?.charges?.dropOffCharges} />
-        <ChargeField label="E Form" charge={purchaseBillingData?.charges?.eForm} />
-      </Row3>
-      <Row3>
-        <ChargeField label="Extra Charges" charge={purchaseBillingData?.charges?.extraCharges} />
-        <ChargeField label="Oversized" charge={purchaseBillingData?.charges?.oversized} />
-        <ChargeField label="Peak Surcharge" charge={purchaseBillingData?.charges?.peakSurcharge} />
-      </Row3>
-      <Row3>
-        <ChargeField label="Pickup Charges" charge={purchaseBillingData?.charges?.pickupCharges} />
-        <ChargeField label="Remote Area" charge={purchaseBillingData?.charges?.remoteArea} />
-        <ChargeField label="Remote Area Surcharge" charge={purchaseBillingData?.charges?.remoteAreaSurcharge} />
-      </Row3>
       <Row2>
-        <ChargeField label="Residential Surcharge" charge={purchaseBillingData?.charges?.residentialSurcharge} />
-        <ChargeField
-          label="Residential Surcharge Manual"
-          charge={purchaseBillingData?.charges?.residentialSurchargeManual}
-        />
+        <Field label="Vendor Invoice 1:" value={vendorInvoiceData?.vendorInvoice1 || "-"} />
+        <Field label="Invoice Remarks 1:" value={vendorInvoiceData?.invoiceRemarks1 || "-"} />
       </Row2>
-      <Row3>
-        <Field label="Total Other Charges:" value={purchaseBillingData?.totalOtherCharges || "0.00"} />
-        <Field label="Adjustment Amount:" value={purchaseBillingData?.adjustmentAmount || "-"} />
-        <Field label="FSC %:" value={purchaseBillingData?.fscPercent || "-"} />
-      </Row3>
-      <Row3>
-        <Field label="FSC:" value={purchaseBillingData?.fsc || "0.00"} />
-        <Field label="Discount (In %):" value={purchaseBillingData?.discountPercent || "-"} />
-        <Field label="Discount Amount:" value={purchaseBillingData?.discountAmount || "-"} />
-      </Row3>
-      <Row3>
-        <Field label="Total Discount:" value={purchaseBillingData?.totalDiscount || "0.00"} />
-        <Field label="Freight After Discount:" value={purchaseBillingData?.freightAfterDiscount || "0.00"} />
-        <Field label="Subtotal:" value={purchaseBillingData?.subtotal || "0.00"} />
-      </Row3>
-      <Row3>
-        <Field label="Non Taxable Amount:" value={purchaseBillingData?.nonTaxableAmount || "0.00"} />
-        <Field label="Taxable Amount:" value={purchaseBillingData?.taxableAmount || "0.00"} />
-        <Field label="VAT %:" value={purchaseBillingData?.vatPercent || "0.00"} />
-      </Row3>
-      <div className="grid grid-cols-1 gap-0 border-b border-axc-border bg-white font-bold">
-        <Field label="Grand Total:" value={purchaseBillingData?.grandTotal || "0.00"} />
-      </div>
-    </div>
+      <Row2>
+        <Field label="Vendor Invoice 2:" value={vendorInvoiceData?.vendorInvoice2 || "-"} />
+        <Field label="Invoice Remarks 2:" value={vendorInvoiceData?.invoiceRemarks2 || "-"} />
+      </Row2>
+      <Row2>
+        <Field label="Vendor Invoice 3:" value={vendorInvoiceData?.vendorInvoice3 || "-"} />
+        <Field label="Invoice Remarks 3:" value={vendorInvoiceData?.invoiceRemarks3 || "-"} />
+      </Row2>
+      <Row2>
+        <Field label="Vendor Invoice 4:" value={vendorInvoiceData?.vendorInvoice4 || "-"} />
+        <Field label="Invoice Remarks 4:" value={vendorInvoiceData?.invoiceRemarks4 || "-"} />
+      </Row2>
 
-    {/* VENDOR DETAILS */}
-    <div className="mt-4">
-      <SectionHeader title="Vendor Details" />
-      <Row3>
-        <Field label="Product:" value={vendorDetailsData?.product || "-"} />
-        <Field label="Service:" value={vendorDetailsData?.service || "-"} />
-        <Field label="Vendor:" value={vendorDetailsData?.vendor || "-"} />
-      </Row3>
-      <Row3>
-        <Field label="Origin Zone:" value={vendorDetailsData?.originZone || "-"} />
-        <Field label="Destination Zone:" value={vendorDetailsData?.destinationZone || "-"} />
-        <Field label="PCS:" value={vendorDetailsData?.pcs || "-"} />
-      </Row3>
-      <div className="overflow-x-auto p-4 bg-white border-b border-axc-border">
-        <table className="w-full font-regular-small text-left border border-axc-border">
-          <thead className="bg-axc-navy/10">
-            <tr>
-              <th className="px-3 py-3 border-b border-axc-border">Actual Wt.(KG.)</th>
-              <th className="px-3 py-3 border-b border-axc-border">L(CM)</th>
-              <th className="px-3 py-3 border-b border-axc-border">B(CM)</th>
-              <th className="px-3 py-3 border-b border-axc-border">H(CM)</th>
-              <th className="px-3 py-3 border-b border-axc-border">Volumetric Wt.(KG.)</th>
-              <th className="px-3 py-3 border-b border-axc-border">Chargeable Wt.(KG.)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {vendorDetailsData?.weightRows && vendorDetailsData.weightRows.length > 0 ? (
-              vendorDetailsData.weightRows.map((row: any, idx: number) => (
-                <tr key={idx} className="border-b last:border-b-0 border-axc-border">
+      {/* PURCHASE BILLING */}
+      <div className="mt-4">
+        <SectionHeader title="Purchase Billing" />
+        <Row3>
+          <Field label="Company:" value={purchaseBillingData?.company || "-"} />
+          <Field label="Currency:" value={purchaseBillingData?.purchaseCurrency || "-"} />
+          <Field label="VAT Type:" value={purchaseBillingData?.vatType || "-"} />
+        </Row3>
+        <Row1>
+          <Field label="VAT Applicable:" value={purchaseBillingData?.vatApplicable ? "Yes" : "No"} />
+        </Row1>
+        <Row3>
+          <Field label="Freight:" value={purchaseBillingData?.freight || "0.00"} />
+          <Field label="Freight Per Kg:" value={purchaseBillingData?.freightPerKg || "-"} />
+          <Field label="Search Charge:" value={purchaseBillingData?.searchCharge || "-"} />
+        </Row3>
+        <Row3>
+          <ChargeField label="Additional Handling" charge={purchaseBillingData?.charges?.additionalHandling} />
+          <ChargeField
+            label="Additional Handling Charge Weight"
+            charge={purchaseBillingData?.charges?.additionalHandlingCharge}
+          />
+          <ChargeField label="Address Correction Fees" charge={purchaseBillingData?.charges?.addressCorrectionFees} />
+        </Row3>
+        <Row3>
+          <ChargeField label="AHS Weight" charge={purchaseBillingData?.charges?.ahsWeight} />
+          <ChargeField label="Brand Charges" charge={purchaseBillingData?.charges?.brandCharges} />
+          <ChargeField label="Collection Charges" charge={purchaseBillingData?.charges?.collectionCharges} />
+        </Row3>
+        <Row3>
+          <ChargeField label="DAS Charge" charge={purchaseBillingData?.charges?.dasCharges} />
+          <ChargeField label="DDP CAD Charge" charge={purchaseBillingData?.charges?.ddpCadCharges} />
+          <ChargeField label="Delivery Area Surcharge" charge={purchaseBillingData?.charges?.deliveryAreaSurcharge} />
+        </Row3>
+        <Row3>
+          <ChargeField
+            label="Delivery Area Surcharge Extended"
+            charge={purchaseBillingData?.charges?.deliveryAreaSurchargeExtended}
+          />
+          <ChargeField label="Drop Off Charges" charge={purchaseBillingData?.charges?.dropOffCharges} />
+          <ChargeField label="E Form" charge={purchaseBillingData?.charges?.eForm} />
+        </Row3>
+        <Row3>
+          <ChargeField label="Extra Charges" charge={purchaseBillingData?.charges?.extraCharges} />
+          <ChargeField label="Oversized" charge={purchaseBillingData?.charges?.oversized} />
+          <ChargeField label="Peak Surcharge" charge={purchaseBillingData?.charges?.peakSurcharge} />
+        </Row3>
+        <Row3>
+          <ChargeField label="Pickup Charges" charge={purchaseBillingData?.charges?.pickupCharges} />
+          <ChargeField label="Remote Area" charge={purchaseBillingData?.charges?.remoteArea} />
+          <ChargeField label="Remote Area Surcharge" charge={purchaseBillingData?.charges?.remoteAreaSurcharge} />
+        </Row3>
+        <Row2>
+          <ChargeField label="Residential Surcharge" charge={purchaseBillingData?.charges?.residentialSurcharge} />
+          <ChargeField
+            label="Residential Surcharge Manual"
+            charge={purchaseBillingData?.charges?.residentialSurchargeManual}
+          />
+        </Row2>
+        <Row3>
+          <Field label="Total Other Charges:" value={purchaseBillingData?.totalOtherCharges || "0.00"} />
+          <Field label="Adjustment Amount:" value={purchaseBillingData?.adjustmentAmount || "-"} />
+          <Field label="FSC %:" value={purchaseBillingData?.fscPercent || "-"} />
+        </Row3>
+        <Row3>
+          <Field label="FSC:" value={purchaseBillingData?.fsc || "0.00"} />
+          <Field label="Discount (In %):" value={purchaseBillingData?.discountPercent || "-"} />
+          <Field label="Discount Amount:" value={purchaseBillingData?.discountAmount || "-"} />
+        </Row3>
+        <Row3>
+          <Field label="Total Discount:" value={purchaseBillingData?.totalDiscount || "0.00"} />
+          <Field label="Freight After Discount:" value={purchaseBillingData?.freightAfterDiscount || "0.00"} />
+          <Field label="Subtotal:" value={purchaseBillingData?.subtotal || "0.00"} />
+        </Row3>
+        <Row3>
+          <Field label="Non Taxable Amount:" value={purchaseBillingData?.nonTaxableAmount || "0.00"} />
+          <Field label="Taxable Amount:" value={purchaseBillingData?.taxableAmount || "0.00"} />
+          <Field label="VAT %:" value={purchaseBillingData?.vatPercent || "0.00"} />
+        </Row3>
+        <div className="grid grid-cols-1 gap-0 border-b border-axc-border bg-white font-bold">
+          <Field label="Grand Total:" value={purchaseBillingData?.grandTotal || "0.00"} />
+        </div>
+      </div>
+
+      {/* VENDOR DETAILS */}
+      <div className="mt-4">
+        <SectionHeader title="Vendor Details" />
+        <Row3>
+          <Field label="Product:" value={vendorDetailsData?.product || "-"} />
+          <Field label="Service:" value={vendorDetailsData?.service || "-"} />
+          <Field label="Vendor:" value={vendorDetailsData?.vendor || "-"} />
+        </Row3>
+        <Row3>
+          <Field label="Origin Zone:" value={vendorDetailsData?.originZone || "-"} />
+          <Field label="Destination Zone:" value={vendorDetailsData?.destinationZone || "-"} />
+          <Field label="PCS:" value={vendorDetailsData?.pcs || "-"} />
+        </Row3>
+        <div className="overflow-x-auto p-4 bg-white border-b border-gray-200">
+          <table className="w-full font-regular-small text-left border border-gray-200">
+            <thead className="bg-axc-navy/10 text-axc-dark-gray">
+              <tr>
+                <th className="px-3 py-3 border-b border-gray-200">Actual Wt.(KG.)</th>
+                <th className="px-3 py-3 border-b border-gray-200">L(CM)</th>
+                <th className="px-3 py-3 border-b border-gray-200">B(CM)</th>
+                <th className="px-3 py-3 border-b border-gray-200">H(CM)</th>
+                <th className="px-3 py-3 border-b border-gray-200">Volumetric Wt.(KG.)</th>
+                <th className="px-3 py-3 border-b border-gray-200">Chargeable Wt.(KG.)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayWeightRows.map((row: any, idx: number) => (
+                <tr key={idx} className=" border-gray-200">
                   <td className="px-3 py-3">{row.actualWeight || "-"}</td>
                   <td className="px-3 py-3">{row.length || "-"}</td>
                   <td className="px-3 py-3">{row.breadth || "-"}</td>
@@ -444,156 +530,155 @@ const PurchaseBillingView = ({ vendorInvoiceData, purchaseBillingData, vendorDet
                   <td className="px-3 py-3">{row.volumetricWeight || "-"}</td>
                   <td className="px-3 py-3">{row.chargeableWeight || "-"}</td>
                 </tr>
-              ))
-            ) : (
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <Row1>
+          <Field label="Actual Weight:" value={vendorDetailsData?.actualWeight || "-"} />
+        </Row1>
+        <Row3>
+          <Field label="CFT ID:" value={vendorDetailsData?.cftId || "-"} />
+          <Field label="CFT VALUE:" value={vendorDetailsData?.cftValue || "-"} />
+          <Field label="Contact ID:" value={vendorDetailsData?.vendorContractId || "-"} />
+        </Row3>
+        <Row3>
+          <Field label="TAT:" value={vendorDetailsData?.tat || "-"} />
+          <Field label="Volum Weight:" value={vendorDetailsData?.volumeWeight || "-"} />
+          <Field label="Chargeable Weight:" value={vendorDetailsData?.chargeableWeight || "-"} />
+        </Row3>
+      </div>
+    </div>
+  );
+};
+
+const DeliveryView = ({ id, formData, awbData, deliveryData }: any) => {
+  const displayTrackingEvents =
+    deliveryData?.trackingEvents && deliveryData.trackingEvents.length > 0
+      ? deliveryData.trackingEvents
+      : getDummyTrackingEvents();
+
+  return (
+    <div className="border border-axc-border rounded bg-gray-50/50">
+      {/* FORWARDING NUMBERS */}
+      <SectionHeader title="Forwarding Details" />
+      <Row2>
+        <Field label="Forwarding Number:" value={formData?.forwardingNumber || awbData?.forwardingNumber || "-"} />
+        <Field label="Forwarding Number 2:" value={formData?.forwardingNumber2 || "-"} />
+      </Row2>
+
+      {/* CUSTOMER VS VENDOR TABLE */}
+      <div className="mt-4">
+        <SectionHeader title="Expected Delivery / TAT" />
+        <div className="overflow-x-auto p-3 bg-white border-b border-gray-200">
+          <table className="w-full text-sm text-left border border-gray-200">
+            <thead className="bg-axc-navy/10 text-axc-dark-gray text-regular-small text-xs">
               <tr>
-                <td colSpan={6} className="px-3 py-4 text-center text-gray-500">
-                  No weight rows
+                <th className="px-3 py-3 border-b border-gray-200"></th>
+                <th className="px-3 py-3 border-b border-gray-200 text-regular-medium text-center">Customer</th>
+                <th className="px-3 py-3 border-b border-gray-200 text-regular-medium text-center">Vendor</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-gray-200">
+                <td className="px-3 py-3 font-medium text-regular-medium">Expected Delivery Date</td>
+                <td className="px-3 py-3 text-center text-regular-medium">{deliveryData?.customerExpectedDate || "-"}</td>
+                <td className="px-3 py-3 text-center text-regular-medium">{deliveryData?.vendorExpectedDate || "-"}</td>
+              </tr>
+              <tr className="border-b border-gray-200">
+                <td className="px-3 py-3 font-medium text-regular-medium">Actual TAT</td>
+                <td className="px-3 py-3 text-center font-bold text-axc-navy text-regular-medium">
+                  {deliveryData?.customerActualTat || "0"}
+                </td>
+                <td className="px-3 py-3 text-center font-bold text-axc-navy text-regular-medium">
+                  {deliveryData?.vendorActualTat || "0"}
                 </td>
               </tr>
-            )}
-          </tbody>
-        </table>
+              <tr className="border-b border-gray-200">
+                <td className="px-3 py-3 font-medium text-regular-medium">Crossed EDD Days</td>
+                <td className="px-3 py-3 text-center">{deliveryData?.customerCrossedEdd || "-"}</td>
+                <td className="px-3 py-3 text-center">{deliveryData?.vendorCrossedEdd || "-"}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
-      <Row1>
-        <Field label="Actual Weight:" value={vendorDetailsData?.actualWeight || "-"} />
-      </Row1>
-      <Row3>
-        <Field label="CFT ID:" value={vendorDetailsData?.cftId || "-"} />
-        <Field label="CFT VALUE:" value={vendorDetailsData?.cftValue || "-"} />
-        <Field label="Contact ID:" value={vendorDetailsData?.vendorContractId || "-"} />
-      </Row3>
-      <Row3>
-        <Field label="TAT:" value={vendorDetailsData?.tat || "-"} />
-        <Field label="Volum Weight:" value={vendorDetailsData?.volumeWeight || "-"} />
-        <Field label="Chargeable Weight:" value={vendorDetailsData?.chargeableWeight || "-"} />
-      </Row3>
-    </div>
-  </div>
-);
 
-const DeliveryView = ({ id, formData, awbData, deliveryData }: any) => (
-  <div className="border border-axc-border rounded bg-gray-50/50">
-    {/* FORWARDING NUMBERS */}
-    <SectionHeader title="Forwarding Details" />
-    <Row2>
-      <Field label="Forwarding Number:" value={formData?.forwardingNumber || awbData?.forwardingNumber || "-"} />
-      <Field label="Forwarding Number 2:" value={formData?.forwardingNumber2 || "-"} />
-    </Row2>
-
-    {/* CUSTOMER VS VENDOR TABLE */}
-    <div className="mt-4">
-      <SectionHeader title="Expected Delivery / TAT" />
-      <div className="overflow-x-auto p-3 bg-white border-b border-axc-border">
-        <table className="w-full text-sm text-left border border-axc-border">
-          <thead className="bg-axc-navy/10 text-axc-dark-gray text-regular-small text-xs">
-            <tr>
-              <th className="px-3 py-3 border-b border-axc-border"></th>
-              <th className="px-3 py-3 border-b border-axc-border text-regular-medium text-center">Customer</th>
-              <th className="px-3 py-3 border-b border-axc-border text-regular-medium text-center">Vendor</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="border-b border-axc-border">
-              <td className="px-3 py-3 font-medium text-regular-medium">Expected Delivery Date</td>
-              <td className="px-3 py-3 text-center text-regular-medium">{deliveryData?.customerExpectedDate || "-"}</td>
-              <td className="px-3 py-3 text-center text-regular-medium">{deliveryData?.vendorExpectedDate || "-"}</td>
-            </tr>
-            <tr className="border-b border-axc-border">
-              <td className="px-3 py-3 font-medium text-regular-medium">Actual TAT</td>
-              <td className="px-3 py-3 text-center font-bold text-axc-navy text-regular-medium">
-                {deliveryData?.customerActualTat || "0"}
-              </td>
-              <td className="px-3 py-3 text-center font-bold text-axc-navy text-regular-medium">
-                {deliveryData?.vendorActualTat || "0"}
-              </td>
-            </tr>
-            <tr className="border-b border-axc-border">
-              <td className="px-3 py-3 font-medium text-regular-medium">Crossed EDD Days</td>
-              <td className="px-3 py-3 text-center">{deliveryData?.customerCrossedEdd || "-"}</td>
-              <td className="px-3 py-3 text-center">{deliveryData?.vendorCrossedEdd || "-"}</td>
-            </tr>
-          </tbody>
-        </table>
+      {/* DELIVERY DETAILS */}
+      <div className="mt-4">
+        <SectionHeader title="Delivery" />
+        <Row3>
+          <Field label="Expected Date:" value={deliveryData?.expectedDate || "-"} />
+          <Field label="Expected Time:" value={deliveryData?.expectedTime || "-"} />
+          <Field label="Delivery Date:" value={deliveryData?.deliveryDate || "-"} />
+        </Row3>
+        <Row3>
+          <Field label="Delivery Time:" value={deliveryData?.deliveryTime || "-"} />
+          <Field label="API Crossed EDD Days:" value={deliveryData?.apiCrossedEddDays || "-"} />
+          <Field label="Connection Date:" value={deliveryData?.connectionDate || "-"} />
+        </Row3>
+        <Row3>
+          <Field label="Connection Time:" value={deliveryData?.connectionTime || "-"} />
+          <Field label="Appointment Date:" value={deliveryData?.appointmentDate || "-"} />
+          <Field label="Appointment Time:" value={deliveryData?.appointmentTime || "-"} />
+        </Row3>
+        <Row3>
+          <Field label="POD Uploaded Date:" value={deliveryData?.podUploadedDate || "-"} />
+          <Field label="POD Uploaded Time:" value={deliveryData?.podUploadedTime || "-"} />
+          <Field label="Delivery Cost:" value={deliveryData?.deliveryCost || "-"} />
+        </Row3>
+        <Row3>
+          <Field label="Receiver Name:" value={deliveryData?.receiverName || "-"} />
+          <Field label="Receiver Mobile:" value={deliveryData?.receiverMobile || "-"} />
+          <Field label="Receiver Email:" value={deliveryData?.receiverEmail || "-"} />
+        </Row3>
+        <Row3>
+          <Field label="Remarks:" value={deliveryData?.remarks || "-"} />
+          <Field label="AWB Status Code:" value={deliveryData?.awbStatusCode || "-"} />
+          <Field label="AWB Status Name:" value={deliveryData?.awbStatusName || "-"} />
+        </Row3>
+        <Row3>
+          <Field label="Reason For Status:" value={deliveryData?.reasonForStatus || "-"} />
+          <Field label="COD Amount:" value={deliveryData?.codAmount || "-"} />
+          <Field label="COD Amount Collected:" value={deliveryData?.codAmountCollected || "-"} />
+        </Row3>
+        <div className="flex gap-4 border-b border-axc-border bg-white py-2.5 px-4 items-center text-sm">
+          <span className="text-axc-dark-gray text-regular-medium">POD Hard Copy</span>
+          <input
+            type="checkbox"
+            checked={deliveryData?.podHardCopy || false}
+            readOnly
+            disabled
+            className="w-3 h-3 rounded-sm border-gray-300 mr-2"
+          />
+        </div>
+        <div className="flex justify-end items-center gap-4 py-4 px-4 bg-gray-50 border-b border-axc-border text-regular-medium text-gray-700">
+          <span>TOTAL PCS - {deliveryData?.totalPcs || formData?.pcs || awbData?.pcs || "0"}</span>
+          <span>TOTAL PICKUP SCAN PARCELS - {deliveryData?.totalPickupScanParcels || "0"}</span>
+          <span>TOTAL INSCAN PARCELS - {deliveryData?.totalInscanParcels || "0"}</span>
+        </div>
       </div>
-    </div>
 
-    {/* DELIVERY DETAILS */}
-    <div className="mt-4">
-      <SectionHeader title="Delivery" />
-      <Row3>
-        <Field label="Expected Date:" value={deliveryData?.expectedDate || "-"} />
-        <Field label="Expected Time:" value={deliveryData?.expectedTime || "-"} />
-        <Field label="Delivery Date:" value={deliveryData?.deliveryDate || "-"} />
-      </Row3>
-      <Row3>
-        <Field label="Delivery Time:" value={deliveryData?.deliveryTime || "-"} />
-        <Field label="API Crossed EDD Days:" value={deliveryData?.apiCrossedEddDays || "-"} />
-        <Field label="Connection Date:" value={deliveryData?.connectionDate || "-"} />
-      </Row3>
-      <Row3>
-        <Field label="Connection Time:" value={deliveryData?.connectionTime || "-"} />
-        <Field label="Appointment Date:" value={deliveryData?.appointmentDate || "-"} />
-        <Field label="Appointment Time:" value={deliveryData?.appointmentTime || "-"} />
-      </Row3>
-      <Row3>
-        <Field label="POD Uploaded Date:" value={deliveryData?.podUploadedDate || "-"} />
-        <Field label="POD Uploaded Time:" value={deliveryData?.podUploadedTime || "-"} />
-        <Field label="Delivery Cost:" value={deliveryData?.deliveryCost || "-"} />
-      </Row3>
-      <Row3>
-        <Field label="Receiver Name:" value={deliveryData?.receiverName || "-"} />
-        <Field label="Receiver Mobile:" value={deliveryData?.receiverMobile || "-"} />
-        <Field label="Receiver Email:" value={deliveryData?.receiverEmail || "-"} />
-      </Row3>
-      <Row3>
-        <Field label="Remarks:" value={deliveryData?.remarks || "-"} />
-        <Field label="AWB Status Code:" value={deliveryData?.awbStatusCode || "-"} />
-        <Field label="AWB Status Name:" value={deliveryData?.awbStatusName || "-"} />
-      </Row3>
-      <Row3>
-        <Field label="Reason For Status:" value={deliveryData?.reasonForStatus || "-"} />
-        <Field label="COD Amount:" value={deliveryData?.codAmount || "-"} />
-        <Field label="COD Amount Collected:" value={deliveryData?.codAmountCollected || "-"} />
-      </Row3>
-      <div className="flex gap-4 border-b border-axc-border bg-white py-2.5 px-4 items-center text-sm">
-        <span className="text-axc-dark-gray text-regular-medium">POD Hard Copy</span>
-        <input
-          type="checkbox"
-          checked={deliveryData?.podHardCopy || false}
-          readOnly
-          disabled
-          className="w-3 h-3 rounded-sm border-gray-300 mr-2"
-        />
-      </div>
-      <div className="flex justify-end items-center gap-4 py-4 px-4 bg-gray-50 border-b border-axc-border text-regular-medium text-gray-700">
-        <span>TOTAL PCS - {deliveryData?.totalPcs || formData?.pcs || awbData?.pcs || "0"}</span>
-        <span>TOTAL PICKUP SCAN PARCELS - {deliveryData?.totalPickupScanParcels || "0"}</span>
-        <span>TOTAL INSCAN PARCELS - {deliveryData?.totalInscanParcels || "0"}</span>
-      </div>
-    </div>
-
-    {/* AWB TRACKING */}
-    <div className="mt-4">
-      <SectionHeader title={`AWB Tracking: ${id}`} />
-      <div className="overflow-x-auto p-3 bg-white rounded-lg">
-        <table className="w-full text-sm text-left border border-axc-border">
-          <thead className="bg-axc-navy/10 text-axc-dark-gray capitalize text-regular-medium">
-            <tr>
-              <th className="px-3 py-3 border-b border-axc-border">EVENT DATE TIME</th>
-              <th className="px-3 py-3 border-b border-axc-border">EVENT DESCRIPTION</th>
-              <th className="px-3 py-3 border-b border-axc-border">EVENT LOCATION</th>
-              <th className="px-3 py-3 border-b border-axc-border">EVENT TYPE</th>
-              <th className="px-3 py-3 border-b border-axc-border">EVENT STATE</th>
-              <th className="px-3 py-3 border-b border-axc-border">EVENT REMARK</th>
-              <th className="px-3 py-3 border-b border-axc-border">CREATED DATE</th>
-              <th className="px-3 py-3 border-b border-axc-border">CREATED BY</th>
-            </tr>
-          </thead>
-          <tbody>
-            {deliveryData?.trackingEvents && deliveryData.trackingEvents.length > 0 ? (
-              deliveryData.trackingEvents.map((event: any, idx: number) => (
-                <tr key={idx} className="border-b last:border-b-0">
+      {/* AWB TRACKING */}
+      <div className="mt-4">
+        <SectionHeader title={`AWB Tracking: ${id}`} />
+        <div className="overflow-x-auto p-3 bg-white rounded-lg">
+          <table className="w-full text-sm text-left border border-gray-200">
+            <thead className="bg-axc-navy/10 text-axc-dark-gray capitalize text-regular-medium">
+              <tr>
+                <th className="px-3 py-3 border-b border-gray-200">EVENT DATE TIME</th>
+                <th className="px-3 py-3 border-b border-gray-200">EVENT DESCRIPTION</th>
+                <th className="px-3 py-3 border-b border-gray-200">EVENT LOCATION</th>
+                <th className="px-3 py-3 border-b border-gray-200">EVENT TYPE</th>
+                <th className="px-3 py-3 border-b border-gray-200">EVENT STATE</th>
+                <th className="px-3 py-3 border-b border-gray-200">EVENT REMARK</th>
+                <th className="px-3 py-3 border-b border-gray-200">CREATED DATE</th>
+                <th className="px-3 py-3 border-b border-gray-200">CREATED BY</th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayTrackingEvents.map((event: any, idx: number) => (
+                <tr key={idx} className="border-gray-200">
                   <td className="px-3 py-2">{event.dateTime || "-"}</td>
                   <td className="px-3 py-2">{event.description || "-"}</td>
                   <td className="px-3 py-2">{event.location || "-"}</td>
@@ -603,20 +688,14 @@ const DeliveryView = ({ id, formData, awbData, deliveryData }: any) => (
                   <td className="px-3 py-2">{event.createdDate || "-"}</td>
                   <td className="px-3 py-2">{event.createdBy || "-"}</td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={8} className="px-3 py-4 text-center text-gray-500">
-                  No tracking events added
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const SalesBillingView = ({ id, formData, awbData, billingData, paymentData, remarksData, refundData }: any) => (
   <div className="border border-axc-border rounded bg-gray-50/50">
