@@ -67,7 +67,7 @@ export default function AllManifestPage() {
   };
 
   const handleView = (row: ManifestEntry) => {
-    router.push(`/manifest/edit-manifest?id=${row.manifestNo}`);
+    router.push(`/manifest/view/${row.manifestNo}`);
   };
 
   const handleDelete = (row: ManifestEntry) => {
