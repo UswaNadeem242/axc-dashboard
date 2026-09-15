@@ -22,6 +22,7 @@ interface CommonTableProps {
   onEdit?: (row: any) => void;
   onDelete?: (row: any) => void;
   onBag?: (row: any) => void;
+ 
   itemsPerPage?: number;
   currentPage?: number;
   totalPages?: number;
