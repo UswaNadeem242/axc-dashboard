@@ -11,8 +11,20 @@ const SectionHeader = ({ title }: { title: string }) => (
   </div>
 );
 
-const Field = ({ label, value }: { label: string; value: string | React.ReactNode }) => (
-  <div className="flex items-center text-sm border-b border-axc-border last:border-b-0 py-2.5 px-4">
+const Field = ({
+  label,
+  value,
+  bordered = false,
+}: {
+  label: string;
+  value: string | React.ReactNode;
+  bordered?: boolean;
+}) => (
+  <div
+    className={`flex items-center text-sm border-b border-axc-border last:border-b-0 py-2.5 px-4 ${
+      bordered ? "md:border-l md:border-axc-border" : ""
+    }`}
+  >
     <span className="text-axc-dark-gray text-regular-medium w-[200px] shrink-0">{label}</span>
     <span className="text-axc-gray flex-1 font-semibold">{value || "-"}</span>
   </div>
@@ -99,46 +111,30 @@ export default function ManifestViewPage() {
       {activeTab === "entry" && (
         <div className="border border-axc-border rounded-tl-lg rounded-tr-lg">
           <SectionHeader title="General Information" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-axc-border">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-axc-border">
             <Field label="Manifest No:" value={manifestData.manifestNo} />
-            <div className="border-l border-axc-border">
-              <Field label="Manifest Date:" value={manifestData.manifestDate} />
-            </div>
+            <Field label="Manifest Date:" value={manifestData.manifestDate} bordered />
+            <Field label="Vendor:" value={manifestData.vendor} bordered />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-axc-border">
-            <Field label="Vendor:" value={manifestData.vendor} />
-            <div className="border-l border-axc-border">
-              <Field label="Vendor Name:" value={manifestData.vendorName} />
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-axc-border">
+            <Field label="Vendor Name:" value={manifestData.vendorName} />
+            <Field label="Origin Hub Code:" value={manifestData.originHubCode} bordered />
+            <Field label="Destination Hub Name:" value={manifestData.destinationHubName} bordered />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-axc-border">
-            <Field label="Origin Hub Code:" value={manifestData.originHubCode} />
-            <div className="border-l border-axc-border">
-              <Field label="Destination Hub Name:" value={manifestData.destinationHubName} />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-axc-border">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-axc-border">
             <Field label="Destination Hub Code:" value={manifestData.destinationHubCode} />
-            <div className="border-l border-axc-border">
-              <Field label="Forwarder Code:" value={manifestData.forwarderCode} />
-            </div>
+            <Field label="Forwarder Code:" value={manifestData.forwarderCode} bordered />
           </div>
-          
+
           <SectionHeader title="Transport & Baggage" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-axc-border">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-axc-border">
             <Field label="Run Number:" value={manifestData.runNumber} />
-            <div className="border-l border-axc-border">
-              <Field label="Vehicle No:" value={manifestData.vehicleNo} />
-            </div>
+            <Field label="Vehicle No:" value={manifestData.vehicleNo} bordered />
+            <Field label="Master EDI Bag No:" value={manifestData.masterEdiBagNo} bordered />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-axc-border">
-            <Field label="Master EDI Bag No:" value={manifestData.masterEdiBagNo} />
-            <div className="border-l border-axc-border">
-              <Field label="No. of Bags:" value={manifestData.noOfBags?.toString()} />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-axc-border">
-            <Field label="Weight:" value={manifestData.weight} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-axc-border">
+            <Field label="No. of Bags:" value={manifestData.noOfBags?.toString()} />
+            <Field label="Weight:" value={manifestData.weight} bordered />
           </div>
         </div>
       )}
