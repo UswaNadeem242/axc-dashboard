@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2, Package } from "lucide-react";
 import CommonPagination from "./pagination";
 import CommonScroll from "./commonscroll";
 
@@ -21,6 +21,7 @@ interface CommonTableProps {
   onView?: (row: any) => void;
   onEdit?: (row: any) => void;
   onDelete?: (row: any) => void;
+  onBag?: (row: any) => void;
   itemsPerPage?: number;
   currentPage?: number;
   totalPages?: number;
@@ -48,6 +49,7 @@ const CommonTable = ({
   onView,
   onEdit,
   onDelete,
+  onBag,
   totalPages: propTotalPages,
   currentPage = 1,
   onPageChange,
@@ -73,10 +75,6 @@ const CommonTable = ({
   const paginatedData = data.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
   const colSpan = headings.length + (selectable ? 1 : 0);
   const isScrollEnabled = showScroll && !hideScroll;
-
-  // =========================================================
-  // TRUNCATE
-  // =========================================================
   const truncateText = (text: string, maxLength = 8) => {
     if (!text) return "-";
     return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
@@ -112,11 +110,11 @@ const CommonTable = ({
   };
 
   const tableElement = (
-    <table className="w-max min-w-full border-collapse text-left text-sm">
+    <table className="w-full min-w-max  border-collapse text-left text-sm">
       <thead>
         <tr className="bg-axc-navy/10 text-black">
           {selectable && (
-            <th className="w-10 bg-axc-navy/10 rounded-l-sm px-4 py-3">
+            <th className="w-10 bg-axc-navy/10 rounded-tl-sm px-4 py-3">
               <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-3.5 w-3.5 accent-white" />
             </th>
           )}
@@ -126,11 +124,11 @@ const CommonTable = ({
               <th
                 key={heading.key}
                 onClick={() => heading.sortable && onSort?.(heading.key)}
-                className={`bg-axc-navy/10 px-4 py-3 text-xs font-bold text-axc-dark-gray uppercase whitespace-nowrap ${index === 0 && !selectable ? "rounded-l-sm" : ""
-                  } ${index === headings.length - 1 ? "rounded-r-sm" : ""} ${heading.sortable ? "cursor-pointer select-none hover:bg-axc-navy/20 transition-colors" : ""
+                className={`bg-axc-navy/10 px-4 py-3 text-xs font-bold text-axc-dark-gray  whitespace-nowrap ${index === 0 && !selectable ? "rounded-tl-sm" : ""
+                  } ${index === headings.length - 1 ? "rounded-tr-sm" : ""} ${heading.sortable ? "cursor-pointer select-none hover:bg-axc-navy/20 transition-colors" : ""
                   } ${heading.className ?? ""}`}
               >
-                <div className="inline-flex items-center gap-1">{heading.label}</div>
+                <div className="inline-flex items-center whitespace-nowrap gap-1">{heading.label}</div>
               </th>
             );
           })}
@@ -193,6 +191,17 @@ const CommonTable = ({
                             title="Edit"
                           >
                             <Pencil size={16} />
+                          </button>
+                        )}
+
+                        {onBag && (
+                          <button
+                            type="button"
+                            onClick={() => onBag(row)}
+                            className="inline-flex items-center justify-center rounded-md border border-axc-yellow/30 p-1.5 text-axc-dark-yellow transition hover:bg-axc-yellow/10 cursor-pointer"
+                            title="Bagging"
+                          >
+                            <Package size={16} />
                           </button>
                         )}
 

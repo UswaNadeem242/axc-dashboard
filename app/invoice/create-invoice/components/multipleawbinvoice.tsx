@@ -3,27 +3,19 @@ import React from "react";
 import { Plus, Trash } from "lucide-react";
 import CommonDropdown from "../../../src/common/dropdown";
 import CustomDatePicker from "../../../src/common/datepicker";
-import {
-  SingleAwbInvoiceRow,
-  SingleInvoiceFormState,
-  SingleInvoiceSearchState,
-} from "./invoicestate";
+import { awbMultipleRow, MultipleAwbFormState } from "./invoicestate";
 import { FieldLabel, PanelHeader, inputClass } from "./invoiceform";
 
 interface InvoiceDetailsProps {
-  form: SingleInvoiceFormState;
-  setForm: React.Dispatch<React.SetStateAction<SingleInvoiceFormState>>;
-  errors?: Partial<
-    Record<keyof SingleInvoiceSearchState | "invoiceNo" | "awbRows", string>
-  >;
+  form: MultipleAwbFormState;
+  setForm: React.Dispatch<React.SetStateAction<MultipleAwbFormState>>;
   onCreateInvoice: () => void;
   loading?: boolean;
 }
 
-export function SingleCustomerInvoiceDetails({
+export function MultipleawbDetails({
   form,
   setForm,
-  errors = {},
   onCreateInvoice,
   loading,
 }: InvoiceDetailsProps) {
@@ -32,23 +24,6 @@ export function SingleCustomerInvoiceDetails({
       <PanelHeader title="Invoice Details" />
       <div className="p-4 flex flex-col justify-between flex-1 gap-3 text-xs">
         <div className="grid grid-cols-1 gap-3">
-          <div className="flex flex-col gap-1">
-            <FieldLabel required>Invoice No.</FieldLabel>
-            <input
-              type="text"
-              value={form.invoiceNo}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, invoiceNo: e.target.value }))
-              }
-              className={inputClass}
-              placeholder="Invoice No."
-            />
-            {errors.invoiceNo && (
-              <span className="text-[10px] text-red-500">
-                {errors.invoiceNo}
-              </span>
-            )}
-          </div>
           <div className="flex flex-col gap-1">
             <FieldLabel>Invoice Date</FieldLabel>
             <CustomDatePicker
@@ -67,49 +42,6 @@ export function SingleCustomerInvoiceDetails({
               placeholder="Select Due Date"
             />
           </div>
-
-          <div className="flex flex-col gap-1">
-            <FieldLabel>Invoice Currency</FieldLabel>
-            <CommonDropdown
-              value={form.invoiceCurrency}
-              onChange={(val) =>
-                setForm((prev) => ({ ...prev, invoiceCurrency: val }))
-              }
-              className="w-full border-axc-border"
-              placeholder="SELECT..."
-              options={[
-                { value: "USD", label: "USD" },
-                { value: "INR", label: "INR" },
-              ]}
-            />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <FieldLabel>Note For Customer</FieldLabel>
-            <input
-              type="text"
-              value={form.noteForCustomer}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  noteForCustomer: e.target.value,
-                }))
-              }
-              className={inputClass}
-              placeholder="Note"
-            />
-          </div>
-        </div>
-
-        <div className="flex justify-end">
-          <button
-            type="button"
-            onClick={onCreateInvoice}
-            disabled={loading}
-            className="px-5 py-3 bg-axc-navy text-white rounded text-xs font-bold shadow-sm transition  cursor-pointer disabled:opacity-60"
-          >
-            {loading ? "Creating..." : "Create Invoice"}
-          </button>
         </div>
       </div>
     </div>
@@ -117,15 +49,14 @@ export function SingleCustomerInvoiceDetails({
 }
 
 interface AwbTableSectionProps {
-  awbRows: SingleAwbInvoiceRow[];
+  awbRows: awbMultipleRow[];
   addAwbRow: () => void;
-  updateAwbRow: <K extends keyof SingleAwbInvoiceRow>(
+  updateAwbRow: <K extends keyof awbMultipleRow>(
     id: number,
     key: K,
-    value: SingleAwbInvoiceRow[K],
+    value: awbMultipleRow[K],
   ) => void;
   removeAwbRow: (id: number) => void;
-  errors?: { awbRows?: string };
 }
 
 export function AwbTableSection({
@@ -133,7 +64,6 @@ export function AwbTableSection({
   addAwbRow,
   updateAwbRow,
   removeAwbRow,
-  errors = {},
 }: AwbTableSectionProps) {
   const totalGrandTotal = awbRows.reduce(
     (acc, row) => acc + Number(row.grandTotal || 0),
@@ -159,29 +89,26 @@ export function AwbTableSection({
           <table className="w-full text-[11px] border-collapse min-w-[950px]">
             <thead>
               <tr className="bg-axc-navy/10 border-b border-axc-border text-regular-medium text-axc-dark-gray  text-left">
+                <th className="py-2.5 px-2 border-r border-axc-border">Sr.No.</th>
                 <th className="py-2.5 px-2 border-r border-axc-border">
-                  AWB Number
+                  Shipper Name
                 </th>
                 <th className="py-2.5 px-2 border-r border-axc-border">
-                  Booking Date
+                  Shipper Code
                 </th>
                 <th className="py-2.5 px-2 border-r border-axc-border">
-                  Forwarding Number
+                  AWB Count
                 </th>
-                <th className="py-2.5 px-2 border-r border-axc-border">
-                  Destination
-                </th>
-                <th className="py-2.5 px-2 border-r border-axc-border">
-                  Product
-                </th>
-                <th className="py-2.5 px-2 border-r border-axc-border">PCS</th>
-                <th className="py-2.5 px-2 border-r border-axc-border">FSC</th>
                 <th className="py-2.5 px-2 border-r border-axc-border">
                   Chargeable Weight
                 </th>
                 <th className="py-2.5 px-2 border-r border-axc-border">
                   Freight Amount
                 </th>
+                <th className="py-2.5 px-2 border-r border-axc-border">
+                  Freight Zero AWB
+                </th>
+                <th className="py-2.5 px-2 border-r border-axc-border">VAT</th>
                 <th className="py-2.5 px-2 border-r border-axc-border">
                   Grand Total
                 </th>
@@ -191,59 +118,106 @@ export function AwbTableSection({
             <tbody>
               {awbRows.length === 0 && (
                 <tr>
-                  <td colSpan={11} className="text-center py-6 text-gray-400">
-                    No AWB added
+                  <td colSpan={9} className="text-center py-6 text-gray-400">
+                    No Shipper added
                   </td>
                 </tr>
               )}
-              {awbRows.map((row) => (
+              {awbRows.map((row, index) => (
                 <tr
                   key={row.id}
                   className="border-b border-axc-border last:border-b-0 hover:bg-gray-50/50"
                 >
-                  <td className="border-r border-axc-border p-1">
+                  <td className="border-r border-axc-border p-1 text-center">
+                    {index + 1}
+                  </td>
+                  <td className="border-r border-axc-border p-1 text-center">
                     <input
                       type="text"
-                      placeholder="AWB NO..."
-                      value={row.awbNumber}
+                      placeholder="Shipper Name"
+                      value={row.shipperName}
                       onChange={(e) =>
-                        updateAwbRow(row.id, "awbNumber", e.target.value)
+                        updateAwbRow(row.id, "shipperName", e.target.value)
                       }
                       className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
                     />
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.bookingDate)}
+                    <input
+                      type="text"
+                      placeholder="Shipper Code"
+                      value={row.shipperCode}
+                      onChange={(e) =>
+                        updateAwbRow(row.id, "shipperCode", e.target.value)
+                      }
+                      className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.forwardingNumber)}
+                    <input
+                      type="text"
+                      value={row.awbCount}
+                      onChange={(e) =>
+                        updateAwbRow(row.id, "awbCount", e.target.value)
+                      }
+                      className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.destination)}
+                    <input
+                      type="text"
+                      value={row.chargeableWeight}
+                      onChange={(e) =>
+                        updateAwbRow(row.id, "chargeableWeight", e.target.value)
+                      }
+                      className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.product)}
+                    <input
+                      type="text"
+                      value={row.freightAmount}
+                      onChange={(e) =>
+                        updateAwbRow(row.id, "freightAmount", e.target.value)
+                      }
+                      className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.pcs)}
+                    <input
+                      type="text"
+                      value={row.freightZeroAwb}
+                      onChange={(e) =>
+                        updateAwbRow(row.id, "freightZeroAwb", e.target.value)
+                      }
+                      className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.fsc)}
+                    <input
+                      type="text"
+                      value={row.vat}
+                      onChange={(e) =>
+                        updateAwbRow(row.id, "vat", e.target.value)
+                      }
+                      className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.chargeableWeight)}
-                  </td>
-                  <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.freightAmount)}
-                  </td>
-                  <td className="border-r border-axc-border p-1 text-center">
-                    {cellText(row.grandTotal)}
+                    <input
+                      type="text"
+                      value={row.grandTotal}
+                      onChange={(e) =>
+                        updateAwbRow(row.id, "grandTotal", e.target.value)
+                      }
+                      className="w-full min-w-[120px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
+                    />
                   </td>
                   <td className="p-1 text-center">
                     <button
                       type="button"
                       onClick={() => removeAwbRow(row.id)}
-                      title="Remove AWB"
+                      title="Remove customer"
                       className="inline-flex items-center justify-center cursor-pointer rounded-md border border-axc-red/30 p-1.5 text-axc-red transition hover:bg-axc-red/10"
                     >
                       <Trash size={15} />
@@ -261,7 +235,7 @@ export function AwbTableSection({
                     colSpan={1}
                     className="py-2 px-2 border-r border-axc-border text-right font-bold text-black"
                   >
-                    <div className="flex items-center justify-end gap-2 text-sm">
+                    <div className="flex items-center justify-around gap-2 text-sm">
                       <span>Grand Total</span>
                       <input
                         type="text"
@@ -277,19 +251,12 @@ export function AwbTableSection({
             </tbody>
           </table>
         </div>
-
-        {errors.awbRows && (
-          <span className="text-[10px] text-red-500 block">
-            {errors.awbRows}
-          </span>
-        )}
-
         <div className="flex justify-end">
           <button
             type="button"
             onClick={addAwbRow}
             className="p-1 text-white rounded-full ring ring-axc-yellow transition capitalize cursor-pointer flex justify-center items-center hover:bg-axc-yellow/10"
-            title="Add Item"
+            title="Add Shipper"
           >
             <Plus size={15} strokeWidth={3} className="text-axc-yellow" />
           </button>

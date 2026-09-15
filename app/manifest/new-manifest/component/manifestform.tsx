@@ -161,7 +161,7 @@ export function useManifestForm() {
   };
 
   const handleBagging = () => {
-    router.push("/manifest/new-manifest/component/bagging");
+    router.push("/manifest/new-manifest/bagging");
   };
 
   return {

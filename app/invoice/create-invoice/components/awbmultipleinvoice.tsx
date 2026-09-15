@@ -1,13 +1,10 @@
 "use client";
 import React from "react";
-import { useSingleCustomerInvoiceForm } from "./invoiceform";
-import { SingleCustomerSearchPanel } from "./singlecustomersearch";
-import {
-  SingleCustomerInvoiceDetails,
-  AwbTableSection,
-} from "./singlecustomerinvoice";
+import { useAwbInvoiceForm } from "./invoiceform";
+import { MultipleAwbSearchPanel } from "./multipleawbsearch";
+import { MultipleawbDetails, AwbTableSection } from "./multipleawbinvoice";
 
-export function AwbSingleCustomerInvoiceTab() {
+export function AwbMultipleTab() {
   const {
     search,
     setSearch,
@@ -20,12 +17,12 @@ export function AwbSingleCustomerInvoiceTab() {
     loading,
     handleSearch,
     handleCreateInvoice,
-  } = useSingleCustomerInvoiceForm();
+  } = useAwbInvoiceForm();
 
   return (
     <div className="flex flex-col lg:grid lg:grid-cols-12 gap-6 items-stretch w-full pb-2">
       <div className="lg:col-span-3 w-full flex flex-col">
-        <SingleCustomerInvoiceDetails
+        <MultipleawbDetails
           form={form}
           setForm={setForm}
           onCreateInvoice={handleCreateInvoice}
@@ -33,7 +30,7 @@ export function AwbSingleCustomerInvoiceTab() {
         />
       </div>
       <div className="w-full lg:col-span-9 flex flex-col">
-        <SingleCustomerSearchPanel
+        <MultipleAwbSearchPanel
           search={search}
           setSearch={setSearch}
           onSearch={handleSearch}

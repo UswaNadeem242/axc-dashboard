@@ -2,7 +2,7 @@
 import React from "react";
 import CommonDropdown from "../../../src/common/dropdown";
 import CustomDatePicker from "../../../src/common/datepicker";
-import { SingleInvoiceSearchState } from "./invoicestate";
+import { MultipleInvoiceSearchState } from "./invoicestate";
 import {
   FieldLabel,
   PanelHeader,
@@ -11,13 +11,13 @@ import {
 } from "./invoiceform";
 
 interface Props {
-  search: SingleInvoiceSearchState;
-  setSearch: React.Dispatch<React.SetStateAction<SingleInvoiceSearchState>>;
+  search: MultipleInvoiceSearchState;
+  setSearch: React.Dispatch<React.SetStateAction<MultipleInvoiceSearchState>>;
   onSearch: () => void;
-  errors?: Partial<Record<keyof SingleInvoiceSearchState, string>>;
+  errors?: Partial<Record<keyof MultipleInvoiceSearchState, string>>;
 }
 
-export function SingleCustomerSearchPanel({
+export function MultipleCustomerSearchPanel({
   search,
   setSearch,
   onSearch,
@@ -29,25 +29,6 @@ export function SingleCustomerSearchPanel({
 
       <div className="p-4 flex flex-col justify-between flex-1 gap-3 text-xs">
         <div className="grid grid-cols-3 gap-3">
-          <div className="flex flex-col gap-1">
-            <FieldLabel required>Customer</FieldLabel>
-            <input
-              type="text"
-              value={search.customer}
-              onChange={(e) =>
-                setSearch((prev) => ({ ...prev, customer: e.target.value }))
-              }
-              className={disabledInputClass}
-              placeholder="Customer"
-              disabled
-            />
-            {errors.customer && (
-              <span className="text-[10px] text-red-500">
-                {errors.customer}
-              </span>
-            )}
-          </div>
-
           <div className="flex flex-col gap-1">
             <FieldLabel required>Billing Company</FieldLabel>
             <CommonDropdown
@@ -83,20 +64,18 @@ export function SingleCustomerSearchPanel({
           </div>
 
           <div className="flex flex-col gap-1">
-            <FieldLabel required>GST Number</FieldLabel>
-            <input
-              type="text"
-              value={search.gstNumber}
-              onChange={(e) =>
-                setSearch((prev) => ({ ...prev, gstNumber: e.target.value }))
+            <FieldLabel required>Customer Type</FieldLabel>
+            <CommonDropdown
+              value={search.invoiceRange}
+              onChange={(val) =>
+                setSearch((prev) => ({ ...prev, invoiceRange: val }))
               }
-              className={disabledInputClass}
-              placeholder="GST number"
-              disabled
+              className="w-full border-axc-border"
+              options={[{ value: "AXC", label: "AXC" }]}
             />
-            {errors.gstNumber && (
+            {errors.invoiceRange && (
               <span className="text-[10px] text-red-500">
-                {errors.gstNumber}
+                {errors.invoiceRange}
               </span>
             )}
           </div>
@@ -178,26 +157,13 @@ export function SingleCustomerSearchPanel({
               placeholder="Product"
             />
           </div>
-
-          <div className="flex flex-col gap-1">
-            <FieldLabel>Run Number</FieldLabel>
-            <input
-              type="text"
-              value={search.runNumber}
-              onChange={(e) =>
-                setSearch((prev) => ({ ...prev, runNumber: e.target.value }))
-              }
-              className={inputClass}
-              placeholder="Run Number"
-            />
-          </div>
         </div>
 
         <div className="flex justify-end">
           <button
             type="button"
             onClick={onSearch}
-            className="px-5 py-3 bg-axc-yellow text-white rounded text-xs font-bold shadow-sm transition  cursor-pointer"
+            className="px-5 py-3 bg-axc-yellow text-white rounded text-xs font-bold shadow-sm transition cursor-pointer"
           >
             Search
           </button>

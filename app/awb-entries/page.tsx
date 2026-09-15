@@ -249,22 +249,7 @@ export default function AwbEntriesPage() {
         ),
       };
     }
-    if (h.key === "masterCode") {
-      return {
-        ...h,
-        label: (
-          <div className="flex flex-col text-left font-bold text-xs uppercase leading-[14px]">
-            <span>INVOICE</span>
-            <span>RANGE</span>
-            <span>MASTER</span>
-            <div className="flex items-center gap-1">
-              <span>CODE</span>
-
-            </div>
-          </div>
-        ),
-      };
-    }
+  
     return h;
   });
 

@@ -332,15 +332,16 @@ export default function ManifestInformation({
         <button
           type="button"
           onClick={handleSearchAwb}
-          className="bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition capitalize "
+          className="bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition  "
         >
           Search AWB
         </button>
         <button
           type="button"
           onClick={handleBagging}
-          className="bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition capitalize "
-        >
+          className="bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition "
+          >
+
           Bagging
         </button>
       </div>

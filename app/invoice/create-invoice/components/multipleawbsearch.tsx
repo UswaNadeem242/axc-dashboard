@@ -2,7 +2,7 @@
 import React from "react";
 import CommonDropdown from "../../../src/common/dropdown";
 import CustomDatePicker from "../../../src/common/datepicker";
-import { SingleInvoiceSearchState } from "./invoicestate";
+import { MultipleAwbSearchState } from "./invoicestate";
 import {
   FieldLabel,
   PanelHeader,
@@ -11,13 +11,13 @@ import {
 } from "./invoiceform";
 
 interface Props {
-  search: SingleInvoiceSearchState;
-  setSearch: React.Dispatch<React.SetStateAction<SingleInvoiceSearchState>>;
+  search: MultipleAwbSearchState;
+  setSearch: React.Dispatch<React.SetStateAction<MultipleAwbSearchState>>;
   onSearch: () => void;
-  errors?: Partial<Record<keyof SingleInvoiceSearchState, string>>;
+  errors?: Partial<Record<keyof MultipleAwbSearchState, string>>;
 }
 
-export function SingleCustomerSearchPanel({
+export function MultipleAwbSearchPanel({
   search,
   setSearch,
   onSearch,
@@ -180,15 +180,15 @@ export function SingleCustomerSearchPanel({
           </div>
 
           <div className="flex flex-col gap-1">
-            <FieldLabel>Run Number</FieldLabel>
+            <FieldLabel>AWB No.</FieldLabel>
             <input
               type="text"
-              value={search.runNumber}
+              value={search.awbNo}
               onChange={(e) =>
-                setSearch((prev) => ({ ...prev, runNumber: e.target.value }))
+                setSearch((prev) => ({ ...prev, awbNo: e.target.value }))
               }
               className={inputClass}
-              placeholder="Run Number"
+              placeholder="AWB no. separeted by commas"
             />
           </div>
         </div>

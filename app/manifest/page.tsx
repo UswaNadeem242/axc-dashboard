@@ -183,6 +183,7 @@ export default function AllManifestPage() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onView={handleView}
+        onBag={handleBag}
         currentPage={page}
         totalPages={totalPages}
         onPageChange={(p) => setPage(p)}
