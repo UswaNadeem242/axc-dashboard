@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef } from "react";
-import { Pencil, Check, Upload, FileText, Trash2 } from "lucide-react";
+import { Pencil, Check, Upload, FileText, Trash2, Cross, X } from "lucide-react";
 import { toSentenceCase } from "@/app/create-entries/components/form";
 
 export function EditCheckbox({
@@ -203,10 +203,10 @@ export function FileUploadField({
                     <button
                       type="button"
                       onClick={() => removeFile(uf.id)}
-                      className="text-gray-400 hover:text-axc-red transition shrink-0 cursor-pointer"
+                      className="text-axc-red hover:text-axc-red transition shrink-0 cursor-pointer"
                       title="Remove file"
                     >
-                      <Trash2 size={13} />
+                      <X size={13} />
                     </button>
                   </div>
 
@@ -215,7 +215,7 @@ export function FileUploadField({
                   </p>
                   <div className="mt-1.5 flex items-center h-1.5 w-3/4 overflow-hidden rounded-full">
                     <div
-                      className={`h-full bg-green-500 transition-all duration-200 ease-linear ${
+                      className={`h-full bg-axc-blue transition-all duration-200 ease-linear ${
                         done ? "rounded-full" : "rounded-l-full"
                       }`}
                       style={{ width: `${percent}%` }}
