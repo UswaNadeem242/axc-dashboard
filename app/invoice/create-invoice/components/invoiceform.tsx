@@ -12,6 +12,8 @@ import {
   MultipleAwbSearchState,
   MultipleAwbFormState,
   awbMultipleRow,
+  AwbLessInvoiceFormState,
+  AwbLessInvoiceItemRow,
 } from "./invoicestate";
 
 export const inputClass =
@@ -507,6 +509,140 @@ export function useAwbInvoiceForm() {
     addAwbRow,
     updateAwbRow,
     removeAwbRow,
+    loading,
+    toast,
+    showToast,
+    handleSearch,
+    handleCreateInvoice,
+  };
+}
+const emptyAwbLessForm: AwbLessInvoiceFormState = {
+  invoiceNumber: "",
+  customer: "",
+  addrType: "",
+  fromDate: "",
+  tillDate: "",
+  billingCompany: "",
+  invoiceRangeMaster: "",
+  invoiceType: "Tax Invoice",
+  runNo: "",
+  subAgent: "",
+  irn: "",
+  goodsDescription: "",
+  jobNo: "",
+  bankDetails: "",
+  pod: "",
+  pol: "",
+  invoiceDate: todayStr,
+  dueDate: todayStr,
+  noteForCustomer: "",
+  awbNo: "",
+  mawbNo: "",
+  portOfDeparture: "",
+  portOfArrival: "",
+  grossWeight: "",
+  packages: "",
+  airline: "",
+  shipperName: "",
+  vehicalNo: "",
+  vehicalWt: "",
+  challanNo: "",
+  pdfTypeAir: false,
+  pdfTypeCargo: false,
+  roundOff: "",
+};
+
+const emptyAwbLessItemRow = (id: number): AwbLessInvoiceItemRow => ({
+  id,
+  description: "",
+  isCustomDescription: false,
+  sac: "",
+  rate: "",
+  pcs: "",
+  amount: "",
+  vatType: "",
+  taxPercent: "",
+  total: "",
+});
+
+function computeAwbLessItemTotal(row: AwbLessInvoiceItemRow): string {
+  const amount = parseFloat(row.amount) || 0;
+  const taxPercent = parseFloat(row.taxPercent) || 0;
+  const total = amount + (amount * taxPercent) / 100;
+  return total ? String(total) : "";
+}
+
+export function useAwbLessInvoiceForm() {
+  const [form, setForm] = useState<AwbLessInvoiceFormState>(emptyAwbLessForm);
+  const [items, setItems] = useState<AwbLessInvoiceItemRow[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState<ToastState | null>(null);
+
+  const showToast = (message: string, type: ToastState["type"] = "info") => {
+    setToast({ message, type });
+    window.clearTimeout((showToast as any)._t);
+    (showToast as any)._t = window.setTimeout(() => setToast(null), 2600);
+  };
+
+  const updateFormField = <K extends keyof AwbLessInvoiceFormState>(
+    key: K,
+    value: AwbLessInvoiceFormState[K],
+  ) => {
+    setForm((prev: AwbLessInvoiceFormState) => ({ ...prev, [key]: value }));
+  };
+
+  const addItemRow = () => {
+    setItems((prev) => [...prev, emptyAwbLessItemRow(Date.now())]);
+  };
+
+  const updateItemRow = <K extends keyof AwbLessInvoiceItemRow>(
+    id: number,
+    key: K,
+    value: AwbLessInvoiceItemRow[K],
+  ) => {
+    setItems((prev) =>
+      prev.map((row) => {
+        if (row.id !== id) return row;
+        const updated = { ...row, [key]: value };
+        if (key === "amount" || key === "taxPercent") {
+          updated.total = computeAwbLessItemTotal(updated);
+        }
+        return updated;
+      }),
+    );
+  };
+
+  const removeItemRow = (id: number) => {
+    setItems((prev: AwbLessInvoiceItemRow[]) =>
+      prev.filter((row) => row.id !== id),
+    );
+  };
+
+  const handleSearch = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      showToast("Search completed");
+    }, 700);
+  };
+
+  const handleCreateInvoice = () => {
+    setLoading(true);
+    setTimeout(() => {
+      setLoading(false);
+      showToast("Invoice created successfully!", "success");
+    }, 700);
+  };
+
+  return {
+    form,
+    setForm,
+    updateFormField,
+    items,
+    setItems,
+    addItemRow,
+    updateItemRow,
+    removeItemRow,
     loading,
     toast,
     showToast,
