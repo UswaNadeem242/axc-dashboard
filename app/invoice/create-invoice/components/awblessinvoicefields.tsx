@@ -2,24 +2,44 @@
 import React from "react";
 import { Plus, Trash } from "lucide-react";
 import CustomDatePicker from "../../../src/common/datepicker";
+import Dropdown from "../../../src/common/dropdown"; 
 import {
   AwbLessInvoiceFormState,
   AwbLessInvoiceItemRow,
 } from "./invoicestate";
 import { FieldLabel, PanelHeader, inputClass } from "./invoiceform";
 
-const addrTypeOptions = ["Billing", "Shipping"];
-const billingCompanyOptions = ["Company A", "Company B"];
-const invoiceRangeOptions = ["Range 1", "Range 2"];
-const invoiceTypeOptions = ["Tax Invoice", "Proforma Invoice"];
-const bankDetailsOptions = ["Bank A", "Bank B"];
-const descriptionOptions = [
-  "Freight Charges",
-  "Handling Charges",
-  "Documentation Charges",
-  "Other Charges",
+const addrTypeOptions = [
+  { value: "Billing", label: "Billing" },
+  { value: "Shipping", label: "Shipping" },
 ];
-const vatTypeOptions = ["Standard", "Zero Rated", "Exempt"];
+const billingCompanyOptions = [
+  { value: "Company A", label: "Company A" },
+  { value: "Company B", label: "Company B" },
+];
+const invoiceRangeOptions = [
+  { value: "Range 1", label: "Range 1" },
+  { value: "Range 2", label: "Range 2" },
+];
+const invoiceTypeOptions = [
+  { value: "Tax Invoice", label: "Tax Invoice" },
+  { value: "Proforma Invoice", label: "Proforma Invoice" },
+];
+const bankDetailsOptions = [
+  { value: "Bank A", label: "Bank A" },
+  { value: "Bank B", label: "Bank B" },
+];
+const descriptionOptions = [
+  { value: "Freight Charges", label: "Freight Charges" },
+  { value: "Handling Charges", label: "Handling Charges" },
+  { value: "Documentation Charges", label: "Documentation Charges" },
+  { value: "Other Charges", label: "Other Charges" },
+];
+const vatTypeOptions = [
+  { value: "Standard", label: "Standard" },
+  { value: "Zero Rated", label: "Zero Rated" },
+  { value: "Exempt", label: "Exempt" },
+];
 
 interface AwbLessInvoiceDetailsProps {
   form: AwbLessInvoiceFormState;
@@ -54,7 +74,7 @@ export function AwbLessInvoiceDetails({
           <FieldLabel required>Customer</FieldLabel>
           <input
             type="text"
-            placeholder="Search here..."
+            placeholder="Customer"
             value={form.customer}
             onChange={(e) => updateForm("customer", e.target.value)}
             className={inputClass}
@@ -63,18 +83,12 @@ export function AwbLessInvoiceDetails({
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Addr. Type</FieldLabel>
-          <select
+          <Dropdown
+            options={addrTypeOptions}
             value={form.addrType}
-            onChange={(e) => updateForm("addrType", e.target.value)}
-            className={inputClass}
-          >
-            <option value="">Select...</option>
-            {addrTypeOptions.map((o) => (
-              <option key={o} value={o}>
-                {o}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => updateForm("addrType", val)}
+            placeholder="Select..."
+          />
         </div>
 
         <div className="flex flex-col gap-1">
@@ -97,49 +111,32 @@ export function AwbLessInvoiceDetails({
 
         <div className="flex flex-col gap-1">
           <FieldLabel required>Billing Company</FieldLabel>
-          <select
+          <Dropdown
+            options={billingCompanyOptions}
             value={form.billingCompany}
-            onChange={(e) => updateForm("billingCompany", e.target.value)}
-            className={inputClass}
-          >
-            <option value="">Select...</option>
-            {billingCompanyOptions.map((o) => (
-              <option key={o} value={o}>
-                {o}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => updateForm("billingCompany", val)}
+            placeholder="Select..."
+          />
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel required>Invoice Range Master</FieldLabel>
-          <select
+          <Dropdown
+            options={invoiceRangeOptions}
             value={form.invoiceRangeMaster}
-            onChange={(e) => updateForm("invoiceRangeMaster", e.target.value)}
-            className={inputClass}
-          >
-            <option value="">Select...</option>
-            {invoiceRangeOptions.map((o) => (
-              <option key={o} value={o}>
-                {o}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => updateForm("invoiceRangeMaster", val)}
+            placeholder="Select..."
+          />
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Invoice Type</FieldLabel>
-          <select
+          <Dropdown
+            options={invoiceTypeOptions}
             value={form.invoiceType}
-            onChange={(e) => updateForm("invoiceType", e.target.value)}
-            className={inputClass}
-          >
-            {invoiceTypeOptions.map((o) => (
-              <option key={o} value={o}>
-                {o}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => updateForm("invoiceType", val)}
+            placeholder="Select..."
+          />
         </div>
 
         <div className="flex flex-col gap-1">
@@ -149,6 +146,7 @@ export function AwbLessInvoiceDetails({
             value={form.runNo}
             onChange={(e) => updateForm("runNo", e.target.value)}
             className={inputClass}
+            placeholder="Run number"
           />
         </div>
 
@@ -159,6 +157,7 @@ export function AwbLessInvoiceDetails({
             value={form.subAgent}
             onChange={(e) => updateForm("subAgent", e.target.value)}
             className={inputClass}
+            placeholder="Sub agent"
           />
         </div>
 
@@ -179,6 +178,7 @@ export function AwbLessInvoiceDetails({
             value={form.goodsDescription}
             onChange={(e) => updateForm("goodsDescription", e.target.value)}
             className={inputClass}
+            placeholder="Goods description"
           />
         </div>
 
@@ -194,18 +194,12 @@ export function AwbLessInvoiceDetails({
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Bank Details</FieldLabel>
-          <select
+          <Dropdown
+            options={bankDetailsOptions}
             value={form.bankDetails}
-            onChange={(e) => updateForm("bankDetails", e.target.value)}
-            className={inputClass}
-          >
-            <option value="">Select...</option>
-            {bankDetailsOptions.map((o) => (
-              <option key={o} value={o}>
-                {o}
-              </option>
-            ))}
-          </select>
+            onChange={(val) => updateForm("bankDetails", val)}
+            placeholder="Select..."
+          />
         </div>
 
         <div className="flex flex-col gap-1">
@@ -225,6 +219,7 @@ export function AwbLessInvoiceDetails({
             value={form.pol}
             onChange={(e) => updateForm("pol", e.target.value)}
             className={inputClass}
+            placeholder="Port of Loading"
           />
         </div>
 
@@ -249,6 +244,7 @@ export function AwbLessInvoiceDetails({
         <div className="flex flex-col gap-1">
           <FieldLabel>AWB No.</FieldLabel>
           <input
+            placeholder="AWB No."
             type="text"
             value={form.awbNo}
             onChange={(e) => updateForm("awbNo", e.target.value)}
@@ -259,6 +255,7 @@ export function AwbLessInvoiceDetails({
         <div className="flex flex-col gap-1">
           <FieldLabel>MAWB No.</FieldLabel>
           <input
+           placeholder="MAWB No."
             type="text"
             value={form.mawbNo}
             onChange={(e) => updateForm("mawbNo", e.target.value)}
@@ -269,6 +266,7 @@ export function AwbLessInvoiceDetails({
         <div className="flex flex-col gap-1">
           <FieldLabel>Port Of Departure</FieldLabel>
           <input
+          placeholder="Port of Departure"
             type="text"
             value={form.portOfDeparture}
             onChange={(e) => updateForm("portOfDeparture", e.target.value)}
@@ -279,6 +277,7 @@ export function AwbLessInvoiceDetails({
         <div className="flex flex-col gap-1">
           <FieldLabel>Port Of Arrival</FieldLabel>
           <input
+          placeholder="Port of Arrival"
             type="text"
             value={form.portOfArrival}
             onChange={(e) => updateForm("portOfArrival", e.target.value)}
@@ -299,6 +298,7 @@ export function AwbLessInvoiceDetails({
         <div className="flex flex-col gap-1">
           <FieldLabel>Packages</FieldLabel>
           <input
+          placeholder="Packages"
             type="text"
             value={form.packages}
             onChange={(e) => updateForm("packages", e.target.value)}
@@ -313,6 +313,7 @@ export function AwbLessInvoiceDetails({
             value={form.airline}
             onChange={(e) => updateForm("airline", e.target.value)}
             className={inputClass}
+            placeholder="Airline"
           />
         </div>
 
@@ -323,6 +324,7 @@ export function AwbLessInvoiceDetails({
             value={form.shipperName}
             onChange={(e) => updateForm("shipperName", e.target.value)}
             className={inputClass}
+            placeholder="Shipper namee"
           />
         </div>
 
@@ -384,6 +386,7 @@ export function AwbLessInvoiceDetails({
             value={form.noteForCustomer}
             onChange={(e) => updateForm("noteForCustomer", e.target.value)}
             className={`${inputClass} min-h-[70px] resize-y`}
+            placeholder="Note for customers"
           />
         </div>
       </div>
@@ -462,7 +465,7 @@ export function AwbLessInvoiceItemsSection({
                   className="border-b border-axc-border last:border-b-0 hover:bg-gray-50/50"
                 >
                   <td className="border-r border-axc-border p-1">
-                    <div className="flex flex-col gap-1 min-w-[150px]">
+                    <div className="flex flex-col gap-1 min-w-[170px]">
                       {row.isCustomDescription ? (
                         <input
                           type="text"
@@ -474,22 +477,16 @@ export function AwbLessInvoiceItemsSection({
                           className="w-full bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
                         />
                       ) : (
-                        <select
+                        <Dropdown
+                          options={descriptionOptions}
                           value={row.description}
-                          onChange={(e) =>
-                            updateItemRow(row.id, "description", e.target.value)
+                          onChange={(val) =>
+                            updateItemRow(row.id, "description", val)
                           }
-                          className="w-full bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
-                        >
-                          <option value="">Select...</option>
-                          {descriptionOptions.map((o) => (
-                            <option key={o} value={o}>
-                              {o}
-                            </option>
-                          ))}
-                        </select>
+                          placeholder="Select..."
+                        />
                       )}
-                      <label className="flex items-center gap-1 text-[10px] text-axc-dark-gray whitespace-nowrap">
+                      <label className="flex items-center gap-1 text-regular-small text-axc-dark-gray whitespace-nowrap">
                         <input
                           type="checkbox"
                           checked={row.isCustomDescription}
@@ -546,20 +543,16 @@ export function AwbLessInvoiceItemsSection({
                     />
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
-                    <select
-                      value={row.vatType}
-                      onChange={(e) =>
-                        updateItemRow(row.id, "vatType", e.target.value)
-                      }
-                      className="w-full min-w-[110px] bg-white border border-axc-border rounded px-1.5 py-2 focus:outline-none"
-                    >
-                      <option value="">Select...</option>
-                      {vatTypeOptions.map((o) => (
-                        <option key={o} value={o}>
-                          {o}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="min-w-[130px]">
+                      <Dropdown
+                        options={vatTypeOptions}
+                        value={row.vatType}
+                        onChange={(val) =>
+                          updateItemRow(row.id, "vatType", val)
+                        }
+                        placeholder="Select..."
+                      />
+                    </div>
                   </td>
                   <td className="border-r border-axc-border p-1 text-center">
                     <input
