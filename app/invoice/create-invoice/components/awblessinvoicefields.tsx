@@ -587,7 +587,7 @@ export function AwbLessInvoiceItemsSection({
               {items.length > 0 && (
                 <tr className="bg-gray-50/50 border-t border-axc-border">
                   <td
-                    colSpan={8}
+                    colSpan={7}
                     className="py-2 px-3 border-r border-axc-border"
                   ></td>
                   <td
