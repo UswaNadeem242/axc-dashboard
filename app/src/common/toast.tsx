@@ -1,11 +1,6 @@
 import { toast, ToastOptions } from "react-toastify";
 
-type ToastVariant =
-  | "success"
-  | "error"
-  | "warning"
-  | "info"
-  | "default";
+type ToastVariant = "success" | "error" | "warning" | "info" | "default";
 
 interface ShowToastProps {
   variant?: ToastVariant;
