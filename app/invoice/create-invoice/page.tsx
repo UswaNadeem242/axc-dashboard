@@ -4,6 +4,7 @@ import { User, Users, CreditCard, FileText, AlertTriangle, X } from "lucide-reac
 import { AwbSingleCustomerInvoiceTab } from "./components/awbsinglecustomerinvoice";
 import { AwbMultipleCustomerInvoiceTab } from "./components/awbmultiplecustomerinvoice";
 import { AwbMultipleTab } from "./components/awbmultipleinvoice";
+import { AwbLessInvoiceTab } from "./components/awblessinvoice";
 
 type TabItem = { id: string; label: string; icon?: React.ReactNode };
 
@@ -26,6 +27,7 @@ const developedTabs = new Set([
   "single-customer",
   "multiple-customer",
   "multiple-awb",
+  "awb-less-invoice",
 ]);
 const tabWarnings: Record<string, string> = {
   "multiple-customer":
@@ -97,6 +99,7 @@ export default function CreateInvoicePage() {
             <AwbMultipleCustomerInvoiceTab />
           )}
           {activeTab === "multiple-awb" && <AwbMultipleTab />}
+          {activeTab === "awb-less-invoice" && <AwbLessInvoiceTab />}
 
           {!developedTabs.has(activeTab) && (
             <div className="rounded-[32px] border border-axc-border bg-white p-12 text-center text-axc-dark-gray shadow-sm w-full">

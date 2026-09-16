@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { ArrowLeft, FileText } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { ManifestEntry } from "@/app/src/constant";
+import { ManifestEntry, ManifestChargeRow } from "@/app/src/constant";
 
 const SectionHeader = ({ title }: { title: string }) => (
   <div className="bg-axc-navy/60 px-5 py-4 rounded-tl-lg rounded-tr-lg text-white capitalize">
@@ -11,12 +11,67 @@ const SectionHeader = ({ title }: { title: string }) => (
   </div>
 );
 
-const Field = ({ label, value }: { label: string; value: string | React.ReactNode }) => (
-  <div className="flex items-center text-sm border-b border-axc-border last:border-b-0 py-2.5 px-4">
+const Field = ({
+  label,
+  value,
+  bordered = false,
+}: {
+  label: string;
+  value: string | React.ReactNode;
+  bordered?: boolean;
+}) => (
+  <div
+    className={`flex items-center text-sm border-b border-axc-border last:border-b-0 py-2.5 px-4 ${
+      bordered ? "md:border-l md:border-axc-border" : ""
+    }`}
+  >
     <span className="text-axc-dark-gray text-regular-medium w-[200px] shrink-0">{label}</span>
     <span className="text-axc-gray flex-1 font-semibold">{value || "-"}</span>
   </div>
 );
+
+const DUMMY_BILLING_RECORDS: ManifestChargeRow[] = [
+  {
+    id: 1,
+    type: "Freight",
+    coLoader: "AXC Co-Load",
+    vendor: "Speedex Logistics",
+    company: "AXC Cargo Pvt Ltd",
+    charge: "Line Haul Charge",
+    amount: "12,500.00",
+    remark: "Standard rate",
+  },
+  {
+    id: 2,
+    type: "Handling",
+    coLoader: "-",
+    vendor: "Speedex Logistics",
+    company: "AXC Cargo Pvt Ltd",
+    charge: "Ground Handling",
+    amount: "1,800.00",
+    remark: "Per bag",
+  },
+  {
+    id: 3,
+    type: "Fuel Surcharge",
+    coLoader: "Skyward Cargo",
+    vendor: "Speedex Logistics",
+    company: "AXC Cargo Pvt Ltd",
+    charge: "Fuel Adjustment",
+    amount: "950.00",
+    remark: "As per fuel index",
+  },
+  {
+    id: 4,
+    type: "Duty",
+    coLoader: "-",
+    vendor: "Customs Clearing Co.",
+    company: "AXC Cargo Pvt Ltd",
+    charge: "Customs Duty",
+    amount: "3,200.00",
+    remark: "Pending approval",
+  },
+];
 
 export default function ManifestViewPage() {
   const params = useParams();
@@ -51,8 +106,8 @@ export default function ManifestViewPage() {
     );
   }
 
-  // Sample data for billing to show layout as per image (or fetch from localstorage if available)
-  const billingRecords: any[] = []; // Usually fetched from manifestData.billing or similar
+  // Dummy data used to preview layout; swap with manifestData.billing when available
+  const billingRecords: ManifestChargeRow[] = DUMMY_BILLING_RECORDS;
 
   return (
     <div className="relative bg-white p-6 rounded-lg w-full flex-1 flex flex-col min-h-0 shadow-sm border border-axc-border overflow-x-hidden overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-lg">
@@ -99,68 +154,52 @@ export default function ManifestViewPage() {
       {activeTab === "entry" && (
         <div className="border border-axc-border rounded-tl-lg rounded-tr-lg">
           <SectionHeader title="General Information" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-axc-border">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-axc-border">
             <Field label="Manifest No:" value={manifestData.manifestNo} />
-            <div className="border-l border-axc-border">
-              <Field label="Manifest Date:" value={manifestData.manifestDate} />
-            </div>
+            <Field label="Manifest Date:" value={manifestData.manifestDate} bordered />
+            <Field label="Vendor:" value={manifestData.vendor} bordered />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-axc-border">
-            <Field label="Vendor:" value={manifestData.vendor} />
-            <div className="border-l border-axc-border">
-              <Field label="Vendor Name:" value={manifestData.vendorName} />
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-axc-border">
+            <Field label="Vendor Name:" value={manifestData.vendorName} />
+            <Field label="Origin Hub Code:" value={manifestData.originHubCode} bordered />
+            <Field label="Destination Hub Name:" value={manifestData.destinationHubName} bordered />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-axc-border">
-            <Field label="Origin Hub Code:" value={manifestData.originHubCode} />
-            <div className="border-l border-axc-border">
-              <Field label="Destination Hub Name:" value={manifestData.destinationHubName} />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-axc-border">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-axc-border">
             <Field label="Destination Hub Code:" value={manifestData.destinationHubCode} />
-            <div className="border-l border-axc-border">
-              <Field label="Forwarder Code:" value={manifestData.forwarderCode} />
-            </div>
+            <Field label="Forwarder Code:" value={manifestData.forwarderCode} bordered />
           </div>
-          
+
           <SectionHeader title="Transport & Baggage" />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-axc-border">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-axc-border">
             <Field label="Run Number:" value={manifestData.runNumber} />
-            <div className="border-l border-axc-border">
-              <Field label="Vehicle No:" value={manifestData.vehicleNo} />
-            </div>
+            <Field label="Vehicle No:" value={manifestData.vehicleNo} bordered />
+            <Field label="Master EDI Bag No:" value={manifestData.masterEdiBagNo} bordered />
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-axc-border">
-            <Field label="Master EDI Bag No:" value={manifestData.masterEdiBagNo} />
-            <div className="border-l border-axc-border">
-              <Field label="No. of Bags:" value={manifestData.noOfBags?.toString()} />
-            </div>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-0 border-b border-axc-border">
-            <Field label="Weight:" value={manifestData.weight} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-0 border-b border-axc-border">
+            <Field label="No. of Bags:" value={manifestData.noOfBags?.toString()} />
+            <Field label="Weight:" value={manifestData.weight} bordered />
           </div>
         </div>
       )}
 
       {activeTab === "billing" && (
         <div className="border border-axc-border rounded-lg overflow-x-auto bg-white">
-           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-axc-navy/10 text-axc-navy font-bold uppercase text-xs">
+          <table className="w-full text-left text-sm whitespace-nowrap">
+            <thead className="bg-axc-navy/10 text-axc-black font-bold  text-xs">
               <tr>
-                <th className="px-4 py-3 border-b border-axc-border">TYPE</th>
-                <th className="px-4 py-3 border-b border-axc-border">CO-LOADER</th>
-                <th className="px-4 py-3 border-b border-axc-border">VENDOR</th>
-                <th className="px-4 py-3 border-b border-axc-border">COMPANY</th>
-                <th className="px-4 py-3 border-b border-axc-border">CHARGE</th>
-                <th className="px-4 py-3 border-b border-axc-border">AMOUNT</th>
-                <th className="px-4 py-3 border-b border-axc-border">REMARK</th>
+                <th className="px-4 py-3 border-b border-axc-border">Type</th>
+                <th className="px-4 py-3 border-b border-axc-border">Co-Loader</th>
+                <th className="px-4 py-3 border-b border-axc-border">Vendor</th>
+                <th className="px-4 py-3 border-b border-axc-border">Company</th>
+                <th className="px-4 py-3 border-b border-axc-border">Charge</th>
+                <th className="px-4 py-3 border-b border-axc-border">Amount</th>
+                <th className="px-4 py-3 border-b border-axc-border">Remark</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-axc-border">
               {billingRecords.length > 0 ? (
-                billingRecords.map((record, index) => (
-                  <tr key={index}>
+                billingRecords.map((record) => (
+                  <tr key={record.id}>
                     <td className="px-4 py-3">{record.type || "-"}</td>
                     <td className="px-4 py-3">{record.coLoader || "-"}</td>
                     <td className="px-4 py-3">{record.vendor || "-"}</td>

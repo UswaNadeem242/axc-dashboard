@@ -1378,3 +1378,13 @@ export const awbFilterOptions = [
   { label: "Product", value: "product" },
   { label: "Booking Date", value: "bookingDate" },
 ];
+export interface ManifestChargeRow {
+  id: number;
+  type: string;
+  coLoader: string;
+  vendor: string;
+  company: string;
+  charge: string;
+  amount: string;
+  remark: string;
+}

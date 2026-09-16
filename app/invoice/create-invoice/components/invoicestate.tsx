@@ -92,7 +92,54 @@ export interface awbMultipleRow {
   vat: string;
   grandTotal: string;
 }
+export interface AwbLessInvoiceFormState {
+  invoiceNumber: string;
+  customer: string;
+  addrType: string;
+  fromDate: string;
+  tillDate: string;
+  billingCompany: string;
+  invoiceRangeMaster: string;
+  invoiceType: string;
+  runNo: string;
+  subAgent: string;
+  irn: string;
+  goodsDescription: string;
+  jobNo: string;
+  bankDetails: string;
+  pod: string;
+  pol: string;
+  invoiceDate: string;
+  dueDate: string;
+  noteForCustomer: string;
+  awbNo: string;
+  mawbNo: string;
+  portOfDeparture: string;
+  portOfArrival: string;
+  grossWeight: string;
+  packages: string;
+  airline: string;
+  shipperName: string;
+  vehicalNo: string;
+  vehicalWt: string;
+  challanNo: string;
+  pdfTypeAir: boolean;
+  pdfTypeCargo: boolean;
+  roundOff: string;
+}
 
+export interface AwbLessInvoiceItemRow {
+  id: number;
+  description: string;
+  isCustomDescription: boolean;
+  sac: string;
+  rate: string;
+  pcs: string;
+  amount: string;
+  vatType: string;
+  taxPercent: string;
+  total: string;
+}
 export interface ToastState {
   message: string;
   type: "success" | "info" | "error";
