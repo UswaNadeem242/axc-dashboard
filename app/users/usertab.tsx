@@ -204,7 +204,6 @@ export default function UserTab() {
     <>
       {toast && <Toast msg={toast} />}
 
-      
       <div className="relative bg-white p-3 rounded-[8px] w-full h-[calc(100vh-160px)] flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
           <div className="flex flex-wrap items-center gap-3">

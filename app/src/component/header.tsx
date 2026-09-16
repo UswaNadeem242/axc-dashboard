@@ -94,9 +94,17 @@ export default function Header() {
                   <User size={18} className="text-navy shrink-0 stroke-[1.8]" />
                   <span>My Profile</span>
                 </Link>
+                <Link
+                  href="/users"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors group"
+                >
+                  <User size={18} className="text-navy shrink-0 stroke-[1.8]" />
+                  <span>Roles </span>
+                </Link>
 
-                {/* Settings */}
-              /*  <Link
+                {/* Settings 
+                <Link
                   href="#"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors group"
@@ -104,6 +112,7 @@ export default function Header() {
                   <Settings size={18} className="text-navy shrink-0 stroke-[1.8]" />
                   <span>Settings</span>
                 </Link>
+                */}
 
                 {/* Logout */}
                 <button
