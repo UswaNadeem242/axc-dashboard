@@ -162,7 +162,7 @@ const CommonTable = ({
                 </td>
               )}
               {headings.map((heading) => (
-                <td key={heading.key} className="px-4 py-3 text-center">
+                <td key={heading.key} className="px-4 py-2 text-center">
                   {heading.render ? (
                     heading.render(row, (activePage - 1) * itemsPerPage + index)
                   ) : heading.key === "status" ? (
