@@ -1,10 +1,13 @@
 "use client";
-import React, { useState } from "react";
-import { User, Users, CreditCard, FileText, AlertTriangle, X } from "lucide-react";
+import React, { useState, useEffect, useCallback } from "react";
+import { User, Users, CreditCard, FileText } from "lucide-react";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { AwbSingleCustomerInvoiceTab } from "./components/awbsinglecustomerinvoice";
 import { AwbMultipleCustomerInvoiceTab } from "./components/awbmultiplecustomerinvoice";
 import { AwbMultipleTab } from "./components/awbmultipleinvoice";
 import { AwbLessInvoiceTab } from "./components/awblessinvoice";
+import { showToast } from "../../src/common/toast";
 
 type TabItem = { id: string; label: string; icon?: React.ReactNode };
 
@@ -29,6 +32,7 @@ const developedTabs = new Set([
   "multiple-awb",
   "awb-less-invoice",
 ]);
+
 const tabWarnings: Record<string, string> = {
   "multiple-customer":
     "To Create Multiple Customer Invoice, Enable Auto Generate Invoice Number Setting",
@@ -38,19 +42,45 @@ const tabWarnings: Record<string, string> = {
 
 export default function CreateInvoicePage() {
   const [activeTab, setActiveTab] = useState("single-customer");
-  const [dismissedWarnings, setDismissedWarnings] = useState<
-    Record<string, boolean>
+  const [dismissedWarnings, setDismissedWarnings] = useState
+    <Record<string, boolean>
   >({});
 
-  const currentWarning = tabWarnings[activeTab];
-  const showWarning = Boolean(currentWarning) && !dismissedWarnings[activeTab];
-
-  const dismissWarning = (tabId: string) => {
+  const markDismissed = useCallback((tabId: string) => {
     setDismissedWarnings((prev) => ({ ...prev, [tabId]: true }));
-  };
+  }, []);
+
+  useEffect(() => {
+    const warning = tabWarnings[activeTab];
+    if (!warning || dismissedWarnings[activeTab]) return;
+
+    showToast({
+      variant: "warning",
+      message: warning,
+      options: {
+        containerId: "invoice-toast",
+        toastId: `tab-warning-${activeTab}`,
+        autoClose: 5000,
+        onClose: () => markDismissed(activeTab),
+      },
+    });
+  }, [activeTab, dismissedWarnings, markDismissed]);
 
   return (
     <div className="flex flex-col gap-4 w-full h-full min-h-0 overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <ToastContainer
+        containerId="invoice-toast"
+        position="top-right"
+        autoClose={5000}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        draggable
+       toastClassName="!bg-axc-red !text-white"
+
+        limit={2}
+      />
+
       <div className="relative bg-white p-6 rounded-lg border border-gray-200 w-full flex-1 min-h-0 flex flex-col overflow-hidden">
         <div className="bg-white border-b border-b-axc-border pb-0 shrink-0">
           <div className="flex gap-4 overflow-x-auto scrollbar-none">
@@ -78,20 +108,6 @@ export default function CreateInvoicePage() {
             ))}
           </div>
         </div>
-        {showWarning && (
-          <div className="shrink-0 mt-4 flex items-center gap-2 bg-axc-red text-white text-regular-small px-4 py-2.5 rounded-md">
-            <AlertTriangle size={14} className="shrink-0" />
-            <span className="flex-1">{currentWarning}</span>
-            <button
-              type="button"
-              onClick={() => dismissWarning(activeTab)}
-              className="shrink-0 hover:opacity-70 transition-opacity cursor-pointer"
-              aria-label="Dismiss warning"
-            >
-              <X size={14} />
-            </button>
-          </div>
-        )}
 
         <div className="flex-1 min-h-0 overflow-y-auto mt-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {activeTab === "single-customer" && <AwbSingleCustomerInvoiceTab />}

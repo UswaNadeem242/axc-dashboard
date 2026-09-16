@@ -125,11 +125,12 @@ const CommonTable = ({
               <th
                 key={heading.key}
                 onClick={() => heading.sortable && onSort?.(heading.key)}
-                className={`bg-axc-navy/10 px-4 py-3 text-xs font-bold text-axc-dark-gray  whitespace-nowrap ${index === 0 && !selectable ? "rounded-tl-sm" : ""
+                className={`bg-axc-navy/10 px-4 py-3 text-xs font-bold text-axc-dark-gray  align-top
+                   whitespace-nowrap ${index === 0 && !selectable ? "rounded-tl-sm" : ""
                   } ${index === headings.length - 1 ? "rounded-tr-sm" : ""} ${heading.sortable ? "cursor-pointer select-none hover:bg-axc-navy/20 transition-colors" : ""
                   } ${heading.className ?? ""}`}
               >
-                <div className="inline-flex items-center whitespace-nowrap gap-1">{heading.label}</div>
+                <div className="flex items-start justify-center whitespace-nowrap gap-1">{heading.label}</div>
               </th>
             );
           })}

@@ -96,7 +96,7 @@ export default function Header() {
                 </Link>
 
                 {/* Settings */}
-                <Link
+              /*  <Link
                   href="#"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors group"
