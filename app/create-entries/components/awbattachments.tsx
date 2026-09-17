@@ -108,11 +108,6 @@ function detectFileType(file: File): "pdf" | "excel" {
   }
   return "pdf";
 }
-
-/* =========================================================================
-   Custom PDF and Excel Illustrations matching the exact reference UI
-   ========================================================================= */
-
 function PdfIllustration({ className = "w-16 h-20" }: { className?: string }) {
   return (
     <div className={`relative flex flex-col items-center justify-center ${className}`}>
@@ -128,11 +123,6 @@ function ExcelIllustration({ className = "w-16 h-16" }: { className?: string }) 
     </div>
   );
 }
-
-/* =========================================================================
-   Single Attachment Card Component
-   ========================================================================= */
-
 interface AttachmentCardProps {
   field: UploadField;
   file: File | null;
@@ -167,7 +157,6 @@ function AttachmentCard({
     };
   }, []);
 
-  // Same simulated-upload behaviour as FileUploadField (used for KYC upload)
   function simulateUpload(pickedFile: File) {
     const totalSize = pickedFile.size || 1;
     const stepMs = 200;
@@ -188,7 +177,6 @@ function AttachmentCard({
 
         if (isDone) {
           if (intervalRef.current) clearInterval(intervalRef.current);
-          // small pause on "done" tick before handing off to parent, matches KYC field feel
           setTimeout(() => {
             onUpload(pickedFile);
             setUploadingItem(null);
@@ -256,7 +244,6 @@ function AttachmentCard({
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {/* Top Header / Field Label */}
       <div className="px-3.5 pt-3 pb-1 flex items-center justify-between gap-1 border-b border-gray-50">
         <span
           className="text-regular-medium font-bold text-axc-dark-gray truncate capitalize"
@@ -268,11 +255,8 @@ function AttachmentCard({
           {field.kind}
         </span>
       </div>
-
-      {/* Main Content Area */}
       <div className="p-3.5 flex flex-col items-center justify-center flex-1 min-h-[140px]">
         {isUploading ? (
-          /* ================= Uploading State (matches KYC FileUploadField progress card) ================= */
           <div className="w-full border border-axc-border rounded-md px-2.5 py-2 flex items-center gap-2 bg-white">
             <span className="p-1.5 rounded shrink-0 bg-gray-100 text-gray-500">
               <FileText size={13} />
@@ -308,9 +292,7 @@ function AttachmentCard({
             </div>
           </div>
         ) : file ? (
-          /* ================= Uploaded State ================= */
           <div className="w-full flex flex-col items-center gap-2">
-            {/* Top Preview/Icon Box */}
             <div className="w-full h-24 bg-gray-50/70 border border-gray-100 rounded-lg flex items-center justify-center p-2 overflow-hidden">
               {fileType === "pdf" ? (
                 <PdfIllustration className="w-14 h-16" />
@@ -318,8 +300,6 @@ function AttachmentCard({
                 <ExcelIllustration className="w-14 h-14" />
               )}
             </div>
-
-            {/* File Info */}
             <div className="w-full px-0.5 mt-1">
               <p
                 className="text-regular-medium text-axc-dark-gray truncate leading-tight"
@@ -364,15 +344,12 @@ function AttachmentCard({
           </div>
         )}
       </div>
-
-      {/* Bottom Action Footer */}
       {!isUploading && (
         <div className="px-3.5 py-2.5 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
           {file ? (
             <div className="flex items-center gap-1.5 w-full justify-between">
-              {/* View and Download Action Icons */}
+  
               <div className="flex items-center gap-1.5">
-                {/* Yellow Eye Button */}
                 <button
                   type="button"
                   onClick={() => onPreview(file)}
@@ -381,8 +358,6 @@ function AttachmentCard({
                 >
                   <Eye size={12} />
                 </button>
-
-                {/* Red Download Button */}
                 <button
                   type="button"
                   onClick={handleDownload}
@@ -392,8 +367,6 @@ function AttachmentCard({
                   <Download size={12} />
                 </button>
               </div>
-
-              {/* Remove / Replace Actions */}
               <div className="flex items-center gap-1">
                 <button
                   type="button"
@@ -453,7 +426,6 @@ function FilePreviewModal({ file, onClose }: PreviewModalProps) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-gray-200">
-        {/* Modal Header */}
         <div className="px-6 py-4 bg-axc-navy text-white flex items-center justify-between">
           <div className="flex items-center gap-3 truncate">
             <span className="font-bold text-sm truncate">{file.name}</span>
@@ -476,8 +448,6 @@ function FilePreviewModal({ file, onClose }: PreviewModalProps) {
             </button>
           </div>
         </div>
-
-        {/* Modal Body */}
         <div className="p-6 overflow-auto flex-1 flex items-center justify-center bg-gray-50 min-h-[400px]">
           {fileType === "pdf" ? (
             <iframe
@@ -516,7 +486,6 @@ export function AwbAttachmentsTab({
   const [files, setFiles] = useState<Record<string, File | null>>(() => getDefaultSampleAttachments());
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [activeFilter, setActiveFilter] = useState<"all" | "pdf" | "excel" | "uploaded">("all");
-  const [previewFile, setPreviewFile] = useState<File | null>(null);
   const [savedVisible, setSavedVisible] = useState(false);
 
   const handleUpload = (field: UploadField, file: File) => {
@@ -572,18 +541,13 @@ export function AwbAttachmentsTab({
 
   return (
     <div className="w-full flex flex-col gap-6">
-      {/* Header with Stats */}
       <PanelHeader title="Attachments & Documents" />
-
-      {/* Success Toast */}
       {savedVisible && (
         <div className="fixed top-6 right-6 z-50 flex items-center gap-2 bg-emerald-600 text-white text-xs font-bold px-4 py-3 rounded-lg shadow-lg animate-in fade-in slide-in-from-top-2">
           <CheckCircle2 size={16} />
           Attachments saved successfully!
         </div>
       )}
-
-      {/* Grid of Attachment Cards (Responsive 1-6 columns matching reference design) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
         {filteredFields.map((field) => (
           <AttachmentCard
@@ -593,12 +557,14 @@ export function AwbAttachmentsTab({
             error={errors[field.key]}
             onUpload={(f) => handleUpload(field, f)}
             onRemove={() => handleRemove(field.key)}
-            onPreview={(f) => setPreviewFile(f)}
+            onPreview={(f) => {
+              const url = URL.createObjectURL(f);
+              window.open(url, "_blank", "noopener,noreferrer");
+              setTimeout(() => URL.revokeObjectURL(url), 10000);
+            }}
           />
         ))}
       </div>
-
-      {/* Save Button */}
       <div className="flex justify-end gap-3 bg-white">
         <button
           type="button"
@@ -608,9 +574,6 @@ export function AwbAttachmentsTab({
           Save Attachment
         </button>
       </div>
-
-      {/* Modal File Preview Dialog */}
-      <FilePreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />
     </div>
   );
 }
