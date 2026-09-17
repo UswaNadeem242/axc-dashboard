@@ -746,8 +746,7 @@ const SalesBillingView = ({ id, formData, awbData, billingData, paymentData, rem
       </Row2>
     </div>
 
-    {/* CONTRACT ID */}
-    <ContractIdSection formData={formData} />
+     <ContractIdSection formData={formData} />
 
     {/* SALES BILLING SECTION */}
     <div className="mt-4">
