@@ -65,6 +65,7 @@ export function DeliveryPanel({
     {
       label: "",
       key: "label",
+      align: "left" as const,
       render: (row: DeliverySummaryRow) => (
         <span className="font-medium text-xs text-axc-dark-gray">{row.label}</span>
       ),
@@ -72,6 +73,7 @@ export function DeliveryPanel({
     {
       label: "Customer",
       key: "customer",
+      align: "left" as const,
       render: (row: DeliverySummaryRow) => (
         <span className={row.highlight ? "text-axc-navy font-semibold" : "text-axc-gray"}>
           {row.customer}
@@ -81,6 +83,7 @@ export function DeliveryPanel({
     {
       label: "Vendor",
       key: "vendor",
+      align: "left" as const,
       render: (row: DeliverySummaryRow) => (
         <span className={row.highlight ? "text-axc-navy font-semibold" : "text-axc-gray"}>
           {row.vendor}
