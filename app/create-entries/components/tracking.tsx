@@ -222,6 +222,7 @@ export function TrackingEventsPanel({
         emptyMessage="No tracking events added"
         hidePagination={true}
         showScroll={false}
+        headerPadding="py-2 px-2"
       /><button
         type="button"
         onClick={onAddEvent}

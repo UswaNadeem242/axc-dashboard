@@ -13,12 +13,12 @@ type TabItem = { id: string; label: string; icon?: React.ReactNode };
 
 const tabs: TabItem[] = [
   { id: "single-customer", label: "Single Customer", icon: <User size={14} /> },
-  {
+ /* {
     id: "multiple-customer",
     label: "Multiple Customer",
     icon: <Users size={14} />,
   },
-  { id: "multiple-awb", label: "Multiple AWB", icon: <CreditCard size={14} /> },
+  { id: "multiple-awb", label: "Multiple AWB", icon: <CreditCard size={14} /> },*/
   {
     id: "awb-less-invoice",
     label: "AWB Less Invoice",
@@ -28,9 +28,8 @@ const tabs: TabItem[] = [
 
 const developedTabs = new Set([
   "single-customer",
-  "awb-less-invoice",
-  "multiple-customer",
-  "multiple-awb",
+  /*"multiple-customer",
+  "multiple-awb",*/
   "awb-less-invoice",
 ]);
 
