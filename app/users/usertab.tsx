@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState, type ReactNode } from "react";
-import { Eye, FileText, Plus, Printer, Trash2 } from "lucide-react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { Eye, FileText, Plus, Printer, Trash2, X } from "lucide-react";
 
 import SearchInput from "../src/common/search";
 import Dropdown from "../src/common/dropdown";
@@ -28,11 +28,11 @@ const initialUsers: UserRow[] = [
 ];
 
 const ROLE_COLORS: Record<string, string> = {
-  "Super Admin": "bg-axc-blue text-white",
-  Admin: "bg-axc-sky text-white",
-  Manager: "bg-axc-yellow text-white",
-  Staff: "bg-axc-green text-white",
-  Sales: "bg-axc-red text-white",
+  "Super Admin": "bg-axc-blue/10 text-axc-blue",
+  Admin: "bg-axc-sky/10 text-axc-navy",
+  Manager: "bg-axc-yellow/10 text-axc-yellow",
+  Staff: "bg-axc-green/10 text-axc-green",
+  Sales: "bg-axc-red/10 text-axc-red",
 };
 
 function RoleBadge({ role }: { role: string }) {
@@ -54,15 +54,51 @@ function Toast({ msg }: { msg: string }) {
   );
 }
 
-function ViewUserModal({ user, onClose }: { user: UserRow | null; onClose: () => void }) {
-  if (!user) return null;
+function DetailRow({ label, value }: { label: string; value: ReactNode }) {
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 px-4" onClick={onClose}>
-      <div className="w-full max-w-sm rounded-lg bg-white p-5 shadow-2xl" onClick={(event) => event.stopPropagation()}>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-[16px] font-semibold text-axc-dark-gray">User Details</h2>
+    <div className="flex items-center justify-between gap-3 border-b border-axc-border pb-2">
+      <span className="font-medium text-axc-gray">{label}</span>
+      <span className="text-right text-axc-dark-gray">{value}</span>
+    </div>
+  );
+}
+
+function ViewUserModal({ user, onClose }: { user: UserRow | null; onClose: () => void }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      requestAnimationFrame(() => setVisible(true));
+    } else {
+      setVisible(false);
+    }
+  }, [user]);
+
+  if (!user) return null;
+
+  const handleClose = () => {
+    setVisible(false);
+    setTimeout(onClose, 250);
+  };
+
+  return (
+    <div
+      className={`fixed inset-0 z-40 bg-black/40 transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"}`}
+      onClick={handleClose}
+    >
+      <div
+        className={`fixed top-0 right-0 z-50 flex h-full w-full max-w-5xl flex-col overflow-y-auto bg-white shadow-2xl transition-transform duration-300 ${
+          visible ? "translate-x-0" : "translate-x-full"
+        }`}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="sticky top-0 flex items-center justify-between border-b border-axc-border bg-white px-6 py-4">
+          <h2 className="text-regular-medium font-semibold text-axc-dark-gray">User Details</h2>
+          <button type="button" onClick={handleClose} className="rounded-md p-1 transition-colors hover:bg-axc-light-bg">
+            <X className="h-5 w-5 text-axc-gray" />
+          </button>
         </div>
-        <div className="space-y-3 text-[12px]">
+        <div className="flex-1 space-y-3 px-6 py-6 text-[12px]">
           <DetailRow label="Name" value={user.name} />
           <DetailRow label="Email" value={user.email} />
           <DetailRow label="Role" value={<RoleBadge role={user.role} />} />
@@ -70,23 +106,18 @@ function ViewUserModal({ user, onClose }: { user: UserRow | null; onClose: () =>
           <DetailRow label="Last Login" value={user.lastLogin} />
           <DetailRow label="Status" value={user.isActive ? "Active" : "Inactive"} />
         </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="mt-5 h-[36px] w-full rounded-md border border-axc-border bg-white text-[12px] font-semibold text-axc-dark-gray hover:bg-axc-light-bg"
-        >
-          Close
-        </button>
-      </div>
-    </div>
-  );
-}
 
-function DetailRow({ label, value }: { label: string; value: ReactNode }) {
-  return (
-    <div className="flex items-center justify-between gap-3 border-b border-axc-border pb-2">
-      <span className="font-medium text-axc-gray">{label}</span>
-      <span className="text-right text-axc-dark-gray">{value}</span>
+        {/* Footer */}
+        <div className="flex shrink-0 justify-end gap-3 border-t border-axc-border px-6 py-4">
+          <button
+            type="button"
+            onClick={handleClose}
+            className="h-[38px] min-w-[100px] rounded-md border border-axc-border bg-white px-4 text-[12px] font-semibold text-axc-dark-gray hover:bg-axc-light-bg"
+          >
+            Close
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
@@ -101,6 +132,8 @@ export default function UserTab() {
   const [viewingUser, setViewingUser] = useState<UserRow | null>(null);
   const [deleteUser, setDeleteUser] = useState<UserRow | null>(null);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+
+  const itemsPerPage = 10;
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -118,6 +151,10 @@ export default function UserTab() {
         user.store.toLowerCase().includes(value)
     );
   }, [users, search]);
+
+  const paginatedUsers = useMemo(() => {
+    return filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  }, [filteredUsers, currentPage]);
 
   const toggleStatus = (id: number) => {
     setUsers((previous) => previous.map((user) => (user.id === id ? { ...user, isActive: !user.isActive } : user)));
@@ -161,7 +198,43 @@ export default function UserTab() {
     setIsAddUserOpen(false);
   };
 
+  const allSelected = paginatedUsers.length > 0 && paginatedUsers.every((row) => selectedIds.includes(row.id));
+
+  const toggleAllSelection = () => {
+    if (allSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !paginatedUsers.some((row) => row.id === id)));
+    } else {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...paginatedUsers.map((row) => row.id)])));
+    }
+  };
+
+  const toggleRowSelection = (id: number) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+  };
+
   const headings = [
+    {
+      label: (
+        <input
+          type="checkbox"
+          checked={allSelected}
+          onChange={toggleAllSelection}
+          className="h-3.5 w-3.5 accent-axc-navy cursor-pointer"
+        />
+      ),
+      key: "selectUser",
+      className: "w-10 !px-2",
+      render: (row: UserRow) => (
+        <div className="flex items-center justify-center">
+          <input
+            type="checkbox"
+            checked={selectedIds.includes(row.id)}
+            onChange={() => toggleRowSelection(row.id)}
+            className="h-3.5 w-3.5 accent-axc-navy cursor-pointer"
+          />
+        </div>
+      ),
+    },
     { label: "User Name", key: "name" },
     { label: "Email Address", key: "email", truncate: false },
     { label: "Role", key: "role", render: (row: UserRow) => <RoleBadge role={row.role} /> },
@@ -204,75 +277,72 @@ export default function UserTab() {
     <>
       {toast && <Toast msg={toast} />}
 
-      <div className="relative bg-white p-3 rounded-[8px] w-full h-[calc(100vh-160px)] flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="w-[220px]">
-              <SearchInput
-                placeholder="Search users..."
-                value={search}
-                onChange={(value) => {
-                  setSearch(value);
-                  setCurrentPage(1);
-                }}
-              />
-            </div>
-
-            <Dropdown
-              title="Actions"
-              items={[
-                { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: () => {} },
-                { label: "Print", icon: <Printer className="h-4 w-4" />, onClick: () => window.print() },
-                {
-                  label: "Delete",
-                  icon: <Trash2 className="h-4 w-4" />,
-                  onClick: () => {
-                    if (selectedIds.length === 0) {
-                      showToast("Please select at least one user to delete");
-                      return;
-                    }
-                    setBulkDeleteOpen(true);
-                  },
-                },
-              ]}
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="w-[220px]">
+            <SearchInput
+              placeholder="Search users..."
+              value={search}
+              onChange={(value) => {
+                setSearch(value);
+                setCurrentPage(1);
+              }}
             />
-
-            {selectedIds.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setSelectedIds([])}
-                className="flex items-center gap-2 rounded-md border border-axc-border px-3 py-2 text-[12px] font-medium text-axc-dark-gray"
-              >
-                {selectedIds.length} Selected
-              </button>
-            )}
           </div>
 
-          <button
-            type="button"
-            onClick={() => setIsAddUserOpen(true)}
-            className="flex h-[38px] cursor-pointer items-center gap-2 rounded-md bg-axc-blue px-4 text-[12px] font-semibold text-white"
-          >
-            <Plus className="h-4 w-4" />
-            Add User
-          </button>
+          <Dropdown
+            title="Actions"
+            items={[
+              { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: () => {} },
+              { label: "Print", icon: <Printer className="h-4 w-4" />, onClick: () => window.print() },
+              {
+                label: "Delete",
+                icon: <Trash2 className="h-4 w-4" />,
+                onClick: () => {
+                  if (selectedIds.length === 0) {
+                    showToast("Please select at least one user to delete");
+                    return;
+                  }
+                  setBulkDeleteOpen(true);
+                },
+              },
+            ]}
+          />
+
+          {selectedIds.length > 0 && (
+            <button
+              type="button"
+              onClick={() => setSelectedIds([])}
+              className="flex items-center gap-2 rounded-md border border-axc-border px-3 py-2 text-[12px] font-medium text-axc-dark-gray"
+            >
+              {selectedIds.length} Selected
+            </button>
+          )}
         </div>
 
-        <CommonTable
-          headings={headings}
-          data={filteredUsers}
-          currentPage={currentPage}
-          onPageChange={setCurrentPage}
-          itemsPerPage={10}
-          showScroll={false}
-          renderActions={renderActions}
-          selectable
-          rowKey="id"
-          selectedIds={selectedIds}
-          onSelectionChange={setSelectedIds}
-          emptyMessage="No users found"
-        />
+        <button
+          type="button"
+          onClick={() => setIsAddUserOpen(true)}
+          className="flex h-[38px] cursor-pointer items-center gap-2 rounded-md bg-axc-blue px-4 text-[12px] font-semibold text-white"
+        >
+          <Plus className="h-4 w-4" />
+          Add User
+        </button>
       </div>
+
+      <CommonTable
+        headings={headings}
+        data={filteredUsers}
+        currentPage={currentPage}
+        onPageChange={setCurrentPage}
+        itemsPerPage={itemsPerPage}
+        showScroll={false}
+        renderActions={renderActions}
+        rowKey="id"
+        selectedIds={selectedIds}
+        onSelectionChange={setSelectedIds}
+        emptyMessage="No users found"
+      />
 
       <AddUserModal isOpen={isAddUserOpen} onClose={() => setIsAddUserOpen(false)} onSave={handleAddUser} />
 

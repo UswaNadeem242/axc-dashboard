@@ -28,11 +28,11 @@ const initialLogs: ActivityLog[] = [
 ];
 
 const MODULE_COLORS: Record<string, string> = {
-  Users: "bg-axc-blue text-white",
-  "Roles & Permissions": "bg-axc-yellow text-white",
-  Subscription: "bg-axc-green text-white",
-  Security: "bg-axc-red text-white",
-  Account: "bg-axc-sky text-white",
+  Users: "bg-axc-blue/10 text-axc-blue",
+  "Roles & Permissions": "bg-axc-yellow/10 text-axc-yellow",
+  Subscription: "bg-axc-green/10 text-axc-green",
+  Security: "bg-axc-red/10 text-axc-red",
+  Account: "bg-axc-sky/10 text-axc-navy",
 };
 
 function ModuleBadge({ module }: { module: string }) {
@@ -62,6 +62,8 @@ export default function ActivityLogsTab() {
   const [toast, setToast] = useState<string | null>(null);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
+  const itemsPerPage = 10;
+
   const showToast = (msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(null), 2500);
@@ -79,6 +81,10 @@ export default function ActivityLogsTab() {
     );
   }, [logs, search]);
 
+  const paginatedLogs = useMemo(() => {
+    return filteredLogs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  }, [filteredLogs, currentPage]);
+
   const toggleStatus = (id: number) => {
     setLogs((previous) => previous.map((log) => (log.id === id ? { ...log, isActive: !log.isActive } : log)));
     showToast("Status updated successfully");
@@ -91,7 +97,43 @@ export default function ActivityLogsTab() {
     setBulkDeleteOpen(false);
   };
 
+  const allSelected = paginatedLogs.length > 0 && paginatedLogs.every((row) => selectedIds.includes(row.id));
+
+  const toggleAllSelection = () => {
+    if (allSelected) {
+      setSelectedIds((prev) => prev.filter((id) => !paginatedLogs.some((row) => row.id === id)));
+    } else {
+      setSelectedIds((prev) => Array.from(new Set([...prev, ...paginatedLogs.map((row) => row.id)])));
+    }
+  };
+
+  const toggleRowSelection = (id: number) => {
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]));
+  };
+
   const headings = [
+    {
+      label: (
+        <input
+          type="checkbox"
+          checked={allSelected}
+          onChange={toggleAllSelection}
+          className="h-3.5 w-3.5 accent-axc-navy cursor-pointer"
+        />
+      ),
+      key: "selectLog",
+      className: "w-10 !px-2",
+      render: (row: ActivityLog) => (
+        <div className="flex items-center justify-center">
+          <input
+            type="checkbox"
+            checked={selectedIds.includes(row.id)}
+            onChange={() => toggleRowSelection(row.id)}
+            className="h-3.5 w-3.5 accent-axc-navy cursor-pointer"
+          />
+        </div>
+      ),
+    },
     { label: "User Name", key: "userName" },
     { label: "Action", key: "action", truncate: false, render: (row: ActivityLog) => row.action },
     { label: "Module", key: "module", render: (row: ActivityLog) => <ModuleBadge module={row.module} /> },
@@ -109,10 +151,10 @@ export default function ActivityLogsTab() {
   ];
 
   return (
-    <div className="relative bg-white p-3 rounded-[8px] w-full h-[calc(100vh-160px)] flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+    <>
       {toast && <Toast msg={toast} />}
 
-      <div className="flex flex-wrap items-center gap-3 mb-4 shrink-0">
+      <div className="flex flex-wrap items-center gap-3 mb-4">
         <div className="w-[220px]">
           <SearchInput
             placeholder="Search activity logs..."
@@ -159,9 +201,8 @@ export default function ActivityLogsTab() {
         data={filteredLogs}
         currentPage={currentPage}
         onPageChange={setCurrentPage}
-        itemsPerPage={10}
+        itemsPerPage={itemsPerPage}
         showScroll={false}
-        selectable
         rowKey="id"
         selectedIds={selectedIds}
         onSelectionChange={setSelectedIds}
@@ -173,6 +214,6 @@ export default function ActivityLogsTab() {
         onCancel={() => setBulkDeleteOpen(false)}
         onConfirm={handleBulkDeleteConfirm}
       />
-    </div>
+    </>
   );
 }
