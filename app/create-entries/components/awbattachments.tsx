@@ -333,7 +333,6 @@ function AttachmentCard({
             </div>
           </div>
         ) : (
-          /* ================= Empty / Upload Dropzone State ================= */
           <div
             onClick={() => inputRef.current?.click()}
             className="w-full h-28 border-2 border-dashed border-gray-200 hover:border-axc-navy/60 bg-gray-50/50 hover:bg-blue-50/30 rounded-lg flex flex-col items-center justify-center gap-1.5 cursor-pointer transition p-2 group"
@@ -347,8 +346,6 @@ function AttachmentCard({
             <span className="text-[9px] text-gray-400">or drag & drop</span>
           </div>
         )}
-
-        {/* Hidden File Input */}
         <input
           ref={inputRef}
           type="file"
@@ -360,8 +357,6 @@ function AttachmentCard({
             e.target.value = "";
           }}
         />
-
-        {/* Error message */}
         {error && (
           <div className="w-full mt-2 flex items-center gap-1 text-[10px] font-bold text-red-500">
             <AlertCircle size={12} className="shrink-0" />
@@ -432,10 +427,6 @@ function AttachmentCard({
     </div>
   );
 }
-
-/* =========================================================================
-   Interactive File Preview Modal Dialog
-   ========================================================================= */
 
 interface PreviewModalProps {
   file: File | null;
@@ -517,11 +508,6 @@ function FilePreviewModal({ file, onClose }: PreviewModalProps) {
     </div>
   );
 }
-
-/* =========================================================================
-   Main AwbAttachmentsTab Component
-   ========================================================================= */
-
 export function AwbAttachmentsTab({
   fields = ATTACHMENT_FIELDS,
   showToast,
