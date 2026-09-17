@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle, User, Paperclip, Truck, ShieldCheck } from "lucide-react";
+import { CheckCircle, User, Paperclip, Truck, ShieldCheck, ClipboardList } from "lucide-react";
 import AirWaybillInformation from "./components/airwaybillinformation";
 import ConsigneeToForm from "./components/consigneeto";
 import ShipmentInvoiceSection from "./components/shipmentinvoice";
@@ -13,6 +13,7 @@ import { AwbPurchaseBillingTab } from "./components/awbpurchase";
 import { AwbDeliveryTab } from "./components/awbdelivery";
 import { AwbAttachmentsTab } from "./components/awbattachments";
 import { AwbKycTab } from "./components/awbkyc";
+import ManifestDetailTable from "./components/manifestDetail";
 
 type TabItem = { id: string; label: string; icon?: React.ReactNode };
 
@@ -23,6 +24,7 @@ const allTabs: TabItem[] = [
   { id: "attachment", label: "Attachment", icon: <Paperclip size={14} /> },
   { id: "delivery", label: "Delivery", icon: <Truck size={14} /> },
   { id: "kyc", label: "KYC", icon: <ShieldCheck size={14} /> },
+  { id: "manifest-details", label: "Manifest Details", icon: <ClipboardList size={14} /> },
 ];
 
 const newAwbTabs: TabItem[] = [
@@ -159,6 +161,8 @@ function CreateEntriesContent() {
           )}
 
           {activeTab === "kyc" && <AwbKycTab showToast={showToast} />}
+
+          {activeTab === "manifest-details" && isEdit && <ManifestDetailTable />}
         </div>
       </div>
     </div>
