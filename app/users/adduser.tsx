@@ -271,7 +271,7 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
             </div>
           </div>
 
-          <div className="flex gap-3 border-t border-axc-border pt-6">
+          <div className="flex gap-3 border-t border-axc-border ">
             <button
               type="button"
               onClick={handleClose}

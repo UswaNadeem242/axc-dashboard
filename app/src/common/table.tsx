@@ -11,6 +11,7 @@ interface Heading {
   className?: string;
   sortable?: boolean;
   truncate?: boolean;
+  align?: "left" | "center" | "right"; // NEW - default "center"
   render?: (row: any, index?: number) => React.ReactNode;
 }
 
@@ -22,7 +23,7 @@ interface CommonTableProps {
   onEdit?: (row: any) => void;
   onDelete?: (row: any) => void;
   onBag?: (row: any) => void;
- 
+
   itemsPerPage?: number;
   currentPage?: number;
   totalPages?: number;
@@ -76,9 +77,24 @@ const CommonTable = ({
   const paginatedData = data.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
   const colSpan = headings.length + (selectable ? 1 : 0);
   const isScrollEnabled = showScroll && !hideScroll;
+
   const truncateText = (text: string, maxLength = 8) => {
     if (!text) return "-";
     return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
+  };
+
+  // NEW: helper to resolve text-align class from heading.align
+  const getTextAlign = (align: Heading["align"] = "center") => {
+    if (align === "left") return "text-left";
+    if (align === "right") return "text-right";
+    return "text-center";
+  };
+
+
+  const getJustify = (align: Heading["align"] = "center") => {
+    if (align === "left") return "justify-start text-left";
+    if (align === "right") return "justify-end text-right";
+    return "justify-center text-center";
   };
 
   const allSelected = paginatedData.length > 0 && paginatedData.every((row) => selectedIds.includes(row[rowKey]));
@@ -130,7 +146,9 @@ const CommonTable = ({
                   } ${index === headings.length - 1 ? "rounded-tr-sm" : ""} ${heading.sortable ? "cursor-pointer select-none hover:bg-axc-navy/20 transition-colors" : ""
                   } ${heading.className ?? ""}`}
               >
-                <div className="flex items-start justify-center whitespace-nowrap gap-1">{heading.label}</div>
+                <div className={`flex items-start whitespace-nowrap gap-1 ${getJustify(heading.align)}`}>
+                  {heading.label}
+                </div>
               </th>
             );
           })}
@@ -163,7 +181,7 @@ const CommonTable = ({
                 </td>
               )}
               {headings.map((heading) => (
-                <td key={heading.key} className="px-4 py-2 text-center">
+                <td key={heading.key} className={`px-4 py-2 ${getTextAlign(heading.align)}`}>
                   {heading.render ? (
                     heading.render(row, (activePage - 1) * itemsPerPage + index)
                   ) : heading.key === "status" ? (
@@ -224,9 +242,11 @@ const CommonTable = ({
                       const value = row[heading.key];
                       if (value === null || value === undefined || value === "") return "-";
                       if (typeof value === "string") {
-                        if (heading.truncate === false) return <span className="whitespace-nowrap">{value}</span>;
+                        if (heading.truncate === false) {
+                          return <span className={`block whitespace-nowrap ${getTextAlign(heading.align)}`}>{value}</span>;
+                        }
                         return (
-                          <div className="group relative inline-block max-w-30">
+                          <div className={`group relative inline-block max-w-30 w-full ${getTextAlign(heading.align)}`}>
                             <span className="block truncate cursor-pointer">{truncateText(value, 8)}</span>
                             {value.length > 8 && (
                               <div className="invisible absolute left-1/2 bottom-full z-[99] mb-2 w-max max-w-xs -translate-x-1/2 rounded-lg bg-axc-navy/60 px-3 py-2 text-xs text-white opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">

@@ -85,7 +85,7 @@ export default function Header() {
               <div className="absolute -top-2 right-6 h-4 w-4 rotate-45 border-l border-t border-gray-200/90 bg-white" />
 
               <div className="relative z-10 overflow-hidden rounded-2xl divide-y divide-gray-100">
-                {/* My Profile */}
+                {/* My Profile 
                 <Link
                   href="/users"
                   onClick={() => setIsOpen(false)}
@@ -93,14 +93,14 @@ export default function Header() {
                 >
                   <User size={18} className="text-navy shrink-0 stroke-[1.8]" />
                   <span>My Profile</span>
-                </Link>
+                </Link>*/}
                 <Link
-                  href="#"
+                  href="/users"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors group"
                 >
                   <User size={18} className="text-navy shrink-0 stroke-[1.8]" />
-                  <span>Roles </span>
+                  <span>User & Roles</span>
                 </Link>
 
                 {/* Settings 

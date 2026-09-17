@@ -166,7 +166,7 @@ export default function ActivityLogsTab() {
           />
         </div>
 
-        <Dropdown
+        {/* <Dropdown
           title="Actions"
           items={[
             { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: () => {} },
@@ -183,7 +183,8 @@ export default function ActivityLogsTab() {
               },
             },
           ]}
-        />
+        />*/}
+       
 
         {selectedIds.length > 0 && (
           <button

@@ -1,7 +1,6 @@
 "use client";
 import React, { useState, useRef } from "react";
-import { Pencil, Check, Upload, FileText, Trash2, Cross, X } from "lucide-react";
-import { toSentenceCase } from "@/app/create-entries/components/form";
+import { Pencil, Check, Upload, FileText, X, AlertCircle } from "lucide-react";
 
 export function EditCheckbox({
   active,
@@ -83,13 +82,15 @@ export function FieldError({ message }: { message?: string }) {
 }
 
 /* ---------------------------------------------------------
-   FILE UPLOAD FIELD (with per-file progress bar)
+   FILE UPLOAD FIELD (restricted formats + per-file progress bar)
 --------------------------------------------------------- */
 
 interface UploadingFile {
   id: string;
   file: File;
   uploaded: number; // bytes uploaded so far
+  status: "uploading" | "done" | "error";
+  errorMessage?: string;
 }
 
 function formatBytes(bytes: number) {
@@ -98,19 +99,48 @@ function formatBytes(bytes: number) {
   return `${mb < 10 ? mb.toFixed(1) : Math.round(mb)} MB`;
 }
 
+// Default: JPEG, PNG, PDF, SVG
+const DEFAULT_ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png", "application/pdf", "image/svg+xml"];
+const DEFAULT_ACCEPTED_LABEL = "JPEG, PNG, PDF and SVG formats, up to 10MB";
+const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+
 export function FileUploadField({
   onFileChange,
   onFilesChange,
-  placeholder = "Drop your files here or browse",
+  placeholder,
   multiple = false,
+  acceptedMimeTypes = DEFAULT_ACCEPTED_MIME_TYPES,
+  acceptedExtensions, // optional fallback check via file name, e.g. [".xlsx", ".xls", ".csv"]
+  acceptedLabel = DEFAULT_ACCEPTED_LABEL,
+  maxSizeBytes = DEFAULT_MAX_SIZE_BYTES,
 }: {
   onFileChange?: (file: File | null) => void;
   onFilesChange?: (files: File[]) => void;
   placeholder?: string;
   multiple?: boolean;
+  acceptedMimeTypes?: string[];
+  acceptedExtensions?: string[];
+  acceptedLabel?: string;
+  maxSizeBytes?: number;
 }) {
   const [uploadingFiles, setUploadingFiles] = useState<UploadingFile[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  function isAcceptedFile(file: File): { ok: boolean; message?: string } {
+    if (file.size > maxSizeBytes) {
+      return { ok: false, message: `File too large, max ${formatBytes(maxSizeBytes)}.` };
+    }
+
+    const mimeOk = acceptedMimeTypes.includes(file.type);
+    const extOk = acceptedExtensions
+      ? acceptedExtensions.some((ext) => file.name.toLowerCase().endsWith(ext.toLowerCase()))
+      : false;
+
+    if (!mimeOk && !extOk) {
+      return { ok: false, message: "Unsupported file, upload another." };
+    }
+    return { ok: true };
+  }
 
   // Simulates an upload progressing over time, filling the bar until it reaches the file's full size.
   function simulateUpload(id: string, totalSize: number) {
@@ -121,10 +151,10 @@ export function FileUploadField({
       setUploadingFiles((prev) => {
         let finished = false;
         const next = prev.map((uf) => {
-          if (uf.id !== id) return uf;
+          if (uf.id !== id || uf.status !== "uploading") return uf;
           const uploaded = Math.min(uf.uploaded + stepSize, totalSize);
           if (uploaded >= totalSize) finished = true;
-          return { ...uf, uploaded };
+          return { ...uf, uploaded, status: uploaded >= totalSize ? "done" : "uploading" } as UploadingFile;
         });
         if (finished) clearInterval(interval);
         return next;
@@ -136,23 +166,30 @@ export function FileUploadField({
     if (!fileList || fileList.length === 0) return;
     const newFiles = Array.from(fileList);
 
+    const mapped: UploadingFile[] = newFiles.map((file, i) => {
+      const id = `${file.name}-${Date.now()}-${i}`;
+      const check = isAcceptedFile(file);
+      if (!check.ok) {
+        return { id, file, uploaded: 0, status: "error", errorMessage: check.message };
+      }
+      return { id, file, uploaded: 0, status: "uploading" };
+    });
+
     if (!multiple) {
-      const file = newFiles[0];
-      const id = `${file.name}-${Date.now()}`;
-      setUploadingFiles([{ id, file, uploaded: 0 }]);
-      onFileChange?.(file);
-      simulateUpload(id, file.size);
-      return;
+      setUploadingFiles(mapped.slice(0, 1));
+    } else {
+      setUploadingFiles((prev) => [...prev, ...mapped]);
     }
 
-    const added: UploadingFile[] = newFiles.map((file, i) => ({
-      id: `${file.name}-${Date.now()}-${i}`,
-      file,
-      uploaded: 0,
-    }));
-    setUploadingFiles((prev) => [...prev, ...added]);
-    added.forEach((uf) => simulateUpload(uf.id, uf.file.size));
-    onFilesChange?.(newFiles);
+    const accepted = mapped.filter((m) => m.status === "uploading");
+    accepted.forEach((uf) => simulateUpload(uf.id, uf.file.size));
+
+    const acceptedFiles = accepted.map((uf) => uf.file);
+    if (!multiple) {
+      onFileChange?.(acceptedFiles[0] ?? null);
+    } else if (acceptedFiles.length > 0) {
+      onFilesChange?.(acceptedFiles);
+    }
   }
 
   function removeFile(id: string) {
@@ -172,11 +209,13 @@ export function FileUploadField({
         <span className="p-2 bg-gray-100/90 rounded-md text-gray-600 flex items-center justify-center shrink-0">
           <Upload size={18} />
         </span>
-        <span className="text-xs text-gray-400">{placeholder}</span>
+        <span className="text-xs text-gray-400">{placeholder || "Drop your files here or browse"}</span>
+        <span className="text-[10px] text-gray-400">{acceptedLabel}</span>
         <input
           ref={inputRef}
           type="file"
           multiple={multiple}
+          accept={acceptedMimeTypes.join(",")}
           className="hidden"
           onChange={(e) => handleFiles(e.target.files)}
         />
@@ -185,16 +224,24 @@ export function FileUploadField({
       {uploadingFiles.length > 0 && (
         <div className="flex flex-col gap-2">
           {uploadingFiles.map((uf) => {
-            const percent = Math.min(100, Math.round((uf.uploaded / uf.file.size) * 100));
-            const done = percent >= 100;
+            const percent =
+              uf.status === "error" ? 0 : Math.min(100, Math.round((uf.uploaded / uf.file.size) * 100));
+            const done = uf.status === "done";
+            const isError = uf.status === "error";
 
             return (
               <div
                 key={uf.id}
-                className="border border-axc-border rounded-md px-3 py-2.5 bg-white flex items-center gap-3 w-1/5"
+                className={`border rounded-md px-3 py-2.5 flex items-center gap-3 w-1/5 ${
+                  isError ? "border-red-300 bg-red-50/40" : "border-axc-border bg-white"
+                }`}
               >
-                <span className="p-1.5 bg-gray-100 rounded text-gray-500 shrink-0">
-                  <FileText size={14} />
+                <span
+                  className={`p-1.5 rounded shrink-0 ${
+                    isError ? "bg-red-100 text-axc-red" : "bg-gray-100 text-gray-500"
+                  }`}
+                >
+                  {isError ? <AlertCircle size={14} /> : <FileText size={14} />}
                 </span>
 
                 <div className="flex-1 min-w-0">
@@ -210,23 +257,29 @@ export function FileUploadField({
                     </button>
                   </div>
 
-                  <p className="text-[10px] text-gray-400 mt-0.5">
-                    {formatBytes(uf.uploaded)} of {formatBytes(uf.file.size)}
-                  </p>
-                  <div className="mt-1.5 flex items-center h-1.5 w-3/4 overflow-hidden rounded-full">
-                    <div
-                      className={`h-full bg-axc-blue transition-all duration-200 ease-linear ${
-                        done ? "rounded-full" : "rounded-l-full"
-                      }`}
-                      style={{ width: `${percent}%` }}
-                    />
-                    {!done && (
-                      <div
-                        className="h-full rounded-r-full bg-red-400 transition-all duration-200 ease-linear"
-                        style={{ width: `${100 - percent}%` }}
-                      />
-                    )}
-                  </div>
+                  {isError ? (
+                    <p className="text-[11px] text-axc-red font-medium mt-0.5">{uf.errorMessage}</p>
+                  ) : (
+                    <>
+                      <p className="text-[10px] text-gray-400 mt-0.5">
+                        {formatBytes(uf.uploaded)} of {formatBytes(uf.file.size)}
+                      </p>
+                      <div className="mt-1.5 flex items-center h-1.5 w-3/4 overflow-hidden rounded-full">
+                        <div
+                          className={`h-full bg-axc-blue transition-all duration-200 ease-linear ${
+                            done ? "rounded-full" : "rounded-l-full"
+                          }`}
+                          style={{ width: `${percent}%` }}
+                        />
+                        {!done && (
+                          <div
+                            className="h-full rounded-r-full bg-red-400 transition-all duration-200 ease-linear"
+                            style={{ width: `${100 - percent}%` }}
+                          />
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             );
