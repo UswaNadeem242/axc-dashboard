@@ -375,7 +375,7 @@ export default function AwbEntriesPage() {
           currentPage={page}
           onPageChange={setPage}
           itemsPerPage={itemsPerPage}
-          showScroll={false}
+          showScroll={true}
           renderActions={(row: AwbEntry) => (
             <div className="flex items-center gap-2">
               {/* <button

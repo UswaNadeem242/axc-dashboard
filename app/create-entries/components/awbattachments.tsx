@@ -649,7 +649,7 @@ export function AwbAttachmentsTab({
       </div>
 
       {/* Save Button */}
-      <div className="flex justify-end gap-3 bg-white">
+      {/* <div className="flex justify-end gap-3 bg-white">
         <button
           type="button"
           onClick={handleSave}
@@ -657,7 +657,7 @@ export function AwbAttachmentsTab({
         >
           Save Attachment
         </button>
-      </div>
+      </div> */}
 
       {/* Modal File Preview Dialog */}
       <FilePreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />
