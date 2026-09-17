@@ -389,7 +389,7 @@ const PurchaseBillingView = ({ vendorInvoiceData, purchaseBillingData, vendorDet
 
   return (
     <div className="border border-axc-border rounded-lg">
-      {/* VENDOR INVOICE */}
+     
       <SectionHeader title="Vendor Invoice" />
       <Row1>
         <Field label="Past Vendor Invoice:" value={vendorInvoiceData?.pastVendorInvoice || "-"} />
@@ -411,7 +411,7 @@ const PurchaseBillingView = ({ vendorInvoiceData, purchaseBillingData, vendorDet
         <Field label="Invoice Remarks 4:" value={vendorInvoiceData?.invoiceRemarks4 || "-"} />
       </Row2>
 
-      {/* PURCHASE BILLING */}
+  
       <div className="mt-4">
         <SectionHeader title="Purchase Billing" />
         <Row3>
@@ -495,7 +495,7 @@ const PurchaseBillingView = ({ vendorInvoiceData, purchaseBillingData, vendorDet
         </div>
       </div>
 
-      {/* VENDOR DETAILS */}
+      
       <div className="mt-4">
         <SectionHeader title="Vendor Details" />
         <Row3>
@@ -985,7 +985,7 @@ export default function AwbViewPage() {
           <IndianRupee size={16} />
           Sales Billing
         </button>
-        <button
+        {/* <button
           onClick={() => setActiveTab("purchase-billing")}
           className={`flex items-center gap-2 pb-3 text-sm font-medium border-b-2 transition-colors px-2 cursor-pointer ${
             activeTab === "purchase-billing"
@@ -995,7 +995,7 @@ export default function AwbViewPage() {
         >
           <IndianRupee size={16} />
           Purchase Billing
-        </button>
+        </button> */}
         <button
           onClick={() => setActiveTab("delivery")}
           className={`flex items-center gap-2 pb-3 text-sm font-medium border-b-2 transition-colors px-2 cursor-pointer ${
@@ -1021,12 +1021,13 @@ export default function AwbViewPage() {
           remarksData={remarksData}
           refundData={refundData}
         />
-      ) : activeTab === "purchase-billing" ? (
+      /* : activeTab === "purchase-billing" ? (
         <PurchaseBillingView
           vendorInvoiceData={vendorInvoiceData}
           purchaseBillingData={purchaseBillingData}
           vendorDetailsData={vendorDetailsData}
         />
+      ) */
       ) : (
         <DeliveryView id={id} formData={formData} awbData={awbData} deliveryData={deliveryData} />
       )}

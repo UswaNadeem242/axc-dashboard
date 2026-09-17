@@ -24,7 +24,7 @@ export default function ShipmentInvoiceSection({
 }: Props) {
   return (
     <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
-      <div className="text-white bg-axc-navy/60 p-4 rounded-tl-lg rounded-tr-lg flex items-center justify-between gap-2">
+      {/* <div className="text-white bg-axc-navy/60 p-4 rounded-tl-lg rounded-tr-lg flex items-center justify-between gap-2">
         <label className="flex items-center gap-2 text-sm font-bold tracking-wider cursor-pointer">
           <input
             type="checkbox"
@@ -36,11 +36,11 @@ export default function ShipmentInvoiceSection({
           />
           <span>Create Shipment Invoice?</span>
         </label>
-      </div>
+      </div> */}
 
       {form.createShipmentInvoice && (
-        <div className="flex flex-col gap-4 p-4 animate-in fade-in duration-200 text-gray-800">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3">
+        <div className="flex flex-col gap-4  animate-in fade-in duration-200 text-gray-800">
+          {/* <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3">
             <div className="flex flex-col gap-1">
               <FieldLabel>Invoice Type</FieldLabel>
               <CommonDropdown
@@ -105,9 +105,9 @@ export default function ShipmentInvoiceSection({
                 placeholder="Declaration"
               />
             </div>
-          </div>
+          </div> */}
 
-          <div className="mt-2">
+          <div className="">
             <div className="bg-axc-navy/60 rounded-tl-lg rounded-tr-lg text-white text-regular-medium font-bold p-4 capitalize tracking-wide">
               Shipment Invoice Items
             </div>

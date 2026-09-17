@@ -190,14 +190,14 @@ export function DeliveryPanel({
                     placeholder="Select delivery time"
                   />
                 </Field>
-                <Field label="API Crossed EDD Days">
+                {/* <Field label="API Crossed EDD Days">
                   <input
                     className={inputClass}
                     disabled
                     value={delivery.apiCrossedEddDays}
                     placeholder="API Crossed EDD Days"
                   />
-                </Field>
+                </Field> */}
 
                 <Field label="Connection Date">
                   <div className="relative">
@@ -218,7 +218,7 @@ export function DeliveryPanel({
                   </div>
                 </Field>
 
-                <Field label="Connection Time">
+                {/* <Field label="Connection Time">
                   <CustomTimePicker
                     value={delivery.connectionTime}
                     onChange={(val) => updateField("connectionTime", val)}
@@ -240,9 +240,9 @@ export function DeliveryPanel({
                     onChange={(val) => updateField("appointmentTime", val)}
                     placeholder="Select appointment time"
                   />
-                </Field>
+                </Field> */}
 
-                <Field label="POD Uploaded Date">
+                {/* <Field label="POD Uploaded Date">
                   <input
                     className={inputClass}
                     disabled
@@ -267,9 +267,9 @@ export function DeliveryPanel({
                     value={delivery.deliveryCost}
                     onChange={(e) => updateField("deliveryCost", e.target.value)}
                   />
-                </Field>
+                </Field> */}
 
-                <Field label="Receiver Name">
+                {/* <Field label="Receiver Name">
                   <input
                     placeholder="Receiver Name"
                     className={inputClass}
@@ -303,16 +303,16 @@ export function DeliveryPanel({
                     value={delivery.remarks}
                     onChange={(e) => updateField("remarks", e.target.value)}
                   />
-                </Field>
+                </Field> */}
 
-                <Field label="AWB Status Code">
+                {/* <Field label="AWB Status Code">
                   <input
                     placeholder="AWB Status Code"
                     className={inputClass}
                     value={delivery.awbStatusCode}
                     onChange={(e) => updateField("awbStatusCode", e.target.value)}
                   />
-                </Field>
+                </Field> */}
 
                 <Field label="AWB Status Name">
                   <input
@@ -323,7 +323,7 @@ export function DeliveryPanel({
                   />
                 </Field>
 
-                <Field label="Reason For Status">
+                {/* <Field label="Reason For Status">
                   <input
                     placeholder="Reason For Status"
                     className={inputClass}
@@ -339,9 +339,9 @@ export function DeliveryPanel({
                     value={delivery.codAmount}
                     onChange={(e) => updateField("codAmount", e.target.value)}
                   />
-                </Field>
+                </Field> */}
 
-                <Field label="COD Amount Collected">
+                {/* <Field label="COD Amount Collected">
                   <div className="relative">
                     <input
                       placeholder="COD Amount Collected"
@@ -364,7 +364,7 @@ export function DeliveryPanel({
                       />
                     </div>
                   </div>
-                </Field>
+                </Field> */}
 
                 <div className="flex items-center gap-2 mt-6">
                   <input
