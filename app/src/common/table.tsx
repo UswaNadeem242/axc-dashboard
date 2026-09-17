@@ -83,7 +83,6 @@ const CommonTable = ({
     return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
   };
 
-  // NEW: helper to resolve text-align class from heading.align
   const getTextAlign = (align: Heading["align"] = "center") => {
     if (align === "left") return "text-left";
     if (align === "right") return "text-right";
