@@ -164,7 +164,6 @@ function KycFileCell({
   return (
     <div className="flex flex-col gap-1 flex-1 min-w-0">
       {isUploading ? (
-        /* ================= Uploading State (matches Shipper-form KYC FileUploadField) ================= */
         <div className="border border-axc-border rounded-md px-2.5 py-2 flex items-center gap-2 bg-white shadow-2xs">
           <span className="p-1.5 rounded shrink-0 bg-gray-100 text-gray-500">
             <FileText size={13} />
