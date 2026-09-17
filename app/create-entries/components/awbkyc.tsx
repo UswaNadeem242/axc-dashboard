@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useRef } from "react";
-import { Upload, X, ExternalLink } from "lucide-react";
+import React, { useRef, useState, useEffect } from "react";
+import { Upload, X, ExternalLink, FileText, AlertCircle } from "lucide-react";
 
 interface KycField {
   key: string;
@@ -86,6 +86,18 @@ export const SHIPPER_MASTER_FIELDS: KycField[] = [
   { key: "voterIdCard", label: "VOTER ID CARD" },
 ];
 
+function formatBytes(bytes: number) {
+  if (bytes <= 0) return "0 MB";
+  const mb = bytes / (1024 * 1024);
+  return `${mb < 10 ? mb.toFixed(1) : Math.round(mb)} MB`;
+}
+
+interface UploadingItem {
+  file: File;
+  uploaded: number;
+  status: "uploading" | "done";
+}
+
 function KycFileCell({
   label = "Upload",
   file,
@@ -98,43 +110,136 @@ function KycFileCell({
   onChange: (f: File | null) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const [uploadingItem, setUploadingItem] = useState<UploadingItem | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+    };
+  }, []);
+
+  // Same simulated-upload behaviour as the KYC FileUploadField used on the Shipper form
+  function simulateUpload(pickedFile: File) {
+    const totalSize = pickedFile.size || 1;
+    const stepMs = 200;
+    const stepSize = Math.max(totalSize / 18, 80 * 1024);
+
+    setUploadingItem({ file: pickedFile, uploaded: 0, status: "uploading" });
+
+    if (intervalRef.current) clearInterval(intervalRef.current);
+
+    intervalRef.current = setInterval(() => {
+      setUploadingItem((prev) => {
+        if (!prev) {
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          return prev;
+        }
+        const uploaded = Math.min(prev.uploaded + stepSize, totalSize);
+        const isDone = uploaded >= totalSize;
+
+        if (isDone) {
+          if (intervalRef.current) clearInterval(intervalRef.current);
+          setTimeout(() => {
+            onChange(pickedFile);
+            setUploadingItem(null);
+          }, 300);
+        }
+
+        return { ...prev, uploaded, status: isDone ? "done" : "uploading" };
+      });
+    }, stepMs);
+  }
+
+  function handleCancelUpload() {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    setUploadingItem(null);
+  }
+
+  const isUploading = !!uploadingItem;
+  const uploadPercent = uploadingItem
+    ? Math.min(100, Math.round((uploadingItem.uploaded / (uploadingItem.file.size || 1)) * 100))
+    : 0;
 
   return (
     <div className="flex flex-col gap-1 flex-1 min-w-0">
-      <div className="flex items-center gap-1.5 border border-axc-border rounded-md px-2 py-1.5 bg-white shadow-2xs  transition">
-        <button
-          type="button"
-          onClick={() => inputRef.current?.click()}
-          className="shrink-0 flex items-center gap-1 border border-axc-border bg-axc-light-bg hover:bg-axc-border/40 text-axc-dark-gray text-regular-small cursor-pointer px-2.5 py-1 rounded transition"
-          title={`Upload ${label}`}
-        >
-          <Upload size={13} />
-          <span className="text-[11px] font-semibold">{label}</span>
-        </button>
-        <span
-          className="text-[11px] text-axc-gray truncate flex-1 min-w-0"
-          title={file ? file.name : "No file chosen"}
-        >
-          {file ? file.name : "No file chosen"}
-        </span>
-        {file && (
+      {isUploading ? (
+        /* ================= Uploading State (matches Shipper-form KYC FileUploadField) ================= */
+        <div className="border border-axc-border rounded-md px-2.5 py-2 flex items-center gap-2 bg-white shadow-2xs">
+          <span className="p-1.5 rounded shrink-0 bg-gray-100 text-gray-500">
+            <FileText size={13} />
+          </span>
+
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-1.5">
+              <p className="text-[11px] font-medium text-gray-700 truncate" title={uploadingItem.file.name}>
+                {uploadingItem.file.name}
+              </p>
+              <button
+                type="button"
+                onClick={handleCancelUpload}
+                className="text-axc-red hover:text-axc-red transition shrink-0 cursor-pointer"
+                title="Cancel upload"
+              >
+                <X size={12} />
+              </button>
+            </div>
+
+            <p className="text-[9px] text-gray-400 mt-0.5">
+              {formatBytes(uploadingItem.uploaded)} of {formatBytes(uploadingItem.file.size)}
+            </p>
+
+            <div className="mt-1 flex items-center h-1 w-full overflow-hidden rounded-full bg-gray-100">
+              <div
+                className={`h-full bg-axc-blue transition-all duration-200 ease-linear ${
+                  uploadingItem.status === "done" ? "rounded-full" : "rounded-l-full"
+                }`}
+                style={{ width: `${uploadPercent}%` }}
+              />
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="flex items-center gap-1.5 border border-axc-border rounded-md px-2 py-1.5 bg-white shadow-2xs  transition">
           <button
             type="button"
-            onClick={() => onChange(null)}
-            className="text-gray-400 hover:text-red-500 cursor-pointer p-0.5"
-            title="Remove file"
+            onClick={() => inputRef.current?.click()}
+            className="shrink-0 flex items-center gap-1 border border-axc-border bg-axc-light-bg hover:bg-axc-border/40 text-axc-dark-gray text-regular-small cursor-pointer px-2.5 py-1 rounded transition"
+            title={`Upload ${label}`}
           >
-            <X size={13} />
+            <Upload size={13} />
+            <span className="text-[11px] font-semibold">{label}</span>
           </button>
-        )}
-        <input
-          ref={inputRef}
-          type="file"
-          className="hidden"
-          onChange={(e) => onChange(e.target.files?.[0] ?? null)}
-        />
-      </div>
-      {existingFileUrl && (
+          <span
+            className="text-[11px] text-axc-gray truncate flex-1 min-w-0"
+            title={file ? file.name : "No file chosen"}
+          >
+            {file ? file.name : "No file chosen"}
+          </span>
+          {file && (
+            <button
+              type="button"
+              onClick={() => onChange(null)}
+              className="text-gray-400 hover:text-red-500 cursor-pointer p-0.5"
+              title="Remove file"
+            >
+              <X size={13} />
+            </button>
+          )}
+          <input
+            ref={inputRef}
+            type="file"
+            className="hidden"
+            onChange={(e) => {
+              const picked = e.target.files?.[0];
+              if (picked) simulateUpload(picked);
+              e.target.value = "";
+            }}
+          />
+        </div>
+      )}
+
+      {existingFileUrl && !isUploading && (
         <a
           href={existingFileUrl}
           target="_blank"
