@@ -290,7 +290,7 @@ export default function UserTab() {
             />
           </div>
 
-          <Dropdown
+          {/* <Dropdown
             title="Actions"
             items={[
               { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: () => {} },
@@ -307,7 +307,7 @@ export default function UserTab() {
                 },
               },
             ]}
-          />
+          />*/}
 
           {selectedIds.length > 0 && (
             <button
