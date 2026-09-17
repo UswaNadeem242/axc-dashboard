@@ -211,8 +211,8 @@ export default function AwbEntriesPage() {
       return {
         ...h,
         label: (
-          <div className="flex flex-col items-center justify-center gap-1.5 ">
-            <span className="text-xs font-semibold uppercase  leading-nonewhitespace-nowrap">SELECT AWB</span>
+          <div className="flex flex-row-reverse  items-center justify-center gap-1.5 ">
+            <span className="text-xs font-bold capitalize  leading-nonewhitespace-nowrap">Select Awb</span>
             <input
               type="checkbox"
               checked={allSelected}
