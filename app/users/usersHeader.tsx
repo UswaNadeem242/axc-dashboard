@@ -58,7 +58,7 @@ export default function UsersHeader() {
         </div>
       </div>
 
-      <div className="mt-3 flex-1 min-h-0 overflow-y-auto rounded-lg border border-axc-border bg-white px-8 py-[20px] scrollbar-none">
+      <div className="mt-3 flex-1 min-h-0 overflow-y-auto rounded-lg border border-axc-border bg-white p-4 scrollbar-none">
         {renderContent()}
       </div>
     </div>
