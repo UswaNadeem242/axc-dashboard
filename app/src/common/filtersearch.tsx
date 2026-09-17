@@ -154,18 +154,17 @@ export default function FilterSearch({
             </PopoverButton>
           </div>
 
-          {/* Dropdown Popover Panel */}
+          {/* Dropdown Popover Panel - matches search bar width */}
           <PopoverPanel
-            anchor={{ to: "bottom start", gap: 8 }}
             transition
-            className="z-[9999] focus:outline-none transition ease-out duration-150 data-[closed]:opacity-0 data-[closed]:scale-95"
+            className="absolute left-0 right-0 top-full mt-2 w-full min-w-full z-[9999] focus:outline-none transition ease-out duration-150 data-[closed]:opacity-0 data-[closed]:scale-95"
           >
-            <div className="relative pt-2">
+            <div className="relative pt-2 w-full">
               {/* Top Arrow Pointer (Aligned under search input) */}
               <div className="absolute top-[2px] left-6 h-3.5 w-3.5 rotate-45 border-l border-t border-gray-200 bg-white z-20" />
 
               {/* Rounded Popover Card */}
-              <div className="relative z-10 rounded-2xl border border-gray-200 bg-white shadow-2xl overflow-hidden min-w-[220px]">
+              <div className="relative z-10 w-full rounded-2xl border border-gray-200 bg-white shadow-2xl overflow-hidden">
                 {/* Header: Sliders Icon + "Filters" Title */}
                 <div className="flex items-center justify-between px-5 py-3.5 border-b border-gray-200 bg-white select-none">
                   <div className="flex items-center gap-2.5">
@@ -217,11 +216,11 @@ export default function FilterSearch({
                 </div>
 
                 {/* Columns with Vertical Dividers */}
-                <div className="flex flex-row divide-x divide-gray-200 bg-white">
+                <div className="flex flex-row divide-x divide-gray-200 bg-white w-full">
                   {columnsData.map((col, colIdx) => (
                     <div
                       key={`${col.title}-${colIdx}`}
-                      className="p-5 flex-1 min-w-[170px] max-w-[240px]"
+                      className="p-5 flex-1 min-w-0"
                     >
                       <h4 className="text-[13px] font-bold text-gray-900 mb-3 select-none">
                         {col.title}

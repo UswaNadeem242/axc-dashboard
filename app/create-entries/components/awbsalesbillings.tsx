@@ -50,7 +50,7 @@ export function AwbSalesBillingTab({
               }
               totals={totals}
             />
-            <PaymentDetailsPanel
+            {/* <PaymentDetailsPanel
               payment={payment}
               onChange={(patch: Partial<PaymentDetailsFormState>) =>
                 setPayment((prev: PaymentDetailsFormState) => ({ ...prev, ...patch }))
@@ -61,16 +61,16 @@ export function AwbSalesBillingTab({
               onChange={(patch: Partial<InvoiceRemarksFormState>) =>
                 setRemarks((prev: InvoiceRemarksFormState) => ({ ...prev, ...patch }))
               }
-            />
+            /> */}
 
 
 
-            <RefundDetailsPanel
+            {/* <RefundDetailsPanel
               refund={refund}
               onChange={(patch: Partial<RefundDetailsFormState>) =>
                 setRefund((prev: RefundDetailsFormState) => ({ ...prev, ...patch }))
               }
-            />
+            /> */}
           </div>
         </div>
       </div>

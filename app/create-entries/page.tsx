@@ -19,7 +19,7 @@ type TabItem = { id: string; label: string; icon?: React.ReactNode };
 const allTabs: TabItem[] = [
   { id: "awb-details", label: "AWB Details", icon: <User size={14} /> },
   { id: "sales-billing", label: "Sales Billing", icon: <span className="text-[12px] font-bold">₹</span> },
-  { id: "purchase-billing", label: "Purchase Billing", icon: <span className="text-[12px] font-bold">₹</span> },
+  // { id: "purchase-billing", label: "Purchase Billing", icon: <span className="text-[12px] font-bold">₹</span> },
   { id: "attachment", label: "Attachment", icon: <Paperclip size={14} /> },
   { id: "delivery", label: "Delivery", icon: <Truck size={14} /> },
   { id: "kyc", label: "KYC", icon: <ShieldCheck size={14} /> },
@@ -28,7 +28,7 @@ const allTabs: TabItem[] = [
 const newAwbTabs: TabItem[] = [
   { id: "awb-details", label: "AWB Details", icon: <User size={14} /> },
   { id: "sales-billing", label: "Sales Billing", icon: <span className="text-[12px] font-bold">₹</span> },
-  { id: "purchase-billing", label: "Purchase Billing", icon: <span className="text-[12px] font-bold">₹</span> },
+  // { id: "purchase-billing", label: "Purchase Billing", icon: <span className="text-[12px] font-bold">₹</span> },
 ];
 
 function CreateEntriesContent() {
