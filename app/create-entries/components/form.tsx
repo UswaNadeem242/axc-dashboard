@@ -172,7 +172,7 @@ export function FileUploadField({
             return (
               <div
                 key={uf.id}
-                className={`border rounded-md px-2.5 py-2 flex items-center gap-2 w-[calc(50%-0.25rem)] sm:w-[calc(33.333%-0.34rem)] lg:w-[calc(20%-0.4rem)] ${
+                className={`border rounded-md px-2.5 py-2 flex items-center gap-2 w-[calc(50%-0.25rem)] ${
                   isError ? "border-red-300 bg-red-50/40" : "border-axc-border bg-white"
                 }`}
               >
