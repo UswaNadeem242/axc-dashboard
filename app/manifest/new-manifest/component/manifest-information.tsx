@@ -166,26 +166,26 @@ export default function ManifestInformation({
           </div>
 
           {/* 4. FLIGHT NO */}
-        <div className="flex flex-col gap-1">
-          <FieldLabel>Flight No</FieldLabel>
-           <div className="relative">
+          <div className="flex flex-col gap-1">
+            <FieldLabel>Flight No</FieldLabel>
+            <div className="relative">
               <Dropdown
                 value={form.flightNo}
-                 onChange={(val) => updateField("flightNo", val)}
-                  disabled={!form.editFlightNo}
-                   placeholder="SELECT FLIGHT NO..."
-                    options={[
-                        { value: "AI-101", label: "AI-101" },
-                        { value: "EK-501", label: "EK-501" },
-                          ]}
-                   className="pr-10"
-                  />
-            <div className="absolute right-1 top-1/2 -translate-y-1/2">
-             <EditIconButton
-                 active={form.editFlightNo}
-                 onToggle={() => toggleEdit("editFlightNo")}
-                title="Edit Flight No"
-               />
+                onChange={(val) => updateField("flightNo", val)}
+                disabled={!form.editFlightNo}
+                placeholder="SELECT FLIGHT NO..."
+                options={[
+                  { value: "AI-101", label: "AI-101" },
+                  { value: "EK-501", label: "EK-501" },
+                ]}
+                className="pr-10"
+              />
+              <div className="absolute right-1 top-1/2 -translate-y-1/2">
+                <EditIconButton
+                  active={form.editFlightNo}
+                  onToggle={() => toggleEdit("editFlightNo")}
+                  title="Edit Flight No"
+                />
               </div>
             </div>
           </div>
@@ -305,20 +305,32 @@ export default function ManifestInformation({
               (Upload excel file only)
             </span>
           </div>
-          <FileUploadField />
+          <FileUploadField
+            acceptedMimeTypes={[
+              "application/vnd.ms-excel",
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+              "text/csv",
+            ]}
+            acceptedExtensions={[".xls", ".xlsx", ".csv"]}
+            acceptedLabel="XLS, XLSX and CSV formats, up to 10MB"
+          />
         </div>
 
         {/* 8. MAWB IMAGE (Full Width) */}
         <div className="col-span-1 lg:col-span-3 flex flex-col gap-1">
           <FieldLabel>MAWB Image</FieldLabel>
-          <FileUploadField multiple />
+          <FileUploadField
+            multiple
+            acceptedMimeTypes={["image/jpeg", "image/png", "application/pdf", "image/svg+xml"]}
+            acceptedLabel="JPEG, PNG, PDF and SVG formats, up to 10MB"
+          />
         </div>
 
         {/* COMMENT (Full Width) */}
         <div className="col-span-1 lg:col-span-3 flex flex-col gap-1">
           <FieldLabel>Comment</FieldLabel>
           <textarea
-          rows={6}
+            rows={6}
             value={form.comment}
             onChange={(e) => updateField("comment", e.target.value)}
             className={`${inputClass} w-full text-xs outline-none resize-none`}
@@ -340,8 +352,7 @@ export default function ManifestInformation({
           type="button"
           onClick={handleBagging}
           className="bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition "
-          >
-
+        >
           Bagging
         </button>
       </div>
