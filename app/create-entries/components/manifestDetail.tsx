@@ -167,16 +167,16 @@ export default function ManifestDetailTable() {
     {
       label: "Manifested By",
       key: "manifestedBy",
-      align: "left" as const,
+      align: "center" as const,
       truncate: false,
     },
     {
       label: "AWB/Parcel/Forwording No.",
       key: "awbNumber",
-      align: "left" as const,
+      align: "center" as const,
       truncate: false,
       render: (row: ManifestRow) => (
-        <span className="text-axc-blue font-medium cursor-pointer hover:underline">
+        <span className="text-axc-black font-medium cursor-pointer hover:underline">
           {row.awbNumber}
         </span>
       ),
@@ -184,10 +184,10 @@ export default function ManifestDetailTable() {
     {
       label: "Run Number",
       key: "runNumber",
-      align: "left" as const,
+      align: "center" as const,
       truncate: false,
       render: (row: ManifestRow) => (
-        <span className="text-axc-blue font-medium cursor-pointer hover:underline">
+        <span className="text-axc-black font-medium cursor-pointer hover:underline">
           {row.runNumber}
         </span>
       ),
@@ -195,28 +195,28 @@ export default function ManifestDetailTable() {
     {
       label: "Manifest Date",
       key: "manifestDate",
-      align: "left" as const,
+      align: "center" as const,
       truncate: false,
     },
     {
       label: "Forwarder",
       key: "forwarder",
-      align: "left" as const,
+      align: "center" as const,
       truncate: false,
     },
     {
       label: "Flight Number",
       key: "flightNumber",
-      align: "left" as const,
+      align: "center" as const,
       truncate: false,
     },
     {
       label: "Master Number",
       key: "masterNumber",
-      align: "left" as const,
+      align: "center" as const,
       truncate: false,
       render: (row: ManifestRow) => (
-        <span className="text-axc-blue font-medium cursor-pointer hover:underline">
+        <span className="text-axc-black font-medium cursor-pointer hover:underline">
           {row.masterNumber}
         </span>
       ),
@@ -224,19 +224,19 @@ export default function ManifestDetailTable() {
     {
       label: "Manifest No",
       key: "manifestNo",
-      align: "left" as const,
+      align: "center" as const,
       truncate: false,
     },
     {
       label: "Bag Number",
       key: "bagNumber",
-      align: "left" as const,
+      align: "center" as const,
       truncate: false,
     },
     {
       label: "Origin Hub",
       key: "originHub",
-      align: "left" as const,
+      align: "center" as const,
       truncate: false,
     },
   ];
