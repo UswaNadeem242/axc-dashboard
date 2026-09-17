@@ -110,7 +110,7 @@ export function FileUploadField({
   placeholder,
   multiple = false,
   acceptedMimeTypes = DEFAULT_ACCEPTED_MIME_TYPES,
-  acceptedExtensions, // optional fallback check via file name, e.g. [".xlsx", ".xls", ".csv"]
+  acceptedExtensions, 
   acceptedLabel = DEFAULT_ACCEPTED_LABEL,
   maxSizeBytes = DEFAULT_MAX_SIZE_BYTES,
 }: {
@@ -142,10 +142,9 @@ export function FileUploadField({
     return { ok: true };
   }
 
-  // Simulates an upload progressing over time, filling the bar until it reaches the file's full size.
   function simulateUpload(id: string, totalSize: number) {
     const stepMs = 200;
-    const stepSize = Math.max(totalSize / 18, 80 * 1024); // ~18 steps to finish, min 80KB/step
+    const stepSize = Math.max(totalSize / 18, 80 * 1024); 
 
     const interval = setInterval(() => {
       setUploadingFiles((prev) => {
@@ -222,7 +221,7 @@ export function FileUploadField({
       </label>
 
       {uploadingFiles.length > 0 && (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-row flex-wrap gap-2">
           {uploadingFiles.map((uf) => {
             const percent =
               uf.status === "error" ? 0 : Math.min(100, Math.round((uf.uploaded / uf.file.size) * 100));
@@ -232,7 +231,7 @@ export function FileUploadField({
             return (
               <div
                 key={uf.id}
-                className={`border rounded-md px-3 py-2.5 flex items-center gap-3 w-1/5 ${
+                className={`border rounded-md px-2.5 py-2 flex items-center gap-2 w-[calc(50%-0.25rem)] sm:w-[calc(33.333%-0.34rem)] lg:w-[calc(20%-0.4rem)] ${
                   isError ? "border-red-300 bg-red-50/40" : "border-axc-border bg-white"
                 }`}
               >
@@ -241,30 +240,30 @@ export function FileUploadField({
                     isError ? "bg-red-100 text-axc-red" : "bg-gray-100 text-gray-500"
                   }`}
                 >
-                  {isError ? <AlertCircle size={14} /> : <FileText size={14} />}
+                  {isError ? <AlertCircle size={13} /> : <FileText size={13} />}
                 </span>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="text-xs font-medium text-gray-700 truncate">{uf.file.name}</p>
+                  <div className="flex items-center justify-between gap-1.5">
+                    <p className="text-[11px] font-medium text-gray-700 truncate">{uf.file.name}</p>
                     <button
                       type="button"
                       onClick={() => removeFile(uf.id)}
                       className="text-axc-red hover:text-axc-red transition shrink-0 cursor-pointer"
                       title="Remove file"
                     >
-                      <X size={13} />
+                      <X size={12} />
                     </button>
                   </div>
 
                   {isError ? (
-                    <p className="text-[11px] text-axc-red font-medium mt-0.5">{uf.errorMessage}</p>
+                    <p className="text-[10px] text-axc-red font-medium mt-0.5 truncate">{uf.errorMessage}</p>
                   ) : (
                     <>
-                      <p className="text-[10px] text-gray-400 mt-0.5">
+                      <p className="text-[9px] text-gray-400 mt-0.5">
                         {formatBytes(uf.uploaded)} of {formatBytes(uf.file.size)}
                       </p>
-                      <div className="mt-1.5 flex items-center h-1.5 w-3/4 overflow-hidden rounded-full">
+                      <div className="mt-1 flex items-center h-1 w-full overflow-hidden rounded-full">
                         <div
                           className={`h-full bg-axc-blue transition-all duration-200 ease-linear ${
                             done ? "rounded-full" : "rounded-l-full"
