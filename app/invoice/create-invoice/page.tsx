@@ -28,6 +28,7 @@ const tabs: TabItem[] = [
 
 const developedTabs = new Set([
   "single-customer",
+  "awb-less-invoice",
   "multiple-customer",
   "multiple-awb",
   "awb-less-invoice",
@@ -111,10 +112,10 @@ export default function CreateInvoicePage() {
 
         <div className="flex-1 min-h-0 overflow-y-auto mt-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {activeTab === "single-customer" && <AwbSingleCustomerInvoiceTab />}
-          {activeTab === "multiple-customer" && (
+         {/* {activeTab === "multiple-customer" && (
             <AwbMultipleCustomerInvoiceTab />
           )}
-          {activeTab === "multiple-awb" && <AwbMultipleTab />}
+          {activeTab === "multiple-awb" && <AwbMultipleTab />}*/}
           {activeTab === "awb-less-invoice" && <AwbLessInvoiceTab />}
 
           {!developedTabs.has(activeTab) && (
