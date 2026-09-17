@@ -21,8 +21,10 @@ export interface FilterGroup {
 interface FilterSearchProps {
   options?: FilterOption[];
   groups?: FilterGroup[];
-  selectedOption: string;
-  onOptionChange: (val: string) => void;
+  selectedOption?: string;
+  selectedOptions?: string[];
+  onOptionChange?: (val: string) => void;
+  onOptionsChange?: (vals: string[]) => void;
   searchValue: string;
   onSearchChange: (val: string) => void;
   onSearchSubmit?: (val: string) => void;
@@ -35,7 +37,9 @@ export default function FilterSearch({
   options,
   groups,
   selectedOption,
+  selectedOptions,
   onOptionChange,
+  onOptionsChange,
   searchValue,
   onSearchChange,
   onSearchSubmit,
@@ -51,15 +55,46 @@ export default function FilterSearch({
     return [];
   }, [options, groups]);
 
-  const currentSelected = allOptions.find((opt) => opt.value === selectedOption);
-  const selectedLabel =
-    currentSelected && currentSelected.value ? currentSelected.label : "";
+  const activeOptionsList: string[] = useMemo(() => {
+    if (selectedOptions !== undefined) {
+      return selectedOptions;
+    }
+    if (selectedOption) {
+      return [selectedOption];
+    }
+    return [];
+  }, [selectedOptions, selectedOption]);
 
   const handleToggleOption = (val: string) => {
-    if (selectedOption === val) {
+    if (onOptionsChange) {
+      if (activeOptionsList.includes(val)) {
+        onOptionsChange(activeOptionsList.filter((item) => item !== val));
+      } else {
+        onOptionsChange([...activeOptionsList, val]);
+      }
+    } else if (onOptionChange) {
+      if (selectedOption === val) {
+        onOptionChange("");
+      } else {
+        onOptionChange(val);
+      }
+    }
+  };
+
+  const handleRemoveOption = (val: string) => {
+    if (onOptionsChange) {
+      onOptionsChange(activeOptionsList.filter((item) => item !== val));
+    } else if (onOptionChange) {
       onOptionChange("");
-    } else {
-      onOptionChange(val);
+    }
+  };
+
+  const handleReset = () => {
+    if (onOptionsChange) {
+      onOptionsChange([]);
+    }
+    if (onOptionChange) {
+      onOptionChange("");
     }
   };
 
@@ -75,15 +110,6 @@ export default function FilterSearch({
     if (options && options.length > 0) {
       const validOptions = options.filter((opt) => opt.value !== "");
       const itemsToUse = validOptions.length > 0 ? validOptions : options;
-
-      if (itemsToUse.length > 6) {
-        const chunkSize = Math.ceil(itemsToUse.length / 2);
-        return [
-          { title: columnTitle, items: itemsToUse.slice(0, chunkSize) },
-          { title: "More", items: itemsToUse.slice(chunkSize) },
-        ];
-      }
-
       return [{ title: columnTitle, items: itemsToUse }];
     }
 
@@ -95,23 +121,34 @@ export default function FilterSearch({
       {({ open }) => (
         <>
           {/* Main Full Search Bar Container */}
-          <div className="relative flex h-10 w-full min-w-[320px] md:min-w-[420px] items-center rounded-lg border border-axc-border bg-white shadow-sm transition hover:border-gray-300 focus-within:border-axc-blue">
+          <div className="relative flex min-h-10 w-full min-w-[360px] sm:min-w-[480px] md:min-w-[640px] items-center rounded-lg border border-axc-border bg-white shadow-sm transition hover:border-gray-300 focus-within:border-axc-blue py-1">
             {/* Search Icon */}
             <SearchIcon
               size={15}
               className="ml-3.5 text-gray-400 pointer-events-none shrink-0"
             />
 
-            {/* Selected Filter Badge if active */}
-            {selectedLabel && (
-              <span className="ml-2 inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700 shrink-0 select-none">
-                {selectedLabel}
-                <X
-                  size={12}
-                  className="cursor-pointer text-blue-600 hover:text-blue-800"
-                  onClick={() => onOptionChange("")}
-                />
-              </span>
+            {/* Selected Filter Badges if active */}
+            {activeOptionsList.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 ml-2 shrink-0">
+                {activeOptionsList.map((val) => {
+                  const opt = allOptions.find((o) => o.value === val);
+                  const label = opt ? opt.label : val;
+                  return (
+                    <span
+                      key={val}
+                      className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-700 select-none border border-blue-200"
+                    >
+                      {label}
+                      <X
+                        size={12}
+                        className="cursor-pointer text-blue-600 hover:text-blue-800"
+                        onClick={() => handleRemoveOption(val)}
+                      />
+                    </span>
+                  );
+                })}
+              </div>
             )}
 
             {/* Full Search Input */}
@@ -125,8 +162,8 @@ export default function FilterSearch({
                   onSearchSubmit(searchValue);
                 }
               }}
-              placeholder={selectedLabel ? `Search in ${selectedLabel}...` : placeholder}
-              className="h-full flex-1 bg-transparent px-2.5 text-[13px] text-gray-800 placeholder:text-gray-400 focus:outline-none"
+              placeholder={placeholder}
+              className="h-8 flex-1 bg-transparent px-2.5 text-[13px] text-gray-800 placeholder:text-gray-400 focus:outline-none min-w-[100px]"
             />
 
             {/* Clear Search Input Button */}
@@ -204,10 +241,10 @@ export default function FilterSearch({
                     </span>
                   </div>
 
-                  {selectedOption && (
+                  {activeOptionsList.length > 0 && (
                     <button
                       type="button"
-                      onClick={() => onOptionChange("")}
+                      onClick={handleReset}
                       className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 cursor-pointer"
                     >
                       Reset
@@ -228,7 +265,7 @@ export default function FilterSearch({
 
                       <div className="space-y-2 max-h-[220px] overflow-y-auto pr-2 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
                         {col.items.map((option) => {
-                          const isChecked = selectedOption === option.value;
+                          const isChecked = activeOptionsList.includes(option.value);
                           return (
                             <div
                               key={option.value}
