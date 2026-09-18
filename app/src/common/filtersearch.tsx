@@ -7,6 +7,8 @@ import {
   PopoverPanel,
 } from "@headlessui/react";
 import { ChevronDown, Check, Search as SearchIcon, X } from "lucide-react";
+import CustomDateRangePicker from "./daterangepicker";
+import { format } from "date-fns";
 
 export interface FilterOption {
   label: string;
@@ -67,7 +69,13 @@ export default function FilterSearch({
     return [];
   }, [selectedOptions, selectedOption]);
 
+  const [showCustomDateRange, setShowCustomDateRange] = React.useState(false);
+
   const handleToggleOption = (val: string) => {
+    if (val === "Custom") {
+      setShowCustomDateRange(true);
+      return;
+    }
     if (onOptionsChange) {
       if (activeOptionsList.includes(val)) {
         onOptionsChange(activeOptionsList.filter((item) => item !== val));
@@ -125,16 +133,17 @@ export default function FilterSearch({
   }, [searchSuggestions, searchValue]);
 
   return (
-    <Popover className={`relative flex items-center ${className}`}>
-      {({ open }) => (
-        <>
-          {/* Main Full Search Bar Container */}
-          <div className="relative flex min-h-10 w-full min-w-[360px] sm:min-w-[480px] md:min-w-[640px] items-center rounded-lg border border-axc-border bg-white shadow-sm transition hover:border-gray-300 focus-within:border-axc-blue py-1">
-            {/* Search Icon */}
-            <SearchIcon
-              size={15}
-              className="ml-3.5 text-gray-400 pointer-events-none shrink-0"
-            />
+    <>
+      <Popover className={`relative flex items-center ${className}`}>
+        {({ open }) => (
+          <>
+            {/* Main Full Search Bar Container */}
+            <div className="relative flex min-h-10 w-full min-w-[360px] sm:min-w-[480px] md:min-w-[640px] items-center rounded-lg border border-axc-border bg-white shadow-sm transition hover:border-gray-300  outline-none py-1">
+              {/* Search Icon */}
+              <SearchIcon
+                size={15}
+                className="ml-3.5 text-gray-400 pointer-events-none shrink-0"
+              />
 
             {/* Selected Filter Badges if active */}
             {activeOptionsList.length > 0 && (
@@ -289,7 +298,6 @@ export default function FilterSearch({
                       <h4 className="text-[13px] font-bold text-gray-900 mb-3 select-none">
                         {col.title}
                       </h4>
-
                       <div className="space-y-2 max-h-[220px] overflow-y-auto pr-2 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
                         {col.items.map((option) => {
                           const isChecked = activeOptionsList.includes(option.value);
@@ -302,12 +310,12 @@ export default function FilterSearch({
                               {/* Custom Checkbox */}
                               <div
                                 className={`h-4 w-4 rounded-[4px] border flex items-center justify-center shrink-0 transition-colors ${
-                                  isChecked
+                                  isChecked || (option.value === "Custom" && activeOptionsList.some(o => /^[A-Z][a-z]{2} \d{1,2}, \d{4} - [A-Z][a-z]{2} \d{1,2}, \d{4}$/.test(o)))
                                     ? "border-blue-600 bg-blue-600 text-white"
                                     : "border-gray-300 bg-white group-hover:border-gray-400"
                                 }`}
                               >
-                                {isChecked && (
+                                {(isChecked || (option.value === "Custom" && activeOptionsList.some(o => /^[A-Z][a-z]{2} \d{1,2}, \d{4} - [A-Z][a-z]{2} \d{1,2}, \d{4}$/.test(o)))) && (
                                   <Check
                                     size={11}
                                     strokeWidth={3}
@@ -335,11 +343,30 @@ export default function FilterSearch({
                 </div>
               </div>
             </div>
-          </PopoverPanel>
-        </>
+            </PopoverPanel>
+          </>
+        )}
+      </Popover>
+
+      {/* Date Range Modal */}
+      {showCustomDateRange && (
+        <div className="fixed inset-0 z-[99999] bg-black/40 flex items-center justify-center p-4">
+          <CustomDateRangePicker
+            onApply={(start, end) => {
+              const formatted = `${format(start, "MMM dd, yyyy")} - ${format(end, "MMM dd, yyyy")}`;
+              if (onOptionsChange) {
+                onOptionsChange([
+                  ...activeOptionsList.filter((o) => !o.includes(" - ") || !/^[A-Z][a-z]{2} \d{1,2}, \d{4} - [A-Z][a-z]{2} \d{1,2}, \d{4}$/.test(o)),
+                  formatted,
+                ]);
+              }
+              setShowCustomDateRange(false);
+            }}
+            onCancel={() => setShowCustomDateRange(false)}
+          />
+        </div>
       )}
-    </Popover>
+    </>
   );
 }
-
 

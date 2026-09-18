@@ -182,6 +182,76 @@ export default function AwbEntriesPage() {
       if (raw === "awb status") {
         return true;
       }
+      if (raw === "today" || raw === "yesterday" || raw === "last 7 days") {
+        const checkDate = (dateStr?: string) => {
+          if (!dateStr) return false;
+          const [d, m, y] = dateStr.split("/");
+          if (!d || !m || !y) return false;
+          
+          const itemDate = new Date(Number(y), Number(m) - 1, Number(d));
+          itemDate.setHours(0,0,0,0);
+          
+          const today = new Date();
+          today.setHours(0,0,0,0);
+          
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+          
+          const last7Days = new Date(today);
+          last7Days.setDate(last7Days.getDate() - 7);
+
+          if (raw === "today") return itemDate.getTime() === today.getTime();
+          if (raw === "yesterday") return itemDate.getTime() === yesterday.getTime();
+          if (raw === "last 7 days") return itemDate >= last7Days && itemDate <= today;
+          return false;
+        };
+
+        return checkDate(item.bookingDate) || 
+               checkDate((item as any).manifestDate) || 
+               checkDate((item as any).invoiceDate);
+      }
+      if (raw === "custom") {
+        return true; 
+      }
+      const dateRangeRegex = /^[a-z]{3} \d{1,2}, \d{4} - [a-z]{3} \d{1,2}, \d{4}$/i;
+      if (dateRangeRegex.test(raw)) {
+        const parts = raw.split(" - ");
+        if (parts.length === 2) {
+          // Parse dd/mm/yyyy from item date string
+          const parseItemDate = (str?: string) => {
+            if (!str) return null;
+            const [d, m, y] = str.split("/");
+            if (!d || !m || !y) return null;
+            const dt = new Date(Number(y), Number(m) - 1, Number(d));
+            dt.setHours(0,0,0,0);
+            return dt;
+          };
+          
+          // Parse MMM dd, yyyy from tag
+          const parseTagDate = (str: string) => {
+            const dt = new Date(str);
+            if (isNaN(dt.getTime())) return null;
+            dt.setHours(0,0,0,0);
+            return dt;
+          };
+          
+          const startDate = parseTagDate(parts[0]);
+          const endDate = parseTagDate(parts[1]);
+          
+          if (startDate && endDate) {
+            const checkRange = (dateStr?: string) => {
+              const itemDate = parseItemDate(dateStr);
+              if (!itemDate) return false;
+              return itemDate >= startDate && itemDate <= endDate;
+            };
+
+            return checkRange(item.bookingDate) || 
+                   checkRange((item as any).manifestDate) || 
+                   checkRange((item as any).invoiceDate);
+          }
+        }
+        return false;
+      }
       if (HUB_COUNTRY_MAP[raw]) {
         const mapping = HUB_COUNTRY_MAP[raw];
         const originUpper = (item.origin || "").trim().toUpperCase();
@@ -326,8 +396,12 @@ export default function AwbEntriesPage() {
   }, [searchQuery, activeTags]);
   const dynamicGroups = awbFilterGroups;
 
-  const customerSuggestions = useMemo(() => {
-    return Array.from(new Set(data.map(item => item.customer).filter(Boolean)));
+  const searchSuggestions = useMemo(() => {
+    const customers = data.map(item => item.customer).filter(Boolean);
+    const origins = data.map(item => item.origin).filter(Boolean);
+    const services = data.map(item => item.service).filter(Boolean);
+    const vendors = data.map(item => item.vendor).filter(Boolean);
+    return Array.from(new Set([...customers, ...origins, ...services, ...vendors]));
   }, [data]);
 
   return (
@@ -341,7 +415,7 @@ export default function AwbEntriesPage() {
           onSearchChange={setSearchQuery}
           onSearchSubmit={handleSearchSubmit}
           placeholder="Search entries..."
-          searchSuggestions={customerSuggestions}
+          searchSuggestions={searchSuggestions}
         />
         <Button label="New AWB" href="/create-entries" variant="primary" icon={PlusCircleIcon} />
       </div>
