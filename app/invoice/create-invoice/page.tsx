@@ -13,12 +13,12 @@ type TabItem = { id: string; label: string; icon?: React.ReactNode };
 
 const tabs: TabItem[] = [
   { id: "single-customer", label: "Single Customer", icon: <User size={14} /> },
-  {
+ /* {
     id: "multiple-customer",
     label: "Multiple Customer",
     icon: <Users size={14} />,
   },
-  { id: "multiple-awb", label: "Multiple AWB", icon: <CreditCard size={14} /> },
+  { id: "multiple-awb", label: "Multiple AWB", icon: <CreditCard size={14} /> },*/
   {
     id: "awb-less-invoice",
     label: "AWB Less Invoice",
@@ -28,8 +28,8 @@ const tabs: TabItem[] = [
 
 const developedTabs = new Set([
   "single-customer",
-  "multiple-customer",
-  "multiple-awb",
+  /*"multiple-customer",
+  "multiple-awb",*/
   "awb-less-invoice",
 ]);
 
@@ -111,10 +111,10 @@ export default function CreateInvoicePage() {
 
         <div className="flex-1 min-h-0 overflow-y-auto mt-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {activeTab === "single-customer" && <AwbSingleCustomerInvoiceTab />}
-          {activeTab === "multiple-customer" && (
+         {/* {activeTab === "multiple-customer" && (
             <AwbMultipleCustomerInvoiceTab />
           )}
-          {activeTab === "multiple-awb" && <AwbMultipleTab />}
+          {activeTab === "multiple-awb" && <AwbMultipleTab />}*/}
           {activeTab === "awb-less-invoice" && <AwbLessInvoiceTab />}
 
           {!developedTabs.has(activeTab) && (
