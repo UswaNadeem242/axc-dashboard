@@ -9,7 +9,9 @@ import {
 
 export function useAwbDelivery() {
   const [delivery, setDelivery] = useState<DeliveryFormState>(defaultDelivery());
-  const [events, setEvents] = useState<TrackingEvent[]>([]);
+  const [events, setEvents] = useState<TrackingEvent[]>([
+    { ...emptyTrackingEvent(), eventType: "SYSTEM" }
+  ]);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [updating, setUpdating] = useState(false);

@@ -39,7 +39,7 @@ export default function Dropdown({
   if (items) {
     return (
       <Menu as="div" className={`relative inline-block text-left ${className}`}>
-        <MenuButton className="flex h-[38px] items-center gap-2 rounded-md border border-axc-border bg-white px-4 text-[12px] font-medium text-axc-dark-gray transition-colors hover:bg-axc-light-bg cursor-pointer">
+        <MenuButton className="flex h-[38px] items-center gap-2 rounded-md border border-axc-border bg-white px-4 text-sm font-medium text-axc-dark-gray transition-colors hover:bg-axc-light-bg cursor-pointer">
           <MoreVertical className="h-4 w-4" />
           {title}
         </MenuButton>
@@ -54,9 +54,8 @@ export default function Dropdown({
                     <button
                       type="button"
                       onClick={item.onClick}
-                      className={`flex w-full items-center gap-3 px-4 py-3 text-left text-[14px] font-medium text-gray-700 transition-colors ${
-                        focus ? "bg-gray-50/90 text-gray-900" : ""
-                      }`}
+                      className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-gray-700 transition-colors ${focus ? "bg-gray-50/90 text-gray-900" : ""
+                        }`}
                     >
                       {item.icon}
                       <span>{item.label}</span>
@@ -77,11 +76,10 @@ export default function Dropdown({
     <Listbox value={value || ""} onChange={onChange} disabled={disabled}>
       <div className="relative w-full">
         <ListboxButton
-          className={`relative w-full text-left border rounded-md px-3 py-2.5 outline-none flex items-center justify-between text-[13px] font-normal transition ${
-            disabled
+          className={`relative w-full text-left border rounded-md px-3 py-2.5 outline-none flex items-center justify-between text-sm font-normal transition ${disabled
               ? "bg-gray-50 border-axc-border text-gray-400 cursor-not-allowed"
               : "bg-white border-axc-border text-gray-700 cursor-pointer"
-          } ${className}`}
+            } ${className}`}
         >
           <span className={`block truncate ${selectedOption ? "text-gray-800 font-medium" : "text-gray-400"}`}>
             {selectedOption ? selectedOption.label : placeholder}
@@ -104,7 +102,7 @@ export default function Dropdown({
                   <ListboxOption
                     key={option.value}
                     value={option.value}
-                    className="relative cursor-pointer select-none py-3 px-4 text-[#374151] data-[focus]:bg-[#F9FAFB] data-[selected]:bg-[#F9FAFB] data-[selected]:font-semibold data-[selected]:text-axc-navy text-[14px] font-medium transition-colors flex items-center justify-between"
+                    className="relative cursor-pointer select-none py-1 px-4 text-black data-[focus]:bg-[#F9FAFB] data-[selected]:bg-[#F9FAFB] data-[selected]:font-semibold data-[selected]:text-axc-navy text-xs font-medium transition-colors flex items-center justify-between"
                   >
                     <span className="block truncate">{option.label}</span>
                     {option.value === value && (

@@ -272,7 +272,7 @@ export default function FilterSearch({
                         fill="white"
                       />
                     </svg>
-                    <span className="text-[14px] font-bold text-gray-900 tracking-tight">
+                    <span className="text-sm font-bold text-black tracking-tight">
                       Filters
                     </span>
                   </div>
@@ -281,7 +281,7 @@ export default function FilterSearch({
                     <button
                       type="button"
                       onClick={handleReset}
-                      className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 cursor-pointer"
+                      className="text-[11px] font-semibold text-axc-navy hover:text-axc-navy-dark cursor-pointer"
                     >
                       Reset
                     </button>
@@ -311,7 +311,7 @@ export default function FilterSearch({
                               <div
                                 className={`h-4 w-4 rounded-[4px] border flex items-center justify-center shrink-0 transition-colors ${
                                   isChecked || (option.value === "Custom" && activeOptionsList.some(o => /^[A-Z][a-z]{2} \d{1,2}, \d{4} - [A-Z][a-z]{2} \d{1,2}, \d{4}$/.test(o)))
-                                    ? "border-blue-600 bg-blue-600 text-white"
+                                    ? "border-blue-600 bg-axc-navy text-white"
                                     : "border-gray-300 bg-white group-hover:border-gray-400"
                                 }`}
                               >
@@ -326,10 +326,10 @@ export default function FilterSearch({
 
                               {/* Value Label */}
                               <span
-                                className={`text-[13px] truncate transition-colors ${
+                                className={`text-sm truncate capitalize transition-colors ${
                                   isChecked
-                                    ? "font-semibold text-blue-600"
-                                    : "font-normal text-gray-700 group-hover:text-gray-900"
+                                    ? "font-semibold text-axc-navy"
+                                    : "font-normal text-axc-gray group-hover:text-gray-900"
                                 }`}
                               >
                                 {option.label}

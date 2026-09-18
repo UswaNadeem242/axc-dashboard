@@ -4,11 +4,11 @@ import CommonTable from "../../src/common/table";
 
 interface ManifestRow {
   id: number;
-  manifestedBy: string;
+  // manifestedBy: string;
   awbNumber: string;
   runNumber: string;
   manifestDate: string;
-  forwarder: string;
+  // forwarder: string;
   flightNumber: string;
   masterNumber: string;
   manifestNo: string;
@@ -19,11 +19,11 @@ interface ManifestRow {
 const manifestData: ManifestRow[] = [
   {
     id: 1,
-    manifestedBy: "PARCEL NUMBER",
+    // manifestedBy: "PARCEL NUMBER",
     awbNumber: "877045609300",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
-    forwarder: "",
+    // forwarder: "",
     flightNumber: "",
     masterNumber: "072 94910992",
     manifestNo: "1413",
@@ -32,11 +32,11 @@ const manifestData: ManifestRow[] = [
   },
   {
     id: 2,
-    manifestedBy: "PARCEL NUMBER",
+    // manifestedBy: "PARCEL NUMBER",
     awbNumber: "877045609296",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
-    forwarder: "",
+    // forwarder: "",
     flightNumber: "",
     masterNumber: "072 94910992",
     manifestNo: "1413",
@@ -45,11 +45,11 @@ const manifestData: ManifestRow[] = [
   },
   {
     id: 3,
-    manifestedBy: "PARCEL NUMBER",
+    // manifestedBy: "PARCEL NUMBER",
     awbNumber: "877045609285",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
-    forwarder: "",
+    // forwarder: "",
     flightNumber: "",
     masterNumber: "072 94910992",
     manifestNo: "1413",
@@ -58,11 +58,11 @@ const manifestData: ManifestRow[] = [
   },
   {
     id: 4,
-    manifestedBy: "PARCEL NUMBER",
+    // manifestedBy: "PARCEL NUMBER",
     awbNumber: "877045609274",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
-    forwarder: "",
+    // forwarder: "",
     flightNumber: "",
     masterNumber: "072 94910992",
     manifestNo: "1413",
@@ -71,11 +71,11 @@ const manifestData: ManifestRow[] = [
   },
   {
     id: 5,
-    manifestedBy: "PARCEL NUMBER",
+    // manifestedBy: "PARCEL NUMBER",
     awbNumber: "877045609263",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
-    forwarder: "",
+    // forwarder: "",
     flightNumber: "",
     masterNumber: "072 94910992",
     manifestNo: "1413",
@@ -84,11 +84,11 @@ const manifestData: ManifestRow[] = [
   },
   {
     id: 6,
-    manifestedBy: "PARCEL NUMBER",
+    // manifestedBy: "PARCEL NUMBER",
     awbNumber: "877045609252",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
-    forwarder: "",
+    // forwarder: "",
     flightNumber: "",
     masterNumber: "072 94910992",
     manifestNo: "1413",
@@ -97,11 +97,11 @@ const manifestData: ManifestRow[] = [
   },
   {
     id: 7,
-    manifestedBy: "PARCEL NUMBER",
+    // manifestedBy: "PARCEL NUMBER",
     awbNumber: "877045609241",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
-    forwarder: "",
+    // forwarder: "",
     flightNumber: "",
     masterNumber: "072 94910992",
     manifestNo: "1413",
@@ -110,11 +110,11 @@ const manifestData: ManifestRow[] = [
   },
   {
     id: 8,
-    manifestedBy: "PARCEL NUMBER",
+    // manifestedBy: "PARCEL NUMBER",
     awbNumber: "877045609230",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
-    forwarder: "",
+    // forwarder: "",
     flightNumber: "",
     masterNumber: "072 94910992",
     manifestNo: "1413",
@@ -123,11 +123,11 @@ const manifestData: ManifestRow[] = [
   },
   {
     id: 9,
-    manifestedBy: "PARCEL NUMBER",
+    // manifestedBy: "PARCEL NUMBER",
     awbNumber: "877045609220",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
-    forwarder: "",
+    // forwarder: "",
     flightNumber: "",
     masterNumber: "072 94910992",
     manifestNo: "1413",
@@ -136,11 +136,11 @@ const manifestData: ManifestRow[] = [
   },
   {
     id: 10,
-    manifestedBy: "PARCEL NUMBER",
+    // manifestedBy: "PARCEL NUMBER",
     awbNumber: "877045609219",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
-    forwarder: "",
+    // forwarder: "",
     flightNumber: "",
     masterNumber: "072 94910992",
     manifestNo: "1413",
@@ -149,11 +149,11 @@ const manifestData: ManifestRow[] = [
   },
   {
     id: 11,
-    manifestedBy: "PARCEL NUMBER",
+    // manifestedBy: "PARCEL NUMBER",
     awbNumber: "877045609208",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
-    forwarder: "",
+    // forwarder: "",
     flightNumber: "",
     masterNumber: "072 94910992",
     manifestNo: "1413",
@@ -164,12 +164,12 @@ const manifestData: ManifestRow[] = [
 
 export default function ManifestDetailTable() {
   const headings = [
-    {
-      label: "Manifested By",
-      key: "manifestedBy",
-      align: "center" as const,
-      truncate: false,
-    },
+    // {
+    //   label: "Manifested By",
+    //   key: "AwbNuber",
+    //   align: "center" as const,
+    //   truncate: false,
+    // },
     {
       label: "AWB/Parcel/Forwording No.",
       key: "awbNumber",
@@ -198,12 +198,12 @@ export default function ManifestDetailTable() {
       align: "center" as const,
       truncate: false,
     },
-    {
-      label: "Forwarder",
-      key: "forwarder",
-      align: "center" as const,
-      truncate: false,
-    },
+    // {
+    //   label: "Forwarder",
+    //   key: "forwarder",
+    //   align: "center" as const,
+    //   truncate: false,
+    // },
     {
       label: "Flight Number",
       key: "flightNumber",

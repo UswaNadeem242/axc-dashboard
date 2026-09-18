@@ -43,8 +43,8 @@ export function DeliveryPanel({
   const deliverySummaryData: DeliverySummaryRow[] = [
     {
       label: "Expected Delivery Date",
-      customer: delivery.expectedDeliveryDateCustomer || "-",
-      vendor: delivery.expectedDeliveryDateVendor || "-",
+      customer: delivery.expectedDate || "-",
+      vendor: delivery.deliveryDate || "-",
       highlight: false,
     },
     {
