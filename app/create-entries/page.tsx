@@ -119,7 +119,7 @@ function CreateEntriesContent() {
 
                 <div className="flex flex-col gap-6 w-full">
                   <AirWaybillInformation form={form} setForm={setForm} errors={errors} />
-                  <ShipperFromForm form={form} setForm={setForm} errors={errors} onReset={resetShipper} showToast={showToast} />
+                  <ShipperFromForm form={form} setForm={setForm} onReset={resetShipper} showToast={showToast} />
                   <ConsigneeToForm form={form} setForm={setForm} errors={errors} onReset={resetConsignee} showToast={showToast} />
                 </div>
               </div>

@@ -166,34 +166,29 @@ export default function ActivityLogsTab() {
           />
         </div>
 
-        {/* <Dropdown
-          title="Actions"
-          items={[
-            { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: () => {} },
-            { label: "Print", icon: <Printer className="h-4 w-4" />, onClick: () => window.print() },
-            {
-              label: "Delete",
-              icon: <Trash2 className="h-4 w-4" />,
-              onClick: () => {
-                if (selectedIds.length === 0) {
-                  showToast("Please select at least one log to delete");
-                  return;
-                }
-                setBulkDeleteOpen(true);
-              },
-            },
-          ]}
-        />*/}
-       
-
         {selectedIds.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setSelectedIds([])}
-            className="flex items-center gap-2 rounded-md border border-axc-border px-3 py-2 text-[12px] font-medium text-axc-dark-gray"
-          >
-            {selectedIds.length} Selected
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => setSelectedIds([])}
+              className="flex items-center gap-2 rounded-md border border-axc-border px-3 py-2 text-[12px] font-medium text-axc-dark-gray"
+            >
+              {selectedIds.length} Selected
+            </button>
+
+            <Dropdown
+              title="Actions"
+              items={[
+                { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: () => {} },
+                { label: "Print", icon: <Printer className="h-4 w-4" />, onClick: () => window.print() },
+                {
+                  label: "Delete",
+                  icon: <Trash2 className="h-4 w-4" />,
+                  onClick: () => setBulkDeleteOpen(true),
+                },
+              ]}
+            />
+          </>
         )}
       </div>
 
