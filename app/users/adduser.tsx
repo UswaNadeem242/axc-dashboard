@@ -271,15 +271,16 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
             </div>
           </div>
 
-          <div className="flex gap-3 border-t border-axc-border ">
+          <div className="flex gap-3 justify-end border-t border-axc-border ">
             <button
               type="button"
               onClick={handleClose}
-              className="p-3 cursor-pointer flex-1 rounded-md border border-axc-border bg-white px-4 text-[12px] font-semibold text-axc-dark-gray hover:bg-axc-light-bg"
+              className="h-[38px] min-w-[100px] rounded-md border  cursor-pointer border-axc-border bg-white px-4 text-[12px] font-semibold text-axc-dark-gray hover:bg-axc-light-bg"
+
             >
               Cancel
             </button>
-            <button type="submit" className="p-3 cursor-pointer flex-1 rounded-md bg-axc-blue px-4 text-[12px] font-semibold text-white hover:bg-axc-blue-dark">
+            <button type="submit" className="h-[38px] min-w-[100px] curdor-pointer rounded-md bg-axc-blue px-4 text-[12px] font-semibold text-white hover:bg-axc-blue-dark">
               Create User
             </button>
           </div>
