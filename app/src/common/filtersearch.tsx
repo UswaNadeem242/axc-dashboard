@@ -31,6 +31,7 @@ interface FilterSearchProps {
   placeholder?: string;
   columnTitle?: string;
   className?: string;
+  searchSuggestions?: string[];
 }
 
 export default function FilterSearch({
@@ -46,6 +47,7 @@ export default function FilterSearch({
   placeholder = "Search...",
   columnTitle = "Filter By",
   className = "",
+  searchSuggestions,
 }: FilterSearchProps) {
   const allOptions: FilterOption[] = useMemo(() => {
     if (options && options.length > 0) return options;
@@ -116,6 +118,12 @@ export default function FilterSearch({
     return [];
   }, [groups, options, columnTitle]);
 
+  const filteredSuggestions = useMemo(() => {
+    if (!searchSuggestions || !searchValue) return [];
+    const lower = searchValue.toLowerCase();
+    return searchSuggestions.filter(s => s && s.toLowerCase().includes(lower)).slice(0, 10);
+  }, [searchSuggestions, searchValue]);
+
   return (
     <Popover className={`relative flex items-center ${className}`}>
       {({ open }) => (
@@ -177,6 +185,25 @@ export default function FilterSearch({
               </button>
             )}
 
+            {/* Search Suggestions Dropdown */}
+            {filteredSuggestions.length > 0 && (
+              <div className="absolute left-0 top-[110%] w-full z-[10000] bg-white border border-gray-200 rounded-md shadow-lg max-h-[300px] overflow-y-auto">
+                {filteredSuggestions.map((suggestion, idx) => (
+                  <div
+                    key={idx}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      onSearchChange(suggestion);
+                      if (onSearchSubmit) onSearchSubmit(suggestion);
+                    }}
+                    className="px-4 py-2 hover:bg-gray-50 cursor-pointer text-[13px] text-gray-800 border-b border-gray-100 last:border-none truncate"
+                  >
+                    {suggestion}
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Side Dropdown Chevron Trigger */}
             <PopoverButton
               className="flex h-full items-center px-3 text-gray-400 hover:text-gray-600 cursor-pointer outline-none select-none shrink-0 transition-colors"
@@ -194,7 +221,7 @@ export default function FilterSearch({
           {/* Dropdown Popover Panel - matches search bar width */}
           <PopoverPanel
             transition
-            className="absolute left-0 right-0 top-full mt-2 w-full min-w-full z-[9999] focus:outline-none transition ease-out duration-150 data-[closed]:opacity-0 data-[closed]:scale-95"
+            className="absolute left-0 top-full mt-2 w-max max-w-[90vw] min-w-full z-[9999] focus:outline-none transition ease-out duration-150 data-[closed]:opacity-0 data-[closed]:scale-95"
           >
             <div className="relative pt-2 w-full">
               {/* Top Arrow Pointer (Aligned under search input) */}
@@ -252,12 +279,12 @@ export default function FilterSearch({
                   )}
                 </div>
 
-                {/* Columns with Vertical Dividers */}
-                <div className="flex flex-row divide-x divide-gray-200 bg-white w-full">
+                {/* Horizontal Layout for Columns */}
+                <div className="flex flex-row divide-x divide-gray-200 bg-white w-full overflow-x-auto">
                   {columnsData.map((col, colIdx) => (
                     <div
                       key={`${col.title}-${colIdx}`}
-                      className="p-5 flex-1 min-w-0"
+                      className="px-4 py-3 shrink-0 w-max min-w-[110px]"
                     >
                       <h4 className="text-[13px] font-bold text-gray-900 mb-3 select-none">
                         {col.title}

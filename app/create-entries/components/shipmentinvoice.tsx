@@ -108,8 +108,9 @@ export default function ShipmentInvoiceSection({
           </div> */}
 
           <div className="">
-            <div className="bg-axc-navy/60 rounded-tl-lg rounded-tr-lg text-white text-regular-medium font-bold p-4 capitalize tracking-wide">
-              Shipment Invoice Items
+            <div className="bg-axc-navy/60 rounded-tl-lg rounded-tr-lg text-white   p-4 capitalize tracking-wide">
+              <h3>Shipment Invoice Items
+              </h3>
             </div>
             <div className="border border-axc-border border-t-0 overflow-x-auto p-4">
               <table className="w-full text-sm border-collapse min-w-[950px] border border-axc-border rounded-md p-4">
@@ -141,7 +142,7 @@ export default function ShipmentInvoiceSection({
                           }}
                           className="w-full py-2 !px-1.5 border-axc-border"
                           placeholder="Select..."
-                          options={[{ value: "1", label: "Box 1" }]}
+                          options={Array.from({ length: 50 }, (_, i) => ({ value: String(i + 1), label: `Box ${i + 1}` }))}
                         />
                       </td>
                       <td className="text-center bg-gray-50 text-gray-600 font-medium">{item.srNo}</td>

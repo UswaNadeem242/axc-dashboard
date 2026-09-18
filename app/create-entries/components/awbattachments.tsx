@@ -487,6 +487,7 @@ export function AwbAttachmentsTab({
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [activeFilter, setActiveFilter] = useState<"all" | "pdf" | "excel" | "uploaded">("all");
   const [savedVisible, setSavedVisible] = useState(false);
+  const [previewFile, setPreviewFile] = useState<File | null>(null);
 
   const handleUpload = (field: UploadField, file: File) => {
     const ext = file.name.toLowerCase();
@@ -557,11 +558,7 @@ export function AwbAttachmentsTab({
             error={errors[field.key]}
             onUpload={(f) => handleUpload(field, f)}
             onRemove={() => handleRemove(field.key)}
-            onPreview={(f) => {
-              const url = URL.createObjectURL(f);
-              window.open(url, "_blank", "noopener,noreferrer");
-              setTimeout(() => URL.revokeObjectURL(url), 10000);
-            }}
+            onPreview={(f) => setPreviewFile(f)}
           />
         ))}
       </div>
@@ -575,7 +572,7 @@ export function AwbAttachmentsTab({
         >
           Save Attachment
         </button>
-      </div> */}
+     
 
       {/* Modal File Preview Dialog */}
       <FilePreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />

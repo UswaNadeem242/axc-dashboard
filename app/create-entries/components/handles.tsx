@@ -103,7 +103,7 @@ const emptyForm: AwbFormState = {
   invoiceDeclaration: "UNSOLICITED GIFT SENT TO MY FRIENDS & FAMILY MEMBERS FOR THERE PERSONAL USE ONLY",
 };
 const emptyInvoiceItems: InvoiceItem[] = [
-  { id: 1, boxNo: "Select...", srNo: "1", description: "UNSOLICITED GIFT", hsCode: "", unitType: "PCS", quantity: "1", unitWeight: "", igst: "", unitRates: "", amount: "" },
+  { id: 1, boxNo: "1", srNo: "1", description: "UNSOLICITED GIFT", hsCode: "", unitType: "PCS", quantity: "1", unitWeight: "", igst: "", unitRates: "", amount: "" },
 ];
 export function useAwbEntryForm(editAwbId?: string | null) {
   const router = useRouter();
@@ -244,22 +244,29 @@ export function useAwbEntryForm(editAwbId?: string | null) {
     setInvoiceItems(emptyInvoiceItems);
   };
   const addInvoiceItem = () => {
-    setInvoiceItems((prev) => [
-      ...prev,
-      {
-        id: Date.now(),
-        boxNo: "Select...",
-        srNo: String(prev.length + 1),
-        description: "",
-        hsCode: "",
-        unitType: "Select...",
-        quantity: "",
-        unitWeight: "",
-        igst: "",
-        unitRates: "",
-        amount: "",
-      },
-    ]);
+    setInvoiceItems((prev) => {
+      const lastItem = prev[prev.length - 1];
+      const nextBoxNo = lastItem && !isNaN(Number(lastItem.boxNo)) 
+        ? String(Number(lastItem.boxNo) + 1) 
+        : "1";
+        
+      return [
+        ...prev,
+        {
+          id: Date.now(),
+          boxNo: nextBoxNo,
+          srNo: String(prev.length + 1),
+          description: "",
+          hsCode: "",
+          unitType: "PCS",
+          quantity: "",
+          unitWeight: "",
+          igst: "",
+          unitRates: "",
+          amount: "",
+        },
+      ];
+    });
   };
   const removeInvoiceItem = (id: number) => {
     setInvoiceItems((prev) => (prev.length > 1 ? prev.filter((item) => item.id !== id) : prev));

@@ -1372,18 +1372,6 @@ export const awbFilterCategories: FilterGroupOption[] = [
 
 export const awbFilterGroups: FilterGroupOption[] = [
   {
-    group: "By Status",
-    options: [
-      { label: "Origin Hub Code", value: "Origin Hub Code" },
-      { label: "AWB State", value: "AWB State" },
-      { label: "PRINT BY COMPANY", value: "PRINT BY COMPANY" },
-      { label: "COMPANY", value: "COMPANY" },
-      { label: "SHIPMENT TYPE", value: "SHIPMENT TYPE" },
-      { label: "SERVICE TYPE", value: "SERVICE TYPE" },
-      { label: "AWB STATUS", value: "AWB STATUS" },
-    ],
-  },
-  {
     group: "AWB STATUS",
     options: [
       { label: "OPEN", value: "OPEN" },
@@ -1446,20 +1434,6 @@ export const awbFilterGroups: FilterGroupOption[] = [
       { label: "UNDELIVERED/INTRANSIT-RTO", value: "UNDELIVERED/INTRANSIT-RTO" },
       { label: "UNDELIVERED/RESCHEDULE", value: "UNDELIVERED/RESCHEDULE" },
       { label: "RTO/TO SHIPPER", value: "RTO/TO SHIPPER" },
-    ],
-  },
-  {
-    group: "PRINT BY COMPANY",
-    options: [
-      { label: "AMERICAN XPRESS COURIER - AXC INC", value: "AMERICAN XPRESS COURIER - AXC INC" },
-      { label: "AX COURIER LOGISTICS - AX COURIER LOGISTICS", value: "AX COURIER LOGISTICS - AX COURIER LOGISTICS" },
-    ],
-  },
-  {
-    group: "COMPANY",
-    options: [
-      { label: "AMERICAN XPRESS COURIER - AXC INC", value: "AMERICAN XPRESS COURIER - AXC INC" },
-      { label: "AX COURIER LOGISTICS - AX COURIER LOGISTICS", value: "AX COURIER LOGISTICS - AX COURIER LOGISTICS" },
     ],
   },
 ];
