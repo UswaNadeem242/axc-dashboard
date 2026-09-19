@@ -31,35 +31,37 @@ export default function UsersHeader() {
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col w-full">
-      <div className="rounded-md border border-axc-border bg-white px-5 pt-2 shrink-0">
-        <div className="flex gap-0 overflow-x-auto scrollbar-none">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.id;
+    <div className="flex flex-col gap-4 w-full h-full min-h-0 overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <div className="relative bg-white p-6 rounded-lg border border-gray-200 w-full flex-1 min-h-0 flex flex-col overflow-hidden">
+        <div className="bg-white border-b border-b-axc-border pb-0 shrink-0">
+          <div className="flex gap-4 overflow-x-auto scrollbar-none">
+            {tabs.map((tab) => {
+              const isActive = activeTab === tab.id;
 
-            return (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setActiveTab(tab.id)}
-                className={`relative shrink-0 px-4 py-4 text-[12px] font-semibold whitespace-nowrap transition-colors duration-150 cursor-pointer ${
-                  isActive ? "text-axc-blue" : "text-axc-gray hover:text-axc-blue"
-                }`}
-              >
-                {tab.label}
-                <span
-                  className={`absolute bottom-0 left-0 right-0 h-[2px] rounded-t transition-all duration-200 ${
-                    isActive ? "bg-axc-blue opacity-100" : "opacity-0"
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`text-regular-medium relative shrink-0 flex items-center gap-1.5 px-4 py-4 whitespace-nowrap transition-colors duration-150 cursor-pointer ${
+                    isActive ? "text-axc-dark-gray" : "text-axc-gray hover:text-axc-dark-gray"
                   }`}
-                />
-              </button>
-            );
-          })}
+                >
+                  {tab.label}
+                  <span
+                    className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-t transition-all duration-200 ${
+                      isActive ? "bg-axc-navy opacity-100" : "opacity-0"
+                    }`}
+                  />
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      <div className="mt-3 flex-1 min-h-0 overflow-y-auto rounded-lg border border-axc-border bg-white p-4 scrollbar-none">
-        {renderContent()}
+        <div className="flex-1 min-h-0 overflow-y-auto mt-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          {renderContent()}
+        </div>
       </div>
     </div>
   );
