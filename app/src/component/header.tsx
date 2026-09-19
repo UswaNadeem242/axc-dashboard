@@ -84,16 +84,16 @@ export default function Header() {
                   <span>User & Roles</span>
                 </Link>
 
-                {/* Settings 
+                {/* Settings */}
                 <Link
-                  href="#"
+                  href="/setting"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors group"
                 >
                   <Settings size={18} className="text-navy shrink-0 stroke-[1.8]" />
                   <span>Settings</span>
                 </Link>
-                */}
+                
 
                 {/* Logout */}
                 <button
