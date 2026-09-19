@@ -326,7 +326,7 @@ export default function FilterSearch({
 
                               {/* Value Label */}
                               <span
-                                className={`text-sm truncate capitalize transition-colors ${
+                                className={`text-xs truncate capitalize transition-colors ${
                                   isChecked
                                     ? "font-semibold text-axc-navy"
                                     : "font-normal text-axc-gray group-hover:text-gray-900"

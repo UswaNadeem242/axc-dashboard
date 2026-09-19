@@ -8,19 +8,21 @@ interface ManifestRow {
   awbNumber: string;
   runNumber: string;
   manifestDate: string;
-  // forwarder: string;
+  forwarder: string;
   flightNumber: string;
   masterNumber: string;
   manifestNo: string;
   bagNumber: string;
   originHub: string;
+
 }
 
 const manifestData: ManifestRow[] = [
   {
     id: 1,
+    awbNumber: '14066A',
     // manifestedBy: "PARCEL NUMBER",
-    awbNumber: "877045609300",
+    forwarder: "877045609300",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
     // forwarder: "",
@@ -32,8 +34,8 @@ const manifestData: ManifestRow[] = [
   },
   {
     id: 2,
-    // manifestedBy: "PARCEL NUMBER",
-    awbNumber: "877045609296",
+    awbNumber: '14066A',
+    forwarder: "877045609296",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
     // forwarder: "",
@@ -46,7 +48,8 @@ const manifestData: ManifestRow[] = [
   {
     id: 3,
     // manifestedBy: "PARCEL NUMBER",
-    awbNumber: "877045609285",
+    awbNumber: '14066A',
+    forwarder: "877045609296",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
     // forwarder: "",
@@ -59,7 +62,8 @@ const manifestData: ManifestRow[] = [
   {
     id: 4,
     // manifestedBy: "PARCEL NUMBER",
-    awbNumber: "877045609274",
+    awbNumber: '14066A',
+    forwarder: "877045609296",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
     // forwarder: "",
@@ -72,7 +76,8 @@ const manifestData: ManifestRow[] = [
   {
     id: 5,
     // manifestedBy: "PARCEL NUMBER",
-    awbNumber: "877045609263",
+    awbNumber: '14066A',
+    forwarder: "877045609296",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
     // forwarder: "",
@@ -85,7 +90,8 @@ const manifestData: ManifestRow[] = [
   {
     id: 6,
     // manifestedBy: "PARCEL NUMBER",
-    awbNumber: "877045609252",
+    awbNumber: '14066A',
+    forwarder: "877045609296",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
     // forwarder: "",
@@ -98,7 +104,8 @@ const manifestData: ManifestRow[] = [
   {
     id: 7,
     // manifestedBy: "PARCEL NUMBER",
-    awbNumber: "877045609241",
+    awbNumber: '14066A',
+    forwarder: "877045609296",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
     // forwarder: "",
@@ -111,7 +118,8 @@ const manifestData: ManifestRow[] = [
   {
     id: 8,
     // manifestedBy: "PARCEL NUMBER",
-    awbNumber: "877045609230",
+    awbNumber: '14066A',
+    forwarder: "877045609296",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
     // forwarder: "",
@@ -124,7 +132,8 @@ const manifestData: ManifestRow[] = [
   {
     id: 9,
     // manifestedBy: "PARCEL NUMBER",
-    awbNumber: "877045609220",
+    awbNumber: '14066A',
+    forwarder: "877045609296",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
     // forwarder: "",
@@ -137,7 +146,8 @@ const manifestData: ManifestRow[] = [
   {
     id: 10,
     // manifestedBy: "PARCEL NUMBER",
-    awbNumber: "877045609219",
+    awbNumber: '14066A',
+    forwarder: "877045609296",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
     // forwarder: "",
@@ -150,7 +160,8 @@ const manifestData: ManifestRow[] = [
   {
     id: 11,
     // manifestedBy: "PARCEL NUMBER",
-    awbNumber: "877045609208",
+    awbNumber: '14066A',
+    forwarder: "877045609296",
     runNumber: "AXC SIALKOT RUN 505",
     manifestDate: "13/09/2026",
     // forwarder: "",
@@ -164,20 +175,25 @@ const manifestData: ManifestRow[] = [
 
 export default function ManifestDetailTable() {
   const headings = [
-    // {
-    //   label: "Manifested By",
-    //   key: "AwbNuber",
-    //   align: "center" as const,
-    //   truncate: false,
-    // },
     {
-      label: "AWB/Parcel/Forwording No.",
-      key: "awbNumber",
+      label: "Awb Number",
+      key: "AwbNumber",
       align: "center" as const,
       truncate: false,
       render: (row: ManifestRow) => (
         <span className="text-axc-blue font-medium cursor-pointer hover:text-black">
           {row.awbNumber}
+        </span>
+      ),
+    },
+    {
+      label: "AWB/Parcel/Forwording No.",
+      key: "forwarder",
+      align: "center" as const,
+      truncate: false,
+      render: (row: ManifestRow) => (
+        <span className="text-axc-blue font-medium cursor-pointer hover:text-black">
+          {row.forwarder}
         </span>
       ),
     },
@@ -243,7 +259,7 @@ export default function ManifestDetailTable() {
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      
+
       <CommonTable
         headings={headings}
         data={manifestData}

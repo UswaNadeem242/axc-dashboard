@@ -1421,6 +1421,23 @@ export const awbFilterGroups: FilterGroupOption[] = [
     ],
   },
   {
+    group: "Origin Hub",
+    options: [
+      { label: "CANADA", value: "CANADA" },
+      { label: "DELHI", value: "DELHI" },
+      { label: "DHAKA", value: "DHAKA" },
+      { label: "DUBAI", value: "DUBAI" },
+      { label: "ISLAMABAD", value: "ISLAMABAD" },
+      { label: "JFK", value: "JFK" },
+      { label: "KARACHI", value: "KARACHI" },
+      { label: "KATHMANDU", value: "KATHMANDU" },
+      { label: "LAHORE", value: "LAHORE" },
+      { label: "MUMBAI", value: "MUMBAI" },
+      { label: "PESHAWAR", value: "PESHAWAR" },
+      { label: "SIALKOT", value: "SIALKOT" },
+    ],
+  },
+  {
     group: "AWB STATUS",
     options: [
       { label: "OPEN", value: "OPEN" },
@@ -1444,23 +1461,7 @@ export const awbFilterGroups: FilterGroupOption[] = [
       { label: "COMMERCIAL", value: "COMMERCIAL" },
     ],
   },
-   {
-    group: "Origin Hub",
-    options: [
-      { label: "CANADA", value: "CANADA" },
-      { label: "DELHI", value: "DELHI" },
-      { label: "DHAKA", value: "DHAKA" },
-      { label: "DUBAI", value: "DUBAI" },
-      { label: "ISLAMABAD", value: "ISLAMABAD" },
-      { label: "JFK", value: "JFK" },
-      { label: "KARACHI", value: "KARACHI" },
-      { label: "KATHMANDU", value: "KATHMANDU" },
-      { label: "LAHORE", value: "LAHORE" },
-      { label: "MUMBAI", value: "MUMBAI" },
-      { label: "PESHAWAR", value: "PESHAWAR" },
-      { label: "SIALKOT", value: "SIALKOT" },
-    ],
-  }, 
+
 
   {
     group: "AWB State",
