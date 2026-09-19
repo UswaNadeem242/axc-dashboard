@@ -76,9 +76,9 @@ export default function Dropdown({
     <Listbox value={value || ""} onChange={onChange} disabled={disabled}>
       <div className="relative w-full">
         <ListboxButton
-          className={`relative w-full text-left border rounded-md px-3 py-2.5 outline-none flex items-center justify-between text-sm font-normal transition ${disabled
-              ? "bg-gray-50 border-axc-border text-gray-400 cursor-not-allowed"
-              : "bg-white border-axc-border text-gray-700 cursor-pointer"
+          className={`relative w-full text-left border rounded-md px-3 py-2.5 outline-none placeholder:text-regular-small flex items-center justify-between text-sm font-normal transition ${disabled
+            ? "bg-gray-50 border-axc-border text-gray-400 cursor-not-allowed"
+            : "bg-white border-axc-border text-gray-700 cursor-pointer"
             } ${className}`}
         >
           <span className={`block truncate ${selectedOption ? "text-gray-800 font-medium" : "text-gray-400"}`}>

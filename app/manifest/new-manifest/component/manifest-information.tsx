@@ -109,39 +109,23 @@ export default function ManifestInformation({
           {/* 1. FORWARDER */}
           <div className="flex flex-col gap-1">
             <FieldLabel>Forwarder</FieldLabel>
-            <div className="flex gap-2">
-              <input
-                value={form.forwarderCode || ""}
-                onChange={(e) => updateField("forwarderCode", e.target.value)}
-                className={`${inputClass} w-2/5`}
-                placeholder="Forwarder"
-              />
-              <input
-                disabled
-                value={form.forwarder}
-                className={`${disabledInputClass} w-3/5`}
-                placeholder="Forwarder Name"
-              />
-            </div>
+            <input
+              value={form.forwarderCode || ""}
+              onChange={(e) => updateField("forwarderCode", e.target.value)}
+              className={inputClass}
+              placeholder="Forwarder"
+            />
           </div>
 
           {/* 2. VENDOR */}
           <div className="flex flex-col gap-1">
             <FieldLabel>Vendor</FieldLabel>
-            <div className="flex gap-2">
-              <input
-                value={form.vendorCode || ""}
-                onChange={(e) => updateField("vendorCode", e.target.value)}
-                className={`${inputClass} w-2/5`}
-                placeholder="Vender"
-              />
-              <input
-                disabled
-                value={form.vendor}
-                className={`${disabledInputClass} w-3/5`}
-                placeholder="Vendor Name"
-              />
-            </div>
+            <input
+              value={form.vendorCode || ""}
+              onChange={(e) => updateField("vendorCode", e.target.value)}
+              className={inputClass}
+              placeholder="Vendor"
+            />
           </div>
 
           {/* 3. RUN NUMBER */}
@@ -173,7 +157,7 @@ export default function ManifestInformation({
                 value={form.flightNo}
                 onChange={(val) => updateField("flightNo", val)}
                 disabled={!form.editFlightNo}
-                placeholder="SELECT FLIGHT NO..."
+                placeholder="Select Flight No..."
                 options={[
                   { value: "AI-101", label: "AI-101" },
                   { value: "EK-501", label: "EK-501" },

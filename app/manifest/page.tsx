@@ -15,7 +15,7 @@ export default function AllManifestPage() {
   const router = useRouter();
   const [data, setData] = useState<ManifestEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState("");
+
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
@@ -51,9 +51,12 @@ export default function AllManifestPage() {
   }, [data]);
 
   const handleSearchSubmit = (val: string) => {
-    const trimmed = val.trim();
-    if (trimmed && !activeTags.includes(trimmed)) {
-      setActiveTags((prev) => [...prev, trimmed]);
+    const values = val.split(",").map((v) => v.trim()).filter(Boolean);
+    if (values.length > 0) {
+      setActiveTags((prev) => {
+        const newTags = values.filter((v) => !prev.includes(v));
+        return [...prev, ...newTags];
+      });
       setSearchQuery("");
     }
   };
@@ -95,24 +98,84 @@ export default function AllManifestPage() {
 
   const filteredData = data.filter((item) => {
     const query = searchQuery.toLowerCase();
-    const matchesQuery =
-      !query ||
-      item.manifestNo.toLowerCase().includes(query) ||
-      item.runNumber.toLowerCase().includes(query) ||
-      item.originHubCode.toLowerCase().includes(query) ||
-      item.destinationHubCode.toLowerCase().includes(query) ||
-      item.destinationHubName.toLowerCase().includes(query);
 
-    const matchesTags = activeTags.every((tag) => {
-      const t = tag.toLowerCase();
+    const checkMatch = (searchStr: string) => {
+      if (!searchStr) return true;
+      const raw = searchStr.toLowerCase();
+
+      if (raw === "custom") return true;
+
+      if (raw === "today" || raw === "yesterday" || raw === "last 7 days") {
+        const checkDate = (dateStr?: string) => {
+          if (!dateStr) return false;
+          const parts = dateStr.split(/[-/]/);
+          if (parts.length !== 3) return false;
+          const [d, m, y] = parts;
+          
+          const itemDate = new Date(Number(y), Number(m) - 1, Number(d));
+          itemDate.setHours(0, 0, 0, 0);
+          
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+          
+          const last7Days = new Date(today);
+          last7Days.setDate(last7Days.getDate() - 7);
+
+          if (raw === "today") return itemDate.getTime() === today.getTime();
+          if (raw === "yesterday") return itemDate.getTime() === yesterday.getTime();
+          if (raw === "last 7 days") return itemDate >= last7Days && itemDate <= today;
+          return false;
+        };
+        return checkDate(item.manifestDate);
+      }
+
+      const dateRangeRegex = /^[a-z]{3} \d{1,2}, \d{4} - [a-z]{3} \d{1,2}, \d{4}$/i;
+      if (dateRangeRegex.test(raw)) {
+        const parts = raw.split(" - ");
+        if (parts.length === 2) {
+          const checkCustomDate = (dateStr?: string) => {
+            if (!dateStr) return false;
+            const dateParts = dateStr.split(/[-/]/);
+            if (dateParts.length !== 3) return false;
+            const [d, m, y] = dateParts;
+            const itemDate = new Date(Number(y), Number(m) - 1, Number(d));
+            itemDate.setHours(0, 0, 0, 0);
+
+            const start = new Date(parts[0]);
+            start.setHours(0, 0, 0, 0);
+            const end = new Date(parts[1]);
+            end.setHours(23, 59, 59, 999);
+
+            return itemDate >= start && itemDate <= end;
+          };
+          return checkCustomDate(item.manifestDate);
+        }
+      }
+
       return (
-        item.manifestNo.toLowerCase().includes(t) ||
-        item.runNumber.toLowerCase().includes(t) ||
-        item.originHubCode.toLowerCase().includes(t) ||
-        item.destinationHubCode.toLowerCase().includes(t) ||
-        item.destinationHubName.toLowerCase().includes(t)
+        item.manifestNo.toLowerCase().includes(searchStr) ||
+        item.runNumber.toLowerCase().includes(searchStr) ||
+        item.originHubCode.toLowerCase().includes(searchStr) ||
+        item.destinationHubCode.toLowerCase().includes(searchStr) ||
+        item.destinationHubName.toLowerCase().includes(searchStr)
       );
-    });
+    };
+
+    const matchesQuery = (() => {
+      if (!query) return true;
+      const queries = query.split(",").map(q => q.trim()).filter(Boolean);
+      if (queries.length === 0) return true;
+      return queries.some(q => checkMatch(q));
+    })();
+
+    const matchesTags = activeTags.length === 0 || activeTags.some((tag) => checkMatch(tag.toLowerCase()));
+
+    if (activeTags.length > 0 && query) {
+      return matchesQuery || matchesTags;
+    }
 
     return matchesQuery && matchesTags;
   });
@@ -121,7 +184,35 @@ export default function AllManifestPage() {
 
   useEffect(() => {
     setPage(1);
-  }, [searchQuery]);
+  }, [searchQuery, activeTags]);
+
+  const filterGroups = React.useMemo(() => {
+    const origins = Array.from(new Set(data.map((d) => d.originHubCode).filter(Boolean)));
+    const originOptions = origins.map((o) => ({ label: o, value: o }));
+
+    const destinations = Array.from(new Set(data.map((d) => d.destinationHubName).filter(Boolean)));
+    const destinationOptions = destinations.map((d) => ({ label: d, value: d }));
+
+    return [
+      {
+        group: "By Date",
+        options: [
+          { label: "Custom", value: "Custom" },
+          { label: "Today", value: "Today" },
+          { label: "Yesterday", value: "Yesterday" },
+          { label: "Last 7 days", value: "Last 7 days" },
+        ],
+      },
+      {
+        group: "Origin Hub",
+        options: originOptions,
+      },
+      {
+        group: "Destination Hub",
+        options: destinationOptions,
+      },
+    ];
+  }, [data]);
 
   return (
     <div className="relative bg-white p-3 rounded-[8px] w-full h-[calc(100vh-160px)] flex flex-col  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
@@ -131,14 +222,9 @@ export default function AllManifestPage() {
             <span className="text-xs font-semibold text-axc-gray">{selectedIds.length} selected</span>
           )}
           <FilterSearch
-            options={[
-              { label: "Select", value: "" },
-              { label: "Manifest No.", value: "manifestNo" },
-              { label: "Origin Hub", value: "originHubCode" },
-              { label: "Destination Hub", value: "destinationHubCode" },
-            ]}
-            selectedOption={filterType}
-            onOptionChange={setFilterType}
+            groups={filterGroups}
+            selectedOptions={activeTags}
+            onOptionsChange={setActiveTags}
             searchValue={searchQuery}
             onSearchChange={setSearchQuery}
             onSearchSubmit={handleSearchSubmit}

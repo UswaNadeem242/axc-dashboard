@@ -52,7 +52,7 @@ export default function CustomDateRangePicker({
               onApply(state[0].startDate, state[0].endDate);
             }
           }}
-          className="px-5 py-2 text-sm font-medium text-white bg-[#1a2d42] border border-transparent rounded-lg shadow-sm hover:bg-[#142334] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-900 transition-colors"
+          className="px-5 py-2 text-sm font-medium text-white bg-axc-navy  rounded-lg shadow-sm  cursor-pointer focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-900 transition-colors"
         >
           OK
         </button>
