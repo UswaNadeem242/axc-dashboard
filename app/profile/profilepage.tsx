@@ -11,17 +11,14 @@ interface ProfileViewProps {
   email?: string;
   username?: string;
   phone?: string;
-  addressLine1?: string;
-  addressLine2?: string;
   city?: string;
-  state?: string;
   country?: string;
-  zipCode?: string;
   bio?: string;
   avatarUrl?: string | null;
   lastLogin?: string;
   onEdit?: () => void;
 }
+
 function ReadOnlyField({
   label,
   value,
@@ -54,12 +51,8 @@ export default function ProfileView({
   email = "admin@admin.com",
   username = "super_admin",
   phone,
-  addressLine1,
-  addressLine2,
   city,
-  state,
   country,
-  zipCode,
   bio,
   avatarUrl,
   lastLogin,
@@ -68,6 +61,7 @@ export default function ProfileView({
   return (
     <div className="relative bg-white rounded-lg border border-axc-border shadow-sm flex flex-col w-full flex-1 min-h-0">
       <PanelHeader title="Profile Information" />
+
       <div className="m-6 p-6 flex items-center justify-between gap-4 rounded-md border border-axc-border">
         <div className="flex items-center gap-4">
           <div className="h-14 w-14 rounded-full overflow-hidden bg-gray-100 border border-axc-border flex items-center justify-center shrink-0">
@@ -129,25 +123,20 @@ export default function ProfileView({
           </div>
         )}
       </div>
+
       <div className="mx-6 mb-6 p-6 rounded-md border border-axc-border">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
           <ReadOnlyField label="First Name" value={firstName} />
           <ReadOnlyField label="Last Name" value={lastName} />
           <ReadOnlyField label="Username" value={username} />
+
           <ReadOnlyField label="Phone" value={phone} />
-          <ReadOnlyField label="Address Line 1" value={addressLine1} />
-          <ReadOnlyField label="Address Line 2" value={addressLine2} />
-        </div>
-
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 mt-4">
           <ReadOnlyField label="City" value={city} />
-          <ReadOnlyField label="State" value={state} />
           <ReadOnlyField label="Country" value={country} />
-          <ReadOnlyField label="ZIP Code" value={zipCode} />
-        </div>
 
-        <div className="mt-4">
-          <ReadOnlyField label="Bio" value={bio} multiline />
+          <div className="sm:col-span-2 lg:col-span-3">
+            <ReadOnlyField label="Bio" value={bio} multiline />
+          </div>
         </div>
       </div>
     </div>
