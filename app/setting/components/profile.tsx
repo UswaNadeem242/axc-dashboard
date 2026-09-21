@@ -101,7 +101,6 @@ export default function ProfileInformation({
       </div>
       {errors.avatar && <div className="px-6 pt-2"><FieldError message={errors.avatar} /></div>}
 
-
       <div className="mx-6 mb-6 p-6 rounded-md border border-axc-border">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-4">
           <div className="flex flex-col gap-1">
@@ -165,9 +164,7 @@ export default function ProfileInformation({
               placeholder="Enter address"
             />
           </div>
-        </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
           <div className="flex flex-col gap-1">
             <FieldLabel>City</FieldLabel>
             <input
@@ -177,6 +174,7 @@ export default function ProfileInformation({
               placeholder="City"
             />
           </div>
+
           <div className="flex flex-col gap-1">
             <FieldLabel>State</FieldLabel>
             <input
@@ -186,6 +184,7 @@ export default function ProfileInformation({
               placeholder="State"
             />
           </div>
+
           <div className="flex flex-col gap-1">
             <FieldLabel>Country</FieldLabel>
             <input
@@ -195,6 +194,7 @@ export default function ProfileInformation({
               placeholder="Country"
             />
           </div>
+
           <div className="flex flex-col gap-1">
             <FieldLabel>ZIP Code</FieldLabel>
             <input
@@ -204,18 +204,18 @@ export default function ProfileInformation({
               placeholder="ZIP"
             />
           </div>
-        </div>
 
-        <div className="flex flex-col gap-1">
-          <FieldLabel>Bio</FieldLabel>
-          <textarea
-            rows={5}
-            maxLength={500}
-            value={form.bio}
-            onChange={(e) => updateField("bio", e.target.value)}
-            className={`${inputClass} resize-none`}
-            placeholder="Maximum 500 words allowed"
-          />
+          <div className="flex flex-col gap-1 lg:col-span-3">
+            <FieldLabel>Bio</FieldLabel>
+            <textarea
+              rows={5}
+              maxLength={500}
+              value={form.bio}
+              onChange={(e) => updateField("bio", e.target.value)}
+              className={`${inputClass} resize-none`}
+              placeholder="Maximum 500 words allowed"
+            />
+          </div>
         </div>
       </div>
       <div className="flex justify-end gap-3 px-6 pb-6 pt-2">

@@ -77,7 +77,7 @@ export default function OrganizationInformation({
           <FieldError message={errors.logo} />
         </div>
       </div>
-    
+
       <div className="mx-6 mb-6 p-6 rounded-md border border-axc-border">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-4">
           <div className="flex flex-col gap-1">
@@ -163,9 +163,7 @@ export default function OrganizationInformation({
               placeholder="Enter address"
             />
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-4">
           <div className="flex flex-col gap-1">
             <FieldLabel>City</FieldLabel>
             <input
@@ -175,6 +173,7 @@ export default function OrganizationInformation({
               placeholder="Enter city"
             />
           </div>
+
           <div className="flex flex-col gap-1">
             <FieldLabel>State / Province</FieldLabel>
             <input
@@ -184,6 +183,7 @@ export default function OrganizationInformation({
               placeholder="Enter state"
             />
           </div>
+
           <div className="flex flex-col gap-1">
             <FieldLabel>ZIP / Postal Code</FieldLabel>
             <input

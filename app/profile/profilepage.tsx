@@ -2,7 +2,11 @@
 
 import React from "react";
 import { Mail, Building2, Pencil } from "lucide-react";
-import { FieldLabel, inputClass, PanelHeader } from "../setting/components/settingform";
+import {
+  FieldLabel,
+  inputClass,
+  PanelHeader,
+} from "../setting/components/settingform";
 
 interface ProfileViewProps {
   firstName?: string;
@@ -135,7 +139,8 @@ export default function ProfileView({
           <ReadOnlyField label="Country" value={country} />
 
           <div className="sm:col-span-2 lg:col-span-3">
-            <ReadOnlyField label="Bio" value={bio} multiline />
+              <ReadOnlyField label="Bio" value={bio} multiline />
+            
           </div>
         </div>
       </div>
