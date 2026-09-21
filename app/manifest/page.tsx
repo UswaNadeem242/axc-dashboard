@@ -111,16 +111,16 @@ export default function AllManifestPage() {
           const parts = dateStr.split(/[-/]/);
           if (parts.length !== 3) return false;
           const [d, m, y] = parts;
-          
+
           const itemDate = new Date(Number(y), Number(m) - 1, Number(d));
           itemDate.setHours(0, 0, 0, 0);
-          
+
           const today = new Date();
           today.setHours(0, 0, 0, 0);
-          
+
           const yesterday = new Date(today);
           yesterday.setDate(yesterday.getDate() - 1);
-          
+
           const last7Days = new Date(today);
           last7Days.setDate(last7Days.getDate() - 7);
 
@@ -215,7 +215,7 @@ export default function AllManifestPage() {
   }, [data]);
 
   return (
-    <div className="relative bg-white p-3 rounded-[8px] w-full h-[calc(100vh-160px)] flex flex-col  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
+    <div className="relative bg-white shadow-sm border border-axc-border p-4  rounded-lg w-full h-[calc(100vh-160px)] flex flex-col  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4 ">
         <div className="flex flex-wrap items-center gap-3">
           {selectedIds.length > 0 && (
