@@ -316,7 +316,7 @@ const CommonTable = ({
                   if (onItemsPerPageChange) onItemsPerPageChange(numVal);
                   if (onPageChange) onPageChange(1);
                 }}
-                className="h-6.5! py-0.5! px-2! text-sm font-medium"
+                className="h-9! py-2! px-3! text-sm font-medium"
               />
             </div>
           </div>
