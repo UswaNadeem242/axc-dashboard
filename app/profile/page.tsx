@@ -31,12 +31,11 @@ export default function ProfilePage() {
         email="admin@admin.com"
         username={profile.username}
         phone={profile.phone}
-        addressLine1={profile.addressLine1}
-        addressLine2={profile.addressLine2}
+      
         city={profile.city}
-        state={profile.state}
+      
         country={profile.country}
-        zipCode={profile.zipCode}
+       
         bio={profile.bio}
         avatarUrl={profile.avatarUrl}
         lastLogin="9/18/2026"

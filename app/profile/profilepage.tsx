@@ -23,12 +23,11 @@ interface ProfileViewProps {
   email?: string;
   username?: string;
   phone?: string;
-  addressLine1?: string;
-  addressLine2?: string;
+  
   city?: string;
-  state?: string;
+ 
   country?: string;
-  zipCode?: string;
+  
   bio?: string;
   avatarUrl?: string | null;
   lastLogin?: string;
@@ -78,12 +77,9 @@ export default function ProfileView({
   email = "admin@admin.com",
   username = "super_admin",
   phone,
-  addressLine1,
-  addressLine2,
+  
   city,
-  state,
   country,
-  zipCode,
   bio,
   avatarUrl,
   lastLogin,
@@ -154,14 +150,12 @@ export default function ProfileView({
           <InfoRow icon={<AtSign size={14} />} label="Username" value={username} />
 
           <InfoRow icon={<Phone size={14} />} label="Phone" value={phone} />
-          <InfoRow icon={<Home size={14} />} label="Address Line 1" value={addressLine1} />
-          <InfoRow icon={<Home size={14} />} label="Address Line 2" value={addressLine2} />
-
+         
           <InfoRow icon={<MapPin size={14} />} label="City" value={city} />
-          <InfoRow icon={<Flag size={14} />} label="State" value={state} />
+         
           <InfoRow icon={<Globe size={14} />} label="Country" value={country} />
 
-          <InfoRow icon={<Hash size={14} />} label="ZIP Code" value={zipCode} />
+
 
           <div className="sm:col-span-2 lg:col-span-3">
             <InfoRow icon={<FileText size={14} />} label="Bio" value={bio} />

@@ -167,7 +167,7 @@ export default function ProfileInformation({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
           <div className="flex flex-col gap-1">
             <FieldLabel>City</FieldLabel>
             <input
