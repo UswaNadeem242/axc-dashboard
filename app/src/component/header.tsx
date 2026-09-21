@@ -31,12 +31,14 @@ export default function Header() {
         <SearchInput value={searchQuery} onChange={setSearchQuery} />
       </div>
       <div className="flex items-center gap-5">
-        <div className="flex items-center gap-4 border-r border-gray-100 pr-5">
-          <NotificationDropdown />
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center bg-gray-200 rounded-full border border-axc-border">
+            <NotificationDropdown />
+          </div>
 
           <Link
             href="/setting"
-            className="flex h-9 w-9 items-center justify-center rounded-full text-axc-dark-gray hover:bg-gray-50 transition-colors"
+            className="flex h-9 w-9 items-center justify-center rounded-full border border-axc-border text-axc-dark-gray bg-gray-200 transition-colors"
             aria-label="Settings"
           >
             <Settings size={20} className="stroke-[1.8]" />
@@ -78,7 +80,7 @@ export default function Header() {
                 <Link
                   href="/profile"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors group"
+                  className="flex items-center gap-3.5 px-4 py-2 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors group"
                 >
                   <User size={18} className="text-navy shrink-0 stroke-[1.8]" />
                   <span>Profile</span>
@@ -86,7 +88,7 @@ export default function Header() {
                 <Link
                   href="/users"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors group"
+                  className="flex items-center gap-3.5 px-4 py-2 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors group"
                 >
                   <User size={18} className="text-navy shrink-0 stroke-[1.8]" />
                   <span>User & Roles</span>
@@ -95,7 +97,7 @@ export default function Header() {
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors w-full cursor-pointer group"
+                  className="flex items-center gap-3.5 px-4 py-2 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors w-full cursor-pointer group"
                 >
                   <LogOut size={18} className="text-navy shrink-0 stroke-[1.8]" />
                   <span>Logout</span>

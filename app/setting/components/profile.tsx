@@ -40,7 +40,7 @@ export default function ProfileInformation({
   return (
     <div className="bg-white rounded-lg border border-axc-border shadow-sm flex flex-col">
       <PanelHeader title="Profile Information" />
-      <div className="p-6 flex items-center justify-between gap-4 flex-wrap">
+      <div className="m-6 p-6 flex items-center justify-between gap-4 rounded-md border border-axc-border">
         <div className="flex items-center gap-4">
           <div className="relative shrink-0">
             <div className="h-14 w-14 rounded-full overflow-hidden bg-gray-100 border border-axc-border flex items-center justify-center">
@@ -52,7 +52,7 @@ export default function ProfileInformation({
                 />
               ) : (
                 <span className="text-lg font-bold text-gray-400">
-                  {(form.firstName || "").charAt(0).toUpperCase()}
+                  {(form.firstName || "S").charAt(0).toUpperCase()}
                 </span>
               )}
             </div>
@@ -100,9 +100,9 @@ export default function ProfileInformation({
         )}
       </div>
       {errors.avatar && <div className="px-6 pt-2"><FieldError message={errors.avatar} /></div>}
-     {/* <PanelHeader title={`User Information (${roleLabel})`} />*/}
 
-      <div className="p-6 flex flex-col gap-4">
+
+      <div className="mx-6 mb-6 p-6 rounded-md border border-axc-border">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-4">
           <div className="flex flex-col gap-1">
             <FieldLabel required>First Name</FieldLabel>

@@ -32,7 +32,7 @@ export default function OrganizationInformation({
   return (
     <div className="bg-white rounded-lg border border-axc-border shadow-sm flex flex-col">
       <PanelHeader title="Organization Information" />
-      <div className="p-6 flex items-center gap-4  flex-wrap">
+      <div className="m-6 p-6 flex items-center  gap-4 rounded-md border border-axc-border">
         <div className="h-16 w-16 rounded-lg bg-axc-navy flex items-center justify-center overflow-hidden shrink-0">
           {form.logoPreview ? (
             <img src={form.logoPreview} alt="Company Logo" className="h-full w-full object-cover" />
@@ -77,8 +77,8 @@ export default function OrganizationInformation({
           <FieldError message={errors.logo} />
         </div>
       </div>
-      {/*<PanelHeader title="Company Information" />*/}
-      <div className="p-6 flex flex-col gap-4">
+    
+      <div className="mx-6 mb-6 p-6 rounded-md border border-axc-border">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-4">
           <div className="flex flex-col gap-1">
             <FieldLabel required>Company Name</FieldLabel>

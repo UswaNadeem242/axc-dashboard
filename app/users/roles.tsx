@@ -5,6 +5,7 @@ import { Eye, Pencil, Plus, Shield, Trash2, Users, X } from "lucide-react";
 
 import PagesPermissionsModal, { PagePermission } from "./pagepermision";
 import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
+import { showToast } from "../src/common/toast";
 
 interface Role {
   id: number;
@@ -35,29 +36,13 @@ const initialRoles: Role[] = [
   { id: 2, name: "Admin", description: "Administrative access with limited deletion rights.", users: 3, status: true, permissions: defaultPermissions.map((p) => ({ ...p, delete: false })) },
   { id: 3, name: "Manager", description: "Management level access to day-to-day operations.", users: 5, status: true, permissions: defaultPermissions.map((p) => ({ ...p, add: false, delete: false })) },
 ];
-function Toast({ msg }: { msg: string }) {
-  return (
-    <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-2 rounded-lg bg-axc-green px-4 py-3 text-[13px] font-medium text-white shadow-lg">
-      <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-      </svg>
-      {msg}
-    </div>
-  );
-}
 
 export default function RolesTab() {
   const [roles, setRoles] = useState<Role[]>(initialRoles);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [isPermissionsOpen, setIsPermissionsOpen] = useState(false);
   const [deleteRole, setDeleteRole] = useState<Role | null>(null);
-  const [toast, setToast] = useState<string | null>(null);
   const [formOpen, setFormOpen] = useState<{ open: boolean; role?: Role | null }>({ open: false });
-
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2500);
-  };
 
   const handlePermissions = (role: Role) => {
     setSelectedRole(role);
@@ -67,20 +52,18 @@ export default function RolesTab() {
   const handleSavePermissions = (permissions: PagePermission[]) => {
     if (!selectedRole) return;
     setRoles((previous) => previous.map((role) => (role.id === selectedRole.id ? { ...role, permissions } : role)));
-    showToast("Permissions saved successfully");
+    showToast({ variant: "success", message: "Permissions saved successfully" });
   };
 
   const handleDeleteRole = () => {
     if (!deleteRole) return;
     setRoles((previous) => previous.filter((role) => role.id !== deleteRole.id));
-    showToast("Role deleted successfully");
+    showToast({ variant: "success", message: "Role deleted successfully" });
     setDeleteRole(null);
   };
 
   return (
     <div className="relative flex flex-col gap-6">
-      {toast && <Toast msg={toast} />}
-
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-[16px] font-semibold text-axc-dark-gray">Role management</h3>
@@ -163,13 +146,13 @@ export default function RolesTab() {
           onSave={(name, description) => {
             if (formOpen.role) {
               setRoles((prev) => prev.map((r) => (r.id === formOpen.role!.id ? { ...r, name, description } : r)));
-              showToast("Role updated");
+              showToast({ variant: "success", message: "Role updated" });
             } else {
               setRoles((prev) => [
                 ...prev,
                 { id: Date.now(), name, description, users: 0, status: true, permissions: defaultPermissions },
               ]);
-              showToast("Role created");
+              showToast({ variant: "success", message: "Role created" });
             }
             setFormOpen({ open: false });
           }}

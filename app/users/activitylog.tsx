@@ -8,6 +8,7 @@ import Dropdown from "../src/common/dropdown";
 import ToggleSwitch from "./toggleswitch";
 import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
 import CommonTable from "../src/common/table";
+import { showToast } from "../src/common/toast";
 
 interface ActivityLog {
   id: number;
@@ -43,31 +44,14 @@ function ModuleBadge({ module }: { module: string }) {
   );
 }
 
-function Toast({ msg }: { msg: string }) {
-  return (
-    <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-2 rounded-lg bg-axc-green px-4 py-3 text-[13px] font-medium text-white shadow-lg">
-      <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-      </svg>
-      {msg}
-    </div>
-  );
-}
-
 export default function ActivityLogsTab() {
   const [logs, setLogs] = useState<ActivityLog[]>(initialLogs);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
-  const [toast, setToast] = useState<string | null>(null);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const itemsPerPage = 10;
-
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2500);
-  };
 
   const filteredLogs = useMemo(() => {
     const value = search.trim().toLowerCase();
@@ -87,12 +71,16 @@ export default function ActivityLogsTab() {
 
   const toggleStatus = (id: number) => {
     setLogs((previous) => previous.map((log) => (log.id === id ? { ...log, isActive: !log.isActive } : log)));
-    showToast("Status updated successfully");
+    showToast({ variant: "success", message: "Status updated successfully" });
   };
 
   const handleBulkDeleteConfirm = () => {
+    const count = selectedIds.length;
     setLogs((previous) => previous.filter((log) => !selectedIds.includes(log.id)));
-    showToast(`${selectedIds.length} log(s) deleted successfully`);
+    showToast({
+      variant: "success",
+      message: `${count} ${count === 1 ? "log" : "logs"} deleted successfully`,
+    });
     setSelectedIds([]);
     setBulkDeleteOpen(false);
   };
@@ -152,8 +140,6 @@ export default function ActivityLogsTab() {
 
   return (
     <>
-      {toast && <Toast msg={toast} />}
-
       <div className="flex flex-wrap items-center gap-3 mb-4">
         <div className="w-[220px]">
           <SearchInput
@@ -206,7 +192,7 @@ export default function ActivityLogsTab() {
 
       <DeleteConfirmationDialog
         isOpen={bulkDeleteOpen}
-        itemName={`${selectedIds.length} selected activity log(s)`}
+        itemName={`${selectedIds.length} ${selectedIds.length === 1 ? "activity log" : "activity logs"}`}
         onCancel={() => setBulkDeleteOpen(false)}
         onConfirm={handleBulkDeleteConfirm}
       />
