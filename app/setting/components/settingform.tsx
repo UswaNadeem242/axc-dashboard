@@ -8,6 +8,10 @@ import {
   OrganizationFormErrors,
 } from "./settingstate";
 
+/* =========================================================
+   SHARED FIELD PRIMITIVES (moved in from formfield.tsx)
+========================================================= */
+
 export function EditCheckbox({
   active,
   onToggle,
@@ -86,10 +90,15 @@ export function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return <p className="text-[10px] text-axc-red font-semibold mt-1">{message}</p>;
 }
+
+/* ---------------------------------------------------------
+   FILE UPLOAD FIELD (restricted formats + per-file progress bar)
+--------------------------------------------------------- */
+
 interface UploadingFile {
   id: string;
   file: File;
-  uploaded: number; 
+  uploaded: number; // bytes uploaded so far
   status: "uploading" | "done" | "error";
   errorMessage?: string;
 }
@@ -99,9 +108,11 @@ function formatBytes(bytes: number) {
   const mb = bytes / (1024 * 1024);
   return `${mb < 10 ? mb.toFixed(1) : Math.round(mb)} MB`;
 }
+
+// Default: JPEG, PNG, PDF, SVG
 const DEFAULT_ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png", "application/pdf", "image/svg+xml"];
 const DEFAULT_ACCEPTED_LABEL = "JPEG, PNG, PDF and SVG formats, up to 10MB";
-const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024; 
+const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 export function FileUploadField({
   onFileChange,
@@ -296,8 +307,19 @@ export function PanelHeader({ title, right }: { title: string; right?: React.Rea
     </div>
   );
 }
+
+/* =========================================================
+   FORM HOOKS
+========================================================= */
+
+// same accepted-format convention already used in FileUploadField
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/svg+xml"];
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024; 
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
+
+/* =========================================================
+   PROFILE
+========================================================= */
+
 const emptyProfileForm: ProfileFormState = {
   firstName: "",
   lastName: "",
@@ -382,6 +404,10 @@ export function useProfileForm(initialAvatarUrl?: string) {
     handleCancel,
   };
 }
+
+/* =========================================================
+   ORGANIZATION
+========================================================= */
 
 const emptyOrganizationForm: OrganizationFormState = {
   companyName: "",

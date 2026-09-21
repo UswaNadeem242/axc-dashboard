@@ -33,7 +33,16 @@ export default function Header() {
       <div className="flex items-center gap-5">
         <div className="flex items-center gap-4 border-r border-gray-100 pr-5">
           <NotificationDropdown />
+
+          <Link
+            href="/setting"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-axc-dark-gray hover:bg-gray-50 transition-colors"
+            aria-label="Settings"
+          >
+            <Settings size={20} className="stroke-[1.8]" />
+          </Link>
         </div>
+
         <div ref={dropdownRef} className="relative inline-block">
           <button
             type="button"
@@ -66,15 +75,14 @@ export default function Header() {
             <div className="absolute right-0 z-50 mt-3 w-52 rounded-2xl border border-gray-200/90 bg-white shadow-xl overflow-visible animate-in fade-in zoom-in-95 duration-150">
               <div className="absolute -top-2 right-6 h-4 w-4 rotate-45 border-l border-t border-gray-200/90 bg-white" />
               <div className="relative z-10 overflow-hidden rounded-2xl divide-y divide-gray-100">
-                {/* My Profile 
                 <Link
-                  href="/users"
+                  href="/profile"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors group"
                 >
                   <User size={18} className="text-navy shrink-0 stroke-[1.8]" />
-                  <span>My Profile</span>
-                </Link>*/}
+                  <span>Profile</span>
+                </Link>
                 <Link
                   href="/users"
                   onClick={() => setIsOpen(false)}
@@ -84,27 +92,12 @@ export default function Header() {
                   <span>User & Roles</span>
                 </Link>
 
-                {/* Settings */}
-                <Link
-                  href="/setting"
-                  onClick={() => setIsOpen(false)}
-                  className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors group"
-                >
-                  <Settings size={18} className="text-navy shrink-0 stroke-[1.8]" />
-                  <span>Settings</span>
-                </Link>
-                
-
-                {/* Logout */}
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center gap-3.5 px-4 py-3 text-left text-[14px] font-medium text-gray-700 hover:bg-gray-50/90 transition-colors w-full cursor-pointer group"
                 >
-                  <LogOut
-                    size={18}
-                    className="text-navy shrink-0 stroke-[1.8]"
-                  />
+                  <LogOut size={18} className="text-navy shrink-0 stroke-[1.8]" />
                   <span>Logout</span>
                 </button>
               </div>

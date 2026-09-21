@@ -1,12 +1,12 @@
 "use client";
-import React from "react";
+import React, { useRef } from "react";
+import { Building2, Upload } from "lucide-react";
 import {
   FieldLabel,
   FieldError,
-  FileUploadField,
-  PanelHeader,
   inputClass,
   errorInputClass,
+  PanelHeader,
 } from "./settingform";
 import { OrganizationFormState, OrganizationFormErrors } from "./settingstate";
 
@@ -27,97 +27,81 @@ export default function OrganizationInformation({
   handleSaveChanges,
   handleCancel,
 }: OrganizationInformationProps) {
+  const logoInputRef = useRef<HTMLInputElement>(null);
+
   return (
     <div className="bg-white rounded-lg border border-axc-border shadow-sm flex flex-col">
       <PanelHeader title="Organization Information" />
+      <div className="p-6 flex items-center gap-4  flex-wrap">
+        <div className="h-16 w-16 rounded-lg bg-axc-navy flex items-center justify-center overflow-hidden shrink-0">
+          {form.logoPreview ? (
+            <img src={form.logoPreview} alt="Company Logo" className="h-full w-full object-cover" />
+          ) : (
+            <Building2 size={26} className="text-white" />
+          )}
+        </div>
 
-      <div className="p-5 grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-4 items-start">
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-2">
+          <div>
+            <p className="font-bold text-axc-dark-gray text-regular-small">Company Logo</p>
+            <p className="text-[11px] text-axc-gray">
+              Upload your company logo recommended size 400x400px
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => logoInputRef.current?.click()}
+              className="flex items-center gap-2 border border-axc-border text-axc-dark-gray text-regular-small px-4 py-2 rounded-lg cursor-pointer hover:bg-gray-50 transition"
+            >
+              <Upload size={14} />
+              Upload Logo
+            </button>
+            {form.logoPreview && (
+              <button
+                type="button"
+                onClick={() => handleLogoSelect(null)}
+                className="text-axc-red text-[11px] font-semibold cursor-pointer"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+          <input
+            ref={logoInputRef}
+            type="file"
+            accept="image/png,image/jpeg,image/svg+xml"
+            className="hidden"
+            onChange={(e) => handleLogoSelect(e.target.files?.[0] ?? null)}
+          />
+          <FieldError message={errors.logo} />
+        </div>
+      </div>
+      {/*<PanelHeader title="Company Information" />*/}
+      <div className="p-6 flex flex-col gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-4">
           <div className="flex flex-col gap-1">
             <FieldLabel required>Company Name</FieldLabel>
             <input
               value={form.companyName}
               onChange={(e) => updateField("companyName", e.target.value)}
               className={errors.companyName ? errorInputClass : inputClass}
-              placeholder="Name"
+              placeholder="Enter name"
             />
             <FieldError message={errors.companyName} />
           </div>
 
-          <div className="flex flex-col gap-1">
-            <FieldLabel required>Phone Number</FieldLabel>
-            <input
-              value={form.phoneNumber}
-              onChange={(e) => updateField("phoneNumber", e.target.value)}
-              className={errors.phoneNumber ? errorInputClass : inputClass}
-              placeholder="Value"
-            />
-            <FieldError message={errors.phoneNumber} />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <FieldLabel>Address Line 1</FieldLabel>
-            <input
-              value={form.addressLine1}
-              onChange={(e) => updateField("addressLine1", e.target.value)}
-              className={inputClass}
-              placeholder="Address"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <FieldLabel>City</FieldLabel>
-            <input
-              value={form.city}
-              onChange={(e) => updateField("city", e.target.value)}
-              className={inputClass}
-              placeholder="City"
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
             <FieldLabel required>Industry</FieldLabel>
             <input
               value={form.industry}
               onChange={(e) => updateField("industry", e.target.value)}
               className={errors.industry ? errorInputClass : inputClass}
-              placeholder="Industry"
+              placeholder="Enter industry"
             />
             <FieldError message={errors.industry} />
           </div>
 
-          <div className="flex flex-col gap-1">
-            <FieldLabel>Website URL</FieldLabel>
-            <input
-              value={form.websiteUrl}
-              onChange={(e) => updateField("websiteUrl", e.target.value)}
-              className={inputClass}
-              placeholder="URL here"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <FieldLabel>Address Line 2</FieldLabel>
-            <input
-              value={form.addressLine2}
-              onChange={(e) => updateField("addressLine2", e.target.value)}
-              className={inputClass}
-              placeholder="Address"
-            />
-          </div>
-
-          <div className="flex flex-col gap-1">
-            <FieldLabel>State / Province</FieldLabel>
-            <input
-              value={form.stateProvince}
-              onChange={(e) => updateField("stateProvince", e.target.value)}
-              className={inputClass}
-              placeholder="State"
-            />
-          </div>
-        </div>
-        <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
             <FieldLabel required>Email</FieldLabel>
             <input
@@ -130,47 +114,99 @@ export default function OrganizationInformation({
           </div>
 
           <div className="flex flex-col gap-1">
+            <FieldLabel required>Phone Number</FieldLabel>
+            <input
+              value={form.phoneNumber}
+              onChange={(e) => updateField("phoneNumber", e.target.value)}
+              className={errors.phoneNumber ? errorInputClass : inputClass}
+              placeholder="Enter value"
+            />
+            <FieldError message={errors.phoneNumber} />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <FieldLabel>Website URL</FieldLabel>
+            <input
+              value={form.websiteUrl}
+              onChange={(e) => updateField("websiteUrl", e.target.value)}
+              className={inputClass}
+              placeholder="Enter URL"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
             <FieldLabel>Country</FieldLabel>
             <input
               value={form.country}
               onChange={(e) => updateField("country", e.target.value)}
               className={inputClass}
-              placeholder="Country"
+              placeholder="Enter country"
             />
           </div>
 
+          <div className="flex flex-col gap-1">
+            <FieldLabel>Address Line 1</FieldLabel>
+            <input
+              value={form.addressLine1}
+              onChange={(e) => updateField("addressLine1", e.target.value)}
+              className={inputClass}
+              placeholder="Enter address"
+            />
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <FieldLabel>Address Line 2</FieldLabel>
+            <input
+              value={form.addressLine2}
+              onChange={(e) => updateField("addressLine2", e.target.value)}
+              className={inputClass}
+              placeholder="Enter address"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-4">
+          <div className="flex flex-col gap-1">
+            <FieldLabel>City</FieldLabel>
+            <input
+              value={form.city}
+              onChange={(e) => updateField("city", e.target.value)}
+              className={inputClass}
+              placeholder="Enter city"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <FieldLabel>State / Province</FieldLabel>
+            <input
+              value={form.stateProvince}
+              onChange={(e) => updateField("stateProvince", e.target.value)}
+              className={inputClass}
+              placeholder="Enter state"
+            />
+          </div>
           <div className="flex flex-col gap-1">
             <FieldLabel>ZIP / Postal Code</FieldLabel>
             <input
               value={form.zipPostalCode}
               onChange={(e) => updateField("zipPostalCode", e.target.value)}
               className={inputClass}
-              placeholder="Postal code"
+              placeholder="Enter code"
             />
           </div>
         </div>
-        <div className="col-span-1 lg:col-span-3 flex flex-col gap-1">
-          <FieldLabel>Company Logo</FieldLabel>
-          <FileUploadField
-            onFileChange={handleLogoSelect}
-            acceptedMimeTypes={["image/jpeg", "image/png", "image/svg+xml"]}
-            acceptedLabel="JPEG, PNG and SVG formats, up to 10MB (recommended 400x400px)"
-          />
-          <FieldError message={errors.logo} />
-        </div>
       </div>
-      <div className="flex justify-end gap-3 px-6 pb-5 pt-2">
+      <div className="flex justify-end gap-3 px-6 pb-6 pt-2">
         <button
           type="button"
           onClick={handleCancel}
-          className="border border-axc-border text-axc-dark-gray text-regular-small px-5 py-4 rounded-lg cursor-pointer hover:bg-gray-50 transition"
+          className="border border-axc-border text-axc-dark-gray text-regular-small px-5 py-2.5 rounded-lg cursor-pointer hover:bg-gray-50 transition"
         >
           Cancel
         </button>
         <button
           type="button"
           onClick={handleSaveChanges}
-          className="bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition"
+          className="bg-axc-navy text-white text-regular-small px-5 py-2.5 rounded-lg cursor-pointer transition"
         >
           Save Changes
         </button>

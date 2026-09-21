@@ -257,7 +257,7 @@ export default function UserTab() {
       <button
         type="button"
         onClick={() => setViewingUser(row)}
-        className="flex h-7 w-7 items-center justify-center rounded border border-axc-yellow text-axc-yellow hover:bg-axc-light-bg"
+        className="flex h-7 w-7 items-center justify-center rounded border border-axc-yellow text-axc-yellow cursor-pointer hover:bg-axc-light-bg"
         title="View"
       >
         <Eye className="h-3.5 w-3.5" />
@@ -265,7 +265,7 @@ export default function UserTab() {
       <button
         type="button"
         onClick={() => setDeleteUser(row)}
-        className="flex h-7 w-7 items-center justify-center rounded border border-axc-red text-axc-red hover:bg-red-50"
+        className="flex h-7 w-7 items-center justify-center rounded border border-axc-red text-axc-red cursor-pointer hover:bg-red-50"
         title="Delete"
       >
         <Trash2 className="h-3.5 w-3.5" />

@@ -117,7 +117,7 @@ export default function RolesTab() {
                     <button
                       type="button"
                       onClick={() => setFormOpen({ open: true, role })}
-                      className="rounded-md p-1.5 transition-colors hover:bg-white/60"
+                      className="rounded-md p-1.5 transition-colors cursor-pointer hover:bg-white/60"
                       title="Edit Role"
                     >
                       <Pencil className="h-4 w-4 text-axc-dark-gray" />
@@ -125,7 +125,7 @@ export default function RolesTab() {
                     <button
                       type="button"
                       onClick={() => setDeleteRole(role)}
-                      className="rounded-md p-1.5 transition-colors hover:bg-white/60"
+                      className="rounded-md p-1.5 transition-colors cursor-pointer hover:bg-white/60"
                       title="Delete Role"
                     >
                       <Trash2 className="h-4 w-4 text-axc-red" />
@@ -144,7 +144,7 @@ export default function RolesTab() {
                   <button
                     type="button"
                     onClick={() => handlePermissions(role)}
-                    className="flex items-center gap-1 text-[12px] font-medium text-axc-blue"
+                    className="flex items-center gap-1 text-[12px] font-medium  cursor-pointer text-axc-blue"
                   >
                     <Eye className="h-4 w-4" />
                     <span>View Permissions</span>
@@ -192,7 +192,6 @@ export default function RolesTab() {
   );
 }
 
-// ─── Add / Edit Role side panel ────────────────────────────────────────────────
 function RoleFormPanel({
   role,
   onClose,
