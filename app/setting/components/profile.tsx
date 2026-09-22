@@ -40,7 +40,7 @@ export default function ProfileInformation({
   return (
     <div className="bg-white rounded-lg border border-axc-border shadow-sm flex flex-col">
       <PanelHeader title="Profile Information" />
-      <div className="m-6 p-6 flex items-center justify-between gap-4 rounded-md border border-axc-border">
+      <div className="m-6 p-4 flex items-center justify-between gap-4 rounded-md border border-axc-border">
         <div className="flex items-center gap-4">
           <div className="relative shrink-0">
             <div className="h-14 w-14 rounded-full overflow-hidden bg-gray-100 border border-axc-border flex items-center justify-center">
@@ -101,7 +101,7 @@ export default function ProfileInformation({
       </div>
       {errors.avatar && <div className="px-6 pt-2"><FieldError message={errors.avatar} /></div>}
 
-      <div className="mx-6 mb-6 p-6 rounded-md border border-axc-border">
+      <div className="mx-6 mb-6 p-4 rounded-md border border-axc-border">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-4">
           <div className="flex flex-col gap-1">
             <FieldLabel required>First Name</FieldLabel>

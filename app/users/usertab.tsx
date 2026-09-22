@@ -284,18 +284,20 @@ export default function UserTab() {
                 {selectedIds.length} Selected
               </button>
 
-              <Dropdown
-                title="Actions"
-                items={[
-                  { label: "Export", icon: <FileText className="h-4 w-4 " />, onClick: () => {} },
-                  { label: "Print", icon: <Printer className="h-4 w-4 " />, onClick: () => window.print() },
-                  {
-                    label: "Delete",
-                    icon: <Trash2 className="h-4 w-4 " />,
-                    onClick: () => setBulkDeleteOpen(true),
-                  },
-                ]}
-              />
+              <div className="[&_button]:cursor-pointer">
+                <Dropdown
+                  title="Actions"
+                  items={[
+                    { label: "Export", icon: <FileText className="h-4 w-4 " />, onClick: () => {} },
+                    { label: "Print", icon: <Printer className="h-4 w-4 " />, onClick: () => window.print() },
+                    {
+                      label: "Delete",
+                      icon: <Trash2 className="h-4 w-4 " />,
+                      onClick: () => setBulkDeleteOpen(true),
+                    },
+                  ]}
+                />
+              </div>
             </>
           )}
         </div>

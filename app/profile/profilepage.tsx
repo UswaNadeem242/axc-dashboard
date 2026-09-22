@@ -66,7 +66,7 @@ export default function ProfileView({
     <div className="relative bg-white rounded-lg border border-axc-border shadow-sm flex flex-col w-full flex-1 min-h-0">
       <PanelHeader title="Profile Information" />
 
-      <div className="m-6 p-6 flex items-center justify-between gap-4 rounded-md border border-axc-border">
+      <div className="m-6 p-4 flex items-center justify-between gap-4 rounded-md border border-axc-border">
         <div className="flex items-center gap-4">
           <div className="h-14 w-14 rounded-full overflow-hidden bg-gray-100 border border-axc-border flex items-center justify-center shrink-0">
             {avatarUrl ? (
@@ -128,7 +128,7 @@ export default function ProfileView({
         )}
       </div>
 
-      <div className="mx-6 mb-6 p-6 rounded-md border border-axc-border">
+      <div className="mx-6 mb-6 p-4 rounded-md border border-axc-border">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4">
           <ReadOnlyField label="First Name" value={firstName} />
           <ReadOnlyField label="Last Name" value={lastName} />
