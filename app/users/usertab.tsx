@@ -9,6 +9,7 @@ import ToggleSwitch from "./toggleswitch";
 import AddUserModal from "./adduser";
 import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
 import CommonTable from "../src/common/table";
+import { showToast } from "../src/common/toast";
 
 interface UserRow {
   id: number;
@@ -40,17 +41,6 @@ function RoleBadge({ role }: { role: string }) {
     <span className={`inline-flex rounded-full px-[10px] py-[4px] text-[10px] font-medium ${ROLE_COLORS[role] ?? "bg-axc-gray text-white"}`}>
       {role}
     </span>
-  );
-}
-
-function Toast({ msg }: { msg: string }) {
-  return (
-    <div className="fixed bottom-6 right-6 z-[100] flex items-center gap-2 rounded-lg bg-axc-green px-4 py-3 text-[13px] font-medium text-white shadow-lg">
-      <svg className="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-      </svg>
-      {msg}
-    </div>
   );
 }
 
@@ -106,8 +96,6 @@ function ViewUserModal({ user, onClose }: { user: UserRow | null; onClose: () =>
           <DetailRow label="Last Login" value={user.lastLogin} />
           <DetailRow label="Status" value={user.isActive ? "Active" : "Inactive"} />
         </div>
-
-        {/* Footer */}
         <div className="flex shrink-0 justify-end gap-3 border-t border-axc-border px-6 py-4">
           <button
             type="button"
@@ -127,18 +115,12 @@ export default function UserTab() {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
-  const [toast, setToast] = useState<string | null>(null);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
   const [viewingUser, setViewingUser] = useState<UserRow | null>(null);
   const [deleteUser, setDeleteUser] = useState<UserRow | null>(null);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const itemsPerPage = 10;
-
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2500);
-  };
 
   const filteredUsers = useMemo(() => {
     const value = search.trim().toLowerCase();
@@ -158,19 +140,23 @@ export default function UserTab() {
 
   const toggleStatus = (id: number) => {
     setUsers((previous) => previous.map((user) => (user.id === id ? { ...user, isActive: !user.isActive } : user)));
-    showToast("Status updated successfully");
+    showToast({ variant: "success", message: "Status updated successfully" });
   };
 
   const handleConfirmDelete = () => {
     if (!deleteUser) return;
     setUsers((previous) => previous.filter((user) => user.id !== deleteUser.id));
-    showToast("User deleted successfully");
+    showToast({ variant: "success", message: "User deleted successfully" });
     setDeleteUser(null);
   };
 
   const handleBulkDeleteConfirm = () => {
+    const count = selectedIds.length;
     setUsers((previous) => previous.filter((user) => !selectedIds.includes(user.id)));
-    showToast(`${selectedIds.length} user(s) deleted successfully`);
+    showToast({
+      variant: "success",
+      message: `${count} ${count === 1 ? "user" : "users"} deleted successfully`,
+    });
     setSelectedIds([]);
     setBulkDeleteOpen(false);
   };
@@ -194,7 +180,7 @@ export default function UserTab() {
         isActive: formData.status,
       },
     ]);
-    showToast("User created successfully");
+    showToast({ variant: "success", message: "User created successfully" });
     setIsAddUserOpen(false);
   };
 
@@ -257,7 +243,7 @@ export default function UserTab() {
       <button
         type="button"
         onClick={() => setViewingUser(row)}
-        className="flex h-7 w-7 items-center justify-center rounded border border-axc-yellow text-axc-yellow hover:bg-axc-light-bg"
+        className="flex h-7 w-7 items-center justify-center rounded border border-axc-yellow text-axc-yellow cursor-pointer hover:bg-axc-light-bg"
         title="View"
       >
         <Eye className="h-3.5 w-3.5" />
@@ -265,7 +251,7 @@ export default function UserTab() {
       <button
         type="button"
         onClick={() => setDeleteUser(row)}
-        className="flex h-7 w-7 items-center justify-center rounded border border-axc-red text-axc-red hover:bg-red-50"
+        className="flex h-7 w-7 items-center justify-center rounded border border-axc-red text-axc-red cursor-pointer hover:bg-red-50"
         title="Delete"
       >
         <Trash2 className="h-3.5 w-3.5" />
@@ -275,8 +261,6 @@ export default function UserTab() {
 
   return (
     <>
-      {toast && <Toast msg={toast} />}
-
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
         <div className="flex flex-wrap items-center gap-3">
           <div className="w-[220px]">
@@ -300,18 +284,20 @@ export default function UserTab() {
                 {selectedIds.length} Selected
               </button>
 
-              <Dropdown
-                title="Actions"
-                items={[
-                  { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: () => {} },
-                  { label: "Print", icon: <Printer className="h-4 w-4" />, onClick: () => window.print() },
-                  {
-                    label: "Delete",
-                    icon: <Trash2 className="h-4 w-4" />,
-                    onClick: () => setBulkDeleteOpen(true),
-                  },
-                ]}
-              />
+              <div className="[&_button]:cursor-pointer">
+                <Dropdown
+                  title="Actions"
+                  items={[
+                    { label: "Export", icon: <FileText className="h-4 w-4 " />, onClick: () => {} },
+                    { label: "Print", icon: <Printer className="h-4 w-4 " />, onClick: () => window.print() },
+                    {
+                      label: "Delete",
+                      icon: <Trash2 className="h-4 w-4 " />,
+                      onClick: () => setBulkDeleteOpen(true),
+                    },
+                  ]}
+                />
+              </div>
             </>
           )}
         </div>
@@ -353,7 +339,7 @@ export default function UserTab() {
 
       <DeleteConfirmationDialog
         isOpen={bulkDeleteOpen}
-        itemName={`${selectedIds.length} selected user(s)`}
+        itemName={`${selectedIds.length} ${selectedIds.length === 1 ? "user" : "users"}`}
         onCancel={() => setBulkDeleteOpen(false)}
         onConfirm={handleBulkDeleteConfirm}
       />

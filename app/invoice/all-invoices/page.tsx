@@ -236,7 +236,7 @@ export default function AllInvoicePage() {
             <button
               type="button"
               onClick={() => handleEdit(row)}
-              className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30  p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10"
+              className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30  p-1.5 text-axc-dark-green transition cursor-pointer hover:bg-axc-dark-green/10"
               title="Edit"
             >
               <Pencil size={16} />
@@ -244,7 +244,7 @@ export default function AllInvoicePage() {
             <button
               type="button"
               onClick={() => handleDelete(row)}
-              className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
+              className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition cursor-pointer hover:bg-axc-red-dark/10"
               title="Delete"
             >
               <Trash2 size={16} />

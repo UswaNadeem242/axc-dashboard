@@ -8,6 +8,10 @@ import {
   OrganizationFormErrors,
 } from "./settingstate";
 
+/* =========================================================
+   SHARED FIELD PRIMITIVES (moved in from formfield.tsx)
+========================================================= */
+
 export function EditCheckbox({
   active,
   onToggle,
@@ -99,6 +103,7 @@ function formatBytes(bytes: number) {
   const mb = bytes / (1024 * 1024);
   return `${mb < 10 ? mb.toFixed(1) : Math.round(mb)} MB`;
 }
+
 const DEFAULT_ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png", "application/pdf", "image/svg+xml"];
 const DEFAULT_ACCEPTED_LABEL = "JPEG, PNG, PDF and SVG formats, up to 10MB";
 const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024; 
@@ -291,11 +296,12 @@ export function FileUploadField({
 export function PanelHeader({ title, right }: { title: string; right?: React.ReactNode }) {
   return (
     <div className="bg-axc-navy/60 text-white p-4 flex items-center rounded-tl-lg rounded-tr-lg justify-between gap-2">
-      <h2>{title}</h2>
+      <h3>{title}</h3>
       {right}
     </div>
   );
 }
+
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/svg+xml"];
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; 
 const emptyProfileForm: ProfileFormState = {

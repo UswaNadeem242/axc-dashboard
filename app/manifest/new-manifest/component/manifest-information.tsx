@@ -37,9 +37,7 @@ export default function ManifestInformation({
     <div className="bg-white rounded-lg border border-axc-border shadow-sm flex flex-col">
       <PanelHeader title="Manifest Information" />
       <div className="p-5 grid grid-cols-1 lg:grid-cols-3 gap-x-6 gap-y-4 items-start">
-        {/* ================= COLUMN 1 ================= */}
         <div className="flex flex-col gap-3">
-          {/* 1. MANIFEST NO. */}
           <div className="flex flex-col gap-1">
             <FieldLabel>Manifest No.</FieldLabel>
             <input
