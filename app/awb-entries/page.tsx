@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import {
   X,
@@ -48,56 +48,19 @@ export default function AwbEntriesPage() {
   };
 
   const handleTagsChange = (newTags: string[]) => {
-    const categoryTags = ["Origin Hub Code", "AWB State", "PRINT BY COMPANY", "COMPANY", "SHIPMENT TYPE", "SERVICE TYPE", "AWB STATUS"];
+    const addedTag = newTags.find((tag) => !activeTags.includes(tag));
     
-    const enforceSingleSelection = (tags: string[], groupOptions: string[]) => {
-      const currentInGroup = activeTags.filter(t => groupOptions.includes(t));
-      const newInGroup = tags.filter(t => groupOptions.includes(t));
-      
-      if (newInGroup.length > 1) {
-        const newlyAdded = newInGroup.find(c => !currentInGroup.includes(c));
-        const itemToKeep = newlyAdded || newInGroup[newInGroup.length - 1];
-        return tags.filter(t => !groupOptions.includes(t) || t === itemToKeep);
+    if (addedTag) {
+      const group = awbFilterGroups.find(g => g.options.some(o => o.value === addedTag));
+      if (group) {
+        const groupValues = group.options.map(o => o.value);
+        const filteredTags = newTags.filter(tag => tag === addedTag || !groupValues.includes(tag));
+        setActiveTags(filteredTags);
+        return;
       }
-      return tags;
-    };
-
-    let processedTags = newTags;
-    
-    // 1. Enforce mutually exclusive selection in the first column (Categories)
-    processedTags = enforceSingleSelection(processedTags, categoryTags);
-
-    // 2. Identify active category
-    const activeCategories = processedTags.filter(tag => categoryTags.includes(tag));
-    const activeCategory = activeCategories.length > 0 ? activeCategories[activeCategories.length - 1] : null;
-
-    // 3. Remove sub-options that don't belong to the active category
-    const allSubOptions = awbFilterGroups
-      .filter(g => g.group !== "By Status")
-      .flatMap(g => g.options.map(o => o.value));
-      
-    let groupToFind = activeCategory;
-    if (activeCategory === "Origin Hub Code") groupToFind = "Origin Hub";
-
-    const validSubOptions = groupToFind 
-      ? awbFilterGroups.find(g => g.group === groupToFind)?.options.map(o => o.value) || []
-      : [];
-
-    processedTags = processedTags.filter(tag => {
-      // If it's a known sub-option, it must be valid for the current active category
-      if (allSubOptions.includes(tag)) {
-        return validSubOptions.includes(tag);
-      }
-      // If it's a category tag or something else, keep it
-      return true;
-    });
-
-    // 4. Enforce mutually exclusive selection for the active category's sub-options
-    if (validSubOptions.length > 0) {
-      processedTags = enforceSingleSelection(processedTags, validSubOptions);
     }
     
-    setActiveTags(processedTags);
+    setActiveTags(newTags);
   };
 
   const removeTag = (tagToRemove: string) => {
@@ -171,20 +134,27 @@ export default function AwbEntriesPage() {
 
     let matchesQuery = true;
     if (query) {
-      matchesQuery =
-        (item.awbNumber || "").toLowerCase().includes(query) ||
-        (item.customer || "").toLowerCase().includes(query) ||
-        (item.forwardingNumber || "").toLowerCase().includes(query) ||
-        (item.consignee || "").toLowerCase().includes(query) ||
-        (item.shipper || "").toLowerCase().includes(query) ||
-        (item.origin || "").toLowerCase().includes(query) ||
-        (item.destination || "").toLowerCase().includes(query) ||
-        (item.product || "").toLowerCase().includes(query) ||
-        (item.service || "").toLowerCase().includes(query) ||
-        (item.vendor || "").toLowerCase().includes(query) ||
-        (item.masterCode || "").toLowerCase().includes(query) ||
-        (item.bookingDate || "").toLowerCase().includes(query) ||
-        (item.status || "").toLowerCase().includes(query);
+      const searchTerms = query.split(",").map((q) => q.trim()).filter(Boolean);
+      
+      if (searchTerms.length > 0) {
+        matchesQuery = searchTerms.some((term) => {
+          return (
+            (item.awbNumber || "").toLowerCase().includes(term) ||
+            (item.customer || "").toLowerCase().includes(term) ||
+            (item.forwardingNumber || "").toLowerCase().includes(term) ||
+            (item.consignee || "").toLowerCase().includes(term) ||
+            (item.shipper || "").toLowerCase().includes(term) ||
+            (item.origin || "").toLowerCase().includes(term) ||
+            (item.destination || "").toLowerCase().includes(term) ||
+            (item.product || "").toLowerCase().includes(term) ||
+            (item.service || "").toLowerCase().includes(term) ||
+            (item.vendor || "").toLowerCase().includes(term) ||
+            (item.masterCode || "").toLowerCase().includes(term) ||
+            (item.bookingDate || "").toLowerCase().includes(term) ||
+            (item.status || "").toLowerCase().includes(term)
+          );
+        });
+      }
     }
 
 
@@ -212,6 +182,76 @@ export default function AwbEntriesPage() {
       if (raw === "awb status") {
         return true;
       }
+      if (raw === "today" || raw === "yesterday" || raw === "last 7 days") {
+        const checkDate = (dateStr?: string) => {
+          if (!dateStr) return false;
+          const [d, m, y] = dateStr.split("/");
+          if (!d || !m || !y) return false;
+          
+          const itemDate = new Date(Number(y), Number(m) - 1, Number(d));
+          itemDate.setHours(0,0,0,0);
+          
+          const today = new Date();
+          today.setHours(0,0,0,0);
+          
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+          
+          const last7Days = new Date(today);
+          last7Days.setDate(last7Days.getDate() - 7);
+
+          if (raw === "today") return itemDate.getTime() === today.getTime();
+          if (raw === "yesterday") return itemDate.getTime() === yesterday.getTime();
+          if (raw === "last 7 days") return itemDate >= last7Days && itemDate <= today;
+          return false;
+        };
+
+        return checkDate(item.bookingDate) || 
+               checkDate((item as any).manifestDate) || 
+               checkDate((item as any).invoiceDate);
+      }
+      if (raw === "custom") {
+        return true; 
+      }
+      const dateRangeRegex = /^[a-z]{3} \d{1,2}, \d{4} - [a-z]{3} \d{1,2}, \d{4}$/i;
+      if (dateRangeRegex.test(raw)) {
+        const parts = raw.split(" - ");
+        if (parts.length === 2) {
+          // Parse dd/mm/yyyy from item date string
+          const parseItemDate = (str?: string) => {
+            if (!str) return null;
+            const [d, m, y] = str.split("/");
+            if (!d || !m || !y) return null;
+            const dt = new Date(Number(y), Number(m) - 1, Number(d));
+            dt.setHours(0,0,0,0);
+            return dt;
+          };
+          
+          // Parse MMM dd, yyyy from tag
+          const parseTagDate = (str: string) => {
+            const dt = new Date(str);
+            if (isNaN(dt.getTime())) return null;
+            dt.setHours(0,0,0,0);
+            return dt;
+          };
+          
+          const startDate = parseTagDate(parts[0]);
+          const endDate = parseTagDate(parts[1]);
+          
+          if (startDate && endDate) {
+            const checkRange = (dateStr?: string) => {
+              const itemDate = parseItemDate(dateStr);
+              if (!itemDate) return false;
+              return itemDate >= startDate && itemDate <= endDate;
+            };
+
+            return checkRange(item.bookingDate) || 
+                   checkRange((item as any).manifestDate) || 
+                   checkRange((item as any).invoiceDate);
+          }
+        }
+        return false;
+      }
       if (HUB_COUNTRY_MAP[raw]) {
         const mapping = HUB_COUNTRY_MAP[raw];
         const originUpper = (item.origin || "").trim().toUpperCase();
@@ -224,6 +264,27 @@ export default function AwbEntriesPage() {
             (item.vendor || "").toLowerCase().includes(alias)
         );
       }
+      if (raw.includes(",")) {
+        const tagTerms = raw.split(",").map((q) => q.trim()).filter(Boolean);
+        if (tagTerms.length > 0) {
+          return tagTerms.some((term) => {
+            return (
+              (item.origin || "").toLowerCase().includes(term) ||
+              (item.awbNumber || "").toLowerCase().includes(term) ||
+              (item.customer || "").toLowerCase().includes(term) ||
+              (item.service || "").toLowerCase().includes(term) ||
+              (item.vendor || "").toLowerCase().includes(term) ||
+              (item.destination || "").toLowerCase().includes(term) ||
+              (item.status || "").toLowerCase().includes(term) ||
+              String((item as any).company || "").toLowerCase().includes(term) ||
+              String((item as any).printByCompany || "").toLowerCase().includes(term) ||
+              String((item as any).shipmentType || "").toLowerCase().includes(term) ||
+              String((item as any).invoiceNote || "").toLowerCase().includes(term)
+            );
+          });
+        }
+      }
+
       return (
         (item.origin || "").toLowerCase().includes(raw) ||
         (item.awbNumber || "").toLowerCase().includes(raw) ||
@@ -333,25 +394,15 @@ export default function AwbEntriesPage() {
   useEffect(() => {
     setPage(1);
   }, [searchQuery, activeTags]);
+  const dynamicGroups = awbFilterGroups;
 
-  const dynamicGroups = awbFilterGroups.filter((g) => {
-    if (g.group === "By Status") return true;
-
-    // Find the last selected category to determine which sub-menu to show in the 2nd column
-    const categoryTags = ["Origin Hub Code", "AWB State", "PRINT BY COMPANY", "COMPANY", "SHIPMENT TYPE", "SERVICE TYPE", "AWB STATUS"];
-    const activeCategories = activeTags.filter(tag => categoryTags.includes(tag));
-    const lastActiveCategory = activeCategories.length > 0 ? activeCategories[activeCategories.length - 1] : null;
-
-    if (g.group === "Origin Hub") return lastActiveCategory === "Origin Hub Code";
-    if (g.group === "AWB State") return lastActiveCategory === "AWB State";
-    if (g.group === "PRINT BY COMPANY") return lastActiveCategory === "PRINT BY COMPANY";
-    if (g.group === "COMPANY") return lastActiveCategory === "COMPANY";
-    if (g.group === "SHIPMENT TYPE") return lastActiveCategory === "SHIPMENT TYPE";
-    if (g.group === "SERVICE TYPE") return lastActiveCategory === "SERVICE TYPE";
-    if (g.group === "AWB STATUS") return lastActiveCategory === "AWB STATUS";
-    
-    return true; // Fallback for any other groups
-  });
+  const searchSuggestions = useMemo(() => {
+    const customers = data.map(item => item.customer).filter(Boolean);
+    const origins = data.map(item => item.origin).filter(Boolean);
+    const services = data.map(item => item.service).filter(Boolean);
+    const vendors = data.map(item => item.vendor).filter(Boolean);
+    return Array.from(new Set([...customers, ...origins, ...services, ...vendors]));
+  }, [data]);
 
   return (
     <div className="relative bg-white p-4 rounded-lg w-full flex-1 flex flex-col min-h-0  shadow-sm border border-axc-border  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
@@ -364,6 +415,7 @@ export default function AwbEntriesPage() {
           onSearchChange={setSearchQuery}
           onSearchSubmit={handleSearchSubmit}
           placeholder="Search entries..."
+          searchSuggestions={searchSuggestions}
         />
         <Button label="New AWB" href="/create-entries" variant="primary" icon={PlusCircleIcon} />
       </div>

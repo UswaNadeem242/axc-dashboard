@@ -43,8 +43,8 @@ export function DeliveryPanel({
   const deliverySummaryData: DeliverySummaryRow[] = [
     {
       label: "Expected Delivery Date",
-      customer: delivery.expectedDeliveryDateCustomer || "-",
-      vendor: delivery.expectedDeliveryDateVendor || "-",
+      customer: delivery.expectedDate || "-",
+      vendor: delivery.deliveryDate || "-",
       highlight: false,
     },
     {
@@ -150,7 +150,7 @@ export function DeliveryPanel({
 
           {/* Delivery Form */}
           <div className="w-full">
-            <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col h-full">
+            <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-visible flex flex-col h-full">
               <PanelHeader title="Delivery" />
               <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-4 flex-1">
                 <Field label="Expected Date">
@@ -368,7 +368,7 @@ export function DeliveryPanel({
                     </div>
                   </div>
                 </Field> */}
-
+{/* 
                 <div className="flex items-center gap-2 mt-6">
                   <input
                     type="checkbox"
@@ -383,7 +383,7 @@ export function DeliveryPanel({
                   >
                     POD Hard Copy
                   </label>
-                </div>
+                </div> */}
               </div>
 
               <div className="flex justify-end items-end w-full flex-wrap gap-x-6 gap-y-1 px-5 py-4 border-t border-axc-border text-sm text-regular-semibold text-axc-dark-gray">

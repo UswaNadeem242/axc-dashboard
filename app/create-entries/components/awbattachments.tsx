@@ -283,9 +283,8 @@ function AttachmentCard({
 
               <div className="mt-1 flex items-center h-1 w-full overflow-hidden rounded-full bg-gray-100">
                 <div
-                  className={`h-full bg-axc-blue transition-all duration-200 ease-linear ${
-                    uploadingItem.status === "done" ? "rounded-full" : "rounded-l-full"
-                  }`}
+                  className={`h-full bg-axc-blue transition-all duration-200 ease-linear ${uploadingItem.status === "done" ? "rounded-full" : "rounded-l-full"
+                    }`}
                   style={{ width: `${uploadPercent}%` }}
                 />
               </div>
@@ -348,7 +347,7 @@ function AttachmentCard({
         <div className="px-3.5 py-2.5 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
           {file ? (
             <div className="flex items-center gap-1.5 w-full justify-between">
-  
+
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
@@ -487,6 +486,7 @@ export function AwbAttachmentsTab({
   const [errors, setErrors] = useState<Record<string, string | null>>({});
   const [activeFilter, setActiveFilter] = useState<"all" | "pdf" | "excel" | "uploaded">("all");
   const [savedVisible, setSavedVisible] = useState(false);
+  const [previewFile, setPreviewFile] = useState<File | null>(null);
 
   const handleUpload = (field: UploadField, file: File) => {
     const ext = file.name.toLowerCase();
@@ -548,6 +548,21 @@ export function AwbAttachmentsTab({
           Attachments saved successfully!
         </div>
       )}
+      {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+        {filteredFields.map((field) => (
+          <AttachmentCard
+            key={field.key}
+            field={field}
+            file={files[field.key] ?? null}
+            error={errors[field.key]}
+            onUpload={(f) => handleUpload(field, f)}
+            onRemove={() => handleRemove(field.key)}
+            onPreview={(f) => setPreviewFile(f)}
+          />
+        ))}
+      </div> */}
+
+
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
         {filteredFields.map((field) => (
           <AttachmentCard
@@ -565,14 +580,20 @@ export function AwbAttachmentsTab({
           />
         ))}
       </div>
+
+      {/* Save Button */}
       <div className="flex justify-end gap-3 bg-white">
-        <button
+        {/* <button
           type="button"
           onClick={handleSave}
           className="px-5 py-4 bg-axc-navy cursor-pointer text-white rounded-lg text-regular-small transition shadow-sm"
         >
           Save Attachment
-        </button>
+        </button> */}
+
+
+        {/* Modal File Preview Dialog */}
+        <FilePreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />
       </div>
     </div>
   );

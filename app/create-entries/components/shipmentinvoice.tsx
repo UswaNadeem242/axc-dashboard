@@ -108,26 +108,28 @@ export default function ShipmentInvoiceSection({
           </div> */}
 
           <div className="">
-            <div className="bg-axc-navy/60 rounded-tl-lg rounded-tr-lg text-white text-regular-medium font-bold p-4 capitalize tracking-wide">
-              Shipment Invoice Items
+            <div className="bg-axc-navy/60 rounded-tl-lg rounded-tr-lg text-white   p-4 capitalize tracking-wide">
+              <h3>Shipment Invoice Items
+              </h3>
             </div>
-            <div className="border border-axc-border border-t-0 overflow-x-auto p-4">
-              <table className="w-full text-sm border-collapse min-w-[950px] border border-axc-border rounded-md p-4">
-                <thead>
-                  <tr className="bg-axc-navy/10 text-regular-medium text-axc-dark-gray text-left whitespace-nowrap">
-                    <th className="py-2.5 px-3 border-r border-axc-border rounded-tl-md">Box#</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border">Sr#</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border w-1/5">Description</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border">HS Code</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap min-w-[110px]">Unit Type</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Quantity</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Unit Weight</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">IGST</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Unit Rates</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Amount</th>
-                    <th className="py-2.5 px-2 text-center rounded-tr-md whitespace-nowrap">Action</th>
-                  </tr>
-                </thead>
+            <div className=" overflow-x-auto p-4">
+              <div className="border border-axc-border rounded-md overflow-hidden">
+                <table className="w-full text-sm min-w-[950px]">
+                  <thead>
+                    <tr className="bg-axc-navy/10 text-regular-medium text-axc-dark-gray text-left whitespace-nowrap">
+                      <th className="py-2.5 px-3 border-r border-axc-border">Box#</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border">Sr#</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border w-1/5">Description</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border">HS Code</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap min-w-[110px]">Unit Type</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Quantity</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Unit Weight</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">IGST</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Unit Rates</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Amount</th>
+                      <th className="py-2.5 px-2 text-center whitespace-nowrap">Action</th>
+                    </tr>
+                  </thead>
                 <tbody>
                   {invoiceItems.map((item, idx) => (
                     <tr key={item.id} className="border-b border-axc-border last:border-b-0 hover:bg-gray-50/50">
@@ -141,7 +143,7 @@ export default function ShipmentInvoiceSection({
                           }}
                           className="w-full py-2 !px-1.5 border-axc-border"
                           placeholder="Select..."
-                          options={[{ value: "1", label: "Box 1" }]}
+                          options={Array.from({ length: 50 }, (_, i) => ({ value: String(i + 1), label: `Box ${i + 1}` }))}
                         />
                       </td>
                       <td className="text-center bg-gray-50 text-gray-600 font-medium">{item.srNo}</td>
@@ -304,6 +306,7 @@ export default function ShipmentInvoiceSection({
                   </tr>
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         </div>

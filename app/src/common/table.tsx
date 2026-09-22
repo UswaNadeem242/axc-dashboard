@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Eye, Pencil, Trash2, Package } from "lucide-react";
 import CommonPagination from "./pagination";
 import CommonScroll from "./commonscroll";
+import Dropdown from "./dropdown";
 
 interface Heading {
   label: React.ReactNode;
@@ -25,6 +26,7 @@ interface CommonTableProps {
   onBag?: (row: any) => void;
 
   itemsPerPage?: number;
+  onItemsPerPageChange?: (items: number) => void;
   currentPage?: number;
   totalPages?: number;
   onPageChange?: (page: number) => void;
@@ -58,6 +60,7 @@ const CommonTable = ({
   currentPage = 1,
   onPageChange,
   itemsPerPage = 10,
+  onItemsPerPageChange,
   renderActions,
   sortKey,
   sortDirection,
@@ -76,9 +79,15 @@ const CommonTable = ({
   cellPadding = "px-4 py-2",
   headerPadding = "px-4 py-3",
 }: CommonTableProps) => {
-  const computedTotalPages = propTotalPages ?? Math.max(1, Math.ceil(data.length / itemsPerPage));
+  const [internalItemsPerPage, setInternalItemsPerPage] = useState(itemsPerPage);
+
+  useEffect(() => {
+    setInternalItemsPerPage(itemsPerPage);
+  }, [itemsPerPage]);
+
+  const computedTotalPages = propTotalPages ?? Math.max(1, Math.ceil(data.length / internalItemsPerPage));
   const activePage = Math.min(Math.max(1, currentPage), computedTotalPages);
-  const paginatedData = data.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
+  const paginatedData = data.slice((activePage - 1) * internalItemsPerPage, activePage * internalItemsPerPage);
   const colSpan = headings.length + (selectable ? 1 : 0);
   const isScrollEnabled = showScroll && !hideScroll;
 
@@ -294,7 +303,23 @@ const CommonTable = ({
       )}
 
       {!hidePagination && computedTotalPages >= 1 && (
-        <div className="mt-2 flex shrink-0 justify-end">
+        <div className="mt-2 flex shrink-0 justify-between items-center px-1">
+          <div className="flex items-center gap-2">
+            {/* <span className="text-[11px] text-axc-gray font-medium">Rows:</span> */}
+            <div className="w-25">
+              <Dropdown
+                options={[10, 20, 50, 100, 200].map(n => ({ value: n.toString(), label: n.toString() }))}
+                value={internalItemsPerPage.toString()}
+                onChange={(val) => {
+                  const numVal = Number(val);
+                  setInternalItemsPerPage(numVal);
+                  if (onItemsPerPageChange) onItemsPerPageChange(numVal);
+                  if (onPageChange) onPageChange(1);
+                }}
+                className="h-9! py-2! px-3! text-sm font-medium"
+              />
+            </div>
+          </div>
           <CommonPagination currentPage={activePage} totalPages={computedTotalPages} onPageChange={onPageChange ?? (() => { })} />
         </div>
       )}

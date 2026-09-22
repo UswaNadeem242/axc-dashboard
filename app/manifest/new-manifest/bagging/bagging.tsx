@@ -371,55 +371,55 @@ export function BaggingSummarySection({
   );
 }
 
-export function PartialManifestedAwbPanel({
-  partialAwbRows,
-}: {
-  partialAwbRows: PartialAwbRow[];
-}) {
-  return (
-    <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden w-full">
-      <PanelHeader title="Partial Manifested AWB" />
-      <div className="p-4">
-        <div className="border border-axc-border rounded-lg overflow-x-auto">
-          <table className="w-full text-xs border-collapse">
-            <thead>
-              <tr className="bg-axc-navy/10 border-b border-axc-border text-regular-medium text-axc-dark-gray text-left">
-                <th className="py-2.5 px-4 border-r border-axc-border">AWB Number</th>
-                <th className="py-2.5 px-4 border-r border-axc-border">Split AWB</th>
-                <th className="py-2.5 px-4 border-r border-axc-border">PC Number</th>
-                <th className="py-2.5 px-4">Box Weight</th>
-              </tr>
-            </thead>
-            <tbody>
-              {partialAwbRows.length === 0 && (
-                <tr>
-                  <td colSpan={4} className="text-center py-6 text-gray-400">
-                    No records
-                  </td>
-                </tr>
-              )}
-              {partialAwbRows.map((row) => (
-                <tr key={row.id} className="border-b border-axc-border last:border-b-0 hover:bg-gray-50/50">
-                  <td className="py-2.5 px-4 border-r border-axc-border">{row.awbNumber}</td>
-                  <td className="py-2.5 px-4 border-r border-axc-border">{row.splitAwb}</td>
-                  <td className="py-2.5 px-4 border-r border-axc-border">{row.pcNumber}</td>
-                  <td className="py-2.5 px-4">{row.boxWeight}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-}
+// export function PartialManifestedAwbPanel({
+//   partialAwbRows,
+// }: {
+//   partialAwbRows: PartialAwbRow[];
+// }) {
+//   return (
+//     <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden w-full">
+//       <PanelHeader title="Partial Manifested AWB" />
+//       <div className="p-4">
+//         <div className="border border-axc-border rounded-lg overflow-x-auto">
+//           <table className="w-full text-xs border-collapse">
+//             <thead>
+//               <tr className="bg-axc-navy/10 border-b border-axc-border text-regular-medium text-axc-dark-gray text-left">
+//                 <th className="py-2.5 px-4 border-r border-axc-border">AWB Number</th>
+//                 <th className="py-2.5 px-4 border-r border-axc-border">Split AWB</th>
+//                 <th className="py-2.5 px-4 border-r border-axc-border">PC Number</th>
+//                 <th className="py-2.5 px-4">Box Weight</th>
+//               </tr>
+//             </thead>
+//             <tbody>
+//               {partialAwbRows.length === 0 && (
+//                 <tr>
+//                   <td colSpan={4} className="text-center py-6 text-gray-400">
+//                     No records
+//                   </td>
+//                 </tr>
+//               )}
+//               {partialAwbRows.map((row) => (
+//                 <tr key={row.id} className="border-b border-axc-border last:border-b-0 hover:bg-gray-50/50">
+//                   <td className="py-2.5 px-4 border-r border-axc-border">{row.awbNumber}</td>
+//                   <td className="py-2.5 px-4 border-r border-axc-border">{row.splitAwb}</td>
+//                   <td className="py-2.5 px-4 border-r border-axc-border">{row.pcNumber}</td>
+//                   <td className="py-2.5 px-4">{row.boxWeight}</td>
+//                 </tr>
+//               ))}
+//             </tbody>
+//           </table>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
 
 export default function BaggingPanel(props: BaggingPanelProps) {
   return (
     <div className="flex flex-col gap-4 w-full">
       <BaggingFormPanel {...props} />
       <BaggingSummarySection {...props} />
-      <PartialManifestedAwbPanel partialAwbRows={props.partialAwbRows} />
+      {/* <PartialManifestedAwbPanel partialAwbRows={props.partialAwbRows} /> */}
     </div>
   );
 }
