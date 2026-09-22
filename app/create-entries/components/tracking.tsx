@@ -6,6 +6,7 @@ import CustomDatePicker from "../../src/common/datepicker";
 import CustomTimePicker from "../../src/common/timepicker";
 import Dropdown from "../../src/common/dropdown";
 import { Trash, Plus } from "lucide-react";
+import { showToast } from "../../src/common/toast";
 
 const EVENT_DESCRIPTION_OPTIONS = [
   { value: "SHIPMENT HAS BEEN BOOKED", label: "SHIPMENT HAS BEEN BOOKED" },
@@ -45,7 +46,10 @@ export function TrackingEventsPanel({
     return { date: "", time: dt };
   };
 
-
+  const handleRemoveEvent = (id: string) => {
+    onRemoveEvent(id);
+    showToast({ variant: "success", message: "Tracking event removed successfully" });
+  };
 
   const headings = [
     {
@@ -199,7 +203,7 @@ export function TrackingEventsPanel({
       render: (ev: TrackingEvent) => (
         <button
           type="button"
-          onClick={() => onRemoveEvent(ev.id)}
+          onClick={() => handleRemoveEvent(ev.id)}
           className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
         >
           <Trash className="w-4 h-4" size={15} />

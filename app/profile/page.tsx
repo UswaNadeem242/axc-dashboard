@@ -23,7 +23,7 @@ export default function ProfilePage() {
   const router = useRouter();
 
   return (
-    <div className="p-6 flex flex-col gap-6">
+    <div className="p-4 flex flex-col gap-6">
       <ProfileView
         firstName={profile.firstName}
         lastName={profile.lastName}

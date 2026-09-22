@@ -87,7 +87,7 @@ export default function ProfileView({
               <span className="font-bold text-axc-dark-gray">
                 {firstName} {lastName}
               </span>
-              <span className="text-[10px] font-semibold text-axc-navy bg-axc-navy/10 px-2 py-0.5 rounded-full capitalize">
+              <span className="text-[10px] font-semibold text-axc-navy bg-axc-navy/10 px-2 py-0.5 rounded-full ">
                 {roleLabel}
               </span>
             </div>

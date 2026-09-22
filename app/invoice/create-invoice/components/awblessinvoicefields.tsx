@@ -8,6 +8,7 @@ import {
   AwbLessInvoiceItemRow,
 } from "./invoicestate";
 import { FieldLabel, PanelHeader, inputClass } from "./invoiceform";
+import { showToast } from "../../../src/common/toast";
 
 const addrTypeOptions = [
   { value: "Billing", label: "Billing" },
@@ -422,6 +423,11 @@ export function AwbLessInvoiceItemsSection({
   const roundOffValue = Number(form.roundOff) || 0;
   const grandTotal = itemsTotal + roundOffValue;
 
+  const handleRemoveItemRow = (id: number) => {
+    removeItemRow(id);
+    showToast({ variant: "success", message: "Item removed successfully" });
+  };
+
   return (
     <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col w-full">
       <PanelHeader title="Item Details" />
@@ -575,7 +581,7 @@ export function AwbLessInvoiceItemsSection({
                   <td className="p-1 text-center">
                     <button
                       type="button"
-                      onClick={() => removeItemRow(row.id)}
+                      onClick={() => handleRemoveItemRow(row.id)}
                       title="Remove item"
                       className="inline-flex items-center justify-center cursor-pointer rounded-md border border-axc-red/30 p-1.5 text-axc-red transition hover:bg-axc-red/10"
                     >
