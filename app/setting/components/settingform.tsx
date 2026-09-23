@@ -6,12 +6,11 @@ import {
   ProfileFormErrors,
   OrganizationFormState,
   OrganizationFormErrors,
+  SecurityFormState,
+  SecurityFormErrors,
+  NotificationFormState,
 } from "./settingstate";
-
-/* =========================================================
-   SHARED FIELD PRIMITIVES (moved in from formfield.tsx)
-========================================================= */
-
+import { showToast } from "../../src/common/toast"; 
 export function EditCheckbox({
   active,
   onToggle,
@@ -93,7 +92,7 @@ export function FieldError({ message }: { message?: string }) {
 interface UploadingFile {
   id: string;
   file: File;
-  uploaded: number; 
+  uploaded: number;
   status: "uploading" | "done" | "error";
   errorMessage?: string;
 }
@@ -106,7 +105,7 @@ function formatBytes(bytes: number) {
 
 const DEFAULT_ACCEPTED_MIME_TYPES = ["image/jpeg", "image/png", "application/pdf", "image/svg+xml"];
 const DEFAULT_ACCEPTED_LABEL = "JPEG, PNG, PDF and SVG formats, up to 10MB";
-const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024; 
+const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024;
 
 export function FileUploadField({
   onFileChange,
@@ -303,7 +302,8 @@ export function PanelHeader({ title, right }: { title: string; right?: React.Rea
 }
 
 const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/svg+xml"];
-const MAX_IMAGE_SIZE = 10 * 1024 * 1024; 
+const MAX_IMAGE_SIZE = 10 * 1024 * 1024;
+
 const emptyProfileForm: ProfileFormState = {
   firstName: "",
   lastName: "",
@@ -474,4 +474,202 @@ export function useOrganizationForm(initialLogoUrl?: string) {
     handleSaveChanges,
     handleCancel,
   };
+}
+export const SESSION_TIMEOUT_OPTIONS = [
+  { value: "15", label: "15 minutes" },
+  { value: "30", label: "30 minutes" },
+  { value: "60", label: "1 hour" },
+  { value: "120", label: "2 hours" },
+  { value: "1440", label: "24 hours" },
+];
+
+export const DEFAULT_SESSION_TIMEOUT = "60";
+
+const emptySecurityForm: SecurityFormState = {
+  currentPassword: "",
+  newPassword: "",
+  confirmPassword: "",
+};
+
+interface UseSecurityFormOptions {
+  onUpdatePassword?: (payload: {
+    currentPassword: string;
+    newPassword: string;
+  }) => Promise<void> | void;
+  onTwoFactorChange?: (enabled: boolean) => Promise<void> | void;
+  onSessionTimeoutChange?: (enabled: boolean) => Promise<void> | void;
+  onSessionTimeoutDurationChange?: (minutes: string) => Promise<void> | void;
+  initialTwoFactorEnabled?: boolean;
+  initialSessionTimeoutEnabled?: boolean;
+  initialSessionTimeoutDuration?: string;
+  minPasswordLength?: number;
+}
+
+export function useSecurityForm({
+  onUpdatePassword,
+  onTwoFactorChange,
+  onSessionTimeoutChange,
+  onSessionTimeoutDurationChange,
+  initialTwoFactorEnabled = false,
+  initialSessionTimeoutEnabled = false,
+  initialSessionTimeoutDuration = DEFAULT_SESSION_TIMEOUT,
+  minPasswordLength = 8,
+}: UseSecurityFormOptions = {}) {
+  const [form, setForm] = useState<SecurityFormState>(emptySecurityForm);
+  const [errors, setErrors] = useState<SecurityFormErrors>({});
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [twoFactorEnabled, setTwoFactorEnabled] = useState(initialTwoFactorEnabled);
+  const [sessionTimeoutEnabled, setSessionTimeoutEnabled] = useState(
+    initialSessionTimeoutEnabled,
+  );
+  const [sessionTimeoutDuration, setSessionTimeoutDuration] = useState(
+    initialSessionTimeoutDuration,
+  );
+
+  const updateField = <K extends keyof SecurityFormState>(
+    key: K,
+    value: SecurityFormState[K],
+  ) => {
+    setForm((prev) => ({ ...prev, [key]: value }));
+    setErrors((prev) => ({ ...prev, [key]: undefined }));
+  };
+
+  const validate = (): boolean => {
+    const next: SecurityFormErrors = {};
+
+    if (!form.currentPassword) {
+      next.currentPassword = "Current password is required";
+    }
+
+    if (!form.newPassword) {
+      next.newPassword = "New password is required";
+    } else if (form.newPassword.length < minPasswordLength) {
+      next.newPassword = `Password must be at least ${minPasswordLength} characters`;
+    } else if (form.newPassword === form.currentPassword) {
+      next.newPassword = "New password must be different from current password";
+    }
+
+    if (!form.confirmPassword) {
+      next.confirmPassword = "Please confirm your new password";
+    } else if (form.confirmPassword !== form.newPassword) {
+      next.confirmPassword = "Passwords do not match";
+    }
+
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
+
+  const handleCancel = () => {
+    setForm(emptySecurityForm);
+    setErrors({});
+  };
+
+  const handleUpdatePassword = async () => {
+    if (!validate()) return;
+    setIsUpdating(true);
+    try {
+      await onUpdatePassword?.({
+        currentPassword: form.currentPassword,
+        newPassword: form.newPassword,
+      });
+      setForm(emptySecurityForm);
+      setErrors({});
+    } catch (err) {
+      setErrors({
+        currentPassword:
+          err instanceof Error ? err.message : "Failed to update password",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const onToggleTwoFactor = async () => {
+    const next = !twoFactorEnabled;
+    setTwoFactorEnabled(next);
+    try {
+      await onTwoFactorChange?.(next);
+    } catch {
+      setTwoFactorEnabled(!next);
+    }
+  };
+
+  const onToggleSessionTimeout = async () => {
+    const next = !sessionTimeoutEnabled;
+    setSessionTimeoutEnabled(next);
+    try {
+      await onSessionTimeoutChange?.(next);
+    } catch {
+      setSessionTimeoutEnabled(!next);
+    }
+  };
+
+  const onChangeSessionTimeoutDuration = async (minutes: string) => {
+    const previous = sessionTimeoutDuration;
+    setSessionTimeoutDuration(minutes);
+    try {
+      await onSessionTimeoutDurationChange?.(minutes);
+    } catch {
+      setSessionTimeoutDuration(previous);
+    }
+  };
+
+  return {
+    form,
+    errors,
+    updateField,
+    handleUpdatePassword,
+    handleCancel,
+    twoFactorEnabled,
+    onToggleTwoFactor,
+    sessionTimeoutEnabled,
+    onToggleSessionTimeout,
+    sessionTimeoutDuration,
+    onChangeSessionTimeoutDuration,
+    isUpdating,
+  };
+}
+
+const defaultNotificationForm: NotificationFormState = {
+  teamUpdates: false,
+  billingPayments: false,
+  securityAlerts: false,
+  marketingPromotions: false,
+  newFeatures: false,
+  mentions: false,
+  comments: false,
+  teamInvites: false,
+  systemAlerts: false,
+  messages: false,
+  taskUpdates: false,
+  productUpdates: false,
+};
+
+interface UseNotificationFormOptions {
+  onToggleChange?: (key: keyof NotificationFormState, value: boolean) => Promise<void> | void;
+  initialValues?: Partial<NotificationFormState>;
+}
+
+export function useNotificationForm({
+  onToggleChange,
+  initialValues,
+}: UseNotificationFormOptions = {}) {
+  const [form, setForm] = useState<NotificationFormState>({
+    ...defaultNotificationForm,
+    ...initialValues,
+  });
+
+  const onToggle = async (key: keyof NotificationFormState) => {
+    const next = !form[key];
+    setForm((prev) => ({ ...prev, [key]: next }));
+    try {
+      await onToggleChange?.(key, next);
+      showToast({ variant: "success", message: "Preferences saved" });
+    } catch {
+      setForm((prev) => ({ ...prev, [key]: !next }));
+      showToast({ variant: "error", message: "Failed to save preferences" });
+    }
+  };
+
+  return { form, onToggle };
 }
