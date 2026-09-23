@@ -3,7 +3,14 @@ import React, { useState } from "react";
 import { User, Building2, Users, CreditCard, ShieldCheck, Bell } from "lucide-react";
 import ProfileInformation from "./components/profile";
 import OrganizationInformation from "./components/organization";
-import { useProfileForm, useOrganizationForm } from "./components/settingform";
+import SecuritySettings from "./components/security";
+import NotificationSettings from "./components/notifications";
+import {
+  useProfileForm,
+  useOrganizationForm,
+  useSecurityForm,
+  useNotificationForm,
+} from "./components/settingform";
 
 type TabItem = { id: string; label: string; icon?: React.ReactNode };
 
@@ -21,6 +28,8 @@ export default function SettingsPage() {
 
   const profile = useProfileForm();
   const organization = useOrganizationForm();
+  const security = useSecurityForm();
+  const notifications = useNotificationForm();
 
   return (
     <div className="flex flex-col gap-4 w-full h-full min-h-0 overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -69,7 +78,10 @@ export default function SettingsPage() {
               handleCancel={organization.handleCancel}
             />
           )}
-         
+          {activeTab === "security" && <SecuritySettings {...security} />}
+          {activeTab === "notifications" && (
+            <NotificationSettings form={notifications.form} onToggle={notifications.onToggle} />
+          )}
         </div>
       </div>
     </div>

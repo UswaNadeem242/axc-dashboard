@@ -43,3 +43,30 @@ export interface OrganizationFormErrors {
   phoneNumber?: string;
   logo?: string;
 }
+
+export interface SecurityFormState {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+export interface SecurityFormErrors {
+  currentPassword?: string;
+  newPassword?: string;
+  confirmPassword?: string;
+}
+
+export interface NotificationFormState {
+  teamUpdates: boolean;
+  billingPayments: boolean;
+  securityAlerts: boolean;
+  marketingPromotions: boolean;
+  newFeatures: boolean;
+  mentions: boolean;
+  comments: boolean;
+  teamInvites: boolean;
+  systemAlerts: boolean;
+  messages: boolean;
+  taskUpdates: boolean;
+  productUpdates: boolean;
+}
