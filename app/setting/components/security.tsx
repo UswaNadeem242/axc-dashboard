@@ -144,7 +144,7 @@ export default function SecuritySettings({
         />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 mt-4">
-          <div className="flex flex-col gap-1 lg:col-span-2">
+          <div className="flex flex-col gap-1 lg:col-span-2 max-w-md">
             <FieldLabel required>Current Password</FieldLabel>
             <PasswordInput
               value={form.currentPassword}
@@ -155,7 +155,7 @@ export default function SecuritySettings({
             <FieldError message={errors.currentPassword} />
           </div>
 
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 max-w-md">
             <FieldLabel required>New Password</FieldLabel>
             <PasswordInput
               value={form.newPassword}
@@ -166,7 +166,7 @@ export default function SecuritySettings({
             <FieldError message={errors.newPassword} />
           </div>
 
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1 max-w-md">
             <FieldLabel required>Confirm Password</FieldLabel>
             <PasswordInput
               value={form.confirmPassword}
