@@ -100,8 +100,8 @@ export default function NotificationSettings({ form, onToggle }: NotificationSet
       <div className="m-6 p-4 rounded-md border border-axc-border">
         <SectionHeading
           icon={<Mail size={18} />}
-          iconBg="bg-blue-100"
-          iconColor="text-blue-600"
+          iconBg="bg-axc-blue/10"
+          iconColor="text-axc-blue"
           title="Email Notifications"
           description="Choose what updates you want to receive via email"
         />
@@ -147,7 +147,7 @@ export default function NotificationSettings({ form, onToggle }: NotificationSet
       <div className="mx-6 mb-6 p-4 rounded-md border border-axc-border">
         <SectionHeading
           icon={<Bell size={18} />}
-          iconBg="bg-red-100"
+          iconBg="bg-axc-red/10"
           iconColor="text-axc-red"
           title="Push Notifications"
           description="Get instant notifications on your devices"
@@ -188,7 +188,7 @@ export default function NotificationSettings({ form, onToggle }: NotificationSet
       <div className="mx-6 mb-6 p-4 rounded-md border border-axc-border">
         <SectionHeading
           icon={<Bell size={18} />}
-          iconBg="bg-green-100"
+          iconBg="bg-axc-green/10"
           iconColor="text-axc-green"
           title="In-App Notifications"
           description="Manage notifications within the application"
