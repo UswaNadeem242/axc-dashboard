@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { User, Building2, Users, CreditCard, ShieldCheck, Bell } from "lucide-react";
 import ProfileInformation from "./components/profile";
 import OrganizationInformation from "./components/organization";
+import TeamAccess from "./components/teamaccess";
 import SecuritySettings from "./components/security";
 import NotificationSettings from "./components/notifications";
 import {
@@ -78,6 +79,7 @@ export default function SettingsPage() {
               handleCancel={organization.handleCancel}
             />
           )}
+          {activeTab === "team-access" && <TeamAccess />}
           {activeTab === "security" && <SecuritySettings {...security} />}
           {activeTab === "notifications" && (
             <NotificationSettings form={notifications.form} onToggle={notifications.onToggle} />
