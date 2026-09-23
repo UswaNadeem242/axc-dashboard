@@ -5,6 +5,7 @@ import { Plus, Trash } from "lucide-react";
 import { PanelHeader, inputClass, disabledInputClass } from "./formfield";
 import { ManifestBagRow } from "./state";
 import Dropdown from "@/app/src/common/dropdown";
+import { showToast } from "@/app/src/common/toast";
 
 const TRACK_BY_OPTIONS = [
   { value: "PARCEL NUMBER", label: "Parcel Number" },
@@ -20,6 +21,11 @@ interface BagDetailsProps {
 }
 
 export default function BagDetails({ rows, updateRow, addRow, removeRow, selectAll }: BagDetailsProps) {
+  const handleRemoveRow = (id: number) => {
+    removeRow(id);
+    showToast({ variant: "success", message: "Bag removed successfully" });
+  };
+
   return (
     <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-visible flex flex-col">
       <PanelHeader
@@ -134,7 +140,7 @@ export default function BagDetails({ rows, updateRow, addRow, removeRow, selectA
                   <td className="p-1 text-center">
                     <button
                       type="button"
-                      onClick={() => removeRow(row.id)}
+                      onClick={() => handleRemoveRow(row.id)}
                       title="Remove"
                       className="inline-flex items-center justify-center cursor-pointer rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
                     >

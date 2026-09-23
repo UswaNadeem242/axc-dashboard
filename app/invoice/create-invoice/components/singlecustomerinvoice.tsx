@@ -9,6 +9,7 @@ import {
   SingleInvoiceSearchState,
 } from "./invoicestate";
 import { FieldLabel, PanelHeader, inputClass } from "./invoiceform";
+import { showToast } from "../../../src/common/toast";
 
 interface InvoiceDetailsProps {
   form: SingleInvoiceFormState;
@@ -143,6 +144,11 @@ export function AwbTableSection({
   const cellText = (value: unknown) =>
     value === null || value === undefined ? "" : String(value);
 
+  const handleRemoveAwbRow = (id: number) => {
+    removeAwbRow(id);
+    showToast({ variant: "success", message: "AWB removed successfully" });
+  };
+
   return (
     <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
       <PanelHeader
@@ -242,7 +248,7 @@ export function AwbTableSection({
                   <td className="p-1 text-center">
                     <button
                       type="button"
-                      onClick={() => removeAwbRow(row.id)}
+                      onClick={() => handleRemoveAwbRow(row.id)}
                       title="Remove AWB"
                       className="inline-flex items-center justify-center cursor-pointer rounded-md border border-axc-red/30 p-1.5 text-axc-red transition hover:bg-axc-red/10"
                     >
