@@ -1019,27 +1019,41 @@ export interface InvoiceEntry {
   invoiceNumber: string;
   customerName: string;
   customerType: string;
+  customerGstNumber?: string;
   invoiceDate: string;
+  fromDate?: string;
+  tillDate?: string;
   grandTotal: string;
   shipperCode: string;
   createdBy: string;
   createdDate: string;
   isEmailSent: string;
+  emailDate?: string;
   emailSentCount: number;
+  invoiceAgingDays?: string | number;
+  irn?: string;
+  acknowledgementNumber?: string;
 }
 
 export const InvoiceHeading = [
   { label: "SR.NO.", key: "srNo" },
   { label: "INVOICE NUMBER", key: "invoiceNumber", sortable: true, truncate: false },
   { label: "CUSTOMER NAME", key: "customerName", truncate: false },
-  { label: "CUSTOMER TYPE", key: "customerType" },
+  { label: "CUSTOMER TYPE", key: "customerType", sortable: true },
+  { label: "CUSTOMER GST NUMBER", key: "customerGstNumber" },
   { label: "INVOICE DATE", key: "invoiceDate", sortable: true },
-  { label: "GRAND TOTAL", key: "grandTotal", className: "font-bold" },
+  { label: "FROM DATE", key: "fromDate", sortable: true },
+  { label: "TILL DATE", key: "tillDate", sortable: true },
+  { label: "GRAND TOTAL", key: "grandTotal", sortable: true, className: "font-bold" },
   { label: "SHIPPER CODE", key: "shipperCode" },
-  { label: "CREATED BY", key: "createdBy" },
+  { label: "CREATED BY", key: "createdBy", sortable: true },
   { label: "CREATED DATE", key: "createdDate", sortable: true },
   { label: "IS EMAIL SENT", key: "isEmailSent" },
-  { label: "EMAIL SENT COUNT", key: "emailSentCount" },
+  { label: "EMAIL DATE", key: "emailDate", sortable: true },
+  { label: "EMAIL SENT COUNT", key: "emailSentCount", sortable: true },
+  { label: "INVOICE AGING DAYS", key: "invoiceAgingDays" },
+  { label: "IRN", key: "irn" },
+  { label: "ACKNOWLEDGEMENT NUMBER", key: "acknowledgementNumber" },
   { label: "ACTION", key: "action" },
 ];
 
@@ -1299,6 +1313,7 @@ export const analytics: Analytics[] = [
 
 export interface FilterGroupOption {
   group: string;
+  sameColumnAsPrevious?: boolean;
   options: { label: string; value: string }[];
 }
 
@@ -1414,10 +1429,10 @@ export const awbFilterGroups: FilterGroupOption[] = [
   {
     group: "By Date",
     options: [
-      { label: "Custom", value: "Custom" },
       { label: "Today", value: "Today" },
       { label: "Yesterday", value: "Yesterday" },
       { label: "Last 7 days", value: "Last 7 days" },
+      { label: "Custom", value: "Custom" },
     ],
   },
   {
@@ -1437,32 +1452,6 @@ export const awbFilterGroups: FilterGroupOption[] = [
       { label: "SIALKOT", value: "SIALKOT" },
     ],
   },
-  {
-    group: "AWB STATUS",
-    options: [
-      { label: "OPEN", value: "OPEN" },
-      { label: "LOCKED", value: "LOCKED" },
-      { label: "VOID", value: "VOID" },
-      { label: "HOLD", value: "HOLD" },
-      { label: "RTO", value: "RTO" },
-    ],
-  },
-  {
-    group: "SERVICE TYPE",
-    options: [
-      { label: "INTERNATIONAL", value: "INTERNATIONAL" },
-      { label: "DOMESTIC", value: "DOMESTIC" },
-    ],
-  },
-  {
-    group: "SHIPMENT TYPE",
-    options: [
-      { label: "CSB-V", value: "CSB-V" },
-      { label: "COMMERCIAL", value: "COMMERCIAL" },
-    ],
-  },
-
-
   {
     group: "AWB State",
     options: [
@@ -1487,6 +1476,34 @@ export const awbFilterGroups: FilterGroupOption[] = [
       { label: "RTO/TO SHIPPER", value: "RTO/TO SHIPPER" },
     ],
   },
+  {
+    group: "AWB STATUS",
+    options: [
+      { label: "OPEN", value: "OPEN" },
+      { label: "LOCKED", value: "LOCKED" },
+      { label: "VOID", value: "VOID" },
+      { label: "HOLD", value: "HOLD" },
+      { label: "RTO", value: "RTO" },
+    ],
+  },
+  {
+    group: "SHIPMENT TYPE",
+    options: [
+      { label: "CSB-V", value: "CSB-V" },
+      { label: "COMMERCIAL", value: "COMMERCIAL" },
+    ],
+  },
+  {
+    group: "SERVICE TYPE",
+    sameColumnAsPrevious: true,
+    options: [
+      { label: "INTERNATIONAL", value: "INTERNATIONAL" },
+      { label: "DOMESTIC", value: "DOMESTIC" },
+    ],
+  },
+
+
+
 ];
 
 export const awbFilterOptions = [

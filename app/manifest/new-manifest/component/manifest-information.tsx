@@ -15,6 +15,7 @@ import { ManifestFormState, ManifestFormErrors } from "./state";
 import CustomDatePicker from "@/app/src/common/datepicker";
 import CustomTimePicker from "@/app/src/common/timepicker";
 import Dropdown from "@/app/src/common/dropdown";
+import { Plus } from "lucide-react";
 
 interface ManifestInformationProps {
   form: ManifestFormState;
@@ -33,6 +34,72 @@ export default function ManifestInformation({
   handleSearchAwb,
   handleBagging,
 }: ManifestInformationProps) {
+  const [originHubOptions, setOriginHubOptions] = React.useState([
+    { value: "DEL", label: "Delhi" },
+    { value: "BOM", label: "Mumbai" },
+  ]);
+  const [isCityModalOpen, setIsCityModalOpen] = React.useState(false);
+  const [newCityName, setNewCityName] = React.useState("");
+
+  const finalOriginHubOptions = React.useMemo(() => {
+    return [
+      ...originHubOptions,
+      {
+        value: "OTHER",
+        label: (
+          <div className="flex items-center gap-2">
+            <Plus size={15} strokeWidth={3} className="text-axc-yellow" />
+            <span>Add Custom Hub</span>
+          </div>
+        ),
+      },
+    ];
+  }, [originHubOptions]);
+
+  const handleAddCity = () => {
+    if (newCityName.trim()) {
+      const code = newCityName.trim().substring(0, 3).toUpperCase();
+      const newOption = { value: code, label: newCityName.trim() };
+      setOriginHubOptions([...originHubOptions, newOption]);
+      updateField("originHub", code);
+      setIsCityModalOpen(false);
+      setNewCityName("");
+      setNewCityName("");
+    }
+  };
+
+  const [destHubOptions, setDestHubOptions] = React.useState([
+    { value: "JFK", label: "New York" },
+    { value: "LAX", label: "Los Angeles" },
+  ]);
+  const [isDestCityModalOpen, setIsDestCityModalOpen] = React.useState(false);
+  const [newDestCityName, setNewDestCityName] = React.useState("");
+
+  const finalDestHubOptions = React.useMemo(() => {
+    return [
+      ...destHubOptions,
+      {
+        value: "OTHER",
+        label: (
+          <div className="flex items-center gap-2">
+            <Plus size={15} strokeWidth={3} className="text-axc-yellow" />
+            <span>Add Custom Hub</span>
+          </div>
+        ),
+      },
+    ];
+  }, [destHubOptions]);
+
+  const handleAddDestCity = () => {
+    if (newDestCityName.trim()) {
+      const code = newDestCityName.trim().substring(0, 3).toUpperCase();
+      const newOption = { value: code, label: newDestCityName.trim() };
+      setDestHubOptions([...destHubOptions, newOption]);
+      updateField("destinationHub", code);
+      setIsDestCityModalOpen(false);
+      setNewDestCityName("");
+    }
+  };
   return (
     <div className="bg-white rounded-lg border border-axc-border shadow-sm flex flex-col">
       <PanelHeader title="Manifest Information" />
@@ -80,7 +147,7 @@ export default function ManifestInformation({
           </div>
 
           {/* 5. MASTER EDI BAG NO */}
-          <div className="flex flex-col gap-1">
+          {/* <div className="flex flex-col gap-1">
             <FieldLabel>Master EDI Bag No</FieldLabel>
             <input
               value={form.masterEdiBagNo}
@@ -88,7 +155,7 @@ export default function ManifestInformation({
               className={inputClass}
               placeholder="Master EDI Bag No"
             />
-          </div>
+          </div> */}
 
           {/* 6. TOTAL ACTUAL WT */}
           <div className="flex flex-col gap-1">
@@ -105,7 +172,7 @@ export default function ManifestInformation({
         {/* ================= COLUMN 2 ================= */}
         <div className="flex flex-col gap-3">
           {/* 1. FORWARDER */}
-          <div className="flex flex-col gap-1">
+          {/* <div className="flex flex-col gap-1">
             <FieldLabel>Forwarder</FieldLabel>
             <input
               value={form.forwarderCode || ""}
@@ -115,7 +182,7 @@ export default function ManifestInformation({
             />
           </div>
 
-          {/* 2. VENDOR */}
+         
           <div className="flex flex-col gap-1">
             <FieldLabel>Vendor</FieldLabel>
             <input
@@ -124,7 +191,7 @@ export default function ManifestInformation({
               className={inputClass}
               placeholder="Vendor"
             />
-          </div>
+          </div> */}
 
           {/* 3. RUN NUMBER */}
           <div className="flex flex-col gap-1">
@@ -202,6 +269,16 @@ export default function ManifestInformation({
               placeholder="Total Volumetric Wt"
             />
           </div>
+          {/* 6. TOTAL CHARGEABLE WT */}
+          <div className="flex flex-col gap-1">
+            <FieldLabel>Total Chargeable Wt</FieldLabel>
+            <input
+              disabled
+              value={form.totalChargeableWt}
+              className={disabledInputClass}
+              placeholder="Total Chargeable Wt"
+            />
+          </div>
         </div>
 
         {/* ================= COLUMN 3 ================= */}
@@ -211,12 +288,15 @@ export default function ManifestInformation({
             <FieldLabel required>Origin Hub</FieldLabel>
             <Dropdown
               value={form.originHub}
-              onChange={(val) => updateField("originHub", val)}
+              onChange={(val) => {
+                if (val === "OTHER") {
+                  setIsCityModalOpen(true);
+                  return;
+                }
+                updateField("originHub", val);
+              }}
               placeholder="SELECT..."
-              options={[
-                { value: "DEL", label: "Delhi" },
-                { value: "BOM", label: "Mumbai" },
-              ]}
+              options={finalOriginHubOptions}
               className={errors.originHub ? "border-red-400 bg-red-50/40" : ""}
             />
             <FieldError message={errors.originHub} />
@@ -227,17 +307,20 @@ export default function ManifestInformation({
             <FieldLabel>Destination Hub</FieldLabel>
             <Dropdown
               value={form.destinationHub}
-              onChange={(val) => updateField("destinationHub", val)}
+              onChange={(val) => {
+                if (val === "OTHER") {
+                  setIsDestCityModalOpen(true);
+                  return;
+                }
+                updateField("destinationHub", val);
+              }}
               placeholder="SELECT..."
-              options={[
-                { value: "JFK", label: "New York" },
-                { value: "LAX", label: "Los Angeles" },
-              ]}
+              options={finalDestHubOptions}
             />
           </div>
 
           {/* 3. LINE HAUL VENDOR */}
-          <div className="flex flex-col gap-1">
+          {/* <div className="flex flex-col gap-1">
             <FieldLabel>Line Haul Vendor</FieldLabel>
             <input
               value={form.lineHaulVendor}
@@ -245,7 +328,7 @@ export default function ManifestInformation({
               className={inputClass}
               placeholder="Line Haul Vendor"
             />
-          </div>
+          </div> */}
 
           {/* 4. ARRIVAL DATE */}
           <div className="flex flex-col gap-1">
@@ -267,16 +350,7 @@ export default function ManifestInformation({
             />
           </div>
 
-          {/* 6. TOTAL CHARGEABLE WT */}
-          <div className="flex flex-col gap-1">
-            <FieldLabel>Total Chargeable Wt</FieldLabel>
-            <input
-              disabled
-              value={form.totalChargeableWt}
-              className={disabledInputClass}
-              placeholder="Total Chargeable Wt"
-            />
-          </div>
+
         </div>
 
         {/* 7. EDI EXCEL FILE (Full Width) */}
@@ -338,6 +412,68 @@ export default function ManifestInformation({
           Bagging
         </button>
       </div>
+
+      {isCityModalOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-[480px]  flex flex-col">
+            <h3 className="text-xl font-semibold text-axc-navy mb-6">Add Origin Hub</h3>
+            <input
+              type="text"
+              className={`${inputClass} py-3`}
+              placeholder="Enter city name..."
+              value={newCityName}
+              onChange={(e) => setNewCityName(e.target.value)}
+            />
+            <div className="flex justify-end gap-3 mt-auto pt-6">
+              <button
+                type="button"
+                onClick={() => setIsCityModalOpen(false)}
+                className="px-5 py-2.5 text-sm font-medium text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleAddCity}
+                className="px-5 py-2.5 text-sm font-medium text-white bg-axc-navy rounded-md hover:bg-axc-navy/90 transition cursor-pointer"
+              >
+                Add City
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {isDestCityModalOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50">
+          <div className="bg-white p-6 rounded-lg shadow-lg w-[480px] flex flex-col">
+            <h3 className="text-xl font-semibold text-axc-navy mb-6">Add Destination Hub</h3>
+            <input
+              type="text"
+              className={`${inputClass} py-3`}
+              placeholder="Enter city name..."
+              value={newDestCityName}
+              onChange={(e) => setNewDestCityName(e.target.value)}
+            />
+            <div className="flex justify-end gap-3 mt-auto pt-6">
+              <button
+                type="button"
+                onClick={() => setIsDestCityModalOpen(false)}
+                className="px-5 py-2.5 text-sm font-medium text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50 transition cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleAddDestCity}
+                className="px-5 py-2.5 text-sm font-medium text-white bg-axc-navy rounded-md hover:bg-axc-navy/90 transition cursor-pointer"
+              >
+                Add Destination
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

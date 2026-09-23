@@ -134,9 +134,13 @@ export default function AwbEntriesPage() {
 
     let matchesQuery = true;
     if (query) {
-      const searchTerms = query.split(",").map((q) => q.trim()).filter(Boolean);
-      
-      if (searchTerms.length > 0) {
+      if (query.trim().endsWith(",")) {
+        // Show full table when a comma is typed so the user can look for the next item
+        matchesQuery = true;
+      } else {
+        const searchTerms = query.split(/[,\s]+/).map((q) => q.trim()).filter(Boolean);
+        
+        if (searchTerms.length > 0) {
         matchesQuery = searchTerms.some((term) => {
           return (
             (item.awbNumber || "").toLowerCase().includes(term) ||
@@ -156,10 +160,9 @@ export default function AwbEntriesPage() {
         });
       }
     }
+  }
 
-
-
-    const matchesTags = activeTags.every((tag) => {
+  const matchesTags = activeTags.every((tag) => {
       const raw = tag.toLowerCase().replace("origin hub:", "").trim();
       if (raw === "origin hub code" || raw === "origin_hub_code") {
         return Boolean(item.origin || (item as any).originHubCode);
@@ -264,8 +267,8 @@ export default function AwbEntriesPage() {
             (item.vendor || "").toLowerCase().includes(alias)
         );
       }
-      if (raw.includes(",")) {
-        const tagTerms = raw.split(",").map((q) => q.trim()).filter(Boolean);
+      if (/[,\s]+/.test(raw)) {
+        const tagTerms = raw.split(/[,\s]+/).map((q) => q.trim()).filter(Boolean);
         if (tagTerms.length > 0) {
           return tagTerms.some((term) => {
             return (
