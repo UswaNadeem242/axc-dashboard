@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { X } from "lucide-react";
+import CommonDropdown from "../../src/common/dropdown";
 
 interface CustomChargeModalProps {
   isOpen: boolean;
@@ -78,14 +79,15 @@ export default function CustomChargeModal({ isOpen, onClose, onSave }: CustomCha
 
             <div>
               <label className="mb-1.5 block text-[12px] font-medium text-axc-dark-gray">Inputs to Show <span className="ml-1 text-axc-red">*</span></label>
-              <select
-                value={inputsCount}
-                onChange={(e) => setInputsCount(Number(e.target.value) as 1 | 2)}
-                className="w-full h-10 border border-axc-border rounded-md px-3 text-[12px] text-axc-dark-gray outline-none focus:border-axc-navy focus:ring-1 focus:ring-axc-navy bg-white cursor-pointer"
-              >
-                <option value={1}>1 Input (Amount only)</option>
-                <option value={2}>2 Inputs (Value and Amount)</option>
-              </select>
+              <CommonDropdown
+                value={String(inputsCount)}
+                onChange={(val) => setInputsCount(Number(val) as 1 | 2)}
+                options={[
+                  { value: "1", label: "1 Input (Amount only)" },
+                  { value: "2", label: "2 Inputs (Value and Amount)" }
+                ]}
+                className="w-full !py-2 !px-3 !text-[12px] border-axc-border h-10"
+              />
             </div>
 
             <div className="flex gap-3 justify-end pt-4 border-t border-axc-border">

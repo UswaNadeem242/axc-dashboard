@@ -150,6 +150,7 @@ export function PurchaseBillingPanel({
   const [visibleCharges, setVisibleCharges] = useState<Set<PurchaseChargeKey>>(new Set());
   const [visibleDynamicCharges, setVisibleDynamicCharges] = useState<Set<string>>(new Set());
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [dropdownKey, setDropdownKey] = useState(0);
 
   useEffect(() => {
     setVisibleDynamicCharges(prev => {
@@ -321,11 +322,13 @@ export function PurchaseBillingPanel({
           <div className="flex flex-col gap-1">
             <span className="text-regular-medium text-axc-dark-gray">Add Charge</span>
             <CommonDropdown
+              key={dropdownKey}
               value={[...Array.from(visibleCharges), ...Array.from(visibleDynamicCharges)]}
               multiple
               onChange={(val: string[]) => {
                 if (val.includes("OTHER")) {
                   setIsModalOpen(true);
+                  setDropdownKey(prev => prev + 1);
                   return;
                 }
                 
