@@ -144,9 +144,9 @@ function Checkbox({
 
 function StatusBadge({ status }: { status: TeamMember["status"] }) {
   const styles: Record<TeamMember["status"], string> = {
-    Active: "bg-green-50 text-green-600",
-    Invited: "bg-orange-50 text-orange-500",
-    Suspended: "bg-red-50 text-axc-red",
+    Active: "bg-axc-green/10 text-axc-green",
+    Invited: "bg-axc-yellow/10 text-axc-yellow",
+    Suspended: "bg-axc-red/10 text-axc-red",
   };
   return (
     <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${styles[status]}`}>
