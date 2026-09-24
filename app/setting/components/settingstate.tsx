@@ -70,3 +70,33 @@ export interface NotificationFormState {
   taskUpdates: boolean;
   productUpdates: boolean;
 }
+export type PlanStatus = "Active" | "Cancelled" | "Past Due";
+
+export interface BillingPlan {
+  name: string;
+  status: PlanStatus;
+  price: number;
+  nextBillingDate: string;
+  activeUsers: number;
+  maxUsers: number;
+}
+
+export type CardBrand = "Visa" | "Mastercard" | "Amex" | "Card";
+export interface PaymentMethod {
+  id: string;
+  brand: CardBrand;
+  last4: string;
+  expiry: string;
+  cardHolder: string;
+  isDefault: boolean;
+}
+
+export type InvoiceStatus = "Paid" | "Pending" | "Failed";
+
+export interface BillingHistoryItem {
+  id: string;
+  date: string;
+  invoice: string;
+  amount: number;
+  status: InvoiceStatus;
+}

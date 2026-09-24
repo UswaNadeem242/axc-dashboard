@@ -9,8 +9,11 @@ import {
   SecurityFormState,
   SecurityFormErrors,
   NotificationFormState,
+  BillingPlan,
+  PaymentMethod,
+  BillingHistoryItem,
 } from "./settingstate";
-import { showToast } from "../../src/common/toast"; 
+import { showToast } from "../../src/common/toast";
 export function EditCheckbox({
   active,
   onToggle,
@@ -672,4 +675,97 @@ export function useNotificationForm({
   };
 
   return { form, onToggle };
+}
+
+const defaultBillingPlan: BillingPlan = {
+  name: "Silver",
+  status: "Active",
+  price: 49,
+  nextBillingDate: "Sep 1, 2026",
+  activeUsers: 1,
+  maxUsers: 5,
+};
+
+interface UseBillingFormOptions {
+  initialPlan?: BillingPlan;
+  initialPaymentMethods?: PaymentMethod[];
+  initialBillingHistory?: BillingHistoryItem[];
+  onAddCard?: () => void;
+  onRemoveCard?: (id: string) => Promise<void> | void;
+  onSetDefaultCard?: (id: string) => Promise<void> | void;
+  onUpgradePlan?: () => void;
+  onDownloadInvoice?: (id: string) => Promise<void> | void;
+}
+
+export function useBillingForm({
+  initialPlan = defaultBillingPlan,
+  initialPaymentMethods = [],
+  initialBillingHistory = [],
+  onAddCard,
+  onRemoveCard,
+  onSetDefaultCard,
+  onUpgradePlan,
+  onDownloadInvoice,
+}: UseBillingFormOptions = {}) {
+  const [plan] = useState<BillingPlan>(initialPlan);
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>(initialPaymentMethods);
+  const [billingHistory] = useState<BillingHistoryItem[]>(initialBillingHistory);
+
+  const handleAddCard = () => {
+    onAddCard?.();
+  };
+
+  const handleRemoveCard = async (id: string) => {
+    const previous = paymentMethods;
+    setPaymentMethods((prev) => {
+      const next = prev.filter((card) => card.id !== id);
+      if (next.length > 0 && !next.some((card) => card.isDefault)) {
+        next[0] = { ...next[0], isDefault: true };
+      }
+      return next;
+    });
+    try {
+      await onRemoveCard?.(id);
+      showToast({ variant: "success", message: "Card removed successfully" });
+    } catch {
+      setPaymentMethods(previous);
+      showToast({ variant: "error", message: "Failed to remove card" });
+    }
+  };
+
+  const handleSetDefault = async (id: string) => {
+    const previous = paymentMethods;
+    setPaymentMethods((prev) => prev.map((card) => ({ ...card, isDefault: card.id === id })));
+    try {
+      await onSetDefaultCard?.(id);
+      showToast({ variant: "success", message: "Default card updated" });
+    } catch {
+      setPaymentMethods(previous);
+      showToast({ variant: "error", message: "Failed to update default card" });
+    }
+  };
+
+  const handleUpgradePlan = () => {
+    onUpgradePlan?.();
+  };
+
+  const handleDownloadInvoice = async (id: string) => {
+    try {
+      await onDownloadInvoice?.(id);
+      showToast({ variant: "success", message: "Invoice download started" });
+    } catch {
+      showToast({ variant: "error", message: "Failed to download invoice" });
+    }
+  };
+
+  return {
+    plan,
+    paymentMethods,
+    billingHistory,
+    handleAddCard,
+    handleRemoveCard,
+    handleSetDefault,
+    handleUpgradePlan,
+    handleDownloadInvoice,
+  };
 }

@@ -3,11 +3,14 @@ import React, { useState } from "react";
 import { User, Building2, Users, CreditCard, ShieldCheck, Bell } from "lucide-react";
 import ProfileInformation from "./components/profile";
 import OrganizationInformation from "./components/organization";
+import TeamAccess from "./components/teamaccess";
+import BillingSettings from "./components/billing";
 import SecuritySettings from "./components/security";
 import NotificationSettings from "./components/notifications";
 import {
   useProfileForm,
   useOrganizationForm,
+  useBillingForm,
   useSecurityForm,
   useNotificationForm,
 } from "./components/settingform";
@@ -28,6 +31,7 @@ export default function SettingsPage() {
 
   const profile = useProfileForm();
   const organization = useOrganizationForm();
+  const billing = useBillingForm();
   const security = useSecurityForm();
   const notifications = useNotificationForm();
 
@@ -78,6 +82,8 @@ export default function SettingsPage() {
               handleCancel={organization.handleCancel}
             />
           )}
+          {activeTab === "team-access" && <TeamAccess />}
+          {activeTab === "billing" && <BillingSettings {...billing} />}
           {activeTab === "security" && <SecuritySettings {...security} />}
           {activeTab === "notifications" && (
             <NotificationSettings form={notifications.form} onToggle={notifications.onToggle} />
