@@ -47,18 +47,18 @@ export function DeliveryPanel({
       vendor: delivery.deliveryDate || "-",
       highlight: false,
     },
-    {
-      label: "Actual TAT",
-      customer: delivery.actualTatCustomer || "-",
-      vendor: delivery.actualTatVendor || "-",
-      highlight: true,
-    },
-    {
-      label: "Crossed EDD Days",
-      customer: delivery.crossedEddDaysCustomer || "-",
-      vendor: delivery.crossedEddDaysVendor || "-",
-      highlight: false,
-    },
+    // {
+    //   label: "Actual TAT",
+    //   customer: delivery.actualTatCustomer || "-",
+    //   vendor: delivery.actualTatVendor || "-",
+    //   highlight: true,
+    // },
+    // {
+    //   label: "Crossed EDD Days",
+    //   customer: delivery.crossedEddDaysCustomer || "-",
+    //   vendor: delivery.crossedEddDaysVendor || "-",
+    //   highlight: false,
+    // },
   ];
 
   const deliverySummaryHeadings = [

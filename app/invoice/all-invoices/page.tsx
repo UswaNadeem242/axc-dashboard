@@ -31,7 +31,7 @@ export default function AllInvoicePage() {
 
   const [data, setData] = useState<InvoiceEntry[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterType, setFilterType] = useState("");
+
   const [activeTags, setActiveTags] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
@@ -71,6 +71,36 @@ export default function AllInvoicePage() {
       setActiveTags((prev) => [...prev, trimmed]);
       setSearchQuery("");
     }
+  };
+
+  const filterGroups = React.useMemo(() => {
+    return [
+      {
+        group: "By Date",
+        options: [
+          { label: "Today", value: "Today" },
+          { label: "Yesterday", value: "Yesterday" },
+          { label: "Last 7 days", value: "Last 7 days" },
+          { label: "Custom", value: "Custom" },
+        ],
+      },
+    ];
+  }, []);
+
+  const handleTagsChange = (newTags: string[]) => {
+    const addedTag = newTags.find((tag) => !activeTags.includes(tag));
+    
+    if (addedTag) {
+      const group = filterGroups.find(g => g.options.some(o => o.value === addedTag));
+      if (group) {
+        const groupValues = group.options.map(o => o.value);
+        const filteredTags = newTags.filter(tag => tag === addedTag || !groupValues.includes(tag));
+        setActiveTags(filteredTags);
+        return;
+      }
+    }
+    
+    setActiveTags(newTags);
   };
 
   const removeTag = (tagToRemove: string) => {
@@ -118,16 +148,91 @@ export default function AllInvoicePage() {
 
   const filteredData = data.filter((item) => {
     const query = searchQuery.toLowerCase();
-    const matchesQuery =
-      !query ||
-      item.invoiceNumber.toLowerCase().includes(query) ||
-      item.customerName.toLowerCase().includes(query) ||
-      item.customerType.toLowerCase().includes(query) ||
-      item.shipperCode.toLowerCase().includes(query) ||
-      item.createdBy.toLowerCase().includes(query);
+    let matchesQuery = true;
+    if (query) {
+      if (query.trim().endsWith(",")) {
+        matchesQuery = true;
+      } else {
+        const searchTerms = query.split(/[,\s]+/).map(q => q.trim()).filter(Boolean);
+        if (searchTerms.length > 0) {
+          matchesQuery = searchTerms.some((term) => {
+          return (
+            item.invoiceNumber.toLowerCase().includes(term) ||
+            item.customerName.toLowerCase().includes(term) ||
+            item.customerType.toLowerCase().includes(term) ||
+            item.shipperCode.toLowerCase().includes(term) ||
+            item.createdBy.toLowerCase().includes(term)
+          );
+        });
+      }
+    }
+  }
 
     const matchesTags = activeTags.every((tag) => {
       const t = tag.toLowerCase();
+
+      if (t === "today" || t === "yesterday" || t === "last 7 days") {
+        const checkDate = (dateStr?: string) => {
+          if (!dateStr) return false;
+          const parts = dateStr.split("-");
+          if (parts.length !== 3) return false;
+          const [d, m, y] = parts;
+          
+          const itemDate = new Date(Number(y), Number(m) - 1, Number(d));
+          itemDate.setHours(0,0,0,0);
+          
+          const today = new Date();
+          today.setHours(0,0,0,0);
+          
+          const yesterday = new Date(today);
+          yesterday.setDate(yesterday.getDate() - 1);
+          
+          const last7Days = new Date(today);
+          last7Days.setDate(last7Days.getDate() - 7);
+
+          if (t === "today") return itemDate.getTime() === today.getTime();
+          if (t === "yesterday") return itemDate.getTime() === yesterday.getTime();
+          if (t === "last 7 days") return itemDate >= last7Days && itemDate <= today;
+          return false;
+        };
+        return checkDate(item.invoiceDate);
+      }
+
+      if (t === "custom") return true;
+
+      const dateRangeRegex = /^[a-z]{3} \d{1,2}, \d{4} - [a-z]{3} \d{1,2}, \d{4}$/i;
+      if (dateRangeRegex.test(t)) {
+        const parts = t.split(" - ");
+        if (parts.length === 2) {
+          const parseItemDate = (str?: string) => {
+            if (!str) return null;
+            const dateParts = str.split("-");
+            if (dateParts.length !== 3) return null;
+            const [d, m, y] = dateParts;
+            const dt = new Date(Number(y), Number(m) - 1, Number(d));
+            dt.setHours(0,0,0,0);
+            return dt;
+          };
+          
+          const parseTagDate = (str: string) => {
+            const dt = new Date(str);
+            if (isNaN(dt.getTime())) return null;
+            dt.setHours(0,0,0,0);
+            return dt;
+          };
+          
+          const startDate = parseTagDate(parts[0]);
+          const endDate = parseTagDate(parts[1]);
+          
+          if (startDate && endDate) {
+            const itemDate = parseItemDate(item.invoiceDate);
+            if (!itemDate) return false;
+            return itemDate >= startDate && itemDate <= endDate;
+          }
+        }
+        return false;
+      }
+
       return (
         item.invoiceNumber.toLowerCase().includes(t) ||
         item.customerName.toLowerCase().includes(t) ||
@@ -156,14 +261,9 @@ export default function AllInvoicePage() {
             </span>
           )}
           <FilterSearch
-            options={[
-              { label: "Select", value: "" },
-              { label: "Invoice Number", value: "invoiceNumber" },
-              { label: "Customer Name", value: "customerName" },
-              { label: "Created By", value: "createdBy" },
-            ]}
-            selectedOption={filterType}
-            onOptionChange={setFilterType}
+            groups={filterGroups}
+            selectedOptions={activeTags}
+            onOptionsChange={handleTagsChange}
             searchValue={searchQuery}
             onSearchChange={setSearchQuery}
             onSearchSubmit={handleSearchSubmit}

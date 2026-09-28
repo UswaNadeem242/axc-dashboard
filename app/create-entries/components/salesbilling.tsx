@@ -23,11 +23,7 @@ const emptyCharges = chargeKeys.reduce((acc, key) => {
   return acc;
 }, {} as SalesBillingCharges);
 
-const defaultChecked: ChargeKey[] = [
-  "additionalHandlingCharge", "deliveryAreaSurcharge", "deliveryAreaSurchargeExtended",
-  "remoteArea", "remoteAreaSurcharge", "residentialSurcharge",
-];
-defaultChecked.forEach((k) => (emptyCharges[k] = { ...emptyCharges[k], checked: true, value: "0", amount: "0" }));
+
 
 const emptyBillingForm: SalesBillingFormState = {
   salesCurrency: "USD",
@@ -118,10 +114,16 @@ export function useSalesBilling() {
   };
 
   const totals = useMemo(() => {
-    const otherCharges = chargeKeys.reduce((sum, key) => {
+    let otherCharges = chargeKeys.reduce((sum, key) => {
       const line = billing.charges[key];
       return sum + (line.checked ? toNumber(line.amount) : toNumber(line.value));
     }, 0);
+
+    if (billing.dynamicCharges) {
+      otherCharges += Object.values(billing.dynamicCharges).reduce((sum, line) => {
+        return sum + (line.checked ? toNumber(line.amount) : toNumber(line.value));
+      }, 0);
+    }
 
     const freight = toNumber(billing.freight);
     const discountAmount =

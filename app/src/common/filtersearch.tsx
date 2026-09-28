@@ -18,6 +18,7 @@ export interface FilterOption {
 export interface FilterGroup {
   group: string;
   options: FilterOption[];
+  sameColumnAsPrevious?: boolean;
 }
 
 interface FilterSearchProps {
@@ -109,18 +110,23 @@ export default function FilterSearch({
   };
 
   // Group options or prepare columns for flat options
-  const columnsData: { title: string; items: FilterOption[] }[] = useMemo(() => {
+  const columnsData: { title: string; items: FilterOption[] }[][] = useMemo(() => {
     if (groups && groups.length > 0) {
-      return groups.map((g) => ({
-        title: g.group,
-        items: g.options,
-      }));
+      const cols: { title: string; items: FilterOption[] }[][] = [];
+      groups.forEach((g) => {
+        if (g.sameColumnAsPrevious && cols.length > 0) {
+          cols[cols.length - 1].push({ title: g.group, items: g.options });
+        } else {
+          cols.push([{ title: g.group, items: g.options }]);
+        }
+      });
+      return cols;
     }
 
     if (options && options.length > 0) {
       const validOptions = options.filter((opt) => opt.value !== "");
       const itemsToUse = validOptions.length > 0 ? validOptions : options;
-      return [{ title: columnTitle, items: itemsToUse }];
+      return [[{ title: columnTitle, items: itemsToUse }]];
     }
 
     return [];
@@ -290,17 +296,19 @@ export default function FilterSearch({
 
                 {/* Horizontal Layout for Columns */}
                 <div className="flex flex-row divide-x divide-gray-200 bg-white w-full overflow-x-auto">
-                  {columnsData.map((col, colIdx) => (
+                  {columnsData.map((colGroups, colIdx) => (
                     <div
-                      key={`${col.title}-${colIdx}`}
-                      className="px-4 py-3 shrink-0 w-max min-w-[110px]"
+                      key={`col-${colIdx}`}
+                      className="px-5 py-3 shrink-0 w-max min-w-[140px] flex flex-col gap-4"
                     >
-                      <h4 className="text-[13px] font-bold text-gray-900 mb-3 select-none">
-                        {col.title}
-                      </h4>
-                      <div className="space-y-2 max-h-[220px] overflow-y-auto pr-2 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
-                        {col.items.map((option) => {
-                          const isChecked = activeOptionsList.includes(option.value);
+                      {colGroups.map((col, groupIdx) => (
+                        <div key={`${col.title}-${groupIdx}`}>
+                          <h4 className="text-[13px] font-bold text-gray-900 mb-3 select-none">
+                            {col.title}
+                          </h4>
+                          <div className="space-y-2 max-h-[220px] overflow-y-auto pr-2 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
+                            {col.items.map((option) => {
+                              const isChecked = activeOptionsList.includes(option.value);
                           return (
                             <div
                               key={option.value}
@@ -341,10 +349,12 @@ export default function FilterSearch({
                     </div>
                   ))}
                 </div>
-              </div>
+              ))}
             </div>
-            </PopoverPanel>
-          </>
+          </div>
+        </div>
+        </PopoverPanel>
+      </>
         )}
       </Popover>
 

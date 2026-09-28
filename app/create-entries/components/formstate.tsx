@@ -123,6 +123,11 @@ export function emptyCharge(): ChargeLine {
   return { checked: false, value: "", amount: "" };
 }
 
+export interface DynamicChargeLine extends ChargeLine {
+  label: string;
+  inputsCount: 1 | 2;
+}
+
 export interface SalesBillingCharges {
   additionalHandling: ChargeLine;
   additionalHandlingCharge: ChargeLine;
@@ -158,6 +163,7 @@ export interface SalesBillingFormState {
   searchCharge: string;
 
   charges: SalesBillingCharges;
+  dynamicCharges?: Record<string, DynamicChargeLine>;
 
   totalOtherCharges: string;
   adjustmentAmount: string;
@@ -264,6 +270,7 @@ export interface PurchaseBillingFormState {
   searchCharge: string;
 
   charges: PurchaseBillingCharges;
+  dynamicCharges?: Record<string, DynamicChargeLine>;
 
   totalOtherCharges: string;
   adjustmentAmount: string;
@@ -304,6 +311,7 @@ export function defaultPurchaseBilling(): PurchaseBillingFormState {
     freightPerKg: "",
     searchCharge: "",
     charges: emptyPurchaseCharges(),
+    dynamicCharges: {},
     totalOtherCharges: "0",
     adjustmentAmount: "",
     fscPercent: "",

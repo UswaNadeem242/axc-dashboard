@@ -166,7 +166,8 @@ export default function AllManifestPage() {
 
     const matchesQuery = (() => {
       if (!query) return true;
-      const queries = query.split(",").map(q => q.trim()).filter(Boolean);
+      if (query.trim().endsWith(",")) return true;
+      const queries = query.split(/[,\s]+/).map(q => q.trim()).filter(Boolean);
       if (queries.length === 0) return true;
       return queries.some(q => checkMatch(q));
     })();
@@ -197,10 +198,10 @@ export default function AllManifestPage() {
       {
         group: "By Date",
         options: [
-          { label: "Custom", value: "Custom" },
           { label: "Today", value: "Today" },
           { label: "Yesterday", value: "Yesterday" },
           { label: "Last 7 days", value: "Last 7 days" },
+          { label: "Custom", value: "Custom" },
         ],
       },
       {
