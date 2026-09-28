@@ -1296,6 +1296,51 @@ export const VendorInvoiceData: VendorInvoiceEntry[] = [
   },
 ];
 
+export interface SelectOption {
+  label: string;
+  value: string;
+}
+
+export interface VendorOption {
+  code: string;
+  name: string;
+}
+
+export const VendorOptions: VendorOption[] = [
+  { code: "V001", name: "Vendor One" },
+  { code: "V002", name: "Vendor Two" },
+  { code: "V003", name: "Vendor Three" },
+];
+
+export const BillingCompanyOptions: SelectOption[] = [
+  {
+    label: "AXC INC - AMERICAN XPRESS COURIER",
+    value: "AXC INC - AMERICAN XPRESS COURIER",
+  },
+];
+
+export const CurrencyOptions: SelectOption[] = [
+  { label: "PKR", value: "PKR" },
+  { label: "USD", value: "USD" },
+  { label: "AED", value: "AED" },
+  { label: "EUR", value: "EUR" },
+  { label: "GBP", value: "GBP" },
+];
+
+export const VendorSearchByOptions: SelectOption[] = [
+  { label: "AWB 1", value: "awb1" },
+  { label: "AWB 2", value: "awb2" },
+  { label: "Parcel No.", value: "parcelNo" },
+  { label: "Ref No.", value: "refNo" },
+];
+
+export const VendorInvoiceSample = {
+  fileName: "vendor_invoice_sample.csv",
+  content:
+    "awb_number,forwarding_number,parcel_no,ref_no,weight,amount\n" +
+    "AWB123456,FWD123456,PCL001,REF001,1.5,100\n",
+};
+
 
 export const timeFilterOptions = [
   { label: "Today", value: "today" },
