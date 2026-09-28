@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { PlusCircleIcon, Eye, Pencil, Trash2 } from "lucide-react";
 import CommonTable from "../../src/common/table";
@@ -8,6 +8,7 @@ import {
   VendorInvoiceEntry,
   VendorInvoiceData,
 } from "../../src/constant";
+import FilterSearch from "../../src/common/filtersearch";
 import Button from "../../src/common/button";
 import DeleteConfirmationDialog from "../../src/common/deleteConfirmation";
 
@@ -22,6 +23,7 @@ export default function VendorInvoicePage() {
   );
   const [isDeleting, setIsDeleting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTags, setActiveTags] = useState<string[]>([]);
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
 
@@ -29,7 +31,7 @@ export default function VendorInvoicePage() {
 
   useEffect(() => {
     setPage(1);
-  }, [searchQuery]);
+  }, [searchQuery, activeTags]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -53,23 +55,63 @@ export default function VendorInvoicePage() {
     }
   }, [data]);
 
+  const handleSearchSubmit = (val: string) => {
+    const trimmed = val.trim();
+    if (!trimmed) return;
+
+    if (!activeTags.includes(trimmed)) {
+      setActiveTags((prev) => [...prev, trimmed]);
+      setSearchQuery("");
+    }
+  };
+
+  const handleTagsChange = (newTags: string[]) => {
+    setActiveTags(newTags);
+  };
+
+  const matchesTerm = (item: VendorInvoiceEntry, term: string) =>
+    (item.vendor || "").toLowerCase().includes(term) ||
+    (item.invoiceNumber || "").toLowerCase().includes(term) ||
+    (item.invoiceDate || "").toLowerCase().includes(term) ||
+    (item.createdDate || "").toLowerCase().includes(term) ||
+    String(item.missingAwbCount ?? "").includes(term);
+
   const filteredData = data.filter((item) => {
     const query = searchQuery.trim().toLowerCase();
-    if (!query) return true;
 
-    const terms = query
-      .split(",")
-      .map((q) => q.trim())
-      .filter(Boolean);
-    return terms.some(
-      (term) =>
-        (item.vendor || "").toLowerCase().includes(term) ||
-        (item.invoiceNumber || "").toLowerCase().includes(term) ||
-        (item.invoiceDate || "").toLowerCase().includes(term) ||
-        (item.createdDate || "").toLowerCase().includes(term) ||
-        String(item.missingAwbCount).includes(term),
-    );
+    let matchesQuery = true;
+    if (query) {
+      if (query.endsWith(",")) {
+        matchesQuery = true;
+      } else {
+        const searchTerms = query
+          .split(/[,\s]+/)
+          .map((q) => q.trim())
+          .filter(Boolean);
+
+        if (searchTerms.length > 0) {
+          matchesQuery = searchTerms.some((term) => matchesTerm(item, term));
+        }
+      }
+    }
+
+    const matchesTags = activeTags.every((tag) => {
+      const raw = tag.toLowerCase().trim();
+      const tagTerms = raw
+        .split(/[,\s]+/)
+        .map((q) => q.trim())
+        .filter(Boolean);
+      return tagTerms.some((term) => matchesTerm(item, term));
+    });
+
+    return matchesQuery && matchesTags;
   });
+
+  const searchSuggestions = useMemo(() => {
+    const vendors = data.map((item) => item.vendor).filter(Boolean);
+    const invoices = data.map((item) => item.invoiceNumber).filter(Boolean);
+    return Array.from(new Set([...vendors, ...invoices]));
+  }, [data]);
 
   const handleDelete = (row: VendorInvoiceEntry) => {
     setDeleteTarget(row);
@@ -120,18 +162,21 @@ export default function VendorInvoicePage() {
   return (
     <div className="relative bg-white p-4 rounded-lg w-full flex-1 flex flex-col min-h-0  shadow-sm border border-axc-border  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4 shrink-0">
-        <div className="flex flex-wrap items-center gap-3 w-full max-w-sm">
+        <div className="flex flex-wrap items-center gap-3">
           {selectedIds.length > 0 && (
             <span className="text-xs font-semibold text-axc-gray">
               {selectedIds.length} selected
             </span>
           )}
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search"
-            className="h-9 w-full max-w-sm rounded-md border border-axc-border px-3 text-sm outline-none focus:border-axc-navy"
+          <FilterSearch
+            groups={[]}
+            selectedOptions={activeTags}
+            onOptionsChange={handleTagsChange}
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSearchSubmit={handleSearchSubmit}
+            placeholder="Search Invoices"
+            searchSuggestions={searchSuggestions}
           />
         </div>
         <Button
@@ -184,6 +229,7 @@ export default function VendorInvoicePage() {
           )}
         />
       </div>
+
       <DeleteConfirmationDialog
         isOpen={Boolean(deleteTarget)}
         itemName={deleteTarget?.invoiceNumber}

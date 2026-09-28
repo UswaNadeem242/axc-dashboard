@@ -1,6 +1,5 @@
 "use client";
 import React, { useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Download } from "lucide-react";
 import CommonDropdown from "../../src/common/dropdown";
 import CustomDatePicker from "../../src/common/datepicker";
@@ -27,6 +26,7 @@ interface VendorImportFormState {
 }
 
 type FormErrors = Partial<Record<keyof VendorImportFormState, string>>;
+
 const LABELS: Record<keyof VendorImportFormState, string> = {
   vendor: "Vendor",
   referenceName: "Reference name",
@@ -67,11 +67,15 @@ const emptyForm: VendorImportFormState = {
   searchBy: [],
   csvFile: null,
 };
+
 const inputClass =
   "border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-regular-small text-axc-gray placeholder:text-axc-gray transition cursor-pointer placeholder:text-regular-small";
 
 const errorInputClass =
   "border border-red-400 rounded-md px-3 py-2.5 outline-none w-full text-regular-small text-axc-gray placeholder:text-axc-gray bg-red-50/40 focus:border-red-400 transition cursor-pointer placeholder:text-regular-small";
+
+const actionBtnClass =
+  "bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition";
 
 function FieldLabel({
   children,
@@ -85,6 +89,11 @@ function FieldLabel({
       {children} {required && <span className="text-axc-red ml-0.5">*</span>}
     </label>
   );
+}
+
+function FieldError({ message }: { message?: string }) {
+  if (!message) return null;
+  return <span className="text-[10px] text-red-500">{message}</span>;
 }
 
 function PanelHeader({
@@ -117,13 +126,12 @@ function Field({
     <div className="flex flex-col gap-1">
       <FieldLabel required={required}>{LABELS[name]}</FieldLabel>
       {children}
-      {error && <span className="text-[10px] text-red-500">{error}</span>}
+      <FieldError message={error} />
     </div>
   );
 }
-export default function VendorInvoiceImportPage() {
-  const router = useRouter();
 
+export default function VendorInvoiceImportPage() {
   const [form, setForm] = useState<VendorImportFormState>(emptyForm);
   const [errors, setErrors] = useState<FormErrors>({});
   const [loading, setLoading] = useState(false);
@@ -181,164 +189,158 @@ export default function VendorInvoiceImportPage() {
     errors[key] ? errorInputClass : inputClass;
 
   const dropdownCls = (key: keyof VendorImportFormState) =>
-    errors[key] ? "w-full border-red-400" : "w-full border-axc-border";
+    errors[key] ? "border-red-400 bg-red-50/40" : "border-axc-border";
 
   return (
-    <div className="bg-white rounded-lg border border-axc-border shadow-sm flex flex-col w-full">
-      <PanelHeader
-        title="Import Vendor Invoice "
-      /*right={
+    <div className="bg-white rounded-lg border border-axc-border shadow-sm flex flex-col">
+      <PanelHeader title="Import Vendor Invoice" />
+
+      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3">
+        <Field name="vendor" required error={errors.vendor}>
+          <CommonDropdown
+            value={form.vendor}
+            onChange={(val) => updateField("vendor", val)}
+            className={dropdownCls("vendor")}
+            placeholder="SELECT..."
+            options={vendorDropdownOptions}
+          />
+        </Field>
+
+        <Field name="referenceName">
+          <input
+            type="text"
+            value={form.referenceName}
+            onChange={(e) => updateField("referenceName", e.target.value)}
+            className={cls("referenceName")}
+            placeholder={LABELS.referenceName}
+          />
+        </Field>
+
+        <Field name="invoiceNo" required error={errors.invoiceNo}>
+          <input
+            type="text"
+            value={form.invoiceNo}
+            onChange={(e) => updateField("invoiceNo", e.target.value)}
+            className={cls("invoiceNo")}
+            placeholder={LABELS.invoiceNo}
+          />
+        </Field>
+
+        <Field name="invoiceDate">
+          <CustomDatePicker
+            value={form.invoiceDate}
+            onChange={(val) => updateField("invoiceDate", val)}
+            placeholder={`Select ${LABELS.invoiceDate}`}
+          />
+        </Field>
+
+        <Field name="fromDate" required error={errors.fromDate}>
+          <CustomDatePicker
+            value={form.fromDate}
+            onChange={(val) => updateField("fromDate", val)}
+            placeholder={`Select ${LABELS.fromDate}`}
+          />
+        </Field>
+
+        <Field name="tillDate" required error={errors.tillDate}>
+          <CustomDatePicker
+            value={form.tillDate}
+            onChange={(val) => updateField("tillDate", val)}
+            placeholder={`Select ${LABELS.tillDate}`}
+          />
+        </Field>
+
+        <Field name="billingCompany" required error={errors.billingCompany}>
+          <CommonDropdown
+            value={form.billingCompany}
+            onChange={(val) => updateField("billingCompany", val)}
+            className={dropdownCls("billingCompany")}
+            placeholder="SELECT..."
+            options={BillingCompanyOptions}
+          />
+        </Field>
+
+        <Field name="currency" required error={errors.currency}>
+          <CommonDropdown
+            value={form.currency}
+            onChange={(val) => updateField("currency", val)}
+            className={dropdownCls("currency")}
+            placeholder="SELECT..."
+            options={CurrencyOptions}
+          />
+        </Field>
+
+        <Field name="searchBy">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 py-2.5">
+            {VendorSearchByOptions.map((o) => {
+              const checked = form.searchBy.includes(o.value);
+              return (
+                <label
+                  key={o.value}
+                  className="flex items-center gap-2 text-regular-small text-axc-gray cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    name="searchBy"
+                    value={o.value}
+                    checked={checked}
+                    onChange={() =>
+                      updateField(
+                        "searchBy",
+                        checked
+                          ? form.searchBy.filter((v) => v !== o.value)
+                          : [...form.searchBy, o.value],
+                      )
+                    }
+                    className="accent-axc-navy cursor-pointer"
+                  />
+                  {o.label}
+                </label>
+              );
+            })}
+          </div>
+        </Field>
+
+        <Field name="csvFile" required error={errors.csvFile}>
+          <label
+            className={`flex items-center gap-2 border rounded-md px-3 py-2.5 text-regular-small text-gray-500 cursor-pointer transition ${
+              errors.csvFile
+                ? "border-red-400 bg-red-50/40"
+                : "border-axc-border bg-white hover:bg-gray-50"
+            }`}
+          >
+            <span className="px-2 py-1 bg-gray-100 rounded text-regular-small text-gray-600 shrink-0">
+              Choose File
+            </span>
+            <span
+              className={`truncate ${form.csvFile ? "text-gray-700 font-medium" : "text-gray-400"}`}
+            >
+              {form.csvFile ? form.csvFile.name : "No file chosen"}
+            </span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,text/csv"
+              className="hidden"
+              onChange={(e) => updateField("csvFile", e.target.files?.[0] || null)}
+            />
+          </label>
+        </Field>
+
+        <div className="flex justify-end gap-3 pt-2 sm:col-span-2 xl:col-span-3">
           <button
             type="button"
             onClick={handleDownloadSample}
-            className="flex items-center gap-2 px-3 py-2 bg-white text-axc-navy rounded text-xs font-bold shadow-sm transition cursor-pointer"
+            className={`flex items-center gap-2 ${actionBtnClass}`}
           >
             <Download size={14} />
             Download Sample CSV File
           </button>
-        }*/
-      />
-
-      <div className="p-4 flex flex-col gap-3 text-xs">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <Field name="vendor" required error={errors.vendor}>
-            <CommonDropdown
-              value={form.vendor}
-              onChange={(val) => updateField("vendor", val)}
-              className={dropdownCls("vendor")}
-              placeholder="Search here"
-              options={vendorDropdownOptions}
-            />
-          </Field>
-
-          <Field name="referenceName">
-            <input
-              type="text"
-              value={form.referenceName}
-              onChange={(e) => updateField("referenceName", e.target.value)}
-              className={cls("referenceName")}
-              placeholder={LABELS.referenceName}
-            />
-          </Field>
-
-          <Field name="invoiceNo" required error={errors.invoiceNo}>
-            <input
-              type="text"
-              value={form.invoiceNo}
-              onChange={(e) => updateField("invoiceNo", e.target.value)}
-              className={cls("invoiceNo")}
-              placeholder={LABELS.invoiceNo}
-            />
-          </Field>
-
-          <Field name="invoiceDate">
-            <CustomDatePicker
-              value={form.invoiceDate}
-              onChange={(val) => updateField("invoiceDate", val)}
-              placeholder={`Select ${LABELS.invoiceDate}`}
-            />
-          </Field>
-
-          <Field name="fromDate" required error={errors.fromDate}>
-            <CustomDatePicker
-              value={form.fromDate}
-              onChange={(val) => updateField("fromDate", val)}
-              placeholder={`Select ${LABELS.fromDate}`}
-            />
-          </Field>
-
-          <Field name="tillDate" required error={errors.tillDate}>
-            <CustomDatePicker
-              value={form.tillDate}
-              onChange={(val) => updateField("tillDate", val)}
-              placeholder={`Select ${LABELS.tillDate}`}
-            />
-          </Field>
-
-          <Field name="billingCompany" required error={errors.billingCompany}>
-            <CommonDropdown
-              value={form.billingCompany}
-              onChange={(val) => updateField("billingCompany", val)}
-              className={dropdownCls("billingCompany")}
-              placeholder="SELECT..."
-              options={BillingCompanyOptions}
-            />
-          </Field>
-
-          <Field name="currency" required error={errors.currency}>
-            <CommonDropdown
-              value={form.currency}
-              onChange={(val) => updateField("currency", val)}
-              className={dropdownCls("currency")}
-              placeholder="SELECT..."
-              options={CurrencyOptions}
-            />
-          </Field>
-
-          <Field name="searchBy">
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 py-2.5">
-              {VendorSearchByOptions.map((o) => {
-                const checked = form.searchBy.includes(o.value);
-                return (
-                  <label
-                    key={o.value}
-                    className="flex items-center gap-2 text-regular-small text-axc-gray cursor-pointer"
-                  >
-                    <input
-                      type="checkbox"
-                      name="searchBy"
-                      value={o.value}
-                      checked={checked}
-                      onChange={() =>
-                        updateField(
-                          "searchBy",
-                          checked
-                            ? form.searchBy.filter((v) => v !== o.value)
-                            : [...form.searchBy, o.value],
-                        )
-                      }
-                      className="accent-axc-navy cursor-pointer"
-                    />
-                    {o.label}
-                  </label>
-                );
-              })}
-            </div>
-          </Field>
-
-          <Field name="csvFile" required error={errors.csvFile}>
-            <label
-              className={`flex items-center gap-2 border rounded-md px-2 py-2.5 text-[11px] text-gray-500 bg-white cursor-pointer hover:bg-gray-50 transition ${
-                errors.csvFile ? "border-red-400" : "border-axc-border"
-              }`}
-            >
-              <span className="px-2 py-1 bg-gray-100 rounded text-regular-small text-gray-600 shrink-0">
-                Choose File
-              </span>
-              <span
-                className={`truncate ${form.csvFile ? "text-gray-700 font-medium" : "text-gray-400"}`}
-              >
-                {form.csvFile ? form.csvFile.name : "No file chosen"}
-              </span>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv,text/csv"
-                className="hidden"
-                onChange={(e) =>
-                  updateField("csvFile", e.target.files?.[0] || null)
-                }
-              />
-            </label>
-          </Field>
-        </div>
-
-        <div className="flex justify-end gap-3">
           <button
             type="button"
             onClick={handleImport}
             disabled={loading}
-            className="px-5 py-3 bg-axc-navy text-white rounded text-xs font-bold shadow-sm transition cursor-pointer disabled:opacity-60"
+            className={`${actionBtnClass} disabled:opacity-60`}
           >
             {loading ? "Importing..." : "Import"}
           </button>
