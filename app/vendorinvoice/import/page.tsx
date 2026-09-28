@@ -206,7 +206,7 @@ export default function VendorInvoiceImportPage() {
               value={form.vendor}
               onChange={(val) => updateField("vendor", val)}
               className={dropdownCls("vendor")}
-              placeholder="SEARCH HERE..."
+              placeholder="Search here"
               options={vendorDropdownOptions}
             />
           </Field>
