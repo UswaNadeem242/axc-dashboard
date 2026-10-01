@@ -14,6 +14,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   "new-manifest": "New Manifest",
   "invoice": "Invoice & Billing",
   "all-invoices": "All Invoices",
+  "vendorinvoice": "Vendor Invoice",
+  "all-vendorinvoices": "All Vendor Invoices",
   "create-invoice": "Create Invoice",
   "users": "Users",
   "bagging": "Bagging",
@@ -22,6 +24,8 @@ const SEGMENT_LABELS: Record<string, string> = {
 const PARENT_ROUTE_REDIRECTS: Record<string, string> = {
   "/manifest": "/manifest",
   "/invoice": "/invoice/all-invoices",
+  "/vendorinvoice": "/vendorinvoice/all-vendorinvoices",
+ 
 };
 
 const ROUTE_TITLES: Record<string, string> = {
@@ -32,6 +36,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/manifest/new-manifest": "Manifest Management",
   "/invoice/all-invoices": "Invoice & Billing",
   "/invoice/create-invoice": "Invoice & Billing",
+  "/vendorinvoice": "Vendor Invoice",
   "/users": "Users",
 };
 
@@ -82,6 +87,7 @@ function getPageTitle(pathname: string): string {
   if (pathname.includes("awb-entries") || pathname.includes("create-entries")) return "AWB Management";
   if (pathname.startsWith("/manifest")) return "Manifest Management";
   if (pathname.startsWith("/invoice")) return "Invoice & Billing";
+  if (pathname.startsWith("/vendorinvoice")) return "Vendor Invoice";
   if (pathname.startsWith("/users")) return "Users";
 
   return pathname

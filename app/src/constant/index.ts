@@ -81,6 +81,14 @@ export const menuItems: MenuItem[] = [
   // { label: "Notifications", icon: Bell, id: "notifications" },
   // { label: "Support Tickets", icon: MessageSquare, id: "support-tickets" },
   // { label: "Reports & Analytics", icon: BarChart3, id: "reports-analytics" },
+  {
+    label: "Vendor Invoice",
+    icon: CreditCard,
+    id: "vendorinvoice",
+    hasDropdown: false,
+    href: "/vendorinvoice/all-vendorinvoices",
+   
+  },
 ];
 
 export const statsCards = [
@@ -1131,6 +1139,154 @@ export const quickActions = [
     arrowColor: "text-amber-500",
   },
 ];
+export interface VendorInvoiceEntry {
+  srNo: number;
+  vendor:string;
+  invoiceNumber: string;
+  invoiceDate: string;
+  missingAwbCount: number;
+  createdDate: string;
+  
+}
+
+export const VendorInvoiceHeading = [
+  { label: "SR.NO.", key: "srNo" },
+  { label: "VENDOR", key: "vendor" },
+  { label: "INVOICE NUMBER", key: "invoiceNumber", sortable: true, truncate: false },
+  { label: "INVOICE DATE", key: "invoiceDate", sortable: true },
+  { label: "MISSING AWB COUNT", key: "missingAwbCount" },
+  { label: "CREATED DATE", key: "createdDate", sortable: true },
+  { label: "ACTION", key: "action" },
+];
+
+export const VendorInvoiceData: VendorInvoiceEntry[] = [
+  {
+    srNo: 1,
+    vendor: "FEDEX",
+    invoiceNumber: "609341850",
+    invoiceDate: "",
+    missingAwbCount: 31,
+    createdDate: "06/06/2024 06:32 PM",
+  },
+  {
+    srNo: 2,
+    vendor: "FEDEX",
+    invoiceNumber: "609341851",
+    invoiceDate: "05/06/2024",
+    missingAwbCount: 12,
+    createdDate: "07/06/2024 10:15 AM",
+  },
+  {
+    srNo: 3,
+    vendor: "DHL",
+    invoiceNumber: "DHL20240612",
+    invoiceDate: "08/06/2024",
+    missingAwbCount: 0,
+    createdDate: "08/06/2024 11:45 AM",
+  },
+  {
+    srNo: 4,
+    vendor: "UPS",
+    invoiceNumber: "UPS55821903",
+    invoiceDate: "10/06/2024",
+    missingAwbCount: 7,
+    createdDate: "10/06/2024 02:20 PM",
+  },
+  {
+    srNo: 5,
+    vendor: "FEDEX",
+    invoiceNumber: "609341902",
+    invoiceDate: "12/06/2024",
+    missingAwbCount: 45,
+    createdDate: "12/06/2024 04:05 PM",
+  },
+  {
+    srNo: 6,
+    vendor: "ARAMEX",
+    invoiceNumber: "ARX778120",
+    invoiceDate: "15/06/2024",
+    missingAwbCount: 3,
+    createdDate: "15/06/2024 09:30 AM",
+  },
+  {
+    srNo: 7,
+    vendor: "DHL",
+    invoiceNumber: "DHL20240625",
+    invoiceDate: "20/06/2024",
+    missingAwbCount: 19,
+    createdDate: "21/06/2024 12:10 PM",
+  },
+  {
+    srNo: 8,
+    vendor: "UPS",
+    invoiceNumber: "UPS55822417",
+    invoiceDate: "24/06/2024",
+    missingAwbCount: 0,
+    createdDate: "24/06/2024 05:50 PM",
+  },
+  {
+    srNo: 9,
+    vendor: "FEDEX",
+    invoiceNumber: "609342133",
+    invoiceDate: "28/06/2024",
+    missingAwbCount: 26,
+    createdDate: "29/06/2024 10:40 AM",
+  },
+  {
+    srNo: 10,
+    vendor: "TNT",
+    invoiceNumber: "TNT90314455",
+    invoiceDate: "01/07/2024",
+    missingAwbCount: 8,
+    createdDate: "01/07/2024 03:25 PM",
+  },
+];
+
+export interface SelectOption {
+  label: string;
+  value: string;
+}
+
+export interface VendorOption {
+  code: string;
+  name: string;
+}
+
+export const VendorOptions: VendorOption[] = [
+  { code: "V001", name: "Vendor One" },
+  { code: "V002", name: "Vendor Two" },
+  { code: "V003", name: "Vendor Three" },
+];
+
+export const BillingCompanyOptions: SelectOption[] = [
+  {
+    label: "AXC INC - AMERICAN XPRESS COURIER",
+    value: "AXC INC - AMERICAN XPRESS COURIER",
+  },
+];
+
+export const CurrencyOptions: SelectOption[] = [
+  { label: "PKR", value: "PKR" },
+  { label: "USD", value: "USD" },
+  { label: "AED", value: "AED" },
+  { label: "EUR", value: "EUR" },
+  { label: "GBP", value: "GBP" },
+];
+
+export const VendorSearchByOptions: SelectOption[] = [
+  { label: "AWB 1", value: "awb1" },
+  { label: "AWB 2", value: "awb2" },
+  { label: "Parcel No.", value: "parcelNo" },
+  { label: "Ref No.", value: "refNo" },
+];
+
+export const VendorInvoiceSample = {
+  fileName: "vendor_invoice_sample.csv",
+  content:
+    "awb_number,forwarding_number,parcel_no,ref_no,weight,amount\n" +
+    "AWB123456,FWD123456,PCL001,REF001,1.5,100\n",
+};
+
 
 export const timeFilterOptions = [
   { label: "Today", value: "today" },
