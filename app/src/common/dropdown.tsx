@@ -6,7 +6,7 @@ import { ChevronDown, MoreVertical, Check } from "lucide-react";
 
 interface Option {
   value: string;
-  label: string;
+  label: React.ReactNode;
 }
 
 interface DropdownItem {
@@ -17,13 +17,14 @@ interface DropdownItem {
 
 interface DropdownProps {
   options?: Option[];
-  value?: string;
-  onChange?: (value: string) => void;
+  value?: any;
+  onChange?: (value: any) => void;
   items?: DropdownItem[];
   title?: string;
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  multiple?: boolean;
 }
 
 export default function Dropdown({
@@ -35,11 +36,12 @@ export default function Dropdown({
   placeholder = "Select...",
   className = "",
   disabled = false,
+  multiple = false,
 }: DropdownProps) {
   if (items) {
     return (
       <Menu as="div" className={`relative inline-block text-left ${className}`}>
-        <MenuButton className="flex h-[38px] items-center gap-2 rounded-md border border-axc-border bg-white px-4 text-[12px] font-medium text-axc-dark-gray transition-colors hover:bg-axc-light-bg cursor-pointer">
+        <MenuButton className="flex h-[38px] items-center gap-2 rounded-md border border-axc-border bg-white px-4 text-sm font-medium text-axc-dark-gray transition-colors hover:bg-axc-light-bg cursor-pointer">
           <MoreVertical className="h-4 w-4" />
           {title}
         </MenuButton>
@@ -54,9 +56,8 @@ export default function Dropdown({
                     <button
                       type="button"
                       onClick={item.onClick}
-                      className={`flex w-full items-center gap-3 px-4 py-3 text-left text-[14px] font-medium text-gray-700 transition-colors ${
-                        focus ? "bg-gray-50/90 text-gray-900" : ""
-                      }`}
+                      className={`flex w-full items-center gap-3 px-4 py-3 text-left text-sm font-medium text-gray-700 transition-colors ${focus ? "bg-gray-50/90 text-gray-900" : ""
+                        }`}
                     >
                       {item.icon}
                       <span>{item.label}</span>
@@ -71,20 +72,31 @@ export default function Dropdown({
     );
   }
 
-  const selectedOption = options?.find((opt) => opt.value === value);
+  const isArray = Array.isArray(value);
+  const selectedOptions = isArray 
+    ? options?.filter((opt) => value.includes(opt.value)) || []
+    : options?.filter((opt) => opt.value === value) || [];
+
+  let displayLabel: React.ReactNode = placeholder;
+  if (selectedOptions.length > 0) {
+    if (isArray && selectedOptions.length > 1) {
+      displayLabel = `${selectedOptions.length} selected`;
+    } else {
+      displayLabel = selectedOptions[0].label;
+    }
+  }
 
   return (
-    <Listbox value={value || ""} onChange={onChange} disabled={disabled}>
+    <Listbox value={value || (multiple ? [] : "")} onChange={onChange} disabled={disabled} multiple={multiple}>
       <div className="relative w-full">
         <ListboxButton
-          className={`relative w-full text-left border rounded-md px-3 py-2.5 outline-none flex items-center justify-between text-[13px] font-normal transition ${
-            disabled
-              ? "bg-gray-50 border-axc-border text-gray-400 cursor-not-allowed"
-              : "bg-white border-axc-border text-gray-700 cursor-pointer"
-          } ${className}`}
+          className={`relative w-full text-left border rounded-md px-3 py-2.5 outline-none placeholder:text-regular-small flex items-center justify-between text-sm font-normal transition ${disabled
+            ? "bg-gray-50 border-axc-border text-gray-400 cursor-not-allowed"
+            : "bg-white border-axc-border text-gray-700 cursor-pointer"
+            } ${className}`}
         >
-          <span className={`block truncate ${selectedOption ? "text-gray-800 font-medium" : "text-gray-400"}`}>
-            {selectedOption ? selectedOption.label : placeholder}
+          <span className={`block truncate ${selectedOptions.length > 0 ? "text-gray-800 font-medium" : "text-gray-400"}`}>
+            {displayLabel}
           </span>
           <ChevronDown className="h-4 w-4 text-gray-400 shrink-0" aria-hidden="true" />
         </ListboxButton>
@@ -104,11 +116,25 @@ export default function Dropdown({
                   <ListboxOption
                     key={option.value}
                     value={option.value}
-                    className="relative cursor-pointer select-none py-3 px-4 text-[#374151] data-[focus]:bg-[#F9FAFB] data-[selected]:bg-[#F9FAFB] data-[selected]:font-semibold data-[selected]:text-axc-navy text-[14px] font-medium transition-colors flex items-center justify-between"
+                    className="relative cursor-pointer select-none py-3 px-4 text-black data-[focus]:bg-[#F9FAFB] data-[selected]:bg-[#F9FAFB] data-[selected]:font-semibold data-[selected]:text-axc-navy text-xs font-medium transition-colors"
                   >
-                    <span className="block truncate">{option.label}</span>
-                    {option.value === value && (
-                      <Check size={16} className="text-axc-navy shrink-0 ml-2" />
+                    {({ selected }) => (
+                      <div className="flex items-center justify-between w-full">
+                        <div className="flex items-center gap-2 truncate">
+                          {multiple && option.value !== "OTHER" && (
+                            <input
+                              type="checkbox"
+                              checked={selected}
+                              readOnly
+                              className="h-3.5 w-3.5 accent-axc-navy shrink-0"
+                            />
+                          )}
+                          <span className="block truncate">{option.label}</span>
+                        </div>
+                        {selected && !multiple && (
+                          <Check size={16} className="text-axc-navy shrink-0 ml-2" />
+                        )}
+                      </div>
                     )}
                   </ListboxOption>
                 ))

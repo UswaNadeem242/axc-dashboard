@@ -106,12 +106,10 @@ export default function ManifestViewPage() {
     );
   }
 
-  // Dummy data used to preview layout; swap with manifestData.billing when available
   const billingRecords: ManifestChargeRow[] = DUMMY_BILLING_RECORDS;
 
   return (
     <div className="relative bg-white p-6 rounded-lg w-full flex-1 flex flex-col min-h-0 shadow-sm border border-axc-border overflow-x-hidden overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-lg">
-      {/* Header Bar */}
       <div className="flex flex-wrap items-center justify-between pb-4 mb-6 gap-4 border-b border-gray-200">
         <div className="flex items-center gap-4">
           <button

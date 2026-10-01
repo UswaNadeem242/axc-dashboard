@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Eye, Pencil, Trash2, Package } from "lucide-react";
 import CommonPagination from "./pagination";
 import CommonScroll from "./commonscroll";
+import Dropdown from "./dropdown";
 
 interface Heading {
   label: React.ReactNode;
@@ -11,7 +12,7 @@ interface Heading {
   className?: string;
   sortable?: boolean;
   truncate?: boolean;
-  align?: "left" | "center" | "right"; // NEW - default "center"
+  align?: "left" | "center" | "right"; 
   render?: (row: any, index?: number) => React.ReactNode;
 }
 
@@ -25,6 +26,7 @@ interface CommonTableProps {
   onBag?: (row: any) => void;
 
   itemsPerPage?: number;
+  onItemsPerPageChange?: (items: number) => void;
   currentPage?: number;
   totalPages?: number;
   onPageChange?: (page: number) => void;
@@ -43,6 +45,8 @@ interface CommonTableProps {
   showScroll?: boolean;
   hideScroll?: boolean;
   className?: string;
+  cellPadding?: string;
+  headerPadding?: string;
 }
 
 const CommonTable = ({
@@ -56,6 +60,7 @@ const CommonTable = ({
   currentPage = 1,
   onPageChange,
   itemsPerPage = 10,
+  onItemsPerPageChange,
   renderActions,
   sortKey,
   sortDirection,
@@ -71,10 +76,18 @@ const CommonTable = ({
   showScroll = true,
   hideScroll = false,
   className = "",
+  cellPadding = "px-4 py-2",
+  headerPadding = "px-4 py-3",
 }: CommonTableProps) => {
-  const computedTotalPages = propTotalPages ?? Math.max(1, Math.ceil(data.length / itemsPerPage));
+  const [internalItemsPerPage, setInternalItemsPerPage] = useState(itemsPerPage);
+
+  useEffect(() => {
+    setInternalItemsPerPage(itemsPerPage);
+  }, [itemsPerPage]);
+
+  const computedTotalPages = propTotalPages ?? Math.max(1, Math.ceil(data.length / internalItemsPerPage));
   const activePage = Math.min(Math.max(1, currentPage), computedTotalPages);
-  const paginatedData = data.slice((activePage - 1) * itemsPerPage, activePage * itemsPerPage);
+  const paginatedData = data.slice((activePage - 1) * internalItemsPerPage, activePage * internalItemsPerPage);
   const colSpan = headings.length + (selectable ? 1 : 0);
   const isScrollEnabled = showScroll && !hideScroll;
 
@@ -83,7 +96,6 @@ const CommonTable = ({
     return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
   };
 
-  // NEW: helper to resolve text-align class from heading.align
   const getTextAlign = (align: Heading["align"] = "center") => {
     if (align === "left") return "text-left";
     if (align === "right") return "text-right";
@@ -131,7 +143,7 @@ const CommonTable = ({
       <thead className="text-center">
         <tr className="bg-axc-navy/10 text-black">
           {selectable && (
-            <th className="w-10 bg-axc-navy/10 rounded-tl-sm px-4 py-3">
+            <th className={`w-10 bg-axc-navy/10 rounded-tl-sm ${headerPadding}`}>
               <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-3.5 w-3.5 accent-white" />
             </th>
           )}
@@ -141,7 +153,7 @@ const CommonTable = ({
               <th
                 key={heading.key}
                 onClick={() => heading.sortable && onSort?.(heading.key)}
-                className={`bg-axc-navy/10 px-4 py-3 text-xs font-bold text-axc-dark-gray  align-top
+                className={`bg-axc-navy/10 ${headerPadding} text-xs font-bold text-axc-dark-gray  align-top
                    whitespace-nowrap ${index === 0 && !selectable ? "rounded-tl-sm" : ""
                   } ${index === headings.length - 1 ? "rounded-tr-sm" : ""} ${heading.sortable ? "cursor-pointer select-none hover:bg-axc-navy/20 transition-colors" : ""
                   } ${heading.className ?? ""}`}
@@ -171,7 +183,7 @@ const CommonTable = ({
           paginatedData.map((row, index) => (
             <tr key={index} className="bg-white transition">
               {selectable && (
-                <td className="px-4 py-3">
+                <td className={cellPadding}>
                   <input
                     type="checkbox"
                     checked={selectedIds.includes(row[rowKey])}
@@ -181,7 +193,7 @@ const CommonTable = ({
                 </td>
               )}
               {headings.map((heading) => (
-                <td key={heading.key} className={`px-4 py-2 ${getTextAlign(heading.align)}`}>
+                <td key={heading.key} className={`${cellPadding} ${getTextAlign(heading.align)}`}>
                   {heading.render ? (
                     heading.render(row, (activePage - 1) * itemsPerPage + index)
                   ) : heading.key === "status" ? (
@@ -291,7 +303,23 @@ const CommonTable = ({
       )}
 
       {!hidePagination && computedTotalPages >= 1 && (
-        <div className="mt-2 flex shrink-0 justify-end">
+        <div className="mt-2 flex shrink-0 justify-between items-center px-1">
+          <div className="flex items-center gap-2">
+            {/* <span className="text-[11px] text-axc-gray font-medium">Rows:</span> */}
+            <div className="w-25">
+              <Dropdown
+                options={[10, 20, 50, 100, 200].map(n => ({ value: n.toString(), label: n.toString() }))}
+                value={internalItemsPerPage.toString()}
+                onChange={(val) => {
+                  const numVal = Number(val);
+                  setInternalItemsPerPage(numVal);
+                  if (onItemsPerPageChange) onItemsPerPageChange(numVal);
+                  if (onPageChange) onPageChange(1);
+                }}
+                className="h-9! py-2! px-3! text-sm font-medium"
+              />
+            </div>
+          </div>
           <CommonPagination currentPage={activePage} totalPages={computedTotalPages} onPageChange={onPageChange ?? (() => { })} />
         </div>
       )}

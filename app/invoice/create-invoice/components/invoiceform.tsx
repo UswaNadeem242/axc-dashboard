@@ -90,7 +90,7 @@ export function PanelHeader({
 }) {
   return (
     <div className="bg-axc-navy/60 text-white p-4 flex  rounded-tl-lg rounded-tr-lg capitalize items-center justify-between gap-2">
-      <h2>{toSentenceCase(title)}</h2>
+      <h3>{toSentenceCase(title)}</h3>
       {right}
     </div>
   );

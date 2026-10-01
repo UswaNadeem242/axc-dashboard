@@ -9,7 +9,7 @@ import AwbDetailsPanel from "../new-manifest/bagging/awbdetails";
 import {
   BaggingFormPanel,
   BaggingSummarySection,
-  PartialManifestedAwbPanel,
+  // PartialManifestedAwbPanel,
 } from "../new-manifest/bagging/bagging";
 import Button from "@/app/src/common/button";
 
@@ -114,7 +114,7 @@ function EditBaggingContent() {
               </div>
             </div>
             <BaggingSummarySection {...baggingProps} />
-            <PartialManifestedAwbPanel partialAwbRows={baggingProps.partialAwbRows} />
+            {/* <PartialManifestedAwbPanel partialAwbRows={baggingProps.partialAwbRows} /> */}
           </div>
         </div>
       </div>

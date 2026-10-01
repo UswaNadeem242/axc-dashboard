@@ -76,16 +76,16 @@ export default function CustomDatePicker({
 
   const selectedDate = parseDate(value);
   const minDateObj = (() => {
+    if (!minDate) return null;
     const parsed = parseDate(minDate);
     if (parsed) {
       parsed.setHours(0, 0, 0, 0);
       return parsed;
     }
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return today;
+    return null;
   })();
   const maxDateObj = (() => {
+    if (!maxDate) return null;
     const parsed = parseDate(maxDate);
     if (parsed) {
       parsed.setHours(0, 0, 0, 0);
@@ -152,7 +152,7 @@ export default function CustomDatePicker({
   const isDayDisabled = (year: number, month: number, day: number) => {
     const date = new Date(year, month, day);
     date.setHours(0, 0, 0, 0);
-    if (date < minDateObj) return true;
+    if (minDateObj && date < minDateObj) return true;
     if (maxDateObj && date > maxDateObj) return true;
     return false;
   };

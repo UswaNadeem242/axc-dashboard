@@ -7,6 +7,8 @@ import {
   PopoverPanel,
 } from "@headlessui/react";
 import { ChevronDown, Check, Search as SearchIcon, X } from "lucide-react";
+import CustomDateRangePicker from "./daterangepicker";
+import { format } from "date-fns";
 
 export interface FilterOption {
   label: string;
@@ -16,6 +18,7 @@ export interface FilterOption {
 export interface FilterGroup {
   group: string;
   options: FilterOption[];
+  sameColumnAsPrevious?: boolean;
 }
 
 interface FilterSearchProps {
@@ -31,6 +34,7 @@ interface FilterSearchProps {
   placeholder?: string;
   columnTitle?: string;
   className?: string;
+  searchSuggestions?: string[];
 }
 
 export default function FilterSearch({
@@ -46,6 +50,7 @@ export default function FilterSearch({
   placeholder = "Search...",
   columnTitle = "Filter By",
   className = "",
+  searchSuggestions,
 }: FilterSearchProps) {
   const allOptions: FilterOption[] = useMemo(() => {
     if (options && options.length > 0) return options;
@@ -65,7 +70,13 @@ export default function FilterSearch({
     return [];
   }, [selectedOptions, selectedOption]);
 
+  const [showCustomDateRange, setShowCustomDateRange] = React.useState(false);
+
   const handleToggleOption = (val: string) => {
+    if (val === "Custom") {
+      setShowCustomDateRange(true);
+      return;
+    }
     if (onOptionsChange) {
       if (activeOptionsList.includes(val)) {
         onOptionsChange(activeOptionsList.filter((item) => item !== val));
@@ -99,34 +110,46 @@ export default function FilterSearch({
   };
 
   // Group options or prepare columns for flat options
-  const columnsData: { title: string; items: FilterOption[] }[] = useMemo(() => {
+  const columnsData: { title: string; items: FilterOption[] }[][] = useMemo(() => {
     if (groups && groups.length > 0) {
-      return groups.map((g) => ({
-        title: g.group,
-        items: g.options,
-      }));
+      const cols: { title: string; items: FilterOption[] }[][] = [];
+      groups.forEach((g) => {
+        if (g.sameColumnAsPrevious && cols.length > 0) {
+          cols[cols.length - 1].push({ title: g.group, items: g.options });
+        } else {
+          cols.push([{ title: g.group, items: g.options }]);
+        }
+      });
+      return cols;
     }
 
     if (options && options.length > 0) {
       const validOptions = options.filter((opt) => opt.value !== "");
       const itemsToUse = validOptions.length > 0 ? validOptions : options;
-      return [{ title: columnTitle, items: itemsToUse }];
+      return [[{ title: columnTitle, items: itemsToUse }]];
     }
 
     return [];
   }, [groups, options, columnTitle]);
 
+  const filteredSuggestions = useMemo(() => {
+    if (!searchSuggestions || !searchValue) return [];
+    const lower = searchValue.toLowerCase();
+    return searchSuggestions.filter(s => s && s.toLowerCase().includes(lower)).slice(0, 10);
+  }, [searchSuggestions, searchValue]);
+
   return (
-    <Popover className={`relative flex items-center ${className}`}>
-      {({ open }) => (
-        <>
-          {/* Main Full Search Bar Container */}
-          <div className="relative flex min-h-10 w-full min-w-[360px] sm:min-w-[480px] md:min-w-[640px] items-center rounded-lg border border-axc-border bg-white shadow-sm transition hover:border-gray-300 focus-within:border-axc-blue py-1">
-            {/* Search Icon */}
-            <SearchIcon
-              size={15}
-              className="ml-3.5 text-gray-400 pointer-events-none shrink-0"
-            />
+    <>
+      <Popover className={`relative flex items-center ${className}`}>
+        {({ open }) => (
+          <>
+            {/* Main Full Search Bar Container */}
+            <div className="relative flex min-h-10 w-full min-w-[360px] sm:min-w-[480px] md:min-w-[640px] items-center rounded-lg border border-axc-border bg-white shadow-sm transition hover:border-gray-300  outline-none py-1">
+              {/* Search Icon */}
+              <SearchIcon
+                size={15}
+                className="ml-3.5 text-gray-400 pointer-events-none shrink-0"
+              />
 
             {/* Selected Filter Badges if active */}
             {activeOptionsList.length > 0 && (
@@ -177,6 +200,25 @@ export default function FilterSearch({
               </button>
             )}
 
+            {/* Search Suggestions Dropdown */}
+            {filteredSuggestions.length > 0 && (
+              <div className="absolute left-0 top-[110%] w-full z-[10000] bg-white border border-gray-200 rounded-md shadow-lg max-h-[300px] overflow-y-auto">
+                {filteredSuggestions.map((suggestion, idx) => (
+                  <div
+                    key={idx}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      onSearchChange(suggestion);
+                      if (onSearchSubmit) onSearchSubmit(suggestion);
+                    }}
+                    className="px-4 py-2 hover:bg-gray-50 cursor-pointer text-[13px] text-gray-800 border-b border-gray-100 last:border-none truncate"
+                  >
+                    {suggestion}
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Side Dropdown Chevron Trigger */}
             <PopoverButton
               className="flex h-full items-center px-3 text-gray-400 hover:text-gray-600 cursor-pointer outline-none select-none shrink-0 transition-colors"
@@ -194,7 +236,7 @@ export default function FilterSearch({
           {/* Dropdown Popover Panel - matches search bar width */}
           <PopoverPanel
             transition
-            className="absolute left-0 right-0 top-full mt-2 w-full min-w-full z-[9999] focus:outline-none transition ease-out duration-150 data-[closed]:opacity-0 data-[closed]:scale-95"
+            className="absolute left-0 top-full mt-2 w-max max-w-[90vw] min-w-full z-[9999] focus:outline-none transition ease-out duration-150 data-[closed]:opacity-0 data-[closed]:scale-95"
           >
             <div className="relative pt-2 w-full">
               {/* Top Arrow Pointer (Aligned under search input) */}
@@ -236,7 +278,7 @@ export default function FilterSearch({
                         fill="white"
                       />
                     </svg>
-                    <span className="text-[14px] font-bold text-gray-900 tracking-tight">
+                    <span className="text-sm font-bold text-black tracking-tight">
                       Filters
                     </span>
                   </div>
@@ -245,27 +287,28 @@ export default function FilterSearch({
                     <button
                       type="button"
                       onClick={handleReset}
-                      className="text-[11px] font-semibold text-blue-600 hover:text-blue-700 cursor-pointer"
+                      className="text-[11px] font-semibold text-axc-navy hover:text-axc-navy-dark cursor-pointer"
                     >
                       Reset
                     </button>
                   )}
                 </div>
 
-                {/* Columns with Vertical Dividers */}
-                <div className="flex flex-row divide-x divide-gray-200 bg-white w-full">
-                  {columnsData.map((col, colIdx) => (
+                {/* Horizontal Layout for Columns */}
+                <div className="flex flex-row divide-x divide-gray-200 bg-white w-full overflow-x-auto">
+                  {columnsData.map((colGroups, colIdx) => (
                     <div
-                      key={`${col.title}-${colIdx}`}
-                      className="p-5 flex-1 min-w-0"
+                      key={`col-${colIdx}`}
+                      className="px-5 py-3 shrink-0 w-max min-w-[140px] flex flex-col gap-4"
                     >
-                      <h4 className="text-[13px] font-bold text-gray-900 mb-3 select-none">
-                        {col.title}
-                      </h4>
-
-                      <div className="space-y-2 max-h-[220px] overflow-y-auto pr-2 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
-                        {col.items.map((option) => {
-                          const isChecked = activeOptionsList.includes(option.value);
+                      {colGroups.map((col, groupIdx) => (
+                        <div key={`${col.title}-${groupIdx}`}>
+                          <h4 className="text-[13px] font-bold text-gray-900 mb-3 select-none">
+                            {col.title}
+                          </h4>
+                          <div className="space-y-2 max-h-[220px] overflow-y-auto pr-2 [scrollbar-width:thin] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
+                            {col.items.map((option) => {
+                              const isChecked = activeOptionsList.includes(option.value);
                           return (
                             <div
                               key={option.value}
@@ -275,12 +318,12 @@ export default function FilterSearch({
                               {/* Custom Checkbox */}
                               <div
                                 className={`h-4 w-4 rounded-[4px] border flex items-center justify-center shrink-0 transition-colors ${
-                                  isChecked
-                                    ? "border-blue-600 bg-blue-600 text-white"
+                                  isChecked || (option.value === "Custom" && activeOptionsList.some(o => /^[A-Z][a-z]{2} \d{1,2}, \d{4} - [A-Z][a-z]{2} \d{1,2}, \d{4}$/.test(o)))
+                                    ? "border-blue-600 bg-axc-navy text-white"
                                     : "border-gray-300 bg-white group-hover:border-gray-400"
                                 }`}
                               >
-                                {isChecked && (
+                                {(isChecked || (option.value === "Custom" && activeOptionsList.some(o => /^[A-Z][a-z]{2} \d{1,2}, \d{4} - [A-Z][a-z]{2} \d{1,2}, \d{4}$/.test(o)))) && (
                                   <Check
                                     size={11}
                                     strokeWidth={3}
@@ -291,10 +334,10 @@ export default function FilterSearch({
 
                               {/* Value Label */}
                               <span
-                                className={`text-[13px] truncate transition-colors ${
+                                className={`text-xs truncate capitalize transition-colors ${
                                   isChecked
-                                    ? "font-semibold text-blue-600"
-                                    : "font-normal text-gray-700 group-hover:text-gray-900"
+                                    ? "font-semibold text-axc-navy"
+                                    : "font-normal text-axc-gray group-hover:text-gray-900"
                                 }`}
                               >
                                 {option.label}
@@ -306,13 +349,34 @@ export default function FilterSearch({
                     </div>
                   ))}
                 </div>
-              </div>
+              ))}
             </div>
-          </PopoverPanel>
-        </>
+          </div>
+        </div>
+        </PopoverPanel>
+      </>
+        )}
+      </Popover>
+
+      {/* Date Range Modal */}
+      {showCustomDateRange && (
+        <div className="fixed inset-0 z-[99999] bg-black/40 flex items-center justify-center p-4">
+          <CustomDateRangePicker
+            onApply={(start, end) => {
+              const formatted = `${format(start, "MMM dd, yyyy")} - ${format(end, "MMM dd, yyyy")}`;
+              if (onOptionsChange) {
+                onOptionsChange([
+                  ...activeOptionsList.filter((o) => !o.includes(" - ") || !/^[A-Z][a-z]{2} \d{1,2}, \d{4} - [A-Z][a-z]{2} \d{1,2}, \d{4}$/.test(o)),
+                  formatted,
+                ]);
+              }
+              setShowCustomDateRange(false);
+            }}
+            onCancel={() => setShowCustomDateRange(false)}
+          />
+        </div>
       )}
-    </Popover>
+    </>
   );
 }
-
 

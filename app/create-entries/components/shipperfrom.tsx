@@ -1,17 +1,16 @@
 "use client";
 import React from "react";
 import { RotateCcw } from "lucide-react";
-import { AwbFormErrors, AwbFormState } from "./formstate";
-import { FieldError, FieldLabel, FileUploadField, PanelHeader, errorInputClass, inputClass } from "./form";
+import { AwbFormState } from "./formstate";
+import { FieldLabel, FileUploadField, PanelHeader, inputClass } from "./form";
 import CommonDropdown from "../../src/common/dropdown";
 interface Props {
   form: AwbFormState;
   setForm: React.Dispatch<React.SetStateAction<AwbFormState>>;
-  errors: AwbFormErrors;
   onReset: () => void;
   showToast: (message: string, type?: "success" | "info") => void;
 }
-export default function ShipperFromForm({ form, setForm, errors, onReset, showToast }: Props) {
+export default function ShipperFromForm({ form, setForm, onReset, showToast }: Props) {
   return (
     <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
       <PanelHeader
@@ -69,13 +68,11 @@ export default function ShipperFromForm({ form, setForm, errors, onReset, showTo
         </div>
         <div className="flex flex-col gap-1">
           <FieldLabel required>State / County</FieldLabel>
-          <input type="text" value={form.shipperState} onChange={(e) => setForm({ ...form, shipperState: e.target.value })} className={errors.shipperState ? errorInputClass : inputClass} placeholder="State" />
-          <FieldError message={errors.shipperState} />
+          <input type="text" value={form.shipperState} onChange={(e) => setForm({ ...form, shipperState: e.target.value })} className={inputClass} placeholder="State" />
         </div>
         <div className="flex flex-col gap-1">
           <FieldLabel required>Country</FieldLabel>
-          <input type="text" value={form.shipperCountry} onChange={(e) => setForm({ ...form, shipperCountry: e.target.value })} className={errors.shipperCountry ? errorInputClass : inputClass} placeholder="Country" />
-          <FieldError message={errors.shipperCountry} />
+          <input type="text" value={form.shipperCountry} onChange={(e) => setForm({ ...form, shipperCountry: e.target.value })} className={inputClass} placeholder="Country" />
         </div>
         <div className="flex flex-col gap-1">
           <FieldLabel>KYC Type</FieldLabel>
@@ -87,8 +84,7 @@ export default function ShipperFromForm({ form, setForm, errors, onReset, showTo
         </div>
         <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">
           <FieldLabel required>Address 1</FieldLabel>
-          <input type="text" value={form.shipperAddress1} onChange={(e) => setForm({ ...form, shipperAddress1: e.target.value })} className={errors.shipperAddress1 ? errorInputClass : inputClass} placeholder="Address 1" />
-          <FieldError message={errors.shipperAddress1} />
+          <input type="text" value={form.shipperAddress1} onChange={(e) => setForm({ ...form, shipperAddress1: e.target.value })} className={inputClass} placeholder="Address 1" />
         </div>
         <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">
           <FieldLabel>Address 2</FieldLabel>
@@ -98,7 +94,6 @@ export default function ShipperFromForm({ form, setForm, errors, onReset, showTo
           <FieldLabel>Address 3</FieldLabel>
           <input type="text" value={form.shipperAddress3} onChange={(e) => setForm({ ...form, shipperAddress3: e.target.value })} className={inputClass} placeholder="Address 3" />
         </div>
-
 
         <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">
           <FieldLabel>Upload KYC</FieldLabel>

@@ -55,9 +55,15 @@ export function usePurchaseBilling() {
   };
 
   const totals = useMemo(() => {
-    const totalOtherCharges = Object.values(billing.charges)
+    let totalOtherCharges = Object.values(billing.charges)
       .filter((c) => c.checked)
       .reduce((sum, c) => sum + toNum(c.amount), 0);
+
+    if (billing.dynamicCharges) {
+      totalOtherCharges += Object.values(billing.dynamicCharges)
+        .filter((c) => c.checked)
+        .reduce((sum, c) => sum + toNum(c.amount), 0);
+    }
 
     const freight = toNum(billing.freight);
     const fsc = toNum(billing.fsc);

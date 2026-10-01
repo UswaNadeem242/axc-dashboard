@@ -10,48 +10,52 @@ import {
   ToastState,
 } from "./state";
 
-const today = new Date();
-const yyyy = today.getFullYear();
-const mm = String(today.getMonth() + 1).padStart(2, "0");
-const dd = String(today.getDate()).padStart(2, "0");
+export function createEmptyForm(): ManifestFormState {
+  const today = new Date();
+  const yyyy = today.getFullYear();
+  const mm = String(today.getMonth() + 1).padStart(2, "0");
+  const dd = String(today.getDate()).padStart(2, "0");
+  const hh = String(today.getHours()).padStart(2, "0");
+  const min = String(today.getMinutes()).padStart(2, "0");
 
-const emptyForm: ManifestFormState = {
-  manifestNo: "",
+  return {
+    manifestNo: "",
 
-  forwarderCode: "",
-  forwarder: "",
-  editForwarder: false,
-  vendorCode: "",
-  vendor: "",
-  editVendor: false,
+    forwarderCode: "",
+    forwarder: "",
+    editForwarder: false,
+    vendorCode: "",
+    vendor: "",
+    editVendor: false,
 
-  masterNo: "",
-  masterEdiBagNo: "",
-  comment: "",
+    masterNo: "",
+    masterEdiBagNo: "",
+    comment: "",
 
-  date: `${yyyy}-${mm}-${dd}`,
-  time: "",
+    date: `${yyyy}-${mm}-${dd}`,
+    time: `${hh}:${min}`,
 
-  runNumber: "",
-  editRunNumber: false,
+    runNumber: "",
+    editRunNumber: false,
 
-  flightNo: "",
-  editFlightNo: false,
+    flightNo: "",
+    editFlightNo: false,
 
-  noOfBags: "1",
-  editNoOfBags: false,
+    noOfBags: "1",
+    editNoOfBags: false,
 
-  arrivalDate: "",
-  arrivalTime: "",
+    arrivalDate: "",
+    arrivalTime: "",
 
-  totalActualWt: "",
-  totalVolumetricWt: "",
-  totalChargeableWt: "",
+    totalActualWt: "",
+    totalVolumetricWt: "",
+    totalChargeableWt: "",
 
-  originHub: "",
-  destinationHub: "",
-  lineHaulVendor: "",
-};
+    originHub: "",
+    destinationHub: "",
+    lineHaulVendor: "",
+  };
+}
 
 const emptyBagRow = (id: number): ManifestBagRow => ({
   id,
@@ -84,7 +88,7 @@ const emptyChargeRow = (id: number): ManifestChargeRow => ({
 export function useManifestForm() {
   const router = useRouter();
 
-  const [form, setForm] = useState<ManifestFormState>(emptyForm);
+  const [form, setForm] = useState<ManifestFormState>(createEmptyForm());
   const [errors, setErrors] = useState<ManifestFormErrors>({});
   const [tab, setTab] = useState<ManifestTab>("entry");
   const [rows, setRows] = useState<ManifestBagRow[]>([emptyBagRow(1)]);

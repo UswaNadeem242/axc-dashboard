@@ -73,7 +73,7 @@ function CreateEntriesContent() {
         </div>
       )}
 
-      <div className="relative bg-white p-6 rounded-lg border border-gray-200 w-full flex-1 min-h-0 flex flex-col overflow-hidden">
+      <div className="relative bg-white p-4 rounded-lg border border-gray-200 w-full flex-1 min-h-0 flex flex-col overflow-hidden">
         <div className="bg-white border-b border-b-axc-border pb-0 shrink-0">
           <div className="flex gap-4 overflow-x-auto scrollbar-none">
             {currentTabs.map((tab) => (
@@ -119,7 +119,7 @@ function CreateEntriesContent() {
 
                 <div className="flex flex-col gap-6 w-full">
                   <AirWaybillInformation form={form} setForm={setForm} errors={errors} />
-                  <ShipperFromForm form={form} setForm={setForm} errors={errors} onReset={resetShipper} showToast={showToast} />
+                  <ShipperFromForm form={form} setForm={setForm} onReset={resetShipper} showToast={showToast} />
                   <ConsigneeToForm form={form} setForm={setForm} errors={errors} onReset={resetConsignee} showToast={showToast} />
                 </div>
               </div>

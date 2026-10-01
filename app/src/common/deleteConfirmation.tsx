@@ -63,7 +63,7 @@ export default function DeleteConfirmationDialog({
           </div>
 
           <div className="flex flex-col items-center px-8 py-16 text-center">
-            <h2>Are you sure you want to delete?</h2>
+            <h2>Are you sure you want to delete {itemName}?</h2>
           </div>
 
           <div className="flex justify-center gap-4 px-8 pb-8">
@@ -91,6 +91,5 @@ export default function DeleteConfirmationDialog({
         </div>
       </div>
     </>
-
   );
 }

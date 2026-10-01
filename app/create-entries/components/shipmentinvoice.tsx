@@ -4,6 +4,7 @@ import CommonDropdown from "../../src/common/dropdown";
 import { AwbFormState, InvoiceItem } from "./formstate";
 import { FieldLabel, inputClass } from "./form";
 import { Plus, Trash } from "lucide-react";
+import { showToast } from "../../src/common/toast";
 
 interface Props {
   form: AwbFormState;
@@ -22,112 +23,38 @@ export default function ShipmentInvoiceSection({
   addInvoiceItem,
   removeInvoiceItem,
 }: Props) {
+  const handleRemoveInvoiceItem = (id: number) => {
+    removeInvoiceItem(id);
+    showToast({ variant: "success", message: "Invoice item removed successfully" });
+  };
+
   return (
     <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
-      {/* <div className="text-white bg-axc-navy/60 p-4 rounded-tl-lg rounded-tr-lg flex items-center justify-between gap-2">
-        <label className="flex items-center gap-2 text-sm font-bold tracking-wider cursor-pointer">
-          <input
-            type="checkbox"
-            checked={form.createShipmentInvoice}
-            onChange={(e) =>
-              setForm({ ...form, createShipmentInvoice: e.target.checked })
-            }
-            className="h-4 w-4 rounded border-axc-border text-blue-600 focus:ring-blue-500 cursor-pointer"
-          />
-          <span>Create Shipment Invoice?</span>
-        </label>
-      </div> */}
-
       {form.createShipmentInvoice && (
         <div className="flex flex-col gap-4  animate-in fade-in duration-200 text-gray-800">
-          {/* <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3">
-            <div className="flex flex-col gap-1">
-              <FieldLabel>Invoice Type</FieldLabel>
-              <CommonDropdown
-                value={form.invoiceType}
-                onChange={(val) => setForm({ ...form, invoiceType: val })}
-                className="border-axc-border"
-                options={[
-                  { value: "INVOICE", label: "INVOICE" },
-                  { value: "PROFORMA", label: "PROFORMA" },
-                ]}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <FieldLabel>Currency</FieldLabel>
-              <CommonDropdown
-                value={form.invoiceCurrency}
-                onChange={(val) => setForm({ ...form, invoiceCurrency: val })}
-                className="border-axc-border"
-                options={[
-                  { value: "USD", label: "USD" },
-                  { value: "INR", label: "INR" },
-                ]}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <FieldLabel>Incoterms</FieldLabel>
-              <CommonDropdown
-                value={form.incoterms}
-                onChange={(val) => setForm({ ...form, incoterms: val })}
-                className="border-axc-border"
-                options={[
-                  { value: "DDU", label: "DDU" },
-                  { value: "DDP", label: "DDP" },
-                ]}
-              />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <FieldLabel>Note</FieldLabel>
-              <CommonDropdown
-                value={form.invoiceNote}
-                onChange={(val) => setForm({ ...form, invoiceNote: val })}
-                className="border-axc-border"
-                options={[
-                  { value: "GIFT", label: "GIFT" },
-                  { value: "SAMPLE", label: "SAMPLE" },
-                  { value: "COMMERCIAL", label: "COMMERCIAL" },
-                ]}
-              />
-            </div>
-            <div className="flex flex-col gap-1 sm:col-span-1 xl:col-span-2">
-              <FieldLabel>Declaration</FieldLabel>
-              <input
-                type="text"
-                value={form.invoiceDeclaration}
-                onChange={(e) =>
-                  setForm({ ...form, invoiceDeclaration: e.target.value })
-                }
-                className={inputClass}
-                placeholder="Declaration"
-              />
-            </div>
-          </div> */}
-
           <div className="">
-            <div className="bg-axc-navy/60 rounded-tl-lg rounded-tr-lg text-white text-regular-medium font-bold p-4 capitalize tracking-wide">
-              Shipment Invoice Items
+            <div className="bg-axc-navy/60 rounded-tl-lg rounded-tr-lg text-white   p-4 capitalize tracking-wide">
+              <h3>Shipment Invoice Items
+              </h3>
             </div>
-            <div className="border border-axc-border border-t-0 overflow-x-auto p-4">
-              <table className="w-full text-sm border-collapse min-w-[950px] border border-axc-border rounded-md p-4">
-                <thead>
-                  <tr className="bg-axc-navy/10 text-regular-medium text-axc-dark-gray text-left whitespace-nowrap">
-                    <th className="py-2.5 px-3 border-r border-axc-border rounded-tl-md">Box#</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border">Sr#</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border w-1/5">Description</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border">HS Code</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap min-w-[110px]">Unit Type</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Quantity</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Unit Weight</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">IGST</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Unit Rates</th>
-                    <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Amount</th>
-                    <th className="py-2.5 px-2 text-center rounded-tr-md whitespace-nowrap">Action</th>
-                  </tr>
-                </thead>
+            <div className=" overflow-x-auto p-4">
+              <div className="border border-axc-border rounded-md overflow-hidden">
+                <table className="w-full text-sm min-w-[950px]">
+                  <thead>
+                    <tr className="bg-axc-navy/10 text-regular-medium text-axc-dark-gray text-left whitespace-nowrap">
+                      <th className="py-2.5 px-3 border-r border-axc-border">Box#</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border">Sr#</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border w-1/5">Description</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border">HS Code</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap min-w-[110px]">Unit Type</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Quantity</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Unit Weight</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">IGST</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Unit Rates</th>
+                      <th className="py-2.5 px-2 border-r border-axc-border whitespace-nowrap">Amount</th>
+                      <th className="py-2.5 px-2 text-center whitespace-nowrap">Action</th>
+                    </tr>
+                  </thead>
                 <tbody>
                   {invoiceItems.map((item, idx) => (
                     <tr key={item.id} className="border-b border-axc-border last:border-b-0 hover:bg-gray-50/50">
@@ -141,7 +68,7 @@ export default function ShipmentInvoiceSection({
                           }}
                           className="w-full py-2 !px-1.5 border-axc-border"
                           placeholder="Select..."
-                          options={[{ value: "1", label: "Box 1" }]}
+                          options={Array.from({ length: 50 }, (_, i) => ({ value: String(i + 1), label: `Box ${i + 1}` }))}
                         />
                       </td>
                       <td className="text-center bg-gray-50 text-gray-600 font-medium">{item.srNo}</td>
@@ -251,7 +178,7 @@ export default function ShipmentInvoiceSection({
                       <td className="p-1 text-center">
                         <button
                           type="button"
-                          onClick={() => removeInvoiceItem(item.id)}
+                          onClick={() => handleRemoveInvoiceItem(item.id)}
                           className="inline-flex cursor-pointer items-center justify-center rounded-md border border-axc-red/30 p-1.5 text-axc-red transition hover:bg-axc-red/10"
                         >
                           <Trash size={15} />
@@ -304,6 +231,7 @@ export default function ShipmentInvoiceSection({
                   </tr>
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
         </div>

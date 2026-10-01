@@ -4,6 +4,7 @@ import { Trash, Plus } from "lucide-react";
 import CommonTable from "../../../src/common/table";
 import Dropdown from "../../../src/common/dropdown";
 import { ManifestChargeRow } from "./state";
+import { showToast } from "../../../src/common/toast";
 
 interface ManifestBillingProps {
   charges: ManifestChargeRow[];
@@ -31,6 +32,11 @@ export default function ManifestBilling({
   updateCharge,
   removeCharge,
 }: ManifestBillingProps) {
+  const handleRemoveCharge = (id: number) => {
+    removeCharge(id);
+    showToast({ variant: "success", message: "Charge removed successfully" });
+  };
+
   const selectCell = (
     row: ManifestChargeRow,
     field: keyof ManifestChargeRow,
@@ -117,7 +123,7 @@ export default function ManifestBilling({
       render: (row: ManifestChargeRow) => (
          <button
               type="button"
-              onClick={() => removeCharge(row.id)}
+              onClick={() => handleRemoveCharge(row.id)}
               title="Remove"
              className="inline-flex items-center justify-center cursor-pointer rounded-md border border-axc-red-dark/30  p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10"
             >

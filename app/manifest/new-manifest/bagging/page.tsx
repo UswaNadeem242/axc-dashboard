@@ -2,7 +2,7 @@
 import React from "react";
 import { useBaggingForm } from "./baggingstate";
 import AwbDetailsPanel from "./awbdetails";
-import { BaggingFormPanel, BaggingSummarySection, PartialManifestedAwbPanel } from "./bagging";
+import { BaggingFormPanel, BaggingSummarySection,  } from "./bagging";
 
 export default function BaggingPage() {
   const { awbDetails, ...baggingProps } = useBaggingForm();
@@ -19,7 +19,7 @@ export default function BaggingPage() {
               </div>
               <div className="lg:col-span-4 xl:col-span-3 flex flex-col gap-4">
                 <AwbDetailsPanel awbDetails={awbDetails} />
-                <PartialManifestedAwbPanel partialAwbRows={baggingProps.partialAwbRows} />
+                {/* <PartialManifestedAwbPanel partialAwbRows={baggingProps.partialAwbRows} /> */}
               </div>
             </div>
 
