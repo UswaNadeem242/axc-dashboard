@@ -11,6 +11,7 @@ import {
   Eye,
   Pencil,
   Trash2,
+  Printer,
 } from "lucide-react";
 import CommonTable from "../src/common/table";
 import {
@@ -23,6 +24,8 @@ import {
 import FilterSearch from "../src/common/filtersearch";
 import Button from "../src/common/button";
 import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
+import Dropdown from "../src/common/dropdown";
+import { showToast } from "../src/common/toast";
 
 export default function AwbEntriesPage() {
   const router = useRouter();
@@ -112,6 +115,7 @@ export default function AwbEntriesPage() {
     setIsDeleting(true);
     setData((prev) => prev.filter((item) => item.awbNumber !== deleteTarget.awbNumber));
     setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.awbNumber));
+    showToast({ variant: "success", message: "AWB entry deleted." });
     setIsDeleting(false);
     setDeleteTarget(null);
   };
@@ -119,6 +123,75 @@ export default function AwbEntriesPage() {
   const cancelDelete = () => {
     if (isDeleting) return;
     setDeleteTarget(null);
+  };
+
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+
+  const handleBulkDeleteConfirm = () => {
+    const count = selectedIds.length;
+    setData((previous) => previous.filter((item) => !selectedIds.includes(item.awbNumber)));
+    showToast({
+      variant: "success",
+      message: `${count} ${count === 1 ? "AWB entry" : "AWB entries"} deleted successfully`,
+    });
+    setSelectedIds([]);
+    setBulkDeleteOpen(false);
+  };
+
+  const handleBulkExport = () => {
+    const selectedRows = data.filter((item) => selectedIds.includes(item.awbNumber));
+    if (selectedRows.length === 0) return;
+    const headers = [
+      "SR No",
+      "AWB Number",
+      "Booking Date",
+      "Forwarding Number",
+      "Customer",
+      "Master Code",
+      "Product",
+      "PCS",
+      "Service",
+      "Vendor",
+      "Origin",
+      "Destination",
+      "Consignee",
+      "Shipper",
+      "Status",
+    ];
+    const csvContent = [
+      headers.join(","),
+      ...selectedRows.map((r, idx) =>
+        [
+          r.srNo ?? idx + 1,
+          `"${r.awbNumber || ""}"`,
+          `"${r.bookingDate || ""}"`,
+          `"${r.forwardingNumber || ""}"`,
+          `"${r.customer || ""}"`,
+          `"${r.masterCode || ""}"`,
+          `"${r.product || ""}"`,
+          r.pcs ?? 0,
+          `"${r.service || ""}"`,
+          `"${r.vendor || ""}"`,
+          `"${r.origin || ""}"`,
+          `"${r.destination || ""}"`,
+          `"${r.consignee || ""}"`,
+          `"${r.shipper || ""}"`,
+          `"${r.status || ""}"`,
+        ].join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `awb_entries_${Date.now()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast({
+      variant: "success",
+      message: `${selectedRows.length} ${selectedRows.length === 1 ? "AWB" : "AWBs"} exported successfully`,
+    });
   };
 
   const handleTrack = (row: AwbEntry) => console.log("Track AWB", row.awbNumber);
@@ -410,16 +483,46 @@ export default function AwbEntriesPage() {
   return (
     <div className="relative bg-white p-4 rounded-lg w-full flex-1 flex flex-col min-h-0  shadow-sm border border-axc-border  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4 shrink-0">
-        <FilterSearch
-          groups={dynamicGroups}
-          selectedOptions={activeTags}
-          onOptionsChange={handleTagsChange}
-          searchValue={searchQuery}
-          onSearchChange={setSearchQuery}
-          onSearchSubmit={handleSearchSubmit}
-          placeholder="Search entries..."
-          searchSuggestions={searchSuggestions}
-        />
+        <div className="flex flex-wrap items-center gap-3">
+          <FilterSearch
+            groups={dynamicGroups}
+            selectedOptions={activeTags}
+            onOptionsChange={handleTagsChange}
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSearchSubmit={handleSearchSubmit}
+            placeholder="Search entries..."
+            searchSuggestions={searchSuggestions}
+          />
+
+          {selectedIds.length > 0 && (
+            <>
+              <button
+                type="button"
+                onClick={() => setSelectedIds([])}
+                className="flex items-center gap-2 rounded-md border border-axc-border px-3 py-2 text-[12px] font-medium text-axc-dark-gray hover:bg-gray-50 cursor-pointer transition-colors"
+                title="Click to clear selection"
+              >
+                {selectedIds.length} Selected
+              </button>
+
+              <div className="[&_button]:cursor-pointer">
+                <Dropdown
+                  title="Actions"
+                  items={[
+                    { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: handleBulkExport },
+                    { label: "Print", icon: <Printer className="h-4 w-4" />, onClick: () => window.print() },
+                    {
+                      label: "Delete",
+                      icon: <Trash2 className="h-4 w-4" />,
+                      onClick: () => setBulkDeleteOpen(true),
+                    },
+                  ]}
+                />
+              </div>
+            </>
+          )}
+        </div>
         <Button label="New AWB" href="/create-entries" variant="primary" icon={PlusCircleIcon} />
       </div>
 
@@ -508,6 +611,14 @@ export default function AwbEntriesPage() {
         itemName={deleteTarget?.awbNumber}
         onCancel={cancelDelete}
         onConfirm={confirmDelete}
+        isLoading={isDeleting}
+      />
+
+      <DeleteConfirmationDialog
+        isOpen={bulkDeleteOpen}
+        itemName={`${selectedIds.length} ${selectedIds.length === 1 ? "AWB" : "AWBs"}`}
+        onCancel={() => setBulkDeleteOpen(false)}
+        onConfirm={handleBulkDeleteConfirm}
         isLoading={isDeleting}
       />
     </div>

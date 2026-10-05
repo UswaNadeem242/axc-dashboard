@@ -2,6 +2,8 @@ import React from "react";
 import Status from "../components/Status";
 import Button from "../button/Button";
 import { Eye, Pencil, Trash2 } from "lucide-react";
+import { isPriceColumn } from "../common/table";
+
 interface Column<T> {
   key: keyof T | string;
   label: string;
@@ -13,6 +15,12 @@ interface TableProps<T> {
   variant: "orders" | "products" | "analytics";
 }
 export default function Table<T>({ columns, data, variant }: TableProps<T>): React.JSX.Element {
+  const getColAlign = (column: Column<T>): "left" | "center" | "right" => {
+    if (column.align) return column.align;
+    if (isPriceColumn(String(column.key), column.label, data)) return "right";
+    return "left";
+  };
+
   const renderCell = (item: any, key: string) => {
     switch (variant) {
       case "orders":
@@ -60,11 +68,19 @@ export default function Table<T>({ columns, data, variant }: TableProps<T>): Rea
       <table className="w-full border-collapse">
         <thead>
           <tr className="bg-[#F8FAFC] border-b border-[#E5E7EB]">
-            {columns.map((column) => (
-              <th key={String(column.key)} className={`px-4 py-3 text-[11px] font-semibold text-[#94A3B8] ${column.align === "center" ? "text-center" : column.align === "right" ? "text-right" : "text-left"}`}>
-                {column.label}
-              </th>
-            ))}
+            {columns.map((column) => {
+              const align = getColAlign(column);
+              return (
+                <th
+                  key={String(column.key)}
+                  className={`px-4 py-3 text-[11px] font-semibold text-[#94A3B8] ${
+                    align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left"
+                  }`}
+                >
+                  {column.label}
+                </th>
+              );
+            })}
           </tr>
         </thead>
 
@@ -72,11 +88,19 @@ export default function Table<T>({ columns, data, variant }: TableProps<T>): Rea
           {data.length ? (
             data.map((item, index) => (
               <tr key={index} className="hover:bg-[#F8FAFC] transition">
-                {columns.map((column) => (
-                  <td key={String(column.key)} className={`px-4 py-3 text-[13px] ${column.align === "center" ? "text-center" : column.align === "right" ? "text-right" : "text-left"}`}>
-                    {renderCell(item, String(column.key))}
-                  </td>
-                ))}
+                {columns.map((column) => {
+                  const align = getColAlign(column);
+                  return (
+                    <td
+                      key={String(column.key)}
+                      className={`px-4 py-3 text-[13px] ${
+                        align === "center" ? "text-center" : align === "right" ? "text-right" : "text-left"
+                      }`}
+                    >
+                      {renderCell(item, String(column.key))}
+                    </td>
+                  );
+                })}
               </tr>
             ))
           ) : (

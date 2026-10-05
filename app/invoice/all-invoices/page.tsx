@@ -13,6 +13,7 @@ import {
   PlusCircle,
   PlusCircleIcon,
   Eye,
+  Printer,
 } from "lucide-react";
 
 import CommonTable from "../../src/common/table";
@@ -25,6 +26,7 @@ import FilterSearch from "../../src/common/filtersearch";
 import Button from "../../src/common/button";
 import { showToast } from "../../src/common/toast";
 import DeleteConfirmationDialog from "../../src/common/deleteConfirmation";
+import Dropdown from "../../src/common/dropdown";
 
 export default function AllInvoicePage() {
   const router = useRouter();
@@ -146,6 +148,79 @@ export default function AllInvoicePage() {
     setDeleteTarget(null);
   };
 
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+
+  const handleBulkDeleteConfirm = () => {
+    const count = selectedIds.length;
+    setData((previous) =>
+      previous.filter((item) => !selectedIds.includes(item.invoiceNumber))
+    );
+    showToast({
+      variant: "success",
+      message: `${count} ${count === 1 ? "invoice" : "invoices"} deleted successfully`,
+    });
+    setSelectedIds([]);
+    setBulkDeleteOpen(false);
+  };
+
+  const handleBulkExport = () => {
+    const selectedRows = data.filter((item) =>
+      selectedIds.includes(item.invoiceNumber)
+    );
+    if (selectedRows.length === 0) return;
+    const headers = [
+      "SR No",
+      "Invoice Number",
+      "Customer Name",
+      "Customer Type",
+      "Customer GST Number",
+      "Invoice Date",
+      "From Date",
+      "Till Date",
+      "Grand Total",
+      "Shipper Code",
+      "Created By",
+      "Created Date",
+      "Is Email Sent",
+      "Email Date",
+      "Email Sent Count",
+    ];
+    const csvContent = [
+      headers.join(","),
+      ...selectedRows.map((r, idx) =>
+        [
+          r.srNo ?? idx + 1,
+          `"${r.invoiceNumber || ""}"`,
+          `"${r.customerName || ""}"`,
+          `"${r.customerType || ""}"`,
+          `"${r.customerGstNumber || ""}"`,
+          `"${r.invoiceDate || ""}"`,
+          `"${r.fromDate || ""}"`,
+          `"${r.tillDate || ""}"`,
+          `"${r.grandTotal || ""}"`,
+          `"${r.shipperCode || ""}"`,
+          `"${r.createdBy || ""}"`,
+          `"${r.createdDate || ""}"`,
+          `"${r.isEmailSent || ""}"`,
+          `"${r.emailDate || ""}"`,
+          r.emailSentCount ?? 0,
+        ].join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `invoices_export_${Date.now()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast({
+      variant: "success",
+      message: `${selectedRows.length} ${selectedRows.length === 1 ? "invoice" : "invoices"} exported successfully`,
+    });
+  };
+
   const filteredData = data.filter((item) => {
     const query = searchQuery.toLowerCase();
     let matchesQuery = true;
@@ -255,11 +330,6 @@ export default function AllInvoicePage() {
     <div className="relative bg-white p-4 shadow-sm border border-axc-border rounded-lg w-full h-[calc(100vh-160px)] flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4">
         <div className="flex flex-wrap items-center gap-3">
-          {selectedIds.length > 0 && (
-            <span className="text-regular-medium  text-axc-gray">
-              {selectedIds.length} selected
-            </span>
-          )}
           <FilterSearch
             groups={filterGroups}
             selectedOptions={activeTags}
@@ -269,6 +339,34 @@ export default function AllInvoicePage() {
             onSearchSubmit={handleSearchSubmit}
             placeholder="Search"
           />
+
+          {selectedIds.length > 0 && (
+            <>
+              <button
+                type="button"
+                onClick={() => setSelectedIds([])}
+                className="flex items-center gap-2 rounded-md border border-axc-border px-3 py-2 text-[12px] font-medium text-axc-dark-gray hover:bg-gray-50 cursor-pointer transition-colors"
+                title="Click to clear selection"
+              >
+                {selectedIds.length} Selected
+              </button>
+
+              <div className="[&_button]:cursor-pointer">
+                <Dropdown
+                  title="Actions"
+                  items={[
+                    { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: handleBulkExport },
+                    { label: "Print", icon: <Printer className="h-4 w-4" />, onClick: () => window.print() },
+                    {
+                      label: "Delete",
+                      icon: <Trash2 className="h-4 w-4" />,
+                      onClick: () => setBulkDeleteOpen(true),
+                    },
+                  ]}
+                />
+              </div>
+            </>
+          )}
         </div>
 
         <Button
@@ -358,6 +456,14 @@ export default function AllInvoicePage() {
         itemName={deleteTarget?.invoiceNumber}
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
+        isLoading={isDeleting}
+      />
+
+      <DeleteConfirmationDialog
+        isOpen={bulkDeleteOpen}
+        itemName={`${selectedIds.length} ${selectedIds.length === 1 ? "invoice" : "invoices"}`}
+        onConfirm={handleBulkDeleteConfirm}
+        onCancel={() => setBulkDeleteOpen(false)}
         isLoading={isDeleting}
       />
     </div>

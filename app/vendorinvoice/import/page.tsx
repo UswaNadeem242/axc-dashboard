@@ -70,7 +70,7 @@ const emptyForm: VendorImportFormState = {
 interface UploadingFile {
   id: string;
   file: File;
-  uploaded: number; 
+  uploaded: number;
   status: "uploading" | "done" | "error";
   errorMessage?: string;
 }
@@ -88,7 +88,7 @@ const DEFAULT_ACCEPTED_MIME_TYPES = [
   "image/svg+xml",
 ];
 const DEFAULT_ACCEPTED_LABEL = "JPEG, PNG, PDF and SVG formats, up to 10MB";
-const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024; 
+const DEFAULT_MAX_SIZE_BYTES = 10 * 1024 * 1024;
 
 function FileUploadField({
   onFileChange,
@@ -193,11 +193,10 @@ function FileUploadField({
           e.preventDefault();
           handleFiles(e.dataTransfer.files);
         }}
-        className={`flex flex-col items-center justify-center gap-2 border border-dashed rounded-lg py-6 px-4 text-center cursor-pointer transition w-full ${
-          error
+        className={`flex flex-col items-center justify-center gap-2 border border-dashed rounded-lg py-6 px-4 text-center cursor-pointer transition w-full ${error
             ? "border-red-400 bg-red-50/40"
             : "border-axc-border bg-white hover:bg-gray-50/70"
-        }`}
+          }`}
       >
         <span className="p-2 bg-gray-100/90 rounded-md text-gray-600 flex items-center justify-center shrink-0">
           <Upload size={18} />
@@ -225,14 +224,12 @@ function FileUploadField({
             return (
               <div
                 key={uf.id}
-                className={`border rounded-md px-2.5 py-2 flex items-center gap-2 w-[calc(50%-0.25rem)] sm:w-[calc(33.333%-0.34rem)] lg:w-[calc(20%-0.4rem)] ${
-                  isError ? "border-red-300 bg-red-50/40" : "border-axc-border bg-white"
-                }`}
+                className={`border rounded-md px-2.5 py-2 flex items-center gap-2 w-[calc(50%-0.25rem)] sm:w-[calc(33.333%-0.34rem)] lg:w-[calc(20%-0.4rem)] ${isError ? "border-red-300 bg-red-50/40" : "border-axc-border bg-white"
+                  }`}
               >
                 <span
-                  className={`p-1.5 rounded shrink-0 ${
-                    isError ? "bg-red-100 text-axc-red" : "bg-gray-100 text-gray-500"
-                  }`}
+                  className={`p-1.5 rounded shrink-0 ${isError ? "bg-red-100 text-axc-red" : "bg-gray-100 text-gray-500"
+                    }`}
                 >
                   {isError ? <AlertCircle size={13} /> : <FileText size={13} />}
                 </span>
@@ -259,9 +256,8 @@ function FileUploadField({
                       </p>
                       <div className="mt-1 flex items-center h-1 w-full overflow-hidden rounded-full">
                         <div
-                          className={`h-full bg-axc-blue transition-all duration-200 ease-linear ${
-                            done ? "rounded-full" : "rounded-l-full"
-                          }`}
+                          className={`h-full bg-axc-blue transition-all duration-200 ease-linear ${done ? "rounded-full" : "rounded-l-full"
+                            }`}
                           style={{ width: `${percent}%` }}
                         />
                         {!done && (
@@ -414,6 +410,36 @@ export default function VendorInvoiceImportPage() {
       <PanelHeader title="Import Vendor Invoice" />
 
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3">
+        <Field name="searchBy" className="col-span-full sm:col-span-2 xl:col-span-3">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 py-2.5">
+            {VendorSearchByOptions.map((o) => {
+              const checked = form.searchBy.includes(o.value);
+              return (
+                <label
+                  key={o.value}
+                  className="flex items-center gap-2 text-regular-small text-axc-gray cursor-pointer"
+                >
+                  <input
+                    type="checkbox"
+                    name="searchBy"
+                    value={o.value}
+                    checked={checked}
+                    onChange={() =>
+                      updateField(
+                        "searchBy",
+                        checked
+                          ? form.searchBy.filter((v) => v !== o.value)
+                          : [...form.searchBy, o.value],
+                      )
+                    }
+                    className="accent-axc-navy cursor-pointer"
+                  />
+                  {o.label}
+                </label>
+              );
+            })}
+          </div>
+        </Field>
         <Field name="vendor" required error={errors.vendor}>
           <CommonDropdown
             value={form.vendor}
@@ -488,36 +514,7 @@ export default function VendorInvoiceImportPage() {
           />
         </Field>
 
-        <Field name="searchBy">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 py-2.5">
-            {VendorSearchByOptions.map((o) => {
-              const checked = form.searchBy.includes(o.value);
-              return (
-                <label
-                  key={o.value}
-                  className="flex items-center gap-2 text-regular-small text-axc-gray cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    name="searchBy"
-                    value={o.value}
-                    checked={checked}
-                    onChange={() =>
-                      updateField(
-                        "searchBy",
-                        checked
-                          ? form.searchBy.filter((v) => v !== o.value)
-                          : [...form.searchBy, o.value],
-                      )
-                    }
-                    className="accent-axc-navy cursor-pointer"
-                  />
-                  {o.label}
-                </label>
-              );
-            })}
-          </div>
-        </Field>
+
 
         <Field
           name="csvFile"

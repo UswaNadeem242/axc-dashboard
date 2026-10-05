@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import { PlusCircleIcon, Eye, Pencil, Trash2 } from "lucide-react";
+import { PlusCircleIcon, Eye, Pencil, Trash2, FileText, Printer } from "lucide-react";
 import CommonTable from "../../src/common/table";
 import {
   VendorInvoiceHeading,
@@ -11,6 +11,8 @@ import {
 import FilterSearch from "../../src/common/filtersearch";
 import Button from "../../src/common/button";
 import DeleteConfirmationDialog from "../../src/common/deleteConfirmation";
+import Dropdown from "../../src/common/dropdown";
+import { showToast } from "../../src/common/toast";
 
 const STORAGE_KEY = "vendor_invoices";
 
@@ -128,11 +130,60 @@ export default function VendorInvoicePage() {
     );
     setIsDeleting(false);
     setDeleteTarget(null);
+    showToast({ variant: "success", message: "Vendor invoice deleted." });
   };
 
   const cancelDelete = () => {
     if (isDeleting) return;
     setDeleteTarget(null);
+  };
+
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+
+  const handleBulkDeleteConfirm = () => {
+    const count = selectedIds.length;
+    setData((previous) =>
+      previous.filter((item) => !selectedIds.includes(item.invoiceNumber))
+    );
+    setSelectedIds([]);
+    setBulkDeleteOpen(false);
+    showToast({
+      variant: "success",
+      message: `${count} ${count === 1 ? "vendor invoice" : "vendor invoices"} deleted successfully`,
+    });
+  };
+
+  const handleBulkExport = () => {
+    const selectedRows = data.filter((item) =>
+      selectedIds.includes(item.invoiceNumber)
+    );
+    if (selectedRows.length === 0) return;
+    const headers = ["Sr No", "Vendor", "Invoice Number", "Invoice Date", "Missing AWB Count", "Created Date"];
+    const csvContent = [
+      headers.join(","),
+      ...selectedRows.map((r, idx) =>
+        [
+          idx + 1,
+          `"${r.vendor || ""}"`,
+          `"${r.invoiceNumber || ""}"`,
+          `"${r.invoiceDate || ""}"`,
+          r.missingAwbCount ?? 0,
+          `"${r.createdDate || ""}"`,
+        ].join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `vendor_invoices_${Date.now()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast({
+      variant: "success",
+      message: `${selectedRows.length} ${selectedRows.length === 1 ? "vendor invoice" : "vendor invoices"} exported successfully`,
+    });
   };
 
   const handleEdit = (row: VendorInvoiceEntry) =>
@@ -163,11 +214,6 @@ export default function VendorInvoicePage() {
     <div className="relative bg-white p-4 rounded-lg w-full flex-1 flex flex-col min-h-0  shadow-sm border border-axc-border  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4 shrink-0">
         <div className="flex flex-wrap items-center gap-3">
-          {selectedIds.length > 0 && (
-            <span className="text-xs font-semibold text-axc-gray">
-              {selectedIds.length} selected
-            </span>
-          )}
           <FilterSearch
             groups={[]}
             selectedOptions={activeTags}
@@ -178,6 +224,34 @@ export default function VendorInvoicePage() {
             placeholder="Search Invoices"
             searchSuggestions={searchSuggestions}
           />
+
+          {selectedIds.length > 0 && (
+            <>
+              <button
+                type="button"
+                onClick={() => setSelectedIds([])}
+                className="flex items-center gap-2 rounded-md border border-axc-border px-3 py-2 text-[12px] font-medium text-axc-dark-gray hover:bg-gray-50 cursor-pointer transition-colors"
+                title="Click to clear selection"
+              >
+                {selectedIds.length} Selected
+              </button>
+
+              <div className="[&_button]:cursor-pointer">
+                <Dropdown
+                  title="Actions"
+                  items={[
+                    { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: handleBulkExport },
+                    { label: "Print", icon: <Printer className="h-4 w-4" />, onClick: () => window.print() },
+                    {
+                      label: "Delete",
+                      icon: <Trash2 className="h-4 w-4" />,
+                      onClick: () => setBulkDeleteOpen(true),
+                    },
+                  ]}
+                />
+              </div>
+            </>
+          )}
         </div>
         <Button
           label="Import Vendor Invoice"
@@ -235,6 +309,14 @@ export default function VendorInvoicePage() {
         itemName={deleteTarget?.invoiceNumber}
         onCancel={cancelDelete}
         onConfirm={confirmDelete}
+        isLoading={isDeleting}
+      />
+
+      <DeleteConfirmationDialog
+        isOpen={bulkDeleteOpen}
+        itemName={`${selectedIds.length} ${selectedIds.length === 1 ? "invoice" : "invoices"}`}
+        onCancel={() => setBulkDeleteOpen(false)}
+        onConfirm={handleBulkDeleteConfirm}
         isLoading={isDeleting}
       />
     </div>

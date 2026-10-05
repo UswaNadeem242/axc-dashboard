@@ -12,7 +12,7 @@ interface Heading {
   className?: string;
   sortable?: boolean;
   truncate?: boolean;
-  align?: "left" | "center" | "right"; 
+  align?: "left" | "center" | "right";
   render?: (row: any, index?: number) => React.ReactNode;
 }
 
@@ -48,6 +48,78 @@ interface CommonTableProps {
   cellPadding?: string;
   headerPadding?: string;
 }
+
+const PRICE_KEY_PATTERNS = [
+  /price/i,
+  /amount/i,
+  /cost/i,
+  /total/i,
+  /fare/i,
+  /fee/i,
+  /charge/i,
+  /balance/i,
+  /debit/i,
+  /credit/i,
+  /tariff/i,
+];
+
+const NON_PRICE_EXCLUSIONS = [
+  /count/i,
+  /number/i,
+  /no\b/i,
+  /id\b/i,
+  /code/i,
+  /status/i,
+  /date/i,
+  /time/i,
+];
+
+const CURRENCY_VALUE_REGEX = /^[\$€£₹¥]\s*-?[\d,]+(\.\d+)?$|^-?[\d,]+(\.\d+)?\s*[\$€£₹¥]$|^(PKR|USD|AED|EUR|GBP|INR|Rs\.?)\s*-?[\d,]+(\.\d+)?$|^-?[\d,]+(\.\d+)?\s*(PKR|USD|AED|EUR|GBP|INR|Rs\.?)$/i;
+
+export const isPriceColumn = (
+  key: string,
+  label?: React.ReactNode,
+  sampleData?: any[]
+): boolean => {
+  const keyStr = String(key || "");
+  const labelStr = typeof label === "string" ? label : "";
+
+  // 1. If explicit non-price terms exist and no explicit amount/price term exists
+  const hasExclusion = NON_PRICE_EXCLUSIONS.some((rx) => rx.test(keyStr) || rx.test(labelStr));
+  const hasExplicitPriceTerm = /price|amount/i.test(keyStr) || /price|amount/i.test(labelStr);
+
+  if (hasExclusion && !hasExplicitPriceTerm) {
+    return false;
+  }
+
+  // 2. Check if key or label matches price keywords
+  if (PRICE_KEY_PATTERNS.some((rx) => rx.test(keyStr) || rx.test(labelStr))) {
+    return true;
+  }
+
+  // 3. Inspect sample rows if available
+  if (sampleData && sampleData.length > 0) {
+    for (let i = 0; i < Math.min(sampleData.length, 5); i++) {
+      const val = sampleData[i]?.[keyStr];
+      if (typeof val === "string" && CURRENCY_VALUE_REGEX.test(val.trim())) {
+        return true;
+      }
+    }
+  }
+
+  return false;
+};
+
+export const resolveColumnAlign = (
+  headingAlign?: Heading["align"],
+  key?: string,
+  label?: React.ReactNode,
+  sampleData?: any[]
+): "left" | "center" | "right" => {
+  if (headingAlign) return headingAlign;
+  if (key && isPriceColumn(key, label, sampleData)) return "right";
+  return "left";
+};
 
 const CommonTable = ({
   headings,
@@ -96,17 +168,16 @@ const CommonTable = ({
     return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text;
   };
 
-  const getTextAlign = (align: Heading["align"] = "center") => {
-    if (align === "left") return "text-left";
+  const getTextAlign = (align: Heading["align"] = "left") => {
     if (align === "right") return "text-right";
-    return "text-center";
+    if (align === "center") return "text-center";
+    return "text-left";
   };
 
-
-  const getJustify = (align: Heading["align"] = "center") => {
-    if (align === "left") return "justify-start text-left";
+  const getJustify = (align: Heading["align"] = "left") => {
     if (align === "right") return "justify-end text-right";
-    return "justify-center text-center";
+    if (align === "center") return "justify-center text-center";
+    return "justify-start text-left";
   };
 
   const allSelected = paginatedData.length > 0 && paginatedData.every((row) => selectedIds.includes(row[rowKey]));
@@ -139,26 +210,34 @@ const CommonTable = ({
   };
 
   const tableElement = (
-    <table className="w-full min-w-max  border-collapse text-left text-sm">
-      <thead className="text-center">
+    <table className="w-full min-w-max border-collapse text-left text-sm">
+      <thead className="text-left">
         <tr className="bg-axc-navy/10 text-black">
           {selectable && (
-            <th className={`w-10 bg-axc-navy/10 rounded-tl-sm ${headerPadding}`}>
-              <input type="checkbox" checked={allSelected} onChange={toggleAll} className="h-3.5 w-3.5 accent-white" />
+            <th className={`w-10 bg-axc-navy/10 text-center rounded-tl-sm ${headerPadding}`}>
+              <div className="flex items-center justify-center">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={toggleAll}
+                  className="h-3.5 w-3.5 accent-axc-blue cursor-pointer"
+                />
+              </div>
             </th>
           )}
           {headings.map((heading, index) => {
+            const align = resolveColumnAlign(heading.align, heading.key, heading.label, paginatedData);
             const isSorted = sortKey === heading.key;
             return (
               <th
                 key={heading.key}
                 onClick={() => heading.sortable && onSort?.(heading.key)}
-                className={`bg-axc-navy/10 ${headerPadding} text-xs font-bold text-axc-dark-gray  align-top
+                className={`bg-axc-navy/10 ${headerPadding} text-xs font-bold text-axc-dark-gray align-top
                    whitespace-nowrap ${index === 0 && !selectable ? "rounded-tl-sm" : ""
                   } ${index === headings.length - 1 ? "rounded-tr-sm" : ""} ${heading.sortable ? "cursor-pointer select-none hover:bg-axc-navy/20 transition-colors" : ""
-                  } ${heading.className ?? ""}`}
+                  } ${getTextAlign(align)} ${heading.className ?? ""}`}
               >
-                <div className={`flex items-start whitespace-nowrap gap-1 ${getJustify(heading.align)}`}>
+                <div className={`flex items-center whitespace-nowrap gap-1 ${getJustify(align)}`}>
                   {heading.label}
                 </div>
               </th>
@@ -183,97 +262,106 @@ const CommonTable = ({
           paginatedData.map((row, index) => (
             <tr key={index} className="bg-white transition">
               {selectable && (
-                <td className={cellPadding}>
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.includes(row[rowKey])}
-                    onChange={() => toggleRow(row[rowKey])}
-                    className="h-3.5 w-3.5 accent-axc-blue"
-                  />
+                <td className={`${cellPadding} text-center`}>
+                  <div className="flex items-center justify-center">
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.includes(row[rowKey])}
+                      onChange={() => toggleRow(row[rowKey])}
+                      className="h-3.5 w-3.5 accent-axc-blue cursor-pointer"
+                    />
+                  </div>
                 </td>
               )}
-              {headings.map((heading) => (
-                <td key={heading.key} className={`${cellPadding} ${getTextAlign(heading.align)}`}>
-                  {heading.render ? (
-                    heading.render(row, (activePage - 1) * itemsPerPage + index)
-                  ) : heading.key === "status" ? (
-                    <span className={`rounded-full px-3 py-1 text-[10px] font-bold ${getStatusClasses(row.status)}`}>
-                      {row.status}
-                    </span>
-                  ) : heading.key === "action" ? (
-                    renderActions ? (
-                      renderActions(row)
+              {headings.map((heading) => {
+                const align = resolveColumnAlign(heading.align, heading.key, heading.label, paginatedData);
+                const isPrice = align === "right";
+                return (
+                  <td key={heading.key} className={`${cellPadding} ${getTextAlign(align)}`}>
+                    {heading.render ? (
+                      heading.render(row, (activePage - 1) * itemsPerPage + index)
+                    ) : heading.key === "status" ? (
+                      <span className={`inline-block rounded-full px-3 py-1 text-[10px] font-bold ${getStatusClasses(row.status)}`}>
+                        {row.status}
+                      </span>
+                    ) : heading.key === "action" ? (
+                      renderActions ? (
+                        renderActions(row)
+                      ) : (
+                        <div className={`flex items-center gap-2 ${align === "center" ? "justify-center" : align === "right" ? "justify-end" : "justify-start"}`}>
+                          {onView && (
+                            <button
+                              type="button"
+                              onClick={() => onView(row)}
+                              className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
+                              title="View"
+                            >
+                              <Eye size={16} />
+                            </button>
+                          )}
+                          {onEdit && (
+                            <button
+                              type="button"
+                              onClick={() => onEdit(row)}
+                              className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30 p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10 cursor-pointer"
+                              title="Edit"
+                            >
+                              <Pencil size={16} />
+                            </button>
+                          )}
+
+                          {onBag && (
+                            <button
+                              type="button"
+                              onClick={() => onBag(row)}
+                              className="inline-flex items-center justify-center rounded-md border border-axc-yellow/30 p-1.5 text-axc-dark-yellow transition hover:bg-axc-yellow/10 cursor-pointer"
+                              title="Bagging"
+                            >
+                              <Package size={16} />
+                            </button>
+                          )}
+
+                          {onDelete && (
+                            <button
+                              type="button"
+                              onClick={() => onDelete(row)}
+                              className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30 p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
+                              title="Delete"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          )}
+                        </div>
+                      )
                     ) : (
-                      <div className="flex items-center gap-2">
-                        {onView && (
-                          <button
-                            type="button"
-                            onClick={() => onView(row)}
-                            className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
-                            title="View"
-                          >
-                            <Eye size={16} />
-                          </button>
-                        )}
-                        {onEdit && (
-                          <button
-                            type="button"
-                            onClick={() => onEdit(row)}
-                            className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30 p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10 cursor-pointer"
-                            title="Edit"
-                          >
-                            <Pencil size={16} />
-                          </button>
-                        )}
-
-                        {onBag && (
-                          <button
-                            type="button"
-                            onClick={() => onBag(row)}
-                            className="inline-flex items-center justify-center rounded-md border border-axc-yellow/30 p-1.5 text-axc-dark-yellow transition hover:bg-axc-yellow/10 cursor-pointer"
-                            title="Bagging"
-                          >
-                            <Package size={16} />
-                          </button>
-                        )}
-
-                        {onDelete && (
-                          <button
-                            type="button"
-                            onClick={() => onDelete(row)}
-                            className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30 p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
-                            title="Delete"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        )}
-                      </div>
-                    )
-                  ) : (
-                    (() => {
-                      const value = row[heading.key];
-                      if (value === null || value === undefined || value === "") return "-";
-                      if (typeof value === "string") {
-                        if (heading.truncate === false) {
-                          return <span className={`block whitespace-nowrap ${getTextAlign(heading.align)}`}>{value}</span>;
+                      (() => {
+                        const value = row[heading.key];
+                        if (value === null || value === undefined || value === "") return "-";
+                        if (typeof value === "number") {
+                          return <span className={`block whitespace-nowrap ${getTextAlign(align)}`}>{value}</span>;
                         }
-                        return (
-                          <div className={`group relative inline-block max-w-30 w-full ${getTextAlign(heading.align)}`}>
-                            <span className="block truncate cursor-pointer">{truncateText(value, 8)}</span>
-                            {value.length > 8 && (
-                              <div className="invisible absolute left-1/2 bottom-full z-[99] mb-2 w-max max-w-xs -translate-x-1/2 rounded-lg bg-axc-navy/60 px-3 py-2 text-xs text-white opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">
-                                {value}
-                                <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-axc-navy/60" />
-                              </div>
-                            )}
-                          </div>
-                        );
-                      }
-                      return value;
-                    })()
-                  )}
-                </td>
-              ))}
+                        if (typeof value === "string") {
+                          if (heading.truncate === false || isPrice) {
+                            return <span className={`block whitespace-nowrap ${getTextAlign(align)}`}>{value}</span>;
+                          }
+                          return (
+                            <div className={`group relative inline-block max-w-30 w-full ${getTextAlign(align)}`}>
+                              <span className="block truncate cursor-pointer">{truncateText(value, 8)}</span>
+                              {value.length > 8 && (
+                                <div className="invisible absolute left-1/2 bottom-full z-[99] mb-2 w-max max-w-xs -translate-x-1/2 rounded-lg bg-axc-navy/60 px-3 py-2 text-xs text-white opacity-0 shadow-xl transition-all duration-200 group-hover:visible group-hover:opacity-100">
+                                  {value}
+                                  <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-axc-navy/60" />
+                                </div>
+                              )}
+                            </div>
+                          );
+                        }
+                        return value;
+                      })()
+                    )}
+                  </td>
+                );
+              })}
             </tr>
           ))
         )}

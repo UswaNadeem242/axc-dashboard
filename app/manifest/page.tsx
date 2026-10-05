@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { X, PlusCircleIcon } from "lucide-react";
+import { X, PlusCircleIcon, FileText, Printer, Trash2 } from "lucide-react";
 
 import CommonTable from "../src/common/table";
 import { ManifestHeading, ManifestEntry, initialManifestData } from "../src/constant";
@@ -10,6 +10,7 @@ import FilterSearch from "../src/common/filtersearch";
 import Button from "../src/common/button";
 import { showToast } from "../src/common/toast";
 import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
+import Dropdown from "../src/common/dropdown";
 
 export default function AllManifestPage() {
   const router = useRouter();
@@ -94,6 +95,73 @@ export default function AllManifestPage() {
   const cancelDelete = () => {
     if (isDeleting) return;
     setDeleteTarget(null);
+  };
+
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+
+  const handleBulkDeleteConfirm = () => {
+    const count = selectedIds.length;
+    setData((previous) => previous.filter((item) => !selectedIds.includes(item.manifestNo)));
+    showToast({
+      variant: "success",
+      message: `${count} ${count === 1 ? "manifest" : "manifests"} deleted successfully`,
+    });
+    setSelectedIds([]);
+    setBulkDeleteOpen(false);
+  };
+
+  const handleBulkExport = () => {
+    const selectedRows = data.filter((item) => selectedIds.includes(item.manifestNo));
+    if (selectedRows.length === 0) return;
+    const headers = [
+      "SR No",
+      "Manifest No",
+      "Vendor",
+      "Vendor Name",
+      "Origin Hub Code",
+      "Destination Hub Name",
+      "Destination Hub Code",
+      "Forwarder Code",
+      "Run Number",
+      "Master EDI Bag No",
+      "Manifest Date",
+      "Vehicle No",
+      "No Of Bags",
+      "Weight",
+    ];
+    const csvContent = [
+      headers.join(","),
+      ...selectedRows.map((r, idx) =>
+        [
+          r.srNo ?? idx + 1,
+          `"${r.manifestNo || ""}"`,
+          `"${r.vendor || ""}"`,
+          `"${r.vendorName || ""}"`,
+          `"${r.originHubCode || ""}"`,
+          `"${r.destinationHubName || ""}"`,
+          `"${r.destinationHubCode || ""}"`,
+          `"${r.forwarderCode || ""}"`,
+          `"${r.runNumber || ""}"`,
+          `"${r.masterEdiBagNo || ""}"`,
+          `"${r.manifestDate || ""}"`,
+          `"${r.vehicleNo || ""}"`,
+          r.noOfBags ?? 0,
+          `"${r.weight || ""}"`,
+        ].join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `manifests_export_${Date.now()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast({
+      variant: "success",
+      message: `${selectedRows.length} ${selectedRows.length === 1 ? "manifest" : "manifests"} exported successfully`,
+    });
   };
 
   const filteredData = data.filter((item) => {
@@ -219,9 +287,6 @@ export default function AllManifestPage() {
     <div className="relative bg-white shadow-sm border border-axc-border p-4  rounded-lg w-full h-[calc(100vh-160px)] flex flex-col  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4 ">
         <div className="flex flex-wrap items-center gap-3">
-          {selectedIds.length > 0 && (
-            <span className="text-xs font-semibold text-axc-gray">{selectedIds.length} selected</span>
-          )}
           <FilterSearch
             groups={filterGroups}
             selectedOptions={activeTags}
@@ -231,6 +296,34 @@ export default function AllManifestPage() {
             onSearchSubmit={handleSearchSubmit}
             placeholder="Search"
           />
+
+          {selectedIds.length > 0 && (
+            <>
+              <button
+                type="button"
+                onClick={() => setSelectedIds([])}
+                className="flex items-center gap-2 rounded-md border border-axc-border px-3 py-2 text-[12px] font-medium text-axc-dark-gray hover:bg-gray-50 cursor-pointer transition-colors"
+                title="Click to clear selection"
+              >
+                {selectedIds.length} Selected
+              </button>
+
+              <div className="[&_button]:cursor-pointer">
+                <Dropdown
+                  title="Actions"
+                  items={[
+                    { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: handleBulkExport },
+                    { label: "Print", icon: <Printer className="h-4 w-4" />, onClick: () => window.print() },
+                    {
+                      label: "Delete",
+                      icon: <Trash2 className="h-4 w-4" />,
+                      onClick: () => setBulkDeleteOpen(true),
+                    },
+                  ]}
+                />
+              </div>
+            </>
+          )}
         </div>
 
         <Button label="New Manifest" href="/manifest/new-manifest" variant="primary" icon={PlusCircleIcon} />
@@ -290,6 +383,14 @@ export default function AllManifestPage() {
         itemName={deleteTarget?.manifestNo}
         onConfirm={confirmDelete}
         onCancel={cancelDelete}
+        isLoading={isDeleting}
+      />
+
+      <DeleteConfirmationDialog
+        isOpen={bulkDeleteOpen}
+        itemName={`${selectedIds.length} ${selectedIds.length === 1 ? "manifest" : "manifests"}`}
+        onConfirm={handleBulkDeleteConfirm}
+        onCancel={() => setBulkDeleteOpen(false)}
         isLoading={isDeleting}
       />
     </div>
