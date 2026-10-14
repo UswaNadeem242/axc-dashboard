@@ -305,6 +305,18 @@ export interface AwbEntry {
   consignee: string;
   shipper: string;
   status: string;
+
+  // Search & Filter fields (supporting the 15 AWB filter categories)
+  customerCode?: string;
+  destinationHub?: string;
+  bookingTime?: string;
+  serviceCode?: string;
+  shipperCity?: string;
+  consigneeCity?: string;
+  consigneeState?: string;
+  company?: string;
+  runNumber?: string;
+  calendarYear?: string;
 }
 
 export const AwbEntryheading = [
@@ -684,6 +696,13 @@ export interface ManifestEntry {
   vehicleNo: string;
   noOfBags: number;
   weight: string;
+
+  // Search & Filter fields
+  masterNo?: string;
+  awbNo?: string;
+  company?: string;
+  status?: string;
+  calendarYear?: string;
 }
 
 export const ManifestHeading = [
@@ -1041,6 +1060,17 @@ export interface InvoiceEntry {
   invoiceAgingDays?: string | number;
   irn?: string;
   acknowledgementNumber?: string;
+
+  // Search & Filter fields
+  customerCode?: string;
+  company?: string;
+  awbNo?: string;
+  awbNumber?: string;
+  shipperName?: string;
+  calendarYear?: string;
+  eInvoiceStatus?: string;
+  syncStatus?: string;
+  failedSync?: string | boolean;
 }
 
 export const InvoiceHeading = [
@@ -1195,12 +1225,23 @@ export const quickActions = [
 ];
 export interface VendorInvoiceEntry {
   srNo: number;
-  vendor:string;
+  vendor: string;
   invoiceNumber: string;
   invoiceDate: string;
   missingAwbCount: number;
   createdDate: string;
-  
+
+  // Search & Filter fields
+  referenceNo?: string;
+  referenceName?: string;
+  invoiceNo?: string;
+  fromDate?: string;
+  tillDate?: string;
+  billingCompany?: string;
+  currency?: string;
+  currencyType?: string;
+  importStatus?: string;
+  calendarYear?: string;
 }
 
 export const VendorInvoiceHeading = [
@@ -1643,6 +1684,41 @@ export const awbFilterGroups: FilterGroupOption[] = [
     ],
   },
   {
+    group: "Destination Hub",
+    options: [
+      { label: "CANADA", value: "CANADA" },
+      { label: "DELHI", value: "DELHI" },
+      { label: "DUBAI", value: "DUBAI" },
+      { label: "FRANKFURT", value: "FRANKFURT" },
+      { label: "ISLAMABAD", value: "ISLAMABAD" },
+      { label: "JFK / NEW YORK", value: "UNITED STATES OF AMERICA" },
+      { label: "KARACHI", value: "KARACHI" },
+      { label: "LAHORE", value: "LAHORE" },
+      { label: "LONDON", value: "UNITED KINGDOM" },
+      { label: "MUMBAI", value: "MUMBAI" },
+      { label: "SINGAPORE", value: "SINGAPORE" },
+    ],
+  },
+  {
+    group: "Company",
+    options: [
+      { label: "AXC Express", value: "AXC Express" },
+      { label: "ELS Logistics", value: "ELS Logistics" },
+      { label: "FedEx Cargo", value: "FedEx Cargo" },
+      { label: "TCS Express", value: "TCS Express" },
+      { label: "DHL Express", value: "DHL Express" },
+    ],
+  },
+  {
+    group: "Calendar Year",
+    sameColumnAsPrevious: true,
+    options: [
+      { label: "2026", value: "2026" },
+      { label: "2025", value: "2025" },
+      { label: "2024", value: "2024" },
+    ],
+  },
+  {
     group: "SHIPMENT TYPE",
     options: [
       { label: "CSB-V", value: "CSB-V" },
@@ -1657,9 +1733,6 @@ export const awbFilterGroups: FilterGroupOption[] = [
       { label: "DOMESTIC", value: "DOMESTIC" },
     ],
   },
-
-
-
 ];
 
 export const awbFilterOptions = [

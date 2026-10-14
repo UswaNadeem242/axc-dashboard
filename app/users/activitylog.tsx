@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FileText, Printer, Trash2 } from "lucide-react";
 
-import SearchInput from "../src/common/search";
+import FilterSearch, { FilterGroup } from "../src/common/filtersearch";
 import Dropdown from "../src/common/dropdown";
 import ToggleSwitch from "./toggleswitch";
 import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
@@ -46,24 +46,116 @@ function ModuleBadge({ module }: { module: string }) {
 
 export default function ActivityLogsTab() {
   const [logs, setLogs] = useState<ActivityLog[]>(initialLogs);
-  const [search, setSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTags, setActiveTags] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const itemsPerPage = 10;
 
+  const dynamicGroups: FilterGroup[] = useMemo(() => {
+    const modules = Array.from(new Set(logs.map((l) => l.module).filter(Boolean)));
+
+    return [
+      {
+        group: "Module",
+        options: (modules.length > 0 ? modules : ["Users", "Roles & Permissions", "Subscription", "Security", "Account"]).map((m) => ({
+          label: m,
+          value: m,
+        })),
+      },
+      {
+        group: "Status",
+        options: [
+          { label: "Active", value: "Active" },
+          { label: "Inactive", value: "Inactive" },
+        ],
+      },
+    ];
+  }, [logs]);
+
+  const searchSuggestions = useMemo(() => {
+    const users = logs.map((l) => l.userName).filter(Boolean);
+    const actions = logs.map((l) => l.action).filter(Boolean);
+    const modules = logs.map((l) => l.module).filter(Boolean);
+    return Array.from(new Set([...users, ...actions, ...modules]));
+  }, [logs]);
+
+  const handleSearchSubmit = (val: string) => {
+    const trimmed = val.trim();
+    if (!trimmed) return;
+
+    if (!activeTags.includes(trimmed)) {
+      setActiveTags((prev) => [...prev, trimmed]);
+      setSearchQuery("");
+      setCurrentPage(1);
+    }
+  };
+
+  const handleTagsChange = (newTags: string[]) => {
+    const addedTag = newTags.find((tag) => !activeTags.includes(tag));
+
+    if (addedTag) {
+      const group = dynamicGroups.find((g) => g.options.some((o) => o.value === addedTag));
+      if (group) {
+        const groupValues = group.options.map((o) => o.value);
+        const filteredTags = newTags.filter((tag) => tag === addedTag || !groupValues.includes(tag));
+        setActiveTags(filteredTags);
+        setCurrentPage(1);
+        return;
+      }
+    }
+
+    setActiveTags(newTags);
+    setCurrentPage(1);
+  };
+
   const filteredLogs = useMemo(() => {
-    const value = search.trim().toLowerCase();
-    if (!value) return logs;
-    return logs.filter(
-      (log) =>
-        log.userName.toLowerCase().includes(value) ||
-        log.action.toLowerCase().includes(value) ||
-        log.module.toLowerCase().includes(value) ||
-        log.ipAddress.toLowerCase().includes(value)
-    );
-  }, [logs, search]);
+    const query = searchQuery.trim().toLowerCase();
+
+    return logs.filter((log) => {
+      let matchesQuery = true;
+      if (query) {
+        if (query.endsWith(",")) {
+          matchesQuery = true;
+        } else {
+          const searchTerms = query.split(/[,\s]+/).map((t) => t.trim()).filter(Boolean);
+          if (searchTerms.length > 0) {
+            matchesQuery = searchTerms.some((term) => {
+              const statusStr = log.isActive ? "active" : "inactive";
+              return (
+                log.userName.toLowerCase().includes(term) ||
+                log.action.toLowerCase().includes(term) ||
+                log.module.toLowerCase().includes(term) ||
+                log.ipAddress.toLowerCase().includes(term) ||
+                statusStr.includes(term)
+              );
+            });
+          }
+        }
+      }
+
+      const matchesTags = activeTags.every((tag) => {
+        const raw = tag.toLowerCase().trim();
+        if (raw === "active") return log.isActive === true;
+        if (raw === "inactive") return log.isActive === false;
+
+        return (
+          log.userName.toLowerCase().includes(raw) ||
+          log.action.toLowerCase().includes(raw) ||
+          log.module.toLowerCase().includes(raw) ||
+          log.ipAddress.toLowerCase().includes(raw)
+        );
+      });
+
+      return matchesQuery && matchesTags;
+    });
+  }, [logs, searchQuery, activeTags]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, activeTags]);
 
   const paginatedLogs = useMemo(() => {
     return filteredLogs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -138,26 +230,59 @@ export default function ActivityLogsTab() {
     },
   ];
 
+  const handleBulkExport = () => {
+    const selectedRows = logs.filter((l) => selectedIds.includes(l.id));
+    if (selectedRows.length === 0) return;
+    const headers = ["ID", "User Name", "Action", "Module", "Date", "IP Address", "Status"];
+    const csvContent = [
+      headers.join(","),
+      ...selectedRows.map((l) =>
+        [
+          l.id,
+          `"${l.userName}"`,
+          `"${l.action}"`,
+          `"${l.module}"`,
+          `"${l.date}"`,
+          `"${l.ipAddress}"`,
+          `"${l.isActive ? "Active" : "Inactive"}"`,
+        ].join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `activity_logs_${Date.now()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast({
+      variant: "success",
+      message: `${selectedRows.length} ${selectedRows.length === 1 ? "log" : "logs"} exported successfully`,
+    });
+  };
+
   return (
     <>
-      <div className="flex flex-wrap items-center gap-3 mb-4">
-        <div className="w-[220px]">
-          <SearchInput
-            placeholder="Search activity logs..."
-            value={search}
-            onChange={(value) => {
-              setSearch(value);
-              setCurrentPage(1);
-            }}
-          />
-        </div>
+      <div className="flex flex-wrap items-center gap-3 mb-4 shrink-0">
+        <FilterSearch
+          groups={dynamicGroups}
+          selectedOptions={activeTags}
+          onOptionsChange={handleTagsChange}
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          onSearchSubmit={handleSearchSubmit}
+          placeholder="Search activity logs..."
+          searchSuggestions={searchSuggestions}
+        />
 
         {selectedIds.length > 0 && (
           <>
             <button
               type="button"
               onClick={() => setSelectedIds([])}
-              className="flex items-center gap-2 rounded-md border border-axc-border px-3 py-2 text-[12px] font-medium text-axc-dark-gray"
+              className="flex items-center gap-2 rounded-md border border-axc-border px-3 py-2 text-[12px] font-medium text-axc-dark-gray hover:bg-gray-50 cursor-pointer transition-colors"
+              title="Click to clear selection"
             >
               {selectedIds.length} Selected
             </button>
@@ -166,7 +291,7 @@ export default function ActivityLogsTab() {
               <Dropdown
                 title="Actions"
                 items={[
-                  { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: () => {} },
+                  { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: handleBulkExport },
                   { label: "Print", icon: <Printer className="h-4 w-4" />, onClick: () => window.print() },
                   {
                     label: "Delete",

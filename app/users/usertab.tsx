@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
-import { Eye, FileText, Plus, Printer, Trash2, X } from "lucide-react";
+import { Eye, FileText, PlusCircleIcon, Printer, Trash2, X } from "lucide-react";
 
-import SearchInput from "../src/common/search";
+import FilterSearch, { FilterGroup } from "../src/common/filtersearch";
+import Button from "../src/common/button";
 import Dropdown from "../src/common/dropdown";
 import ToggleSwitch from "./toggleswitch";
 import AddUserModal from "./adduser";
@@ -112,7 +113,8 @@ function ViewUserModal({ user, onClose }: { user: UserRow | null; onClose: () =>
 
 export default function UserTab() {
   const [users, setUsers] = useState<UserRow[]>(initialUsers);
-  const [search, setSearch] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTags, setActiveTags] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
@@ -122,17 +124,117 @@ export default function UserTab() {
 
   const itemsPerPage = 10;
 
+  const dynamicGroups: FilterGroup[] = useMemo(() => {
+    const roles = Array.from(new Set(users.map((u) => u.role).filter(Boolean)));
+    const stores = Array.from(new Set(users.map((u) => u.store).filter((s) => s && s !== "-")));
+
+    return [
+      {
+        group: "Role",
+        options: (roles.length > 0 ? roles : ["Super Admin", "Admin", "Manager", "Staff", "Sales"]).map((r) => ({
+          label: r,
+          value: r,
+        })),
+      },
+      {
+        group: "Status",
+        options: [
+          { label: "Active", value: "Active" },
+          { label: "Inactive", value: "Inactive" },
+        ],
+      },
+      {
+        group: "Store / Hub",
+        options: (stores.length > 0 ? stores : ["Lahore Hub", "Karachi Hub", "Islamabad Hub", "Multan Hub"]).map((s) => ({
+          label: s,
+          value: s,
+        })),
+      },
+    ];
+  }, [users]);
+
+  const searchSuggestions = useMemo(() => {
+    const names = users.map((u) => u.name).filter(Boolean);
+    const emails = users.map((u) => u.email).filter(Boolean);
+    const roles = users.map((u) => u.role).filter(Boolean);
+    const stores = users.map((u) => u.store).filter((s) => s && s !== "-");
+    return Array.from(new Set([...names, ...roles, ...stores, ...emails]));
+  }, [users]);
+
+  const handleSearchSubmit = (val: string) => {
+    const trimmed = val.trim();
+    if (!trimmed) return;
+
+    if (!activeTags.includes(trimmed)) {
+      setActiveTags((prev) => [...prev, trimmed]);
+      setSearchQuery("");
+      setCurrentPage(1);
+    }
+  };
+
+  const handleTagsChange = (newTags: string[]) => {
+    const addedTag = newTags.find((tag) => !activeTags.includes(tag));
+
+    if (addedTag) {
+      const group = dynamicGroups.find((g) => g.options.some((o) => o.value === addedTag));
+      if (group) {
+        const groupValues = group.options.map((o) => o.value);
+        const filteredTags = newTags.filter((tag) => tag === addedTag || !groupValues.includes(tag));
+        setActiveTags(filteredTags);
+        setCurrentPage(1);
+        return;
+      }
+    }
+
+    setActiveTags(newTags);
+    setCurrentPage(1);
+  };
+
   const filteredUsers = useMemo(() => {
-    const value = search.trim().toLowerCase();
-    if (!value) return users;
-    return users.filter(
-      (user) =>
-        user.name.toLowerCase().includes(value) ||
-        user.email.toLowerCase().includes(value) ||
-        user.role.toLowerCase().includes(value) ||
-        user.store.toLowerCase().includes(value)
-    );
-  }, [users, search]);
+    const query = searchQuery.trim().toLowerCase();
+
+    return users.filter((user) => {
+      let matchesQuery = true;
+      if (query) {
+        if (query.endsWith(",")) {
+          matchesQuery = true;
+        } else {
+          const searchTerms = query.split(/[,\s]+/).map((t) => t.trim()).filter(Boolean);
+          if (searchTerms.length > 0) {
+            matchesQuery = searchTerms.some((term) => {
+              const statusStr = user.isActive ? "active" : "inactive";
+              return (
+                user.name.toLowerCase().includes(term) ||
+                user.email.toLowerCase().includes(term) ||
+                user.role.toLowerCase().includes(term) ||
+                user.store.toLowerCase().includes(term) ||
+                statusStr.includes(term)
+              );
+            });
+          }
+        }
+      }
+
+      const matchesTags = activeTags.every((tag) => {
+        const raw = tag.toLowerCase().trim();
+        if (raw === "active") return user.isActive === true;
+        if (raw === "inactive") return user.isActive === false;
+
+        return (
+          user.name.toLowerCase().includes(raw) ||
+          user.email.toLowerCase().includes(raw) ||
+          user.role.toLowerCase().includes(raw) ||
+          user.store.toLowerCase().includes(raw)
+        );
+      });
+
+      return matchesQuery && matchesTags;
+    });
+  }, [users, searchQuery, activeTags]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, activeTags]);
 
   const paginatedUsers = useMemo(() => {
     return filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -259,27 +361,60 @@ export default function UserTab() {
     </div>
   );
 
+  const handleBulkExport = () => {
+    const selectedRows = users.filter((u) => selectedIds.includes(u.id));
+    if (selectedRows.length === 0) return;
+    const headers = ["ID", "User Name", "Email Address", "Role", "Store", "Last Login", "Status"];
+    const csvContent = [
+      headers.join(","),
+      ...selectedRows.map((u) =>
+        [
+          u.id,
+          `"${u.name}"`,
+          `"${u.email}"`,
+          `"${u.role}"`,
+          `"${u.store}"`,
+          `"${u.lastLogin}"`,
+          `"${u.isActive ? "Active" : "Inactive"}"`,
+        ].join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `users_${Date.now()}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+    showToast({
+      variant: "success",
+      message: `${selectedRows.length} ${selectedRows.length === 1 ? "user" : "users"} exported successfully`,
+    });
+  };
+
   return (
     <>
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+      <div className="flex flex-wrap justify-between items-center gap-3 mb-4 shrink-0">
         <div className="flex flex-wrap items-center gap-3">
-          <div className="w-[220px]">
-            <SearchInput
-              placeholder="Search users..."
-              value={search}
-              onChange={(value) => {
-                setSearch(value);
-                setCurrentPage(1);
-              }}
-            />
-          </div>
+          <FilterSearch
+            groups={dynamicGroups}
+            selectedOptions={activeTags}
+            onOptionsChange={handleTagsChange}
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            onSearchSubmit={handleSearchSubmit}
+            placeholder="Search users..."
+            searchSuggestions={searchSuggestions}
+          />
 
           {selectedIds.length > 0 && (
             <>
               <button
                 type="button"
                 onClick={() => setSelectedIds([])}
-                className="flex items-center gap-2 rounded-md border border-axc-border px-3 py-2 text-[12px] font-medium text-axc-dark-gray"
+                className="flex items-center gap-2 rounded-md border border-axc-border px-3 py-2 text-[12px] font-medium text-axc-dark-gray hover:bg-gray-50 cursor-pointer transition-colors"
+                title="Click to clear selection"
               >
                 {selectedIds.length} Selected
               </button>
@@ -288,7 +423,7 @@ export default function UserTab() {
                 <Dropdown
                   title="Actions"
                   items={[
-                    { label: "Export", icon: <FileText className="h-4 w-4 " />, onClick: () => {} },
+                    { label: "Export", icon: <FileText className="h-4 w-4 " />, onClick: handleBulkExport },
                     { label: "Print", icon: <Printer className="h-4 w-4 " />, onClick: () => window.print() },
                     {
                       label: "Delete",
@@ -302,14 +437,12 @@ export default function UserTab() {
           )}
         </div>
 
-        <button
-          type="button"
+        <Button
+          label="Add User"
           onClick={() => setIsAddUserOpen(true)}
-          className="flex h-[38px] cursor-pointer items-center gap-2 rounded-md bg-axc-blue px-4 text-[12px] font-semibold text-white"
-        >
-          <Plus className="h-4 w-4" />
-          Add User
-        </button>
+          variant="primary"
+          icon={PlusCircleIcon}
+        />
       </div>
 
       <CommonTable

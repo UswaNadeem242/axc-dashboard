@@ -309,6 +309,16 @@ export function useAwbEntryForm(editAwbId?: string | null) {
         consignee: form.consigneePersonName || existingItem?.consignee || "N/A",
         shipper: form.shipperPersonName || existingItem?.shipper || "N/A",
         status: existingItem?.status || "Arrived",
+        customerCode: form.customerCode || existingItem?.customerCode || (form.masterCode && form.masterCode !== "NONGST" ? form.masterCode : `CUST-${String(form.awbNumber).slice(-4)}`),
+        destinationHub: form.destinationHub || existingItem?.destinationHub || (form.destination?.includes("AMERICA") ? "JFK" : "JFK"),
+        bookingTime: (form as any).bookingTime || existingItem?.bookingTime || "10:30 AM",
+        serviceCode: form.service ? form.service.split(" ")[0].toUpperCase() : existingItem?.serviceCode || "EXP",
+        shipperCity: form.shipperCity || existingItem?.shipperCity || form.origin || "Karachi",
+        consigneeCity: form.consigneeCity || existingItem?.consigneeCity || form.destination || "New York",
+        consigneeState: form.consigneeState || existingItem?.consigneeState || "NY",
+        company: form.company || existingItem?.company || "AXC Express",
+        runNumber: (form as any).runNumber || existingItem?.runNumber || `RUN-${String(form.awbNumber).slice(-4)}`,
+        calendarYear: form.bookingDate ? form.bookingDate.split("-")[0] || form.bookingDate.split("/")[2] || "2026" : "2026",
       };
 
       let updatedData: AwbEntry[];

@@ -68,14 +68,143 @@ export default function AllInvoicePage() {
   }, [data]);
 
   const handleSearchSubmit = (val: string) => {
-    const trimmed = val.trim();
-    if (trimmed && !activeTags.includes(trimmed)) {
-      setActiveTags((prev) => [...prev, trimmed]);
+    const values = val.split(",").map((v) => v.trim()).filter(Boolean);
+    if (values.length > 0) {
+      setActiveTags((prev) => {
+        const newTags = values.filter((v) => !prev.includes(v));
+        return [...prev, ...newTags];
+      });
       setSearchQuery("");
     }
   };
 
+  const removeTag = (tagToRemove: string) => {
+    setActiveTags((prev) => prev.filter((tag) => tag !== tagToRemove));
+  };
+
+  const parseInvoiceRange = (input: string): { min: number; max: number } | null => {
+    const clean = input.trim();
+    const rangeMatch = clean.match(/^(?:run\s*)?(\d{1,15})\s*(?:-|–|—|\.\.|to)\s*(?:run\s*)?(\d{1,15})$/i);
+    if (rangeMatch) {
+      const num1 = Number(rangeMatch[1]);
+      const num2 = Number(rangeMatch[2]);
+      if (!isNaN(num1) && !isNaN(num2)) {
+        return { min: Math.min(num1, num2), max: Math.max(num1, num2) };
+      }
+    }
+    return null;
+  };
+
+  const parseDateString = (str?: string): Date | null => {
+    if (!str) return null;
+    const clean = str.trim().split(" ")[0];
+    const parts = clean.split(/[-/]/);
+    if (parts.length !== 3) return null;
+    let d: number, m: number, y: number;
+    if (parts[0].length === 4) {
+      [y, m, d] = parts.map(Number);
+    } else {
+      [d, m, y] = parts.map(Number);
+    }
+    if (isNaN(d) || isNaN(m) || isNaN(y)) return null;
+    const dt = new Date(y, m - 1, d);
+    dt.setHours(0, 0, 0, 0);
+    return isNaN(dt.getTime()) ? null : dt;
+  };
+
+  const matchRange = (item: InvoiceEntry, range: { min: number; max: number }): boolean => {
+    if (item.srNo !== undefined && item.srNo >= range.min && item.srNo <= range.max) return true;
+    const runMatch = item.invoiceNumber.match(/(?:run\s*|cb\s*)(\d+)/i);
+    if (runMatch) {
+      const runNum = Number(runMatch[1]);
+      if (!isNaN(runNum) && runNum >= range.min && runNum <= range.max) return true;
+    }
+    const anyNumMatch = item.invoiceNumber.match(/(\d+)/);
+    if (anyNumMatch) {
+      const num = Number(anyNumMatch[1]);
+      if (!isNaN(num) && num >= range.min && num <= range.max) return true;
+    }
+    const awbNum = Number(item.awbNumber || item.awbNo);
+    if (!isNaN(awbNum) && awbNum >= range.min && awbNum <= range.max) return true;
+    const total = parseFloat(String(item.grandTotal).replace(/[^0-9.]/g, ""));
+    if (!isNaN(total) && total >= range.min && total <= range.max) return true;
+    return false;
+  };
+
+  const normalizeInvoiceEntry = (item: InvoiceEntry): InvoiceEntry => {
+    const sr = item.srNo || 1;
+    const invNum = item.invoiceNumber || "";
+    const dateParts = (item.invoiceDate || "").split(/[-/]/);
+    const year = dateParts.length >= 3 ? dateParts[2].split(" ")[0] : "2026";
+
+    const derivedCustomerCode = item.customerCode || (item.shipperCode && item.shipperCode.trim() !== "" ? item.shipperCode : `SKT-CUST-${100 + sr}`);
+    const derivedShipperName = item.shipperName || item.customerName || "AXC COUNTER BOOKING";
+    const derivedCompany = item.company || (
+      invNum.includes("AXC") ? "AXC Express" :
+      invNum.includes("DMS") ? "ELS Logistics" :
+      invNum.includes("EASTERN") ? "FedEx Cargo" :
+      invNum.includes("SWIFT") ? "TCS Express" :
+      "AXC Express"
+    );
+    const derivedAwbNumber = item.awbNumber || item.awbNo || `3012${1350 + sr}`;
+    const derivedEInvoiceStatus = item.eInvoiceStatus || (
+      item.irn ? "Generated" :
+      sr % 5 === 0 ? "Failed" :
+      sr % 3 === 0 ? "Pending" :
+      "Generated"
+    );
+    const derivedIrn = item.irn || (
+      derivedEInvoiceStatus === "Generated" ? `IRN-2026-${9876500000 + sr}` : undefined
+    );
+    const derivedAck = item.acknowledgementNumber || (
+      derivedIrn ? `ACK-120${1000 + sr}` : undefined
+    );
+    const derivedFailedSync = item.failedSync !== undefined ? item.failedSync : (
+      sr % 6 === 0 ? "Failed Sync" : "Synced"
+    );
+    const derivedSyncStatus = item.syncStatus || (
+      derivedFailedSync === "Failed Sync" ? "Failed Sync" : "Synced"
+    );
+
+    return {
+      ...item,
+      customerCode: derivedCustomerCode,
+      shipperCode: item.shipperCode || derivedCustomerCode,
+      shipperName: derivedShipperName,
+      company: derivedCompany,
+      awbNumber: derivedAwbNumber,
+      awbNo: derivedAwbNumber,
+      calendarYear: item.calendarYear || year,
+      eInvoiceStatus: derivedEInvoiceStatus,
+      irn: derivedIrn,
+      acknowledgementNumber: derivedAck,
+      failedSync: derivedFailedSync,
+      syncStatus: derivedSyncStatus,
+    };
+  };
+
   const filterGroups = React.useMemo(() => {
+    const custTypes = ["CORPORATE", "RETAIL", "SINGLE-CUSTOMER", "MULTIPLE-CUSTOMER", "MULTIPLE-AWB"];
+    const custTypeOptions = custTypes.map((t) => ({ label: t, value: t }));
+
+    const companies = ["AXC Express", "ELS Logistics", "FedEx Cargo", "TCS Express", "DHL Express"];
+    const companyOptions = companies.map((c) => ({ label: c, value: c }));
+
+    const createdByList = Array.from(new Set(data.map((d) => d.createdBy).filter(Boolean)));
+    const createdByOptions = (createdByList.length > 0 ? createdByList : ["ACCOUNTS 5", "ACCOUNTS 4", "ACCOUNTS 2", "ADMIN"]).map((cb) => ({ label: cb, value: cb }));
+
+    const eInvoiceOptions = [
+      { label: "Generated", value: "Generated" },
+      { label: "Pending", value: "Pending" },
+      { label: "Failed", value: "Failed" },
+    ];
+
+    const syncOptions = [
+      { label: "Failed Sync", value: "Failed Sync" },
+      { label: "Synced", value: "Synced" },
+      { label: "Pending Sync", value: "Pending Sync" },
+    ];
+
     return [
       {
         group: "By Date",
@@ -86,27 +215,53 @@ export default function AllInvoicePage() {
           { label: "Custom", value: "Custom" },
         ],
       },
+      {
+        group: "Calendar Year",
+        sameColumnAsPrevious: true,
+        options: [
+          { label: "2026", value: "2026" },
+          { label: "2025", value: "2025" },
+          { label: "2024", value: "2024" },
+        ],
+      },
+      {
+        group: "Customer Type",
+        options: custTypeOptions,
+      },
+      {
+        group: "Company",
+        options: companyOptions,
+      },
+      {
+        group: "Created By",
+        options: createdByOptions,
+      },
+      {
+        group: "E-Invoice",
+        options: eInvoiceOptions,
+      },
+      {
+        group: "Sync Status",
+        sameColumnAsPrevious: true,
+        options: syncOptions,
+      },
     ];
-  }, []);
+  }, [data]);
 
   const handleTagsChange = (newTags: string[]) => {
     const addedTag = newTags.find((tag) => !activeTags.includes(tag));
     
     if (addedTag) {
-      const group = filterGroups.find(g => g.options.some(o => o.value === addedTag));
-      if (group) {
-        const groupValues = group.options.map(o => o.value);
-        const filteredTags = newTags.filter(tag => tag === addedTag || !groupValues.includes(tag));
+      const group = filterGroups.find((g) => g.options.some((o) => o.value === addedTag));
+      if (group && group.group === "By Date") {
+        const groupValues = group.options.map((o) => o.value);
+        const filteredTags = newTags.filter((tag) => tag === addedTag || !groupValues.includes(tag));
         setActiveTags(filteredTags);
         return;
       }
     }
     
     setActiveTags(newTags);
-  };
-
-  const removeTag = (tagToRemove: string) => {
-    setActiveTags((prev) => prev.filter((tag) => tag !== tagToRemove));
   };
 
   const handleView = (row: InvoiceEntry) =>
@@ -221,101 +376,170 @@ export default function AllInvoicePage() {
     });
   };
 
-  const filteredData = data.filter((item) => {
-    const query = searchQuery.toLowerCase();
-    let matchesQuery = true;
-    if (query) {
-      if (query.trim().endsWith(",")) {
-        matchesQuery = true;
-      } else {
-        const searchTerms = query.split(/[,\s]+/).map(q => q.trim()).filter(Boolean);
-        if (searchTerms.length > 0) {
-          matchesQuery = searchTerms.some((term) => {
-          return (
-            item.invoiceNumber.toLowerCase().includes(term) ||
-            item.customerName.toLowerCase().includes(term) ||
-            item.customerType.toLowerCase().includes(term) ||
-            item.shipperCode.toLowerCase().includes(term) ||
-            item.createdBy.toLowerCase().includes(term)
-          );
-        });
-      }
+  const matchInvoiceItem = (item: InvoiceEntry, searchStr: string): boolean => {
+    if (!searchStr) return true;
+    const raw = searchStr.trim().toLowerCase();
+
+    // 1. Invoice Range (e.g. "1 - 10", "RUN 01 - RUN 10", "1001 - 1050")
+    const range = parseInvoiceRange(raw);
+    if (range) {
+      if (matchRange(item, range)) return true;
     }
-  }
 
-    const matchesTags = activeTags.every((tag) => {
-      const t = tag.toLowerCase();
+    if (raw === "custom") return true;
 
-      if (t === "today" || t === "yesterday" || t === "last 7 days") {
-        const checkDate = (dateStr?: string) => {
-          if (!dateStr) return false;
-          const parts = dateStr.split("-");
-          if (parts.length !== 3) return false;
-          const [d, m, y] = parts;
-          
-          const itemDate = new Date(Number(y), Number(m) - 1, Number(d));
-          itemDate.setHours(0,0,0,0);
-          
-          const today = new Date();
-          today.setHours(0,0,0,0);
-          
-          const yesterday = new Date(today);
-          yesterday.setDate(yesterday.getDate() - 1);
-          
-          const last7Days = new Date(today);
-          last7Days.setDate(last7Days.getDate() - 7);
+    // 2. Date Presets (Today, Yesterday, Last 7 days)
+    if (raw === "today" || raw === "yesterday" || raw === "last 7 days") {
+      const checkPreset = (dateStr?: string) => {
+        const itemDate = parseDateString(dateStr);
+        if (!itemDate) return false;
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const last7Days = new Date(today);
+        last7Days.setDate(last7Days.getDate() - 7);
 
-          if (t === "today") return itemDate.getTime() === today.getTime();
-          if (t === "yesterday") return itemDate.getTime() === yesterday.getTime();
-          if (t === "last 7 days") return itemDate >= last7Days && itemDate <= today;
-          return false;
-        };
-        return checkDate(item.invoiceDate);
-      }
-
-      if (t === "custom") return true;
-
-      const dateRangeRegex = /^[a-z]{3} \d{1,2}, \d{4} - [a-z]{3} \d{1,2}, \d{4}$/i;
-      if (dateRangeRegex.test(t)) {
-        const parts = t.split(" - ");
-        if (parts.length === 2) {
-          const parseItemDate = (str?: string) => {
-            if (!str) return null;
-            const dateParts = str.split("-");
-            if (dateParts.length !== 3) return null;
-            const [d, m, y] = dateParts;
-            const dt = new Date(Number(y), Number(m) - 1, Number(d));
-            dt.setHours(0,0,0,0);
-            return dt;
-          };
-          
-          const parseTagDate = (str: string) => {
-            const dt = new Date(str);
-            if (isNaN(dt.getTime())) return null;
-            dt.setHours(0,0,0,0);
-            return dt;
-          };
-          
-          const startDate = parseTagDate(parts[0]);
-          const endDate = parseTagDate(parts[1]);
-          
-          if (startDate && endDate) {
-            const itemDate = parseItemDate(item.invoiceDate);
-            if (!itemDate) return false;
-            return itemDate >= startDate && itemDate <= endDate;
-          }
-        }
+        if (raw === "today") return itemDate.getTime() === today.getTime();
+        if (raw === "yesterday") return itemDate.getTime() === yesterday.getTime();
+        if (raw === "last 7 days") return itemDate >= last7Days && itemDate <= today;
         return false;
-      }
+      };
 
       return (
-        item.invoiceNumber.toLowerCase().includes(t) ||
-        item.customerName.toLowerCase().includes(t) ||
-        item.customerType.toLowerCase().includes(t) ||
-        item.shipperCode.toLowerCase().includes(t) ||
-        item.createdBy.toLowerCase().includes(t)
+        checkPreset(item.invoiceDate) ||
+        checkPreset(item.createdDate) ||
+        checkPreset(item.fromDate) ||
+        checkPreset(item.tillDate)
       );
-    });
+    }
+
+    // 3. Custom Date Range "MMM dd, yyyy - MMM dd, yyyy"
+    const dateRangeRegex = /^[a-z]{3} \d{1,2}, \d{4} - [a-z]{3} \d{1,2}, \d{4}$/i;
+    if (dateRangeRegex.test(raw)) {
+      const parts = raw.split(" - ");
+      if (parts.length === 2) {
+        const parseTagDate = (str: string) => {
+          const dt = new Date(str);
+          if (isNaN(dt.getTime())) return null;
+          dt.setHours(0, 0, 0, 0);
+          return dt;
+        };
+
+        const startDate = parseTagDate(parts[0]);
+        const endDate = parseTagDate(parts[1]);
+
+        if (startDate && endDate) {
+          const checkRange = (dateStr?: string) => {
+            const itemDate = parseDateString(dateStr);
+            if (!itemDate) return false;
+            return itemDate >= startDate && itemDate <= endDate;
+          };
+
+          return (
+            checkRange(item.invoiceDate) ||
+            checkRange(item.createdDate) ||
+            checkRange(item.fromDate) ||
+            checkRange(item.tillDate)
+          );
+        }
+      }
+      return false;
+    }
+
+    // 4. Calendar Year (e.g. 2026, 2025, 2024)
+    if (/^(?:19|20)\d{2}$/.test(raw)) {
+      if (
+        (item.invoiceDate && item.invoiceDate.includes(raw)) ||
+        (item.createdDate && item.createdDate.includes(raw)) ||
+        String(item.calendarYear || "").includes(raw)
+      ) {
+        return true;
+      }
+    }
+
+    // 5. Failed Sync / Sync Status
+    if (raw.includes("sync")) {
+      const status = String(item.syncStatus || item.failedSync || "").toLowerCase();
+      if (status.includes(raw) || (raw.includes("fail") && status.includes("fail"))) return true;
+    }
+
+    // 6. E-Invoice / IRN status
+    if (
+      raw.includes("invoice") ||
+      raw.includes("irn") ||
+      raw.includes("ack") ||
+      raw === "generated" ||
+      raw === "pending" ||
+      raw === "failed"
+    ) {
+      const eStatus = String(item.eInvoiceStatus || "").toLowerCase();
+      if (eStatus.includes(raw)) return true;
+      if (item.irn && item.irn.toLowerCase().includes(raw)) return true;
+      if (item.acknowledgementNumber && item.acknowledgementNumber.toLowerCase().includes(raw)) return true;
+    }
+
+    // 7. Check all 12 Invoice Fields:
+    // 1. Customer Code
+    // 2. Customer Type
+    // 3. Created By
+    // 4. Company
+    // 5. Invoice Name
+    // 6. AWB
+    // 7. Shipper Name
+    // 8. Created Date
+    // 9. Calendar Type / Date
+    // 10. Invoice Range
+    // 11. E-Invoice
+    // 12. Failed Sync
+    const fields = [
+      item.customerCode,
+      item.shipperCode,
+      item.customerGstNumber,
+      item.customerType,
+      item.createdBy,
+      item.company,
+      item.invoiceNumber,
+      item.awbNumber,
+      item.awbNo,
+      item.customerName,
+      item.shipperName,
+      item.createdDate,
+      item.invoiceDate,
+      item.grandTotal,
+      item.calendarYear,
+      item.eInvoiceStatus,
+      item.irn,
+      item.acknowledgementNumber,
+      item.syncStatus,
+      String(item.failedSync),
+      item.fromDate,
+      item.tillDate,
+    ];
+
+    return fields.some((f) => f && String(f).toLowerCase().includes(raw));
+  };
+
+  const filteredData = data.map(normalizeInvoiceEntry).filter((item) => {
+    const query = searchQuery.trim().toLowerCase();
+
+    let matchesQuery = true;
+    if (query) {
+      if (query.endsWith(",")) {
+        matchesQuery = true;
+      } else {
+        const range = parseInvoiceRange(query);
+        if (range) {
+          matchesQuery = matchRange(item, range);
+        } else {
+          const searchTerms = query.split(/[,]+/).map((q) => q.trim()).filter(Boolean);
+          const termsToUse = searchTerms.length > 0 ? searchTerms : [query];
+          matchesQuery = termsToUse.some((term) => matchInvoiceItem(item, term));
+        }
+      }
+    }
+
+    const matchesTags = activeTags.length === 0 || activeTags.every((tag) => matchInvoiceItem(item, tag));
 
     return matchesQuery && matchesTags;
   });
@@ -324,7 +548,69 @@ export default function AllInvoicePage() {
 
   useEffect(() => {
     setPage(1);
-  }, [searchQuery]);
+  }, [searchQuery, activeTags]);
+
+  const searchSuggestions = React.useMemo(() => {
+    const list: string[] = [];
+    const normalized = data.map(normalizeInvoiceEntry);
+
+    normalized.forEach((item) => {
+      // 1. Customer Code
+      if (item.customerCode) list.push(item.customerCode);
+      if (item.shipperCode) list.push(item.shipperCode);
+
+      // 2. Customer Type
+      if (item.customerType) list.push(item.customerType);
+
+      // 3. Created By
+      if (item.createdBy) list.push(item.createdBy);
+
+      // 4. Company
+      if (item.company) list.push(item.company);
+
+      // 5. Invoice Name / Number
+      if (item.invoiceNumber) list.push(item.invoiceNumber);
+
+      // 6. AWB
+      if (item.awbNumber) list.push(item.awbNumber);
+      if (item.awbNo) list.push(item.awbNo);
+
+      // 7. Shipper Name / Customer Name
+      if (item.shipperName) list.push(item.shipperName);
+      if (item.customerName) list.push(item.customerName);
+
+      // 8. Created Date & Invoice Date
+      if (item.createdDate) list.push(item.createdDate);
+      if (item.invoiceDate) list.push(item.invoiceDate);
+
+      // 9. Calendar Year
+      if (item.calendarYear) list.push(String(item.calendarYear));
+
+      // 11. E-Invoice
+      if (item.eInvoiceStatus) list.push(item.eInvoiceStatus);
+      if (item.irn) list.push(item.irn);
+
+      // 12. Failed Sync
+      if (item.syncStatus) list.push(item.syncStatus);
+    });
+
+    const commonTypes = ["CORPORATE", "RETAIL", "SINGLE-CUSTOMER", "MULTIPLE-CUSTOMER", "MULTIPLE-AWB"];
+    const commonCompanies = ["AXC Express", "ELS Logistics", "FedEx Cargo", "TCS Express", "DHL Express"];
+    const commonYears = ["2026", "2025", "2024"];
+    const commonSync = ["Failed Sync", "Synced", "Pending Sync"];
+    const commonEInvoice = ["Generated", "Pending", "Failed"];
+
+    return Array.from(
+      new Set([
+        ...list,
+        ...commonTypes,
+        ...commonCompanies,
+        ...commonYears,
+        ...commonSync,
+        ...commonEInvoice,
+      ])
+    ).filter(Boolean);
+  }, [data]);
 
   return (
     <div className="relative bg-white p-4 shadow-sm border border-axc-border rounded-lg w-full h-[calc(100vh-160px)] flex flex-col overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -337,7 +623,8 @@ export default function AllInvoicePage() {
             searchValue={searchQuery}
             onSearchChange={setSearchQuery}
             onSearchSubmit={handleSearchSubmit}
-            placeholder="Search"
+            placeholder="Search invoices..."
+            searchSuggestions={searchSuggestions}
           />
 
           {selectedIds.length > 0 && (
@@ -378,7 +665,7 @@ export default function AllInvoicePage() {
         />
       </div>
 
-      {activeTags.length > 0 && (
+      {/* {activeTags.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 mb-2 shrink-0">
           {activeTags.map((tag, idx) => {
             const colors = [
@@ -408,7 +695,7 @@ export default function AllInvoicePage() {
             );
           })}
         </div>
-      )}
+      )} */}
 
       <CommonTable
         headings={InvoiceHeading}

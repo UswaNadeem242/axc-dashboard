@@ -171,13 +171,13 @@ const CommonTable = ({
   const getTextAlign = (align: Heading["align"] = "left") => {
     if (align === "right") return "text-right";
     if (align === "center") return "text-center";
-    return "text-left";
+    return "text-center";
   };
 
   const getJustify = (align: Heading["align"] = "left") => {
     if (align === "right") return "justify-end text-right";
     if (align === "center") return "justify-center text-center";
-    return "justify-start text-left";
+    return "justify-center text-left";
   };
 
   const allSelected = paginatedData.length > 0 && paginatedData.every((row) => selectedIds.includes(row[rowKey]));
@@ -212,7 +212,7 @@ const CommonTable = ({
   const tableElement = (
     <table className="w-full min-w-max border-collapse text-left text-sm">
       <thead className="text-left">
-        <tr className="bg-axc-navy/10 text-black">
+        <tr className="bg-axc-navy/10 text-black text-center">
           {selectable && (
             <th className={`w-10 bg-axc-navy/10 text-center rounded-tl-sm ${headerPadding}`}>
               <div className="flex items-center justify-center">
@@ -237,7 +237,7 @@ const CommonTable = ({
                   } ${index === headings.length - 1 ? "rounded-tr-sm" : ""} ${heading.sortable ? "cursor-pointer select-none hover:bg-axc-navy/20 transition-colors" : ""
                   } ${getTextAlign(align)} ${heading.className ?? ""}`}
               >
-                <div className={`flex items-center whitespace-nowrap gap-1 ${getJustify(align)}`}>
+                <div className={`flex items-center whitespace-nowrap gap-1 pl-2 ${getJustify(align)}`}>
                   {heading.label}
                 </div>
               </th>
