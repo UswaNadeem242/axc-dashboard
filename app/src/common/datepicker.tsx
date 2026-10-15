@@ -45,19 +45,46 @@ function padZero(n: number) {
 
 function parseDate(dateStr?: string): Date | null {
   if (!dateStr) return null;
-  const parts = dateStr.split("-");
-  if (parts.length === 3) {
-    const y = parseInt(parts[0], 10);
-    const m = parseInt(parts[1], 10) - 1;
-    const d = parseInt(parts[2], 10);
-    if (!isNaN(y) && !isNaN(m) && !isNaN(d)) {
-      return new Date(y, m, d);
+  const s = dateStr.trim();
+  if (s.includes("/")) {
+    const parts = s.split("/");
+    if (parts.length === 3) {
+      if (parts[0].length === 4) {
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const d = parseInt(parts[2], 10);
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d)) return new Date(y, m, d);
+      } else {
+        const d = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const y = parseInt(parts[2], 10);
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d)) return new Date(y, m, d);
+      }
+    }
+  }
+  if (s.includes("-")) {
+    const parts = s.split("-");
+    if (parts.length === 3) {
+      if (parts[0].length === 4) {
+        const y = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const d = parseInt(parts[2], 10);
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d)) return new Date(y, m, d);
+      } else {
+        const d = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10) - 1;
+        const y = parseInt(parts[2], 10);
+        if (!isNaN(y) && !isNaN(m) && !isNaN(d)) return new Date(y, m, d);
+      }
     }
   }
   return null;
 }
 
-function formatDate(year: number, month: number, day: number): string {
+function formatDate(year: number, month: number, day: number, useSlash = false): string {
+  if (useSlash) {
+    return `${padZero(day)}/${padZero(month + 1)}/${year}`;
+  }
   return `${year}-${padZero(month + 1)}-${padZero(day)}`;
 }
 
@@ -72,6 +99,7 @@ export default function CustomDatePicker({
   align = "left",
 }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [openUpwards, setOpenUpwards] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const selectedDate = parseDate(value);
@@ -102,6 +130,20 @@ export default function CustomDatePicker({
       if (parsed) setViewDate(parsed);
     }
   }, [value]);
+
+  useEffect(() => {
+    if (isOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      // If space below is tight (< 340px) and there's enough space above, flip upwards
+      if (spaceBelow < 340 && rect.top > 340) {
+        setOpenUpwards(true);
+      } else {
+        setOpenUpwards(false);
+      }
+    }
+  }, [isOpen]);
+
   useEffect(() => {
     if (!isOpen) return;
     const handleClickOutside = (e: MouseEvent) => {
@@ -127,7 +169,8 @@ export default function CustomDatePicker({
   };
 
   const handleSelectDay = (year: number, month: number, day: number) => {
-    const formatted = formatDate(year, month, day);
+    const isSlash = Boolean(value && value.includes("/"));
+    const formatted = formatDate(year, month, day, isSlash);
     onChange?.(formatted);
     setIsOpen(false);
   };
@@ -194,11 +237,21 @@ export default function CustomDatePicker({
       </div>
       {isOpen && (
         <div
-          className={`absolute top-full z-[9999] mt-1 w-[290px] pt-2 animate-in fade-in zoom-in-95 duration-100 ${
+          className={`absolute ${
+            openUpwards ? "bottom-full mb-1 pb-2" : "top-full mt-1 pt-2"
+          } z-[9999] w-[290px] animate-in fade-in zoom-in-95 duration-100 ${
             align === "right" ? "right-0" : "left-0"
           }`}
         >
-          <div className="absolute top-[2px] right-6 h-3.5 w-3.5 rotate-45 border-l border-t border-axc-border bg-white z-20" />
+          <div
+            className={`absolute ${
+              openUpwards
+                ? "bottom-[2px] border-r border-b"
+                : "top-[2px] border-l border-t"
+            } ${
+              align === "right" ? "right-6" : "left-6"
+            } h-3.5 w-3.5 rotate-45 border-axc-border bg-white z-20`}
+          />
 
           <div className="relative z-10 bg-white rounded-2xl border border-axc-border shadow-xl p-4">
             <div className="flex items-center justify-between mb-3 px-1">

@@ -119,21 +119,21 @@ export default function VendorInvoicePage() {
     const derivedTillDate = item.tillDate || (dateParts.length >= 3 ? `30/${dateParts[1]}/${year}` : "30/06/2024");
     const derivedBillingCompany = item.billingCompany || (
       item.vendor === "FEDEX" ? "AXC INC - AMERICAN XPRESS COURIER" :
-      item.vendor === "DHL" ? "ELS Logistics" :
-      item.vendor === "UPS" ? "FedEx Cargo" :
-      "AXC INC - AMERICAN XPRESS COURIER"
+        item.vendor === "DHL" ? "ELS Logistics" :
+          item.vendor === "UPS" ? "FedEx Cargo" :
+            "AXC INC - AMERICAN XPRESS COURIER"
     );
     const derivedCurrency = item.currency || item.currencyType || (
       item.vendor === "FEDEX" ? "USD" :
-      item.vendor === "DHL" ? "PKR" :
-      item.vendor === "UPS" ? "AED" :
-      item.vendor === "ARAMEX" ? "EUR" :
-      "USD"
+        item.vendor === "DHL" ? "PKR" :
+          item.vendor === "UPS" ? "AED" :
+            item.vendor === "ARAMEX" ? "EUR" :
+              "USD"
     );
     const derivedImportStatus = item.importStatus || (
       sr % 4 === 0 ? "CSV Upload" :
-      sr % 3 === 0 ? "Manual" :
-      "Imported"
+        sr % 3 === 0 ? "Manual" :
+          "Imported"
     );
 
     return {
@@ -538,6 +538,7 @@ export default function VendorInvoicePage() {
 
   return (
     <div className="relative bg-white p-4 rounded-lg w-full flex-1 flex flex-col min-h-0  shadow-sm border border-axc-border  overflow-x-hidden overflow-y-scroll [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-axc-gray/40 [&::-webkit-scrollbar-thumb]:rounded-lg">
+      
       <div className="flex flex-wrap justify-between items-center gap-3 mb-4 shrink-0">
         <div className="flex flex-wrap items-center gap-3">
           <FilterSearch
@@ -580,7 +581,7 @@ export default function VendorInvoicePage() {
           )}
         </div>
         <Button
-          label="Import Vendor Invoice"
+          label="New Import Vendor"
           href="/vendorinvoice/import"
           variant="primary"
           icon={PlusCircleIcon}

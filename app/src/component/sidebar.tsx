@@ -18,7 +18,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
   const [isInvoiceOpen, setIsInvoiceOpen] = useState<boolean>(false);
   const [isManifestOpen, setIsManifestOpen] = useState<boolean>(false);
   const [isVendorInvoiceOpen, setIsVendorInvoiceOpen] = useState<boolean>(false);
-
+  const [isAccountsOpen, setIsAccountsOpen] = useState<boolean>(false);
 
   const handleItemClick = (item: MenuItem) => {
     if (item.hasDropdown) {
@@ -28,10 +28,11 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
         setIsInvoiceOpen(!isInvoiceOpen);
       } else if (item.id === "manifest") { 
         setIsManifestOpen(!isManifestOpen); 
-      }
-       else if (item.id==="vendorinvoice"){
+      } else if (item.id === "vendorinvoice") {
         setIsVendorInvoiceOpen(!isVendorInvoiceOpen);
-       }
+      } else if (item.id === "accounts") {
+        setIsAccountsOpen(!isAccountsOpen);
+      }
     }
   };
 
@@ -88,6 +89,10 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
               ? isInvoiceOpen
               : item.id === "manifest"       
               ? isManifestOpen               
+              : item.id === "vendorinvoice"
+              ? isVendorInvoiceOpen
+              : item.id === "accounts"
+              ? isAccountsOpen
               : false;                      
           const isActive = isMainActive || hasActiveSubItem;
 

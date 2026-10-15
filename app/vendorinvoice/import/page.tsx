@@ -194,8 +194,8 @@ function FileUploadField({
           handleFiles(e.dataTransfer.files);
         }}
         className={`flex flex-col items-center justify-center gap-2 border border-dashed rounded-lg py-6 px-4 text-center cursor-pointer transition w-full ${error
-            ? "border-red-400 bg-red-50/40"
-            : "border-axc-border bg-white hover:bg-gray-50/70"
+          ? "border-red-400 bg-red-50/40"
+          : "border-axc-border bg-white hover:bg-gray-50/70"
           }`}
       >
         <span className="p-2 bg-gray-100/90 rounded-md text-gray-600 flex items-center justify-center shrink-0">
@@ -406,152 +406,158 @@ export default function VendorInvoiceImportPage() {
     errors[key] ? "border-red-400 bg-red-50/40" : "border-axc-border";
 
   return (
-    <div className="bg-white rounded-lg border border-axc-border shadow-sm flex flex-col">
-      <PanelHeader title="Import Vendor Invoice" />
+    <div className=" relative bg-white p-4 rounded-lg border border-axc-border w-full flex-1 min-h-0 flex flex-col overflow-hidden">
+      {/* bg-white rounded-lg border border-axc-border shadow-sm flex flex-col */}
 
-      <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3">
-        <Field name="searchBy" className="col-span-full sm:col-span-2 xl:col-span-3">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 py-2.5">
-            {VendorSearchByOptions.map((o) => {
-              const checked = form.searchBy.includes(o.value);
-              return (
-                <label
-                  key={o.value}
-                  className="flex items-center gap-2 text-regular-small text-axc-gray cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    name="searchBy"
-                    value={o.value}
-                    checked={checked}
-                    onChange={() =>
-                      updateField(
-                        "searchBy",
-                        checked
-                          ? form.searchBy.filter((v) => v !== o.value)
-                          : [...form.searchBy, o.value],
-                      )
-                    }
-                    className="accent-axc-navy cursor-pointer"
-                  />
-                  {o.label}
-                </label>
-              );
-            })}
+      <div className="bg-white rounded-lg border border-axc-border shadow-xs overflow-hidden flex flex-col">
+        {/*  */}
+        <PanelHeader title="Import Vendor Invoice" />
+
+        <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-3">
+          <Field name="searchBy" className="col-span-full sm:col-span-2 xl:col-span-3">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 py-2.5">
+              {VendorSearchByOptions.map((o) => {
+                const checked = form.searchBy.includes(o.value);
+                return (
+                  <label
+                    key={o.value}
+                    className="flex items-center gap-2 text-regular-small text-axc-gray cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      name="searchBy"
+                      value={o.value}
+                      checked={checked}
+                      onChange={() =>
+                        updateField(
+                          "searchBy",
+                          checked
+                            ? form.searchBy.filter((v) => v !== o.value)
+                            : [...form.searchBy, o.value],
+                        )
+                      }
+                      className="accent-axc-navy cursor-pointer"
+                    />
+                    {o.label}
+                  </label>
+                );
+              })}
+            </div>
+          </Field>
+          <Field name="vendor" required error={errors.vendor}>
+            <CommonDropdown
+              value={form.vendor}
+              onChange={(val) => updateField("vendor", val)}
+              className={dropdownCls("vendor")}
+              placeholder="SELECT..."
+              options={vendorDropdownOptions}
+            />
+          </Field>
+
+          <Field name="referenceName">
+            <input
+              type="text"
+              value={form.referenceName}
+              onChange={(e) => updateField("referenceName", e.target.value)}
+              className={cls("referenceName")}
+              placeholder={LABELS.referenceName}
+            />
+          </Field>
+
+          <Field name="invoiceNo" required error={errors.invoiceNo}>
+            <input
+              type="text"
+              value={form.invoiceNo}
+              onChange={(e) => updateField("invoiceNo", e.target.value)}
+              className={cls("invoiceNo")}
+              placeholder={LABELS.invoiceNo}
+            />
+          </Field>
+
+          <Field name="invoiceDate">
+            <CustomDatePicker
+              value={form.invoiceDate}
+              onChange={(val) => updateField("invoiceDate", val)}
+              placeholder={`Select ${LABELS.invoiceDate}`}
+            />
+          </Field>
+
+          <Field name="fromDate" required error={errors.fromDate}>
+            <CustomDatePicker
+              value={form.fromDate}
+              onChange={(val) => updateField("fromDate", val)}
+              placeholder={`Select ${LABELS.fromDate}`}
+            />
+          </Field>
+
+          <Field name="tillDate" required error={errors.tillDate}>
+            <CustomDatePicker
+              value={form.tillDate}
+              onChange={(val) => updateField("tillDate", val)}
+              placeholder={`Select ${LABELS.tillDate}`}
+            />
+          </Field>
+
+          <Field name="billingCompany" required error={errors.billingCompany}>
+            <CommonDropdown
+              value={form.billingCompany}
+              onChange={(val) => updateField("billingCompany", val)}
+              className={dropdownCls("billingCompany")}
+              placeholder="SELECT..."
+              options={BillingCompanyOptions}
+            />
+          </Field>
+
+          <Field name="currency" required error={errors.currency}>
+            <CommonDropdown
+              value={form.currency}
+              onChange={(val) => updateField("currency", val)}
+              className={dropdownCls("currency")}
+              placeholder="SELECT..."
+              options={CurrencyOptions}
+            />
+          </Field>
+
+
+
+          <Field
+            name="csvFile"
+            required
+            error={errors.csvFile}
+            className="sm:col-span-2 xl:col-span-3"
+          >
+            <FileUploadField
+              key={uploadKey}
+              error={Boolean(errors.csvFile)}
+              placeholder="Drop your CSV file here or browse"
+              acceptedMimeTypes={["text/csv", "application/vnd.ms-excel"]}
+              acceptedExtensions={[".csv"]}
+              acceptedLabel="CSV format only, up to 10MB"
+              onFileChange={(file) => updateField("csvFile", file)}
+            />
+          </Field>
+
+          <div className="flex justify-end gap-3 pt-2 sm:col-span-2 xl:col-span-3">
+            <button
+              type="button"
+              onClick={handleDownloadSample}
+              className={`flex items-center gap-2 ${actionBtnClass}`}
+            >
+              <Download size={14} />
+              Download Sample CSV File
+            </button>
+            <button
+              type="button"
+              onClick={handleImport}
+              disabled={loading}
+              className={`${actionBtnClass} disabled:opacity-60`}
+            >
+              {loading ? "Importing..." : "Import"}
+            </button>
           </div>
-        </Field>
-        <Field name="vendor" required error={errors.vendor}>
-          <CommonDropdown
-            value={form.vendor}
-            onChange={(val) => updateField("vendor", val)}
-            className={dropdownCls("vendor")}
-            placeholder="SELECT..."
-            options={vendorDropdownOptions}
-          />
-        </Field>
-
-        <Field name="referenceName">
-          <input
-            type="text"
-            value={form.referenceName}
-            onChange={(e) => updateField("referenceName", e.target.value)}
-            className={cls("referenceName")}
-            placeholder={LABELS.referenceName}
-          />
-        </Field>
-
-        <Field name="invoiceNo" required error={errors.invoiceNo}>
-          <input
-            type="text"
-            value={form.invoiceNo}
-            onChange={(e) => updateField("invoiceNo", e.target.value)}
-            className={cls("invoiceNo")}
-            placeholder={LABELS.invoiceNo}
-          />
-        </Field>
-
-        <Field name="invoiceDate">
-          <CustomDatePicker
-            value={form.invoiceDate}
-            onChange={(val) => updateField("invoiceDate", val)}
-            placeholder={`Select ${LABELS.invoiceDate}`}
-          />
-        </Field>
-
-        <Field name="fromDate" required error={errors.fromDate}>
-          <CustomDatePicker
-            value={form.fromDate}
-            onChange={(val) => updateField("fromDate", val)}
-            placeholder={`Select ${LABELS.fromDate}`}
-          />
-        </Field>
-
-        <Field name="tillDate" required error={errors.tillDate}>
-          <CustomDatePicker
-            value={form.tillDate}
-            onChange={(val) => updateField("tillDate", val)}
-            placeholder={`Select ${LABELS.tillDate}`}
-          />
-        </Field>
-
-        <Field name="billingCompany" required error={errors.billingCompany}>
-          <CommonDropdown
-            value={form.billingCompany}
-            onChange={(val) => updateField("billingCompany", val)}
-            className={dropdownCls("billingCompany")}
-            placeholder="SELECT..."
-            options={BillingCompanyOptions}
-          />
-        </Field>
-
-        <Field name="currency" required error={errors.currency}>
-          <CommonDropdown
-            value={form.currency}
-            onChange={(val) => updateField("currency", val)}
-            className={dropdownCls("currency")}
-            placeholder="SELECT..."
-            options={CurrencyOptions}
-          />
-        </Field>
-
-
-
-        <Field
-          name="csvFile"
-          required
-          error={errors.csvFile}
-          className="sm:col-span-2 xl:col-span-3"
-        >
-          <FileUploadField
-            key={uploadKey}
-            error={Boolean(errors.csvFile)}
-            placeholder="Drop your CSV file here or browse"
-            acceptedMimeTypes={["text/csv", "application/vnd.ms-excel"]}
-            acceptedExtensions={[".csv"]}
-            acceptedLabel="CSV format only, up to 10MB"
-            onFileChange={(file) => updateField("csvFile", file)}
-          />
-        </Field>
-
-        <div className="flex justify-end gap-3 pt-2 sm:col-span-2 xl:col-span-3">
-          <button
-            type="button"
-            onClick={handleDownloadSample}
-            className={`flex items-center gap-2 ${actionBtnClass}`}
-          >
-            <Download size={14} />
-            Download Sample CSV File
-          </button>
-          <button
-            type="button"
-            onClick={handleImport}
-            disabled={loading}
-            className={`${actionBtnClass} disabled:opacity-60`}
-          >
-            {loading ? "Importing..." : "Import"}
-          </button>
         </div>
       </div>
+
     </div>
   );
 }
