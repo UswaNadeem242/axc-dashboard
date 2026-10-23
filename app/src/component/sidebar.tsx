@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, ChevronRight, FileText, Home, Menu, Plus } from "lucide-react";
 import { menuItems, type MenuItem, type SubMenuItem } from "../constant";
 import Link from "next/link";
@@ -18,7 +18,13 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
   const [isInvoiceOpen, setIsInvoiceOpen] = useState<boolean>(false);
   const [isManifestOpen, setIsManifestOpen] = useState<boolean>(false);
   const [isVendorInvoiceOpen, setIsVendorInvoiceOpen] = useState<boolean>(false);
-  const [isAccountsOpen, setIsAccountsOpen] = useState<boolean>(false);
+  const [isAccountsOpen, setIsAccountsOpen] = useState<boolean>(pathname.startsWith("/accounts"));
+
+  useEffect(() => {
+    if (pathname.startsWith("/accounts")) {
+      setIsAccountsOpen(true);
+    }
+  }, [pathname]);
 
   const handleItemClick = (item: MenuItem) => {
     if (item.hasDropdown) {
@@ -133,7 +139,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
 
           return (
             <div key={item.id} className="space-y-0.5">
-              {item.href ? (
+              {item.href && !item.hasDropdown ? (
                 <Link
                   href={item.href}
                   title={isCollapsed ? item.label : undefined}

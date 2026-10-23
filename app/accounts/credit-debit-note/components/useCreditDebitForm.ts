@@ -285,6 +285,13 @@ export function useCreditDebitForm(editId?: string | null) {
       const taxAmt = Math.round(adjAmount * 0.18 * 100) / 100;
       const totalAmt = Math.round((adjAmount + taxAmt) * 100) / 100;
 
+      const firstNoteItem = form.noteItems?.[0];
+      const awbNum =
+        form.noteTypeKind === "AGAINST" && form.againstType === "AWB"
+          ? form.againstNumber.trim()
+          : firstNoteItem?.awbNo || "";
+      const fwdNum = firstNoteItem?.customerRefNo || "";
+
       const entryToSave: AccountEntry = {
         srNo: list.length + 1,
         noteNumber: form.noteNumber.trim(),
@@ -292,6 +299,9 @@ export function useCreditDebitForm(editId?: string | null) {
         partyType: "Customer",
         partyName: form.customer.trim(),
         partyCode: form.customerCode.trim(),
+        customerCode: form.customerCode.trim(),
+        awbNumber: awbNum,
+        forwardingNumber: fwdNum,
         noteDate: form.date,
         dueDate: form.date,
         refDocType: form.noteTypeKind === "AGAINST" ? form.againstType === "AWB" ? "AWB" : "Invoice" : "Direct",
@@ -304,6 +314,7 @@ export function useCreditDebitForm(editId?: string | null) {
         currency: form.currency || "PKR",
         reason: form.reason || "General Account Adjustment",
         status: saveStatus || form.status,
+        eInvoiceStatus: (form as any).eInvoiceStatus || "NOT_SYNCED",
         branch: form.originHub || "Sialkot Hub",
         company: form.company || "AMERICAN XPRESS COURIER - AXC INC",
         createdBy: "ACCOUNTS TEAM",

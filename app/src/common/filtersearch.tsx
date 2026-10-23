@@ -73,7 +73,7 @@ export default function FilterSearch({
   const [showCustomDateRange, setShowCustomDateRange] = React.useState(false);
 
   const handleToggleOption = (val: string) => {
-    if (val === "Custom") {
+    if (val === "Custom" || val === "Custom Year" || val === "Customer Year") {
       setShowCustomDateRange(true);
       return;
     }
@@ -318,12 +318,12 @@ export default function FilterSearch({
                               {/* Custom Checkbox */}
                               <div
                                 className={`h-4 w-4 rounded-[4px] border flex items-center justify-center shrink-0 transition-colors ${
-                                  isChecked || (option.value === "Custom" && activeOptionsList.some(o => /^[A-Z][a-z]{2} \d{1,2}, \d{4} - [A-Z][a-z]{2} \d{1,2}, \d{4}$/.test(o)))
+                                  isChecked || ((option.value === "Custom" || option.value === "Custom Year" || option.value === "Customer Year") && activeOptionsList.some(o => /^[A-Z][a-z]{2} \d{1,2}, \d{4} - [A-Z][a-z]{2} \d{1,2}, \d{4}$/.test(o)))
                                     ? "border-blue-600 bg-axc-navy text-white"
                                     : "border-gray-300 bg-white group-hover:border-gray-400"
                                 }`}
                               >
-                                {(isChecked || (option.value === "Custom" && activeOptionsList.some(o => /^[A-Z][a-z]{2} \d{1,2}, \d{4} - [A-Z][a-z]{2} \d{1,2}, \d{4}$/.test(o)))) && (
+                                {(isChecked || ((option.value === "Custom" || option.value === "Custom Year" || option.value === "Customer Year") && activeOptionsList.some(o => /^[A-Z][a-z]{2} \d{1,2}, \d{4} - [A-Z][a-z]{2} \d{1,2}, \d{4}$/.test(o)))) && (
                                   <Check
                                     size={11}
                                     strokeWidth={3}

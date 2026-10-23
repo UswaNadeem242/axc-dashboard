@@ -19,13 +19,18 @@ const SEGMENT_LABELS: Record<string, string> = {
   "create-invoice": "Create Invoice",
   "users": "Users",
   "bagging": "Bagging",
+  "accounts": "Accounts",
+  "credit-debit-note": "Credit & Debit Note",
+  "receipt": "Receipt",
+  "create": "Add Receipt",
+  "add-receipt": "Add Receipt",
 };
 
 const PARENT_ROUTE_REDIRECTS: Record<string, string> = {
   "/manifest": "/manifest",
   "/invoice": "/invoice/all-invoices",
   "/vendorinvoice": "/vendorinvoice/all-vendorinvoices",
- 
+  "/accounts/receipt": "/accounts/receipt",
 };
 
 const ROUTE_TITLES: Record<string, string> = {
@@ -38,6 +43,11 @@ const ROUTE_TITLES: Record<string, string> = {
   "/invoice/create-invoice": "Invoice & Billing",
   "/vendorinvoice": "Vendor Invoice",
   "/users": "Users",
+  "/accounts": "Accounts",
+  "/accounts/receipt": "Accounts",
+  "/accounts/receipt/create": "Accounts",
+  "/accounts/receipt/add-receipt": "Accounts",
+  "/accounts/credit-debit-note": "Accounts",
 };
 
 function formatSegmentLabel(segment: string): string {
