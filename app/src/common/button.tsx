@@ -51,7 +51,7 @@ export default function Button({
     disabled = false,
 }: ButtonProps) {
     const classes = clsx(
-        "inline-flex items-center justify-center gap-2  rounded-lg font-semibold transition duration-200",
+        "inline-flex items-center justify-center gap-2  rounded-lg   transition duration-200 cursor-pointer  px-4 py-3 text-regular-small",
         variantClasses[variant],
         sizeClasses[size],
         disabled && "cursor-not-allowed opacity-50",

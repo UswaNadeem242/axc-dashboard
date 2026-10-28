@@ -70,5 +70,5 @@ export interface ManifestChargeRow {
 
 export interface ToastState {
   message: string;
-  type: "success" | "info";
+  type: "success" | "info" | "error";
 }

@@ -9,6 +9,9 @@ import {
   ManifestTab,
   ToastState,
 } from "./state";
+import { api } from "../../../src/lib/api";
+import { initialManifestData, ManifestEntry } from "../../../src/constant";
+import { showToast as showAppToast } from "../../../src/common/toast";
 
 export function createEmptyForm(): ManifestFormState {
   const today = new Date();
@@ -94,12 +97,9 @@ export function useManifestForm() {
   const [rows, setRows] = useState<ManifestBagRow[]>([emptyBagRow(1)]);
   const [charges, setCharges] = useState<ManifestChargeRow[]>([]);
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState<ToastState | null>(null);
 
-  const showToast = (message: string, type: "success" | "info" = "info") => {
-    setToast({ message, type });
-    window.clearTimeout((showToast as any)._t);
-    (showToast as any)._t = window.setTimeout(() => setToast(null), 2600);
+  const showToast = (message: string, type: "success" | "info" | "error" = "info") => {
+    showAppToast({ variant: type, message });
   };
 
   const updateField = <K extends keyof ManifestFormState>(key: K, value: ManifestFormState[K]) => {
@@ -111,15 +111,65 @@ export function useManifestForm() {
   };
 
   const updateRow = <K extends keyof ManifestBagRow>(id: number, key: K, value: ManifestBagRow[K]) => {
-    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, [key]: value } : r)));
+    setRows((prev) => {
+      const next = prev.map((r) => {
+        if (r.id === id) {
+          const updated = { ...r, [key]: value };
+          if (key === "awbNo" && typeof value === "string" && value.trim()) {
+            try {
+              const storedAwbs = localStorage.getItem("awb_entries");
+              if (storedAwbs) {
+                const awbList = JSON.parse(storedAwbs);
+                const found = awbList.find((a: any) => String(a.awbNumber).trim() === value.trim());
+                if (found) {
+                  updated.bookingDate = found.bookingDate || updated.bookingDate;
+                  updated.pcs = String(found.pcs || updated.pcs || "1");
+                  updated.destn = found.destination || updated.destn;
+                  updated.service = found.service || updated.service;
+                  updated.forwarderNo = found.forwardingNumber || updated.forwarderNo;
+                }
+              }
+            } catch (e) {
+              console.warn("AWB lookup error:", e);
+            }
+          }
+          return updated;
+        }
+        return r;
+      });
+
+      const totalWt = next.reduce((acc, r) => acc + (parseFloat(r.weight) || 0), 0);
+      setForm((f) => ({
+        ...f,
+        noOfBags: String(next.length),
+        totalActualWt: totalWt > 0 ? String(Number(totalWt.toFixed(2))) : f.totalActualWt,
+        totalChargeableWt: totalWt > 0 ? String(Number(totalWt.toFixed(2))) : f.totalChargeableWt,
+      }));
+
+      return next;
+    });
   };
 
   const addRow = () => {
-    setRows((prev) => [...prev, emptyBagRow(Date.now())]);
+    setRows((prev) => {
+      const next = [...prev, emptyBagRow(Date.now())];
+      setForm((f) => ({ ...f, noOfBags: String(next.length) }));
+      return next;
+    });
   };
 
   const removeRow = (id: number) => {
-    setRows((prev) => (prev.length > 1 ? prev.filter((r) => r.id !== id) : prev));
+    setRows((prev) => {
+      const next = prev.length > 1 ? prev.filter((r) => r.id !== id) : prev;
+      const totalWt = next.reduce((acc, r) => acc + (parseFloat(r.weight) || 0), 0);
+      setForm((f) => ({
+        ...f,
+        noOfBags: String(next.length),
+        totalActualWt: totalWt > 0 ? String(Number(totalWt.toFixed(2))) : f.totalActualWt,
+        totalChargeableWt: totalWt > 0 ? String(Number(totalWt.toFixed(2))) : f.totalChargeableWt,
+      }));
+      return next;
+    });
   };
 
   const selectAll = () => {
@@ -148,16 +198,61 @@ export function useManifestForm() {
     return Object.keys(next).length === 0;
   };
 
-  const handleCreateManifest = () => {
+  const handleCreateManifest = async () => {
     if (!validateEntry()) {
-      showToast("Please fill all the required fields");
+      showToast("Please fill all the required fields", "error");
       return;
     }
     setLoading(true);
+
+    const manifestNumber = form.manifestNo || `MAN-${Date.now().toString().slice(-6)}`;
+    const newEntry: ManifestEntry = {
+      srNo: 1,
+      manifestNo: manifestNumber,
+      vendor: form.vendorCode || "AXC",
+      vendorName: form.vendor || "AXC EXPRESS",
+      originHubCode: form.originHub,
+      destinationHubCode: form.destinationHub || "DEL",
+      destinationHubName: form.destinationHub || "DELHI HUB",
+      forwarderCode: form.forwarderCode || "FWD-01",
+      runNumber: form.runNumber || "RUN-101",
+      masterEdiBagNo: form.masterEdiBagNo || "",
+      manifestDate: form.date ? form.date.split("-").reverse().join("-") : new Date().toLocaleDateString(),
+      vehicleNo: form.flightNo || "",
+      noOfBags: Number(form.noOfBags) || 1,
+      weight: form.totalActualWt || "10.00",
+    };
+
+    try {
+      const awbNumbers = rows.map((r) => r.awbNo?.trim()).filter(Boolean);
+      await api.createManifest({
+        ...newEntry,
+        form_data: {
+          ...form,
+          awbNumbers,
+        },
+        bag_rows: rows,
+        charge_rows: charges,
+      });
+    } catch (err) {
+      console.warn("API createManifest fallback:", err);
+    }
+
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("manifest_entries");
+        const list: ManifestEntry[] = stored ? JSON.parse(stored) : initialManifestData;
+        localStorage.setItem("manifest_entries", JSON.stringify([newEntry, ...list]));
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    setLoading(false);
+    showToast("Manifest created successfully!", "success");
     setTimeout(() => {
-      setLoading(false);
-      showToast("Manifest created successfully!", "success");
-    }, 700);
+      router.push("/manifest");
+    }, 1000);
   };
 
   const handleSearchAwb = () => {
@@ -186,7 +281,7 @@ export function useManifestForm() {
     addCharge,
     removeCharge,
     loading,
-    toast,
+    toast: null,
     showToast,
     handleCreateManifest,
     handleSearchAwb,

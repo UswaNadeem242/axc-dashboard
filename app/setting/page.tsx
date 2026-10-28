@@ -1,8 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import { User, Building2, Users, CreditCard, ShieldCheck, Bell } from "lucide-react";
+import { User, Building2, Users, CreditCard, ShieldCheck, Bell, Database } from "lucide-react";
 import ProfileInformation from "./components/profile";
 import OrganizationInformation from "./components/organization";
+// import MasterDataManagement from "./components/masters";
 import TeamAccess from "./components/teamaccess";
 import BillingSettings from "./components/billing";
 import SecuritySettings from "./components/security";
@@ -20,6 +21,7 @@ type TabItem = { id: string; label: string; icon?: React.ReactNode };
 const tabs: TabItem[] = [
   { id: "profile", label: "Profile", icon: <User size={14} /> },
   { id: "organization", label: "Organization", icon: <Building2 size={14} /> },
+  // { id: "masters", label: "Master Tables", icon: <Database size={14} /> },
   { id: "team-access", label: "Team & Access", icon: <Users size={14} /> },
   { id: "billing", label: "Billing", icon: <CreditCard size={14} /> },
   { id: "security", label: "Security", icon: <ShieldCheck size={14} /> },
@@ -82,6 +84,7 @@ export default function SettingsPage() {
               handleCancel={organization.handleCancel}
             />
           )}
+          {/* {activeTab === "masters" && <MasterDataManagement />} */}
           {activeTab === "team-access" && <TeamAccess />}
           {activeTab === "billing" && <BillingSettings {...billing} />}
           {activeTab === "security" && <SecuritySettings {...security} />}

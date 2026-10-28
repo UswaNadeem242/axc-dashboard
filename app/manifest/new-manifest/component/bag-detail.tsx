@@ -6,6 +6,7 @@ import { PanelHeader, inputClass, disabledInputClass } from "./formfield";
 import { ManifestBagRow } from "./state";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { useMasterData } from "@/app/src/lib/useMasterData";
 
 const TRACK_BY_OPTIONS = [
   { value: "PARCEL NUMBER", label: "Parcel Number" },
@@ -21,6 +22,7 @@ interface BagDetailsProps {
 }
 
 export default function BagDetails({ rows, updateRow, addRow, removeRow, selectAll }: BagDetailsProps) {
+  const { bags } = useMasterData();
   const handleRemoveRow = (id: number) => {
     removeRow(id);
     showToast({ variant: "success", message: "Bag removed successfully" });
@@ -82,10 +84,19 @@ export default function BagDetails({ rows, updateRow, addRow, removeRow, selectA
                   </td>
                   <td className="border-r border-axc-border p-1">
                     <input
+                      list={`bags-list-${row.id}`}
                       value={row.bagNo}
                       onChange={(e) => updateRow(row.id, "bagNo", e.target.value)}
                       className={`${inputClass} py-2 text-center`}
+                      placeholder="e.g. BAG-001"
                     />
+                    <datalist id={`bags-list-${row.id}`}>
+                      {bags.map((b) => (
+                        <option key={b.value} value={b.value}>
+                          {b.label}
+                        </option>
+                      ))}
+                    </datalist>
                   </td>
                   <td className="border-r border-axc-border p-1">
                     <input
@@ -123,19 +134,44 @@ export default function BagDetails({ rows, updateRow, addRow, removeRow, selectA
                     <input disabled value={row.bookingDate} className={`${disabledInputClass} py-2 text-center`} />
                   </td>
                   <td className="border-r border-axc-border p-1">
-                    <input disabled value={row.weight} className={`${disabledInputClass} py-2 text-center`} />
+                    <input
+                      value={row.weight}
+                      onChange={(e) => updateRow(row.id, "weight", e.target.value)}
+                      className={`${inputClass} py-2 text-center`}
+                      placeholder="0.00"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1">
-                    <input disabled value={row.pcs} className={`${disabledInputClass} py-2 text-center`} />
+                    <input
+                      value={row.pcs}
+                      onChange={(e) => updateRow(row.id, "pcs", e.target.value)}
+                      className={`${inputClass} py-2 text-center`}
+                      placeholder="1"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1">
-                    <input disabled value={row.destn} className={`${disabledInputClass} py-2 text-center`} />
+                    <input
+                      value={row.destn}
+                      onChange={(e) => updateRow(row.id, "destn", e.target.value)}
+                      className={`${inputClass} py-2 text-center`}
+                      placeholder="DEST"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1">
-                    <input disabled value={row.service} className={`${disabledInputClass} py-2 text-center`} />
+                    <input
+                      value={row.service}
+                      onChange={(e) => updateRow(row.id, "service", e.target.value)}
+                      className={`${inputClass} py-2 text-center`}
+                      placeholder="Service"
+                    />
                   </td>
                   <td className="border-r border-axc-border p-1">
-                    <input disabled value={row.actionDuty} className={`${disabledInputClass} py-2 text-center`} />
+                    <input
+                      value={row.actionDuty}
+                      onChange={(e) => updateRow(row.id, "actionDuty", e.target.value)}
+                      className={`${inputClass} py-2 text-center`}
+                      placeholder="Duty"
+                    />
                   </td>
                   <td className="p-1 text-center">
                     <button

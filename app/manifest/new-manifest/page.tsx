@@ -71,17 +71,6 @@ export default function ManifestPage() {
 
   return (
     <div className="flex flex-col gap-4 w-full h-full min-h-0 overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-
-      {toast && (
-        <div
-          className={`fixed top-5 right-5 z-50 rounded-lg px-4 py-3 text-xs font-bold shadow-lg text-white animate-in fade-in slide-in-from-top-2 duration-200 ${
-            toast.type === "success" ? "bg-axc-dark-green" : "bg-axc-navy"
-          }`}
-        >
-          {toast.message}
-        </div>
-      )}
-
       <div className="relative bg-white p-4 rounded-lg border border-gray-200 w-full flex-1 min-h-0 flex flex-col overflow-hidden">
 
         <div className="bg-white border-b border-b-axc-border pb-0 shrink-0">
@@ -119,6 +108,8 @@ export default function ManifestPage() {
                 toggleEdit={handleToggleEdit}
                 handleSearchAwb={handleSearchAwb}
                 handleBagging={handleBagging}
+                handleCreateManifest={handleCreateManifest}
+                loading={loading}
               />
               <BagDetails
                 rows={rows}

@@ -3,6 +3,8 @@
 import { FormEvent, useEffect, useState } from "react";
 import { X } from "lucide-react";
 
+import Dropdown from "../src/common/dropdown";
+import CustomDatePicker from "../src/common/datepicker";
 import ToggleSwitch from "./toggleswitch";
 
 interface NewUserData {
@@ -32,6 +34,45 @@ interface AddUserModalProps {
   onClose: () => void;
   onSave: (user: NewUserData) => void;
 }
+
+const USER_TYPE_OPTIONS = [
+  { value: "B2B", label: "B2B" },
+  { value: "B2C", label: "B2C" },
+];
+
+const ROLE_OPTIONS = [
+  { value: "Super Admin", label: "Super Admin" },
+  { value: "Admin", label: "Admin" },
+  { value: "Manager", label: "Manager" },
+  { value: "Staff", label: "Staff" },
+  { value: "Sales", label: "Sales" },
+];
+
+const KYC_TYPE_OPTIONS = [
+  { value: "ID Card", label: "ID Card" },
+  { value: "Passport", label: "Passport" },
+  { value: "Driving License", label: "Driving License" },
+];
+
+const LEAVE_USER_OPTIONS = [
+  { value: "Yes", label: "Yes" },
+  { value: "No", label: "No" },
+];
+
+const ASSIGNED_HUB_OPTIONS = [
+  { value: "Lahore", label: "Lahore" },
+  { value: "Islamabad", label: "Islamabad" },
+  { value: "Karachi", label: "Karachi" },
+  { value: "Peshawar", label: "Peshawar" },
+  { value: "Multan", label: "Multan" },
+  { value: "Faisalabad", label: "Faisalabad" },
+];
+
+const AWB_SERVICE_TYPE_OPTIONS = [
+  { value: "Standard", label: "Standard" },
+  { value: "Express", label: "Express" },
+  { value: "Overnight", label: "Overnight" },
+];
 
 const initialForm: NewUserData = {
   name: "",
@@ -100,6 +141,9 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
     if (!formData.contactNo.trim()) return setError("Phone number is required."), false;
     if (!formData.role) return setError("Please select a role assignment."), false;
     if (!formData.autoGeneratePassword && !formData.password) return setError("Password is required."), false;
+    if (!formData.autoGeneratePassword && formData.confirmPassword && formData.password !== formData.confirmPassword) {
+      return setError("Passwords do not match."), false;
+    }
     return true;
   };
 
@@ -137,42 +181,70 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
             </FormField>
 
             <FormField label="Contact No" required>
-              <input name="contactNo" value={formData.contactNo} onChange={handleInputChange} placeholder="Enter contact no" className="form-input" />
+              <input name="contactNo" type="number" value={formData.contactNo} onChange={handleInputChange} placeholder="Enter contact no" className="form-input" />
             </FormField>
 
             <FormField label="User Type">
-              <select name="userType" value={formData.userType} onChange={handleInputChange} className="form-input">
-                <option value="B2B">B2B</option>
-                <option value="B2C">B2C</option>
-              </select>
+              <Dropdown
+                value={formData.userType}
+                onChange={(val) => {
+                  setFormData((previous) => ({ ...previous, userType: val }));
+                  setError("");
+                }}
+                options={USER_TYPE_OPTIONS}
+                placeholder="Select user type"
+                className="h-10 text-regular-small border-axc-border"
+              />
             </FormField>
 
             <FormField label="Role" required>
-              <select name="role" value={formData.role} onChange={handleInputChange} className="form-input">
-                <option value="">Select role</option>
-                <option value="Super Admin">Super Admin</option>
-                <option value="Admin">Admin</option>
-                <option value="Manager">Manager</option>
-                <option value="Staff">Staff</option>
-                <option value="Sales">Sales</option>
-              </select>
+              <Dropdown
+                value={formData.role}
+                onChange={(val) => {
+                  setFormData((previous) => ({ ...previous, role: val }));
+                  setError("");
+                }}
+                options={ROLE_OPTIONS}
+                placeholder="Select role"
+                className="h-10 text-regular-small border-axc-border"
+              />
             </FormField>
 
             <FormField label="Birth Date">
-              <input type="date" name="birthDate" value={formData.birthDate} onChange={handleInputChange} className="form-input" />
+              <CustomDatePicker
+                value={formData.birthDate}
+                onChange={(date) => {
+                  setFormData((previous) => ({ ...previous, birthDate: date }));
+                  setError("");
+                }}
+                placeholder="Select birth date"
+                className="h-10 text-regular-small border-axc-border"
+              />
             </FormField>
 
             <FormField label="Joining Date">
-              <input type="date" name="joiningDate" value={formData.joiningDate} onChange={handleInputChange} className="form-input" />
+              <CustomDatePicker
+                value={formData.joiningDate}
+                onChange={(date) => {
+                  setFormData((previous) => ({ ...previous, joiningDate: date }));
+                  setError("");
+                }}
+                placeholder="Select joining date"
+                className="h-10 text-regular-small border-axc-border"
+              />
             </FormField>
 
             <FormField label="KYC Type">
-              <select name="kycType" value={formData.kycType} onChange={handleInputChange} className="form-input">
-                <option value="">Select KYC Type</option>
-                <option value="ID Card">ID Card</option>
-                <option value="Passport">Passport</option>
-                <option value="Driving License">Driving License</option>
-              </select>
+              <Dropdown
+                value={formData.kycType}
+                onChange={(val) => {
+                  setFormData((previous) => ({ ...previous, kycType: val }));
+                  setError("");
+                }}
+                options={KYC_TYPE_OPTIONS}
+                placeholder="Select KYC Type"
+                className="h-10 text-regular-small border-axc-border"
+              />
             </FormField>
 
             <FormField label="KYC Document">
@@ -184,32 +256,42 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
             </FormField>
 
             <FormField label="Leave User">
-              <select name="leaveUser" value={formData.leaveUser} onChange={handleInputChange} className="form-input">
-                <option value="">Select...</option>
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </select>
+              <Dropdown
+                value={formData.leaveUser}
+                onChange={(val) => {
+                  setFormData((previous) => ({ ...previous, leaveUser: val }));
+                  setError("");
+                }}
+                options={LEAVE_USER_OPTIONS}
+                placeholder="Select..."
+                className="h-10 text-regular-small border-axc-border"
+              />
             </FormField>
 
             <FormField label="User Assigned Hub">
-              <select name="assignedHub" value={formData.assignedHub} onChange={handleInputChange} className="form-input">
-                <option value="">Select...</option>
-                <option value="Lahore">Lahore</option>
-                <option value="Islamabad">Islamabad</option>
-                <option value="Karachi">Karachi</option>
-                <option value="Peshawar">Peshawar</option>
-                <option value="Multan">Multan</option>
-                <option value="Faisalabad">Faisalabad</option>
-              </select>
+              <Dropdown
+                value={formData.assignedHub}
+                onChange={(val) => {
+                  setFormData((previous) => ({ ...previous, assignedHub: val }));
+                  setError("");
+                }}
+                options={ASSIGNED_HUB_OPTIONS}
+                placeholder="Select..."
+                className="h-10 text-regular-small border-axc-border"
+              />
             </FormField>
 
             <FormField label="AWB Service Type">
-              <select name="awbServiceType" value={formData.awbServiceType} onChange={handleInputChange} className="form-input">
-                <option value="">SELECT AWB SERVICE TYPE..</option>
-                <option value="Standard">Standard</option>
-                <option value="Express">Express</option>
-                <option value="Overnight">Overnight</option>
-              </select>
+              <Dropdown
+                value={formData.awbServiceType}
+                onChange={(val) => {
+                  setFormData((previous) => ({ ...previous, awbServiceType: val }));
+                  setError("");
+                }}
+                options={AWB_SERVICE_TYPE_OPTIONS}
+                placeholder="SELECT AWB SERVICE TYPE.."
+                className="h-10 text-regular-small border-axc-border"
+              />
             </FormField>
 
             <div className="col-span-2">
@@ -229,10 +311,10 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
               <FormField label="Confirm Password" required>
                 <input
                   type="password"
-                  name="Cpassword"
-                  value={formData.password}
+                  name="confirmPassword"
+                  value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  placeholder="Enter password"
+                  placeholder="Enter confirm password"
                   disabled={formData.autoGeneratePassword}
                   className="form-input disabled:bg-axc-light-bg disabled:text-axc-gray"
                 />
@@ -270,17 +352,17 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
               />
             </div>
           </div>
-
-          <div className="flex gap-3 justify-end border-t border-axc-border ">
+          <div className="border-t border-axc-border " />
+          <div className="flex gap-3 justify-end  ">
             <button
               type="button"
               onClick={handleClose}
-              className="h-[38px] min-w-[100px] rounded-md border  cursor-pointer border-axc-border bg-white px-4 text-[12px] font-semibold text-axc-dark-gray hover:bg-axc-light-bg"
+              className="  border  cursor-pointer border-axc-border bg-white text-axc-dark-gray  px-5 py-4   rounded-lg text-regular-small"
 
             >
               Cancel
             </button>
-            <button type="submit" className="h-[38px] min-w-[100px] curdor-pointer rounded-md bg-axc-blue px-4 text-[12px] font-semibold text-white hover:bg-axc-blue-dark">
+            <button type="submit" className="px-5 py-4 bg-axc-navy cursor-pointer text-white rounded-lg text-regular-small transition shadow-sm">
               Create User
             </button>
           </div>

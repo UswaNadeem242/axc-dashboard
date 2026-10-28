@@ -3,6 +3,8 @@ import React from "react";
 import Image from "next/image";
 import { IndianRupee, Truck, ArrowLeft, Eye } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import { api } from "../../../src/lib/api";
+import { showToast } from "../../../src/common/toast";
 
 const SectionHeader = ({ title }: { title: string }) => (
   <div className="bg-axc-navy/60 px-5 py-4 rounded-tl-lg rounded-tr-lg text-white capitalize">
@@ -552,11 +554,11 @@ const PurchaseBillingView = ({ vendorInvoiceData, purchaseBillingData, vendorDet
   );
 };
 
-const DeliveryView = ({ id, formData, awbData, deliveryData }: any) => {
+const DeliveryView = ({ id, formData, awbData, deliveryData, onSyncCarrier, isSyncing }: any) => {
   const displayTrackingEvents =
     deliveryData?.trackingEvents && deliveryData.trackingEvents.length > 0
       ? deliveryData.trackingEvents
-      : getDummyTrackingEvents();
+      : [];
 
   return (
     <div className="border border-axc-border rounded bg-gray-50/50">
@@ -661,7 +663,19 @@ const DeliveryView = ({ id, formData, awbData, deliveryData }: any) => {
 
       {/* AWB TRACKING */}
       <div className="mt-4">
-        <SectionHeader title={`AWB Tracking: ${id}`} />
+        <div className="flex items-center justify-between pb-1">
+          <SectionHeader title={`AWB Tracking: ${id}`} />
+          {onSyncCarrier && (
+            <button
+              type="button"
+              onClick={onSyncCarrier}
+              disabled={isSyncing}
+              className="text-xs bg-axc-navy text-white px-3 py-1.5 rounded hover:bg-opacity-90 transition-colors disabled:opacity-50"
+            >
+              {isSyncing ? "Syncing Carrier..." : "Sync Carrier (DHL / FedEx / UPS)"}
+            </button>
+          )}
+        </div>
         <div className="overflow-x-auto p-3 bg-white rounded-lg">
           <table className="w-full text-sm text-left border border-gray-200">
             <thead className="bg-axc-navy/10 text-axc-dark-gray capitalize text-regular-medium">
@@ -677,18 +691,26 @@ const DeliveryView = ({ id, formData, awbData, deliveryData }: any) => {
               </tr>
             </thead>
             <tbody>
-              {displayTrackingEvents.map((event: any, idx: number) => (
-                <tr key={idx} className="border-gray-200">
-                  <td className="px-3 py-2">{event.dateTime || "-"}</td>
-                  <td className="px-3 py-2">{event.description || "-"}</td>
-                  <td className="px-3 py-2">{event.location || "-"}</td>
-                  <td className="px-3 py-2">{event.type || "-"}</td>
-                  <td className="px-3 py-2">{event.state || "-"}</td>
-                  <td className="px-3 py-2">{event.remark || "-"}</td>
-                  <td className="px-3 py-2">{event.createdDate || "-"}</td>
-                  <td className="px-3 py-2">{event.createdBy || "-"}</td>
+              {displayTrackingEvents.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="px-3 py-6 text-center text-gray-500 text-sm">
+                    No tracking events recorded yet. Click &quot;Sync Carrier&quot; to fetch latest carrier status.
+                  </td>
                 </tr>
-              ))}
+              ) : (
+                displayTrackingEvents.map((event: any, idx: number) => (
+                  <tr key={idx} className="border-gray-200">
+                    <td className="px-3 py-2">{event.eventDateTime || event.dateTime || "-"}</td>
+                    <td className="px-3 py-2">{event.eventDescription || event.description || "-"}</td>
+                    <td className="px-3 py-2">{event.eventLocation || event.location || "-"}</td>
+                    <td className="px-3 py-2">{event.eventType || event.type || "-"}</td>
+                    <td className="px-3 py-2">{event.eventState || event.state || "-"}</td>
+                    <td className="px-3 py-2">{event.eventRemark || event.remark || "-"}</td>
+                    <td className="px-3 py-2">{event.createdDate || "-"}</td>
+                    <td className="px-3 py-2">{event.createdBy || "-"}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -897,21 +919,89 @@ export default function AwbViewPage() {
   const [deliveryData, setDeliveryData] = React.useState<any>(null);
   const [invoiceItems, setInvoiceItems] = React.useState<any[]>([]);
 
+  const [isSyncingCarrier, setIsSyncingCarrier] = React.useState(false);
+
+  const fetchAwbData = React.useCallback(async () => {
+    try {
+      const res = await api.getAwb(id);
+      if (res && res.data) {
+        const item = res.data;
+        const awbObj = item.awb || item;
+        setAwbData({
+          awbNumber: awbObj.awbNumber || awbObj.awb_number,
+          customer: awbObj.customer,
+          forwardingNumber: awbObj.forwardingNumber || awbObj.forwarding_number,
+          masterCode: awbObj.masterCode || awbObj.master_code,
+          product: awbObj.product,
+          pcs: awbObj.pcs,
+          service: awbObj.service,
+          vendor: awbObj.vendor,
+          origin: awbObj.origin,
+          destination: awbObj.destination,
+          consignee: awbObj.consignee,
+          shipper: awbObj.shipper,
+          bookingDate: awbObj.bookingDate || awbObj.booking_date,
+          status: awbObj.status,
+        });
+
+        const tracking = item.trackingEvents || item.tracking_events || item.delivery_data?.trackingEvents || [];
+        const deliv = item.delivery || item.delivery_data || {};
+        setDeliveryData({
+          ...deliv,
+          trackingEvents: tracking,
+        });
+
+        if (item.form || item.form_data) setFormData(item.form || item.form_data);
+        if (item.invoiceItems || item.invoice_items) setInvoiceItems(item.invoiceItems || item.invoice_items);
+        if (item.billing || item.billing_data) setBillingData(item.billing || item.billing_data);
+        if (item.payment || item.payment_data) setPaymentData(item.payment || item.payment_data);
+        if (item.remarks || item.remarks_data) setRemarksData(item.remarks || item.remarks_data);
+        if (item.refund || item.refund_data) setRefundData(item.refund || item.refund_data);
+        if (item.purchase_billing_data) setPurchaseBillingData(item.purchase_billing_data);
+        if (item.vendor_invoice_data) setVendorInvoiceData(item.vendor_invoice_data);
+        if (item.vendor_details_data) setVendorDetailsData(item.vendor_details_data);
+        return;
+      }
+    } catch (err) {
+      console.warn("API fetchAwbData fallback:", err);
+    }
+  }, [id]);
+
+  const handleSyncCarrier = async () => {
+    setIsSyncingCarrier(true);
+    try {
+      const res = await api.syncAwbCourierTracking(id);
+      if (res && res.success) {
+        showToast({ variant: "success", message: "Carrier tracking synchronized successfully!" });
+        await fetchAwbData();
+      } else {
+        showToast({ variant: "error", message: res.message || "Failed to sync carrier tracking" });
+      }
+    } catch (e: any) {
+      showToast({ variant: "error", message: e.message || "Courier sync failed" });
+    } finally {
+      setIsSyncingCarrier(false);
+    }
+  };
+
   React.useEffect(() => {
+    let isMounted = true;
+    fetchAwbData();
+
     if (typeof window !== "undefined") {
       const storedEntries = localStorage.getItem("awb_entries");
       if (storedEntries) {
         try {
           const parsed = JSON.parse(storedEntries);
           const found = parsed.find((item: any) => String(item.awbNumber) === String(id));
-          if (found) setAwbData(found);
+          if (found && isMounted) setAwbData(found);
         } catch (e) {
           console.error(e);
         }
       }
 
       const storedDetail = localStorage.getItem(`awb_detail_${id}`);
-      if (storedDetail) {
+      if (storedDetail && isMounted) {
         try {
           const parsed = JSON.parse(storedDetail);
           if (parsed.form) setFormData(parsed.form);
@@ -929,9 +1019,8 @@ export default function AwbViewPage() {
         }
       }
 
-      // Look for sales billing directly if it's saved separately
       const storedSales = localStorage.getItem(`awb_sales_${id}`);
-      if (storedSales) {
+      if (storedSales && isMounted) {
         try {
           const parsedSales = JSON.parse(storedSales);
           if (parsedSales) setBillingData(parsedSales);
@@ -940,7 +1029,11 @@ export default function AwbViewPage() {
         }
       }
     }
-  }, [id]);
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id, fetchAwbData]);
 
   return (
     <div className="relative bg-white p-6 rounded-lg w-full flex-1 flex flex-col min-h-0 shadow-sm border border-axc-border overflow-x-hidden overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-lg">
@@ -1029,7 +1122,14 @@ export default function AwbViewPage() {
         />
       ) */
       ) : (
-        <DeliveryView id={id} formData={formData} awbData={awbData} deliveryData={deliveryData} />
+        <DeliveryView
+          id={id}
+          formData={formData}
+          awbData={awbData}
+          deliveryData={deliveryData}
+          onSyncCarrier={handleSyncCarrier}
+          isSyncing={isSyncingCarrier}
+        />
       )}
     </div>
   );

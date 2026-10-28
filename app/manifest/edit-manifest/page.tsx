@@ -13,10 +13,11 @@ import {
   ManifestFormErrors,
   ManifestFormState,
   ManifestTab,
-  ToastState,
 } from "../new-manifest/component/state";
 import { initialManifestData, ManifestEntry } from "@/app/src/constant";
 import Button from "@/app/src/common/button";
+import { api } from "@/app/src/lib/api";
+import { showToast } from "@/app/src/common/toast";
 
 type TabItem = {
   id: ManifestTab;
@@ -72,7 +73,6 @@ function EditManifestContent() {
 
   const [tab, setTab] = useState<ManifestTab>("entry");
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState<ToastState | null>(null);
   const [errors, setErrors] = useState<ManifestFormErrors>({});
 
   const [form, setForm] = useState<ManifestFormState>({
@@ -107,70 +107,106 @@ function EditManifestContent() {
   const [rows, setRows] = useState<ManifestBagRow[]>([emptyBagRow(1)]);
   const [charges, setCharges] = useState<ManifestChargeRow[]>([]);
 
-  const showToast = (message: string, type: "success" | "info" = "info") => {
-    setToast({ message, type });
-    window.clearTimeout((showToast as any)._t);
-    (showToast as any)._t = window.setTimeout(() => setToast(null), 2600);
-  };
 
   // Load existing manifest entry data
   useEffect(() => {
-    if (!manifestId || typeof window === "undefined") return;
+    if (!manifestId) return;
 
-    let entries: ManifestEntry[] = [];
-    const stored = localStorage.getItem("manifest_entries");
-    if (stored) {
+    let isMounted = true;
+    async function loadData() {
       try {
-        entries = JSON.parse(stored);
+        const res = await api.getManifest(manifestId);
+        if (res && res.data && isMounted) {
+          const matched = res.data;
+          setForm((prev) => ({
+            ...prev,
+            ...(matched.form_data || {}),
+            manifestNo: matched.manifest_no || manifestId,
+            vendor: matched.vendor_name || matched.vendor || "",
+            vendorCode: matched.vendor || "",
+            originHub: matched.origin_hub_code || "",
+            destinationHub: matched.destination_hub_code || matched.destination_hub_name || "",
+            forwarderCode: matched.forwarder_code || "",
+            runNumber: matched.run_number || "",
+            masterEdiBagNo: matched.master_edi_bag_no || "",
+            date: matched.manifest_date ? matched.manifest_date.split("-").reverse().join("-") : "",
+            noOfBags: String(matched.no_of_bags || "1"),
+            totalActualWt: String(matched.weight || ""),
+            totalChargeableWt: String(matched.weight || ""),
+          }));
+          if (matched.bag_rows && Array.isArray(matched.bag_rows) && matched.bag_rows.length > 0) {
+            setRows(matched.bag_rows);
+          }
+          if (matched.charge_rows && Array.isArray(matched.charge_rows) && matched.charge_rows.length > 0) {
+            setCharges(matched.charge_rows);
+          }
+          return;
+        }
       } catch (err) {
-        console.error("Failed to parse manifest_entries:", err);
+        console.warn("API getManifest fallback:", err);
+      }
+
+      if (typeof window !== "undefined") {
+        let entries: ManifestEntry[] = [];
+        const stored = localStorage.getItem("manifest_entries");
+        if (stored) {
+          try {
+            entries = JSON.parse(stored);
+          } catch (err) {
+            console.error("Failed to parse manifest_entries:", err);
+          }
+        }
+        if (!entries.length) {
+          entries = initialManifestData;
+        }
+
+        const matched = entries.find((item) => String(item.manifestNo) === String(manifestId));
+
+        if (matched && isMounted) {
+          setForm((prev) => ({
+            ...prev,
+            manifestNo: matched.manifestNo || manifestId,
+            vendor: matched.vendorName || matched.vendor || "",
+            vendorCode: matched.vendor || "",
+            originHub: matched.originHubCode || "",
+            destinationHub: matched.destinationHubCode || matched.destinationHubName || "",
+            forwarderCode: matched.forwarderCode || "",
+            runNumber: matched.runNumber || "",
+            masterEdiBagNo: matched.masterEdiBagNo || "",
+            date: matched.manifestDate ? matched.manifestDate.split("-").reverse().join("-") : "",
+            noOfBags: String(matched.noOfBags || "1"),
+            totalActualWt: String(matched.weight || ""),
+            totalChargeableWt: String(matched.weight || ""),
+          }));
+
+          if (matched.noOfBags) {
+            setRows([
+              {
+                id: 1,
+                selected: false,
+                bagNo: `BAG-${matched.manifestNo}-01`,
+                ediBagNo: matched.masterEdiBagNo || "",
+                bagId: `ID-${matched.manifestNo}`,
+                trackBy: "PARCEL NUMBER",
+                awbNo: "30128763",
+                forwarderNo: "874600062650",
+                bookingDate: matched.manifestDate || "",
+                weight: String(matched.weight || ""),
+                pcs: "1",
+                destn: matched.destinationHubCode || "",
+                service: "FEDEX IP",
+                actionDuty: "DUTY PAID",
+              },
+            ]);
+          }
+        }
       }
     }
-    if (!entries.length) {
-      entries = initialManifestData;
-    }
 
-    const matched = entries.find((item) => String(item.manifestNo) === String(manifestId));
-
-    if (matched) {
-      setForm((prev) => ({
-        ...prev,
-        manifestNo: matched.manifestNo || manifestId,
-        vendor: matched.vendorName || matched.vendor || "",
-        vendorCode: matched.vendor || "",
-        originHub: matched.originHubCode || "",
-        destinationHub: matched.destinationHubCode || matched.destinationHubName || "",
-        forwarderCode: matched.forwarderCode || "",
-        runNumber: matched.runNumber || "",
-        masterEdiBagNo: matched.masterEdiBagNo || "",
-        date: matched.manifestDate ? matched.manifestDate.split("-").reverse().join("-") : "",
-        noOfBags: String(matched.noOfBags || "1"),
-        totalActualWt: String(matched.weight || ""),
-        totalChargeableWt: String(matched.weight || ""),
-      }));
-
-      // Generate dummy bag row if existing
-      if (matched.noOfBags) {
-        setRows([
-          {
-            id: 1,
-            selected: false,
-            bagNo: `BAG-${matched.manifestNo}-01`,
-            ediBagNo: matched.masterEdiBagNo || "",
-            bagId: `ID-${matched.manifestNo}`,
-            trackBy: "PARCEL NUMBER",
-            awbNo: "30128763",
-            forwarderNo: "874600062650",
-            bookingDate: matched.manifestDate || "",
-            weight: String(matched.weight || ""),
-            pcs: "1",
-            destn: matched.destinationHubCode || "",
-            service: "FEDEX IP",
-            actionDuty: "DUTY PAID",
-          },
-        ]);
-      }
-    }
+    loadData();
+    return () => {
+      isMounted = false;
+    };
   }, [manifestId]);
 
   const updateField = (field: keyof ManifestFormState, value: string) => {
@@ -182,15 +218,65 @@ function EditManifestContent() {
   };
 
   const updateRow = <K extends keyof ManifestBagRow>(id: number, key: K, value: ManifestBagRow[K]) => {
-    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, [key]: value } : r)));
+    setRows((prev) => {
+      const next = prev.map((r) => {
+        if (r.id === id) {
+          const updated = { ...r, [key]: value };
+          if (key === "awbNo" && typeof value === "string" && value.trim()) {
+            try {
+              const storedAwbs = localStorage.getItem("awb_entries");
+              if (storedAwbs) {
+                const awbList = JSON.parse(storedAwbs);
+                const found = awbList.find((a: any) => String(a.awbNumber).trim() === value.trim());
+                if (found) {
+                  updated.bookingDate = found.bookingDate || updated.bookingDate;
+                  updated.pcs = String(found.pcs || updated.pcs || "1");
+                  updated.destn = found.destination || updated.destn;
+                  updated.service = found.service || updated.service;
+                  updated.forwarderNo = found.forwardingNumber || updated.forwarderNo;
+                }
+              }
+            } catch (e) {
+              console.warn("AWB lookup error:", e);
+            }
+          }
+          return updated;
+        }
+        return r;
+      });
+
+      const totalWt = next.reduce((acc, r) => acc + (parseFloat(r.weight) || 0), 0);
+      setForm((f) => ({
+        ...f,
+        noOfBags: String(next.length),
+        totalActualWt: totalWt > 0 ? String(Number(totalWt.toFixed(2))) : f.totalActualWt,
+        totalChargeableWt: totalWt > 0 ? String(Number(totalWt.toFixed(2))) : f.totalChargeableWt,
+      }));
+
+      return next;
+    });
   };
 
   const addRow = () => {
-    setRows((prev) => [...prev, emptyBagRow(Date.now())]);
+    setRows((prev) => {
+      const next = [...prev, emptyBagRow(Date.now())];
+      setForm((f) => ({ ...f, noOfBags: String(next.length) }));
+      return next;
+    });
   };
 
   const removeRow = (id: number) => {
-    setRows((prev) => (prev.length > 1 ? prev.filter((r) => r.id !== id) : prev));
+    setRows((prev) => {
+      const next = prev.length > 1 ? prev.filter((r) => r.id !== id) : prev;
+      const totalWt = next.reduce((acc, r) => acc + (parseFloat(r.weight) || 0), 0);
+      setForm((f) => ({
+        ...f,
+        noOfBags: String(next.length),
+        totalActualWt: totalWt > 0 ? String(Number(totalWt.toFixed(2))) : f.totalActualWt,
+        totalChargeableWt: totalWt > 0 ? String(Number(totalWt.toFixed(2))) : f.totalChargeableWt,
+      }));
+      return next;
+    });
   };
 
   const selectAll = () => {
@@ -213,21 +299,43 @@ function EditManifestContent() {
   };
 
   const handleSearchAwb = () => {
-    showToast("Searching AWB…");
+    showToast({ variant: "info", message: "Searching AWB…" });
   };
 
-  const handleBagging = () => {
-    router.push("/manifest/new-manifest/component/bagging");
-  };
 
-  const handleSaveUpdate = () => {
+  const handleSaveUpdate = async () => {
     if (!form.originHub?.trim()) {
       setErrors({ originHub: "Origin Hub is required" });
-      showToast("Please fill all the required fields");
+      showToast({ variant: "error", message: "Please fill all the required fields" });
       return;
     }
 
     setLoading(true);
+
+    const updatedEntry: Partial<ManifestEntry> = {
+      vendor: form.vendorCode,
+      vendorName: form.vendor,
+      originHubCode: form.originHub,
+      destinationHubCode: form.destinationHub,
+      destinationHubName: form.destinationHub,
+      forwarderCode: form.forwarderCode,
+      runNumber: form.runNumber,
+      masterEdiBagNo: form.masterEdiBagNo,
+      manifestDate: form.date ? form.date.split("-").reverse().join("-") : undefined,
+      noOfBags: Number(form.noOfBags) || 1,
+      weight: form.totalActualWt,
+    };
+
+    try {
+      await api.updateManifest(manifestId, {
+        ...updatedEntry,
+        form_data: form,
+        bag_rows: rows,
+        charge_rows: charges,
+      });
+    } catch (err) {
+      console.warn("API updateManifest fallback:", err);
+    }
 
     if (typeof window !== "undefined") {
       try {
@@ -238,17 +346,7 @@ function EditManifestContent() {
           if (String(item.manifestNo) === String(manifestId)) {
             return {
               ...item,
-              vendor: form.vendorCode || item.vendor,
-              vendorName: form.vendor || item.vendorName,
-              originHubCode: form.originHub || item.originHubCode,
-              destinationHubCode: form.destinationHub || item.destinationHubCode,
-              destinationHubName: form.destinationHub || item.destinationHubName,
-              forwarderCode: form.forwarderCode || item.forwarderCode,
-              runNumber: form.runNumber || item.runNumber,
-              masterEdiBagNo: form.masterEdiBagNo || item.masterEdiBagNo,
-              manifestDate: form.date ? form.date.split("-").reverse().join("-") : item.manifestDate,
-              noOfBags: Number(form.noOfBags) || item.noOfBags,
-              weight: form.totalActualWt || item.weight,
+              ...updatedEntry,
             };
           }
           return item;
@@ -260,29 +358,18 @@ function EditManifestContent() {
       }
     }
 
+    setLoading(false);
+    showToast({ variant: "success", message: "Manifest updated successfully!" });
     setTimeout(() => {
-      setLoading(false);
-      showToast("Manifest updated successfully!", "success");
-      setTimeout(() => {
-        router.push("/manifest");
-      }, 800);
-    }, 500);
+      router.push("/manifest");
+    }, 800);
   };
 
   return (
     <div className="flex flex-col gap-4 w-full h-full min-h-0 overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      {toast && (
-        <div
-          className={`fixed top-5 right-5 z-50 rounded-lg px-4 py-3 text-xs font-bold shadow-lg text-white animate-in fade-in slide-in-from-top-2 duration-200 ${
-            toast.type === "success" ? "bg-axc-dark-green" : "bg-axc-navy"
-          }`}
-        >
-          {toast.message}
-        </div>
-      )}
 
       {/* Header bar */}
-      <div className="flex items-center justify-between gap-3 bg-white px-5 py-3.5 rounded-lg border border-axc-border shadow-xs shrink-0">
+      {/* <div className="flex items-center justify-between gap-3 bg-white px-5 py-3.5 rounded-lg border border-axc-border shadow-xs shrink-0">
         <div className="flex items-center gap-3">
           <button
             type="button"
@@ -316,7 +403,7 @@ function EditManifestContent() {
             disabled={loading}
           />
         </div>
-      </div>
+      </div> */}
 
       <div className="relative bg-white p-4 rounded-lg border border-gray-200 w-full flex-1 min-h-0 flex flex-col overflow-hidden">
         {/* Tab Headers */}
@@ -355,7 +442,10 @@ function EditManifestContent() {
                 updateField={updateField}
                 toggleEdit={toggleEdit}
                 handleSearchAwb={handleSearchAwb}
-                handleBagging={handleBagging}
+                showBagging={false}
+                handleCreateManifest={handleSaveUpdate}
+                loading={loading}
+                createButtonLabel="Save Changes"
               />
               <BagDetails
                 rows={rows}

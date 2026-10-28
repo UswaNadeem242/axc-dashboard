@@ -112,7 +112,7 @@ export interface InvoiceItem {
 }
 export interface ToastState {
   message: string;
-  type: "success" | "info";
+  type: "success" | "info" | "error";
 }
 export interface ChargeLine {
   checked: boolean;

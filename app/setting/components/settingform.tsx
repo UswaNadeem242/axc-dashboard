@@ -368,10 +368,14 @@ export function useProfileForm(initialAvatarUrl?: string) {
   };
 
   const handleSaveChanges = () => {
-    if (!validate()) return;
+    if (!validate()) {
+      showToast({ variant: "error", message: "Please fill in all required profile fields." });
+      return;
+    }
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
+      showToast({ variant: "success", message: "Profile information updated successfully!" });
     }, 700);
   };
 

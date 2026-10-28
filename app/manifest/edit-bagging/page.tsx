@@ -12,8 +12,7 @@ import {
   // PartialManifestedAwbPanel,
 } from "../new-manifest/bagging/bagging";
 import Button from "@/app/src/common/button";
-
-type ToastState = { message: string; type: "success" | "info" };
+import { showToast } from "@/app/src/common/toast";
 
 function EditBaggingContent() {
   const router = useRouter();
@@ -21,7 +20,6 @@ function EditBaggingContent() {
   const manifestId = searchParams.get("id") || searchParams.get("manifestNo") || "";
 
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState<ToastState | null>(null);
 
   const { awbDetails, ...baggingProps } = useBaggingForm();
   const { form, updateField, validateRunNumber } = baggingProps;
@@ -32,15 +30,10 @@ function EditBaggingContent() {
     }
   }, [manifestId]);
 
-  const showToast = (message: string, type: "success" | "info" = "info") => {
-    setToast({ message, type });
-    window.clearTimeout((showToast as any)._t);
-    (showToast as any)._t = window.setTimeout(() => setToast(null), 2600);
-  };
 
   const handleSaveChanges = () => {
     if (!validateRunNumber()) {
-      showToast("Please fill all the required fields");
+      showToast({ variant: "error", message: "Please fill all the required fields" });
       return;
     }
 
@@ -48,7 +41,7 @@ function EditBaggingContent() {
 
     setTimeout(() => {
       setLoading(false);
-      showToast("Bagging updated successfully!", "success");
+      showToast({ variant: "success", message: "Bagging updated successfully!" });
       setTimeout(() => {
         router.push("/manifest");
       }, 800);
@@ -57,15 +50,6 @@ function EditBaggingContent() {
 
   return (
     <div className="flex flex-col gap-4 w-full h-full min-h-0 overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-      {toast && (
-        <div
-          className={`fixed top-5 right-5 z-50 rounded-lg px-4 py-3 text-xs font-bold shadow-lg text-white animate-in fade-in slide-in-from-top-2 duration-200 ${
-            toast.type === "success" ? "bg-axc-dark-green" : "bg-axc-navy"
-          }`}
-        >
-          {toast.message}
-        </div>
-      )}
       <div className="flex items-center justify-between gap-3 bg-white px-5 py-3.5 rounded-lg border border-axc-border shadow-xs shrink-0">
         <div className="flex items-center gap-3">
           <button

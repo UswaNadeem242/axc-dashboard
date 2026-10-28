@@ -5,12 +5,14 @@ import { useRouter } from "next/navigation";
 import { X, PlusCircleIcon, FileText, Printer, Trash2 } from "lucide-react";
 
 import CommonTable from "../src/common/table";
-import { ManifestHeading, ManifestEntry, initialManifestData, HUB_COUNTRY_MAP } from "../src/constant";
+import { ManifestHeading, ManifestEntry, initialManifestData } from "../src/constant";
 import FilterSearch from "../src/common/filtersearch";
 import Button from "../src/common/button";
 import { showToast } from "../src/common/toast";
 import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
 import Dropdown from "../src/common/dropdown";
+
+import { api } from "../src/lib/api";
 
 export default function AllManifestPage() {
   const router = useRouter();
@@ -27,22 +29,42 @@ export default function AllManifestPage() {
   const itemsPerPage = 10;
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("manifest_entries");
-      if (stored) {
-        try {
-          const parsed: ManifestEntry[] = JSON.parse(stored);
-          if (parsed.length > initialManifestData.length) {
-            setData(parsed);
-            return;
+    let isMounted = true;
+    async function loadManifests() {
+      try {
+        const res = await api.getManifests({ per_page: 100 });
+        if (res && Array.isArray(res.data) && isMounted) {
+          setData(res.data);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("manifest_entries", JSON.stringify(res.data));
           }
-        } catch (error) {
-          console.error("Failed to load manifest data:", error);
+          return;
+        }
+      } catch (err) {
+        console.warn("API loadManifests fallback:", err);
+      }
+
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("manifest_entries");
+        if (stored) {
+          try {
+            const parsed: ManifestEntry[] = JSON.parse(stored);
+            if (isMounted) setData(parsed);
+            return;
+          } catch (error) {
+            console.error("Failed to load manifest data:", error);
+          }
+        }
+        if (isMounted) {
+          setData([]);
         }
       }
-      setData(initialManifestData);
-      localStorage.setItem("manifest_entries", JSON.stringify(initialManifestData));
     }
+
+    loadManifests();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -85,6 +107,11 @@ export default function AllManifestPage() {
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
+    try {
+      await api.deleteManifest(deleteTarget.manifestNo);
+    } catch (err) {
+      console.warn("API deleteManifest fallback:", err);
+    }
     setData((prev) => prev.filter((item) => item.manifestNo !== deleteTarget.manifestNo));
     setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.manifestNo));
     showToast({ variant: "success", message: "Manifest deleted." });
@@ -99,8 +126,13 @@ export default function AllManifestPage() {
 
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
-  const handleBulkDeleteConfirm = () => {
+  const handleBulkDeleteConfirm = async () => {
     const count = selectedIds.length;
+    try {
+      await api.bulkDeleteManifests(selectedIds);
+    } catch (err) {
+      console.warn("API bulkDeleteManifests fallback:", err);
+    }
     setData((previous) => previous.filter((item) => !selectedIds.includes(item.manifestNo)));
     showToast({
       variant: "success",
@@ -113,6 +145,17 @@ export default function AllManifestPage() {
   const handleBulkExport = () => {
     const selectedRows = data.filter((item) => selectedIds.includes(item.manifestNo));
     if (selectedRows.length === 0) return;
+
+    if (selectedRows.length === 1) {
+      const manifestNo = selectedRows[0].manifestNo;
+      window.open(api.getExportAirlineManifestUrl(manifestNo), "_blank");
+      showToast({
+        variant: "success",
+        message: `Airline manifest #${manifestNo} downloaded (Excel format).`,
+      });
+      return;
+    }
+
     const headers = [
       "SR No",
       "Manifest No",
@@ -164,69 +207,15 @@ export default function AllManifestPage() {
     });
   };
 
-  const parseManifestRange = (input: string): { min: number; max: number } | null => {
-    const clean = input.trim();
-    const rangeMatch = clean.match(/^(\d{2,15})\s*(?:-|–|—|\.\.|to)\s*(\d{2,15})$/i);
-    if (rangeMatch) {
-      const num1 = Number(rangeMatch[1]);
-      const num2 = Number(rangeMatch[2]);
-      if (!isNaN(num1) && !isNaN(num2)) {
-        return { min: Math.min(num1, num2), max: Math.max(num1, num2) };
-      }
-    }
-    return null;
-  };
-
-  const normalizeManifestEntry = (item: ManifestEntry): ManifestEntry => {
-    const mNum = String(item.manifestNo || "");
-    const tail = mNum.slice(-4);
-    const parts = (item.manifestDate || "").split(/[-/]/);
-    const year = parts.length === 3 ? parts[2] : "2026";
-
-    const derivedMasterNo = item.masterNo || (item.masterEdiBagNo && item.masterEdiBagNo.trim() !== "" ? item.masterEdiBagNo : `MAWB-900-${tail}`);
-    const derivedAwbNo = item.awbNo || `3012${tail}`;
-    const derivedCompany = item.company || (
-      item.runNumber?.includes("SIALKOT") ? "AXC Express" :
-      item.runNumber?.includes("MUMBAI") || item.originHubCode === "BOM" ? "ELS Logistics" :
-      item.originHubCode === "KHI" || item.originHubCode === "ISB" ? "TCS Express" :
-      "AXC Express"
-    );
-    const derivedStatus = item.status || (
-      Number(tail) % 4 === 0 ? "Delivered" :
-      Number(tail) % 3 === 0 ? "In Scan" :
-      Number(tail) % 2 === 0 ? "Manifested" : "Open"
-    );
-
-    return {
-      ...item,
-      masterNo: derivedMasterNo,
-      masterEdiBagNo: item.masterEdiBagNo || derivedMasterNo,
-      awbNo: derivedAwbNo,
-      company: derivedCompany,
-      status: derivedStatus,
-      calendarYear: item.calendarYear || year,
-    };
-  };
-
-  const filteredData = data.map(normalizeManifestEntry).filter((item) => {
-    const query = searchQuery.trim().toLowerCase();
+  const filteredData = data.filter((item) => {
+    const query = searchQuery.toLowerCase();
 
     const checkMatch = (searchStr: string) => {
       if (!searchStr) return true;
-      const raw = searchStr.trim().toLowerCase();
-
-      // 1. Range Check (e.g. "1350 - 1363" or "30121350 - 30121365")
-      const range = parseManifestRange(raw);
-      if (range) {
-        const mNum = Number(item.manifestNo);
-        if (!isNaN(mNum) && mNum >= range.min && mNum <= range.max) return true;
-        const awbNum = Number(item.awbNo);
-        if (!isNaN(awbNum) && awbNum >= range.min && awbNum <= range.max) return true;
-      }
+      const raw = searchStr.toLowerCase();
 
       if (raw === "custom") return true;
 
-      // 2. Calendar Date presets
       if (raw === "today" || raw === "yesterday" || raw === "last 7 days") {
         const checkDate = (dateStr?: string) => {
           if (!dateStr) return false;
@@ -254,7 +243,6 @@ export default function AllManifestPage() {
         return checkDate(item.manifestDate);
       }
 
-      // 3. Custom Date Range "MMM dd, yyyy - MMM dd, yyyy"
       const dateRangeRegex = /^[a-z]{3} \d{1,2}, \d{4} - [a-z]{3} \d{1,2}, \d{4}$/i;
       if (dateRangeRegex.test(raw)) {
         const parts = raw.split(" - ");
@@ -278,79 +266,28 @@ export default function AllManifestPage() {
         }
       }
 
-      // 4. Calendar Year (e.g. 2026, 2025, 2024)
-      if (/^(?:19|20)\d{2}$/.test(raw)) {
-        const dateParts = (item.manifestDate || "").split(/[-/]/);
-        const itemYear = dateParts.length === 3 ? dateParts[2] : "";
-        if (itemYear.includes(raw) || String(item.calendarYear || "").includes(raw)) return true;
-      }
-
-      // 5. Hub Country Map check
-      if (HUB_COUNTRY_MAP[raw]) {
-        const mapping = HUB_COUNTRY_MAP[raw];
-        const originUpper = (item.originHubCode || "").toUpperCase();
-        const destUpper = (item.destinationHubName || "").toUpperCase();
-        if (originUpper === mapping.country || destUpper === mapping.country) return true;
-        if (
-          mapping.aliases.some(
-            (alias) =>
-              originUpper.includes(alias.toUpperCase()) ||
-              destUpper.includes(alias.toUpperCase()) ||
-              (item.destinationHubCode || "").toLowerCase().includes(alias)
-          )
-        ) {
-          return true;
-        }
-      }
-
-      // 6. Check all 10 Manifest Search Fields:
-      // 1. Master No.
-      // 2. Origin Hub Code
-      // 3. Destination Hub Code & Name
-      // 4. RUN Number
-      // 5. Manifest No
-      // 6. AWB No.
-      // 7. Manifest Date
-      // 8. Calendar Year
-      // 9. Company / Vendor Name
-      // 10. Manifest Status
-      const fields = [
-        item.masterNo,
-        item.masterEdiBagNo,
-        item.originHubCode,
-        item.destinationHubCode,
-        item.destinationHubName,
-        item.runNumber,
-        item.manifestNo,
-        item.awbNo,
-        item.manifestDate,
-        item.calendarYear,
-        item.company,
-        item.vendorName,
-        item.vendor,
-        item.status,
-        item.vehicleNo,
-        item.forwarderCode,
-      ];
-
-      return fields.some((f) => f && String(f).toLowerCase().includes(raw));
+      return (
+        item.manifestNo.toLowerCase().includes(searchStr) ||
+        item.runNumber.toLowerCase().includes(searchStr) ||
+        item.originHubCode.toLowerCase().includes(searchStr) ||
+        item.destinationHubCode.toLowerCase().includes(searchStr) ||
+        item.destinationHubName.toLowerCase().includes(searchStr)
+      );
     };
 
     const matchesQuery = (() => {
       if (!query) return true;
       if (query.trim().endsWith(",")) return true;
-
-      const range = parseManifestRange(query);
-      if (range) {
-        return checkMatch(query);
-      }
-
-      const queries = query.split(/[,]+/).map((q) => q.trim()).filter(Boolean);
-      const termsToUse = queries.length > 0 ? queries : [query];
-      return termsToUse.some((q) => checkMatch(q));
+      const queries = query.split(/[,\s]+/).map(q => q.trim()).filter(Boolean);
+      if (queries.length === 0) return true;
+      return queries.some(q => checkMatch(q));
     })();
 
-    const matchesTags = activeTags.length === 0 || activeTags.every((tag) => checkMatch(tag.toLowerCase()));
+    const matchesTags = activeTags.length === 0 || activeTags.some((tag) => checkMatch(tag.toLowerCase()));
+
+    if (activeTags.length > 0 && query) {
+      return matchesQuery || matchesTags;
+    }
 
     return matchesQuery && matchesTags;
   });
@@ -361,64 +298,12 @@ export default function AllManifestPage() {
     setPage(1);
   }, [searchQuery, activeTags]);
 
-  const searchSuggestions = React.useMemo(() => {
-    const list: string[] = [];
-    const normalized = data.map(normalizeManifestEntry);
-
-    normalized.forEach((item) => {
-      // 1. Master No.
-      if (item.masterNo) list.push(item.masterNo);
-      if (item.masterEdiBagNo) list.push(item.masterEdiBagNo);
-
-      // 2. Origin Hub Code
-      if (item.originHubCode) list.push(item.originHubCode);
-
-      // 3. Destination Hub Code & Name
-      if (item.destinationHubCode) list.push(item.destinationHubCode);
-      if (item.destinationHubName) list.push(item.destinationHubName);
-
-      // 4. RUN Number
-      if (item.runNumber) list.push(item.runNumber);
-
-      // 5. Manifest No
-      if (item.manifestNo) list.push(item.manifestNo);
-
-      // 6. AWB No.
-      if (item.awbNo) list.push(item.awbNo);
-
-      // 7. Manifest Date
-      if (item.manifestDate) list.push(item.manifestDate);
-
-      // 8. Calendar Year
-      if (item.calendarYear) list.push(String(item.calendarYear));
-
-      // 9. Company
-      if (item.company) list.push(item.company);
-      if (item.vendorName) list.push(item.vendorName);
-
-      // 10. Manifest Status
-      if (item.status) list.push(item.status);
-    });
-
-    const commonYears = ["2026", "2025", "2024"];
-    const commonCompanies = ["AXC Express", "ELS Logistics", "FedEx Cargo", "TCS Express"];
-    const commonStatuses = ["Open", "Manifested", "In Scan", "Delivered", "Locked"];
-
-    return Array.from(new Set([...list, ...commonYears, ...commonCompanies, ...commonStatuses])).filter(Boolean);
-  }, [data]);
-
   const filterGroups = React.useMemo(() => {
     const origins = Array.from(new Set(data.map((d) => d.originHubCode).filter(Boolean)));
     const originOptions = origins.map((o) => ({ label: o, value: o }));
 
     const destinations = Array.from(new Set(data.map((d) => d.destinationHubName).filter(Boolean)));
     const destinationOptions = destinations.map((d) => ({ label: d, value: d }));
-
-    const statuses = ["Open", "Manifested", "In Scan", "Delivered", "Locked"];
-    const statusOptions = statuses.map((s) => ({ label: s, value: s }));
-
-    const companies = ["AXC Express", "ELS Logistics", "FedEx Cargo", "TCS Express"];
-    const companyOptions = companies.map((c) => ({ label: c, value: c }));
 
     return [
       {
@@ -438,15 +323,6 @@ export default function AllManifestPage() {
         group: "Destination Hub",
         options: destinationOptions,
       },
-      {
-        group: "Manifest Status",
-        options: statusOptions,
-      },
-      {
-        group: "Company",
-        sameColumnAsPrevious: true,
-        options: companyOptions,
-      },
     ];
   }, [data]);
 
@@ -461,8 +337,7 @@ export default function AllManifestPage() {
             searchValue={searchQuery}
             onSearchChange={setSearchQuery}
             onSearchSubmit={handleSearchSubmit}
-            placeholder="Search manifests..."
-            searchSuggestions={searchSuggestions}
+            placeholder="Search"
           />
 
           {selectedIds.length > 0 && (
@@ -481,7 +356,17 @@ export default function AllManifestPage() {
                   title="Actions"
                   items={[
                     { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: handleBulkExport },
-                    { label: "Print", icon: <Printer className="h-4 w-4" />, onClick: () => window.print() },
+                    {
+                      label: "Print",
+                      icon: <Printer className="h-4 w-4" />,
+                      onClick: () => {
+                        if (selectedIds.length > 0) {
+                          window.open(api.getManifestPrintUrl(selectedIds[0]), "_blank");
+                        } else {
+                          window.print();
+                        }
+                      },
+                    },
                     {
                       label: "Delete",
                       icon: <Trash2 className="h-4 w-4" />,
@@ -497,7 +382,7 @@ export default function AllManifestPage() {
         <Button label="New Manifest" href="/manifest/new-manifest" variant="primary" icon={PlusCircleIcon} />
       </div>
 
-      {/* {activeTags.length > 0 && (
+      {activeTags.length > 0 && (
         <div className="flex flex-wrap items-center gap-2 mb-2 shrink-0">
           {activeTags.map((tag, idx) => {
             const colors = [
@@ -527,7 +412,7 @@ export default function AllManifestPage() {
             );
           })}
         </div>
-      )} */}
+      )}
 
       <CommonTable
         headings={ManifestHeading}
@@ -536,6 +421,7 @@ export default function AllManifestPage() {
         onDelete={handleDelete}
         onView={handleView}
         onBag={handleBag}
+        onPrint={(row) => window.open(api.getManifestPrintUrl(row.manifestNo), "_blank")}
         currentPage={page}
         totalPages={totalPages}
         onPageChange={(p) => setPage(p)}

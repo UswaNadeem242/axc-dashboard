@@ -181,7 +181,7 @@ export default function ManifestDetailTable() {
       align: "center" as const,
       truncate: false,
       render: (row: ManifestRow) => (
-        <span className="text-axc-blue font-medium cursor-pointer hover:text-black">
+        <span className=" ">
           {row.awbNumber}
         </span>
       ),
@@ -192,7 +192,7 @@ export default function ManifestDetailTable() {
       align: "center" as const,
       truncate: false,
       render: (row: ManifestRow) => (
-        <span className="text-axc-blue font-medium cursor-pointer hover:text-black">
+        <span className=" ">
           {row.forwarder}
         </span>
       ),
@@ -203,7 +203,7 @@ export default function ManifestDetailTable() {
       align: "center" as const,
       truncate: false,
       render: (row: ManifestRow) => (
-        <span className="text-axc-blue font-medium cursor-pointer hover:text-black">
+        <span className=" ">
           {row.runNumber}
         </span>
       ),
@@ -232,7 +232,7 @@ export default function ManifestDetailTable() {
       align: "center" as const,
       truncate: false,
       render: (row: ManifestRow) => (
-        <span className="text-axc-blue font-medium cursor-pointer hover:text-black">
+        <span className=" ">
           {row.masterNumber}
         </span>
       ),

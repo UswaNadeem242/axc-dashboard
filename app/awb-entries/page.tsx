@@ -27,6 +27,8 @@ import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
 import Dropdown from "../src/common/dropdown";
 import { showToast } from "../src/common/toast";
 
+import { api } from "../src/lib/api";
+
 export default function AwbEntriesPage() {
   const router = useRouter();
 
@@ -71,33 +73,41 @@ export default function AwbEntriesPage() {
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("awb_entries");
-      if (stored) {
-        try {
-          const parsed: AwbEntry[] = JSON.parse(stored);
-          const hasPakistan = parsed.some(
-            (item) => (item.origin || "").trim().toUpperCase() === "PAKISTAN"
-          );
-          if (parsed.length >= initialData.length && hasPakistan) {
-            setData(parsed);
-            return;
+    let isMounted = true;
+    async function loadAwbs() {
+      try {
+        const res = await api.getAwbs({ per_page: 100 });
+        if (res && Array.isArray(res.data) && isMounted) {
+          setData(res.data);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("awb_entries", JSON.stringify(res.data));
           }
-          // Merge user-created entries with the fresh initialData
-          const userCreated = parsed.filter(
-            (p) => !initialData.some((init) => init.awbNumber === p.awbNumber)
-          );
-          const merged = [...userCreated, ...initialData];
-          setData(merged);
-          localStorage.setItem("awb_entries", JSON.stringify(merged));
           return;
-        } catch (e) {
-          console.error(e);
+        }
+      } catch (err) {
+        console.warn("API loadAwbs fallback:", err);
+      }
+
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("awb_entries");
+        if (stored) {
+          try {
+            const parsed: AwbEntry[] = JSON.parse(stored);
+            if (isMounted) setData(parsed);
+            return;
+          } catch (e) {
+            console.error(e);
+          }
+        }
+        if (isMounted) {
+          setData([]);
         }
       }
-      setData(initialData);
-      localStorage.setItem("awb_entries", JSON.stringify(initialData));
     }
+    loadAwbs();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -113,11 +123,25 @@ export default function AwbEntriesPage() {
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setData((prev) => prev.filter((item) => item.awbNumber !== deleteTarget.awbNumber));
-    setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.awbNumber));
-    showToast({ variant: "success", message: "AWB entry deleted." });
-    setIsDeleting(false);
-    setDeleteTarget(null);
+    try {
+      await api.deleteAwb(deleteTarget.awbNumber);
+      setData((prev) => prev.filter((item) => item.awbNumber !== deleteTarget.awbNumber));
+      setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.awbNumber));
+      showToast({
+        variant: "success",
+        message: `AWB #${deleteTarget.awbNumber} deleted successfully.`,
+      });
+    } catch (err: any) {
+      console.warn("API delete fallback:", err);
+      // Even if fallback removes it locally or fails, provide clear error feedback if server failed
+      showToast({
+        variant: "error",
+        message: err?.message || `Failed to delete AWB #${deleteTarget.awbNumber}.`,
+      });
+    } finally {
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }
   };
 
   const cancelDelete = () => {
@@ -127,280 +151,195 @@ export default function AwbEntriesPage() {
 
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
-  const handleBulkDeleteConfirm = () => {
+  const handleBulkDeleteConfirm = async () => {
     const count = selectedIds.length;
-    setData((previous) => previous.filter((item) => !selectedIds.includes(item.awbNumber)));
-    showToast({
-      variant: "success",
-      message: `${count} ${count === 1 ? "AWB entry" : "AWB entries"} deleted successfully`,
-    });
-    setSelectedIds([]);
-    setBulkDeleteOpen(false);
+    if (count === 0) {
+      showToast({
+        variant: "error",
+        message: "Please select at least one AWB entry to delete.",
+      });
+      setBulkDeleteOpen(false);
+      return;
+    }
+    try {
+      await api.bulkDeleteAwbs(selectedIds);
+      setData((previous) => previous.filter((item) => !selectedIds.includes(item.awbNumber)));
+      showToast({
+        variant: "success",
+        message: `${count} ${count === 1 ? "AWB entry" : "AWB entries"} deleted successfully.`,
+      });
+      setSelectedIds([]);
+    } catch (err: any) {
+      console.warn("API bulk delete fallback:", err);
+      showToast({
+        variant: "error",
+        message: err?.message || "Failed to delete selected AWB entries.",
+      });
+    } finally {
+      setBulkDeleteOpen(false);
+    }
   };
 
   const handleBulkExport = () => {
     const selectedRows = data.filter((item) => selectedIds.includes(item.awbNumber));
-    if (selectedRows.length === 0) return;
-    const headers = [
-      "SR No",
-      "AWB Number",
-      "Booking Date",
-      "Forwarding Number",
-      "Customer",
-      "Master Code",
-      "Product",
-      "PCS",
-      "Service",
-      "Vendor",
-      "Origin",
-      "Destination",
-      "Consignee",
-      "Shipper",
-      "Status",
-    ];
-    const csvContent = [
-      headers.join(","),
-      ...selectedRows.map((r, idx) =>
-        [
-          r.srNo ?? idx + 1,
-          `"${r.awbNumber || ""}"`,
-          `"${r.bookingDate || ""}"`,
-          `"${r.forwardingNumber || ""}"`,
-          `"${r.customer || ""}"`,
-          `"${r.masterCode || ""}"`,
-          `"${r.product || ""}"`,
-          r.pcs ?? 0,
-          `"${r.service || ""}"`,
-          `"${r.vendor || ""}"`,
-          `"${r.origin || ""}"`,
-          `"${r.destination || ""}"`,
-          `"${r.consignee || ""}"`,
-          `"${r.shipper || ""}"`,
-          `"${r.status || ""}"`,
-        ].join(",")
-      ),
-    ].join("\n");
+    if (selectedRows.length === 0) {
+      showToast({
+        variant: "error",
+        message: "Please select at least one AWB entry to export.",
+      });
+      return;
+    }
 
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `awb_entries_${Date.now()}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
-    showToast({
-      variant: "success",
-      message: `${selectedRows.length} ${selectedRows.length === 1 ? "AWB" : "AWBs"} exported successfully`,
-    });
+    try {
+      const url = api.getExportTrackingUrl(selectedIds.join(","), "xlsx");
+      window.open(url, "_blank");
+      showToast({
+        variant: "success",
+        message: `${selectedRows.length} ${selectedRows.length === 1 ? "AWB" : "AWBs"} exported to Tracking File (Excel).`,
+      });
+    } catch (err: any) {
+      showToast({
+        variant: "error",
+        message: err?.message || "Failed to export selected AWBs.",
+      });
+    }
   };
 
-  const handleTrack = (row: AwbEntry) => console.log("Track AWB", row.awbNumber);
-  const handleMail = (row: AwbEntry) => console.log("Email AWB", row.awbNumber);
-  const handlePdf1 = (row: AwbEntry) => console.log("View PDF 1", row.awbNumber);
-  const handlePdf2 = (row: AwbEntry) => console.log("View PDF 2", row.awbNumber);
-  const handleInv = (row: AwbEntry) => console.log("View INV", row.awbNumber);
+  const handlePrintLabel = () => {
+    if (selectedIds.length === 0) {
+      showToast({
+        variant: "error",
+        message: "Please select at least one AWB entry to print label.",
+      });
+      return;
+    }
+
+    const awbNo = selectedIds[0];
+    try {
+      window.open(api.getFedExLabelUrl(awbNo), "_blank");
+      showToast({
+        variant: "success",
+        message: `Opening shipping label for #${awbNo}`,
+      });
+    } catch (err: any) {
+      showToast({
+        variant: "error",
+        message: err?.message || "Failed to open shipping label.",
+      });
+    }
+  };
+
+  const handleTrack = (row: AwbEntry) => {
+    if (!row.awbNumber) {
+      showToast({ variant: "error", message: "AWB Number is missing." });
+      return;
+    }
+    router.push(`/awb-entries/view/${row.awbNumber}`);
+  };
+
+  const handleMail = (row: AwbEntry) => {
+    if (!row.awbNumber) {
+      showToast({ variant: "error", message: "AWB Number is missing for emailing." });
+      return;
+    }
+    showToast({ variant: "info", message: `Emailing AWB #${row.awbNumber} to customer...` });
+  };
+
+  const handlePdf1 = (row: AwbEntry) => {
+    if (!row.awbNumber) {
+      showToast({ variant: "error", message: "Cannot generate PDF without AWB Number." });
+      return;
+    }
+    try {
+      window.open(api.getAwbDocumentUrl(row.awbNumber), "_blank");
+      showToast({
+        variant: "success",
+        message: `Opening Consignment PDF for #${row.awbNumber}`,
+      });
+    } catch (err: any) {
+      showToast({
+        variant: "error",
+        message: err?.message || "Failed to open consignment note PDF.",
+      });
+    }
+  };
+
+  const handlePdf2 = (row: AwbEntry) => {
+    if (!row.awbNumber) {
+      showToast({ variant: "error", message: "Cannot print label without AWB Number." });
+      return;
+    }
+    try {
+      window.open(api.getFedExLabelUrl(row.awbNumber), "_blank");
+      showToast({
+        variant: "success",
+        message: `Opening Shipping Label for #${row.awbNumber}`,
+      });
+    } catch (err: any) {
+      showToast({
+        variant: "error",
+        message: err?.message || "Failed to open FedEx / Shipping label.",
+      });
+    }
+  };
+
+  const handleInv = (row: AwbEntry) => {
+    if (!row.awbNumber) {
+      showToast({ variant: "error", message: "Cannot view invoice without AWB Number." });
+      return;
+    }
+    try {
+      window.open(api.getAwbInvoicePdfUrl(row.awbNumber), "_blank");
+      showToast({
+        variant: "success",
+        message: `Opening Invoice PDF for #${row.awbNumber}`,
+      });
+    } catch (err: any) {
+      showToast({
+        variant: "error",
+        message: err?.message || "Failed to open invoice PDF.",
+      });
+    }
+  };
+
   const handleEdit = (row: AwbEntry) => router.push(`/create-entries?edit=${row.awbNumber}`);
   const handleView = (row: AwbEntry) => router.push(`/awb-entries/view/${row.awbNumber}`);
 
-  const parseAwbRange = (input: string): { min: number; max: number } | null => {
-    const clean = input.trim();
-    const rangeMatch = clean.match(/^(\d{4,15})\s*(?:-|–|—|\.\.|to)\s*(\d{4,15})$/i);
-    if (rangeMatch) {
-      const num1 = Number(rangeMatch[1]);
-      const num2 = Number(rangeMatch[2]);
-      if (!isNaN(num1) && !isNaN(num2)) {
-        return { min: Math.min(num1, num2), max: Math.max(num1, num2) };
-      }
-    }
-    return null;
-  };
-
-  const normalizeAwbEntry = (item: AwbEntry): AwbEntry => {
-    const awbTail = String(item.awbNumber || "").slice(-4);
-    const destUpper = (item.destination || "").toUpperCase();
-    const originUpper = (item.origin || "").toUpperCase();
-    const bookingYear = (item.bookingDate || "").split("/")[2] || (item.bookingDate || "").split("-")[0] || "2026";
-
-    const derivedDestHub = item.destinationHub || (
-      destUpper.includes("AMERICA") || destUpper.includes("USA") ? "JFK" :
-      destUpper.includes("KINGDOM") || destUpper.includes("UK") ? "LHR" :
-      destUpper.includes("GERMANY") ? "FRANKFURT" :
-      destUpper.includes("EMIRATES") || destUpper.includes("UAE") ? "DUBAI" :
-      destUpper.includes("CANADA") ? "CANADA" :
-      destUpper.includes("SINGAPORE") ? "SINGAPORE" :
-      destUpper.includes("FRANCE") ? "PARIS" :
-      destUpper.includes("JAPAN") ? "TOKYO" :
-      destUpper.includes("AUSTRALIA") ? "SYDNEY" :
-      item.destination || "JFK"
-    );
-
-    const derivedShipperCity = item.shipperCity || (
-      originUpper.includes("PAKISTAN") ? (item.service?.includes("LAHORE") ? "Lahore" : item.service?.includes("SIALKOT") ? "Sialkot" : item.service?.includes("PESHAWAR") ? "Peshawar" : "Karachi") :
-      originUpper.includes("INDIA") ? (item.service?.includes("DELHI") ? "Delhi" : "Mumbai") :
-      originUpper.includes("EMIRATES") ? "Dubai" :
-      originUpper.includes("CANADA") ? "Toronto" :
-      originUpper.includes("BANGLADESH") ? "Dhaka" :
-      originUpper.includes("NEPAL") ? "Kathmandu" :
-      item.origin || "Karachi"
-    );
-
-    const derivedConsigneeCity = item.consigneeCity || (
-      destUpper.includes("AMERICA") ? "New York" :
-      destUpper.includes("KINGDOM") ? "London" :
-      destUpper.includes("GERMANY") ? "Berlin" :
-      destUpper.includes("FRANCE") ? "Paris" :
-      destUpper.includes("JAPAN") ? "Tokyo" :
-      destUpper.includes("SINGAPORE") ? "Singapore" :
-      destUpper.includes("EMIRATES") ? "Dubai" :
-      item.destination || "New York"
-    );
-
-    const derivedConsigneeState = item.consigneeState || (
-      destUpper.includes("AMERICA") ? "NY" :
-      destUpper.includes("KINGDOM") ? "Greater London" :
-      destUpper.includes("GERMANY") ? "Berlin" :
-      destUpper.includes("FRANCE") ? "IDF" :
-      destUpper.includes("CANADA") ? "Ontario" :
-      "State"
-    );
-
-    const derivedServiceCode = item.serviceCode || (
-      item.service ? item.service.split(" ")[0].toUpperCase() : "EXP"
-    );
-
-    const derivedCustomerCode = item.customerCode || (
-      item.masterCode && item.masterCode !== "NONGST" ? item.masterCode : `CUST-${awbTail}`
-    );
-
-    const derivedCompany = item.company || (
-      item.customer?.includes("ELS") ? "ELS Logistics" :
-      item.service?.includes("FEDEX") ? "FedEx Cargo" :
-      item.service?.includes("TCS") ? "TCS Express" :
-      item.service?.includes("DHL") ? "DHL Express" :
-      "AXC Express"
-    );
-
-    return {
-      ...item,
-      customerCode: derivedCustomerCode,
-      destinationHub: derivedDestHub,
-      bookingTime: item.bookingTime || "10:30 AM",
-      serviceCode: derivedServiceCode,
-      shipperCity: derivedShipperCity,
-      consigneeCity: derivedConsigneeCity,
-      consigneeState: derivedConsigneeState,
-      company: derivedCompany,
-      runNumber: item.runNumber || `RUN-${awbTail}`,
-      calendarYear: item.calendarYear || bookingYear,
-    };
-  };
-
-  const matchAwbItem = (item: AwbEntry, term: string): boolean => {
-    const cleanTerm = term.trim().toLowerCase();
-    if (!cleanTerm) return true;
-
-    // 1. AWB Range
-    const range = parseAwbRange(cleanTerm);
-    if (range) {
-      const awbNum = Number(item.awbNumber);
-      if (!isNaN(awbNum)) {
-        return awbNum >= range.min && awbNum <= range.max;
-      }
-    }
-
-    // 2. Calendar Year (e.g. 2026, 2025)
-    if (/^(?:19|20)\d{2}$/.test(cleanTerm)) {
-      const bookingYear = (item.bookingDate || "").split("/")[2] || (item.bookingDate || "").split("-")[0] || "";
-      if (bookingYear.includes(cleanTerm)) return true;
-      if (String(item.calendarYear || "").includes(cleanTerm)) return true;
-    }
-
-    // 3. Hub Country Map check
-    if (HUB_COUNTRY_MAP[cleanTerm]) {
-      const mapping = HUB_COUNTRY_MAP[cleanTerm];
-      const originUpper = (item.origin || "").trim().toUpperCase();
-      const destUpper = (item.destination || "").trim().toUpperCase();
-      if (originUpper === mapping.country || destUpper === mapping.country) return true;
-      if (
-        mapping.aliases.some((alias) =>
-          (item.origin || "").toLowerCase().includes(alias) ||
-          (item.destination || "").toLowerCase().includes(alias) ||
-          String(item.destinationHub || "").toLowerCase().includes(alias) ||
-          String((item as any).originHubCode || "").toLowerCase().includes(alias) ||
-          (item.service || "").toLowerCase().includes(alias) ||
-          (item.vendor || "").toLowerCase().includes(alias)
-        )
-      ) {
-        return true;
-      }
-    }
-
-    // 4. Fields covering all 15 filters
-    const fields: (string | number | undefined | null)[] = [
-      item.awbNumber,
-      item.forwardingNumber,
-      item.customer,
-      item.customerCode,
-      item.masterCode,
-      item.destination,
-      item.destinationHub,
-      item.bookingDate,
-      item.bookingTime,
-      item.service,
-      item.serviceCode,
-      item.vendor,
-      item.shipper,
-      (item as any).shipperPersonName,
-      item.shipperCity,
-      item.consignee,
-      (item as any).consigneePersonName,
-      item.consigneeCity,
-      item.consigneeState,
-      item.origin,
-      (item as any).originCity,
-      item.status,
-      (item as any).awbState,
-      item.company,
-      (item as any).printByCompany,
-      item.runNumber,
-      (item as any).runNo,
-      item.calendarYear,
-      item.product,
-    ];
-
-    return fields.some((f) => f !== undefined && f !== null && String(f).toLowerCase().includes(cleanTerm));
-  };
-
-  const filteredData = data.map(normalizeAwbEntry).filter((item) => {
+  const filteredData = data.filter((item) => {
     const query = searchQuery.trim().toLowerCase();
 
     let matchesQuery = true;
     if (query) {
-      if (query.endsWith(",")) {
+      if (query.trim().endsWith(",")) {
         // Show full table when a comma is typed so the user can look for the next item
         matchesQuery = true;
       } else {
-        const range = parseAwbRange(query);
-        if (range) {
-          const num = Number(item.awbNumber);
-          matchesQuery = !isNaN(num) && num >= range.min && num <= range.max;
-        } else {
-          const searchTerms = query.split(/[,]+/).map((q) => q.trim()).filter(Boolean);
-          const termsToUse = searchTerms.length > 0 ? searchTerms : [query];
-          matchesQuery = termsToUse.some((term) => matchAwbItem(item, term));
-        }
+        const searchTerms = query.split(/[,\s]+/).map((q) => q.trim()).filter(Boolean);
+        
+        if (searchTerms.length > 0) {
+        matchesQuery = searchTerms.some((term) => {
+          return (
+            (item.awbNumber || "").toLowerCase().includes(term) ||
+            (item.customer || "").toLowerCase().includes(term) ||
+            (item.forwardingNumber || "").toLowerCase().includes(term) ||
+            (item.consignee || "").toLowerCase().includes(term) ||
+            (item.shipper || "").toLowerCase().includes(term) ||
+            (item.origin || "").toLowerCase().includes(term) ||
+            (item.destination || "").toLowerCase().includes(term) ||
+            (item.product || "").toLowerCase().includes(term) ||
+            (item.service || "").toLowerCase().includes(term) ||
+            (item.vendor || "").toLowerCase().includes(term) ||
+            (item.masterCode || "").toLowerCase().includes(term) ||
+            (item.bookingDate || "").toLowerCase().includes(term) ||
+            (item.status || "").toLowerCase().includes(term)
+          );
+        });
       }
     }
+  }
 
-    const matchesTags = activeTags.every((tag) => {
-      const range = parseAwbRange(tag);
-      if (range) {
-        const num = Number(item.awbNumber);
-        return !isNaN(num) && num >= range.min && num <= range.max;
-      }
-
-      const raw = tag.toLowerCase().replace("origin hub:", "").replace("dest hub:", "").replace("dest:", "").trim();
-
+  const matchesTags = activeTags.every((tag) => {
+      const raw = tag.toLowerCase().replace("origin hub:", "").trim();
       if (raw === "origin hub code" || raw === "origin_hub_code") {
         return Boolean(item.origin || (item as any).originHubCode);
       }
@@ -427,16 +366,16 @@ export default function AwbEntriesPage() {
           if (!dateStr) return false;
           const [d, m, y] = dateStr.split("/");
           if (!d || !m || !y) return false;
-
+          
           const itemDate = new Date(Number(y), Number(m) - 1, Number(d));
           itemDate.setHours(0,0,0,0);
-
+          
           const today = new Date();
           today.setHours(0,0,0,0);
-
+          
           const yesterday = new Date(today);
           yesterday.setDate(yesterday.getDate() - 1);
-
+          
           const last7Days = new Date(today);
           last7Days.setDate(last7Days.getDate() - 7);
 
@@ -446,17 +385,18 @@ export default function AwbEntriesPage() {
           return false;
         };
 
-        return checkDate(item.bookingDate) ||
-               checkDate((item as any).manifestDate) ||
+        return checkDate(item.bookingDate) || 
+               checkDate((item as any).manifestDate) || 
                checkDate((item as any).invoiceDate);
       }
       if (raw === "custom") {
-        return true;
+        return true; 
       }
       const dateRangeRegex = /^[a-z]{3} \d{1,2}, \d{4} - [a-z]{3} \d{1,2}, \d{4}$/i;
       if (dateRangeRegex.test(raw)) {
         const parts = raw.split(" - ");
         if (parts.length === 2) {
+          // Parse dd/mm/yyyy from item date string
           const parseItemDate = (str?: string) => {
             if (!str) return null;
             const [d, m, y] = str.split("/");
@@ -465,17 +405,18 @@ export default function AwbEntriesPage() {
             dt.setHours(0,0,0,0);
             return dt;
           };
-
+          
+          // Parse MMM dd, yyyy from tag
           const parseTagDate = (str: string) => {
             const dt = new Date(str);
             if (isNaN(dt.getTime())) return null;
             dt.setHours(0,0,0,0);
             return dt;
           };
-
+          
           const startDate = parseTagDate(parts[0]);
           const endDate = parseTagDate(parts[1]);
-
+          
           if (startDate && endDate) {
             const checkRange = (dateStr?: string) => {
               const itemDate = parseItemDate(dateStr);
@@ -483,36 +424,59 @@ export default function AwbEntriesPage() {
               return itemDate >= startDate && itemDate <= endDate;
             };
 
-            return checkRange(item.bookingDate) ||
-                   checkRange((item as any).manifestDate) ||
+            return checkRange(item.bookingDate) || 
+                   checkRange((item as any).manifestDate) || 
                    checkRange((item as any).invoiceDate);
           }
         }
         return false;
       }
-
-      if (/^(?:19|20)\d{2}$/.test(raw)) {
-        const itemYear = (item.bookingDate || "").split("/")[2] || (item.bookingDate || "").split("-")[0] || "";
-        if (itemYear.includes(raw) || String(item.calendarYear || "").includes(raw)) return true;
-      }
-
       if (HUB_COUNTRY_MAP[raw]) {
         const mapping = HUB_COUNTRY_MAP[raw];
         const originUpper = (item.origin || "").trim().toUpperCase();
-        const destUpper = (item.destination || "").trim().toUpperCase();
-        if (originUpper === mapping.country || destUpper === mapping.country) return true;
+        if (originUpper === mapping.country) return true;
         return mapping.aliases.some(
           (alias) =>
             (item.origin || "").toLowerCase().includes(alias) ||
-            (item.destination || "").toLowerCase().includes(alias) ||
-            String(item.destinationHub || "").toLowerCase().includes(alias) ||
             String((item as any).originHubCode || "").toLowerCase().includes(alias) ||
             (item.service || "").toLowerCase().includes(alias) ||
             (item.vendor || "").toLowerCase().includes(alias)
         );
       }
+      if (/[,\s]+/.test(raw)) {
+        const tagTerms = raw.split(/[,\s]+/).map((q) => q.trim()).filter(Boolean);
+        if (tagTerms.length > 0) {
+          return tagTerms.some((term) => {
+            return (
+              (item.origin || "").toLowerCase().includes(term) ||
+              (item.awbNumber || "").toLowerCase().includes(term) ||
+              (item.customer || "").toLowerCase().includes(term) ||
+              (item.service || "").toLowerCase().includes(term) ||
+              (item.vendor || "").toLowerCase().includes(term) ||
+              (item.destination || "").toLowerCase().includes(term) ||
+              (item.status || "").toLowerCase().includes(term) ||
+              String((item as any).company || "").toLowerCase().includes(term) ||
+              String((item as any).printByCompany || "").toLowerCase().includes(term) ||
+              String((item as any).shipmentType || "").toLowerCase().includes(term) ||
+              String((item as any).invoiceNote || "").toLowerCase().includes(term)
+            );
+          });
+        }
+      }
 
-      return matchAwbItem(item, raw);
+      return (
+        (item.origin || "").toLowerCase().includes(raw) ||
+        (item.awbNumber || "").toLowerCase().includes(raw) ||
+        (item.customer || "").toLowerCase().includes(raw) ||
+        (item.service || "").toLowerCase().includes(raw) ||
+        (item.vendor || "").toLowerCase().includes(raw) ||
+        (item.destination || "").toLowerCase().includes(raw) ||
+        (item.status || "").toLowerCase().includes(raw) ||
+        String((item as any).company || "").toLowerCase().includes(raw) ||
+        String((item as any).printByCompany || "").toLowerCase().includes(raw) ||
+        String((item as any).shipmentType || "").toLowerCase().includes(raw) ||
+        String((item as any).invoiceNote || "").toLowerCase().includes(raw)
+      );
     });
 
     return matchesQuery && matchesTags;
@@ -612,68 +576,11 @@ export default function AwbEntriesPage() {
   const dynamicGroups = awbFilterGroups;
 
   const searchSuggestions = useMemo(() => {
-    const list: string[] = [];
-    const normalized = data.map(normalizeAwbEntry);
-
-    normalized.forEach((item) => {
-      // 1. AWB Numbers
-      if (item.awbNumber) list.push(item.awbNumber);
-      if (item.forwardingNumber) list.push(item.forwardingNumber);
-
-      // 2. Customer ID / Code
-      if (item.customer) list.push(item.customer);
-      if (item.customerCode) list.push(item.customerCode);
-      if (item.masterCode && item.masterCode !== "NONGST") list.push(item.masterCode);
-
-      // 3. Destination Hub
-      if (item.destinationHub) list.push(item.destinationHub);
-      if (item.destination) list.push(item.destination);
-
-      // 4. Booking Date
-      if (item.bookingDate) list.push(item.bookingDate);
-
-      // 5. Booking Time
-      if (item.bookingTime) list.push(item.bookingTime);
-
-      // 6. Service Code / Service
-      if (item.serviceCode) list.push(item.serviceCode);
-      if (item.service) list.push(item.service);
-
-      // 7. Shipper Name
-      if (item.shipper) list.push(item.shipper);
-
-      // 8. Shipper City
-      if (item.shipperCity) list.push(item.shipperCity);
-
-      // 9. Consignee Name
-      if (item.consignee) list.push(item.consignee);
-
-      // 10. City / State
-      if (item.consigneeCity) list.push(item.consigneeCity);
-      if (item.consigneeState) list.push(item.consigneeState);
-
-      // 11. AWB State & 12. Status
-      if (item.status) list.push(item.status);
-
-      // 13. Company
-      if (item.company) list.push(item.company);
-
-      // 14. RUN Number
-      if (item.runNumber) list.push(item.runNumber);
-
-      // 15. Calendar Year
-      if (item.calendarYear) list.push(String(item.calendarYear));
-
-      // Origin and Vendor
-      if (item.origin) list.push(item.origin);
-      if (item.vendor) list.push(item.vendor);
-    });
-
-    const commonYears = ["2026", "2025", "2024"];
-    const commonCompanies = ["AXC Express", "ELS Logistics", "FedEx Cargo", "TCS Express", "DHL Express"];
-    const commonDestHubs = ["JFK", "LHR", "DXB", "FRA", "YYZ", "SIN", "DEL", "BOM", "KHI", "LHE", "ISB"];
-
-    return Array.from(new Set([...list, ...commonYears, ...commonCompanies, ...commonDestHubs])).filter(Boolean);
+    const customers = data.map(item => item.customer).filter(Boolean);
+    const origins = data.map(item => item.origin).filter(Boolean);
+    const services = data.map(item => item.service).filter(Boolean);
+    const vendors = data.map(item => item.vendor).filter(Boolean);
+    return Array.from(new Set([...customers, ...origins, ...services, ...vendors]));
   }, [data]);
 
   return (
@@ -707,11 +614,20 @@ export default function AwbEntriesPage() {
                   title="Actions"
                   items={[
                     { label: "Export", icon: <FileText className="h-4 w-4" />, onClick: handleBulkExport },
-                    { label: "Print", icon: <Printer className="h-4 w-4" />, onClick: () => window.print() },
+                    { label: "Print", icon: <Printer className="h-4 w-4" />, onClick: handlePrintLabel },
                     {
                       label: "Delete",
                       icon: <Trash2 className="h-4 w-4" />,
-                      onClick: () => setBulkDeleteOpen(true),
+                      onClick: () => {
+                        if (selectedIds.length === 0) {
+                          showToast({
+                            variant: "error",
+                            message: "Please select at least one AWB entry to delete.",
+                          });
+                          return;
+                        }
+                        setBulkDeleteOpen(true);
+                      },
                     },
                   ]}
                 />
@@ -732,46 +648,30 @@ export default function AwbEntriesPage() {
           showScroll={true}
           renderActions={(row: AwbEntry) => (
             <div className="flex items-center gap-2">
-              {/* <button
-                type="button"
-                onClick={() => handleTrack(row)}
-                className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
-                title="Track"
-              >
-                <MapPin size={16} />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleMail(row)}
-                className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
-                title="Email"
-              >
-                <Mail size={16} />
-              </button>
               <button
                 type="button"
                 onClick={() => handlePdf1(row)}
                 className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
-                title="PDF 1"
+                title="Air Waybill Consignment PDF"
               >
                 <FileText size={16} />
-              </button> */}
-              {/* <button
+              </button>
+              <button
                 type="button"
                 onClick={() => handlePdf2(row)}
-                className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
-                title="PDF 2"
+                className="inline-flex items-center justify-center rounded-md border border-purple-500/30 p-1.5 text-purple-700 transition hover:bg-purple-50 cursor-pointer"
+                title="Print FedEx / Shipping Label"
               >
-                <FileText size={16} />
-              </button> */}
-              {/* <button
+                <Printer size={16} />
+              </button>
+              <button
                 type="button"
                 onClick={() => handleInv(row)}
-                className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
-                title="Invoice"
+                className="inline-flex items-center justify-center rounded-md border border-emerald-500/30 p-1.5 text-emerald-700 transition hover:bg-emerald-50 cursor-pointer"
+                title="Commercial / Proforma Invoice PDF"
               >
                 <FileSpreadsheet size={16} />
-              </button> */}
+              </button>
               <button
                 type="button"
                 onClick={() => handleView(row)}

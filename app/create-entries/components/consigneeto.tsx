@@ -3,6 +3,9 @@ import React from "react";
 import { RotateCcw, ArrowUp } from "lucide-react";
 import { AwbFormErrors, AwbFormState } from "./formstate";
 import { FieldError, FieldLabel, FileUploadField, PanelHeader, errorInputClass, inputClass } from "./form";
+import CommonDropdown from "../../src/common/dropdown";
+import { useMasterData } from "../../src/lib/useMasterData";
+
 interface Props {
   form: AwbFormState;
   setForm: React.Dispatch<React.SetStateAction<AwbFormState>>;
@@ -10,7 +13,39 @@ interface Props {
   onReset: () => void;
   showToast: (message: string, type?: "success" | "info") => void;
 }
+
 export default function ConsigneeToForm({ form, setForm, errors, onReset, showToast }: Props) {
+  const { consignees, countries, states, cities } = useMasterData();
+
+  const handleSelectConsignee = (val: string) => {
+    const selected = consignees.find((c) => c.value === val || c.label === val);
+    if (selected && selected.raw) {
+      const cs = selected.raw;
+      setForm((prev) => ({
+        ...prev,
+        consigneeCompany: cs.company_name || val,
+        consigneePersonName: cs.contact_name || prev.consigneePersonName,
+        consigneeEmail: cs.email || prev.consigneeEmail,
+        consigneePhone: cs.phone || prev.consigneePhone,
+        consigneeCity: cs.city || prev.consigneeCity,
+        consigneeCountry: cs.country || prev.consigneeCountry,
+        consigneeAddress1: cs.address_line1 || prev.consigneeAddress1,
+        consigneeZipCode: cs.postal_code || prev.consigneeZipCode,
+      }));
+    } else {
+      setForm((prev) => ({ ...prev, consigneeCompany: val }));
+    }
+  };
+
+  const handleCityChange = (cityVal: string) => {
+    const found = cities.find((c) => c.value?.toLowerCase() === cityVal.toLowerCase() || c.name?.toLowerCase() === cityVal.toLowerCase());
+    setForm((prev) => ({
+      ...prev,
+      consigneeCity: cityVal,
+      consigneeCountry: found?.raw?.country?.name || found?.raw?.country?.code || prev.consigneeCountry,
+    }));
+  };
+
   return (
     <div className="bg-white rounded-xl border border-axc-border shadow-sm overflow-hidden flex flex-col">
       <PanelHeader
@@ -27,9 +62,15 @@ export default function ConsigneeToForm({ form, setForm, errors, onReset, showTo
         }
       />
       <div className="p-4 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-x-4 gap-y-2.5">
-        <div className="flex flex-col gap-1 ">
-          <FieldLabel>Search Address Book</FieldLabel>
-          <input type="text" value={form.consigneeSearchAddressBook} onChange={(e) => setForm({ ...form, consigneeSearchAddressBook: e.target.value })} className={inputClass} placeholder="Search Address Book" />
+        <div className="flex flex-col gap-1 sm:col-span-2 xl:col-span-3">
+          <FieldLabel>Select Registered Consignee (Master Data)</FieldLabel>
+          <CommonDropdown
+            value={form.consigneeCompany}
+            onChange={handleSelectConsignee}
+            className="border-axc-border"
+            options={consignees}
+            placeholder="Select Registered Consignee from Master Database..."
+          />
         </div>
         <div className="flex flex-col gap-1">
           <FieldLabel>Code</FieldLabel>
@@ -80,17 +121,53 @@ export default function ConsigneeToForm({ form, setForm, errors, onReset, showTo
           </div>
         </div>
         <div className="flex flex-col gap-1">
-          <FieldLabel>City</FieldLabel>
-          <input type="text" value={form.consigneeCity} onChange={(e) => setForm({ ...form, consigneeCity: e.target.value })} className={inputClass} placeholder="City" />
+          <FieldLabel>City (Master List)</FieldLabel>
+          <input
+            list="consignee-cities-datalist"
+            type="text"
+            value={form.consigneeCity}
+            onChange={(e) => handleCityChange(e.target.value)}
+            className={inputClass}
+            placeholder="Select City or type..."
+          />
+          <datalist id="consignee-cities-datalist">
+            {cities.map((ct) => (
+              <option key={ct.value} value={ct.value}>{ct.label}</option>
+            ))}
+          </datalist>
         </div>
         <div className="flex flex-col gap-1">
           <FieldLabel required>State / County</FieldLabel>
-          <input type="text" value={form.consigneeState} onChange={(e) => setForm({ ...form, consigneeState: e.target.value })} className={errors.consigneeState ? errorInputClass : inputClass} placeholder="State / County" />
+          <input
+            list="consignee-states-datalist"
+            type="text"
+            value={form.consigneeState}
+            onChange={(e) => setForm({ ...form, consigneeState: e.target.value })}
+            className={errors.consigneeState ? errorInputClass : inputClass}
+            placeholder="Select State or type..."
+          />
+          <datalist id="consignee-states-datalist">
+            {states.map((st) => (
+              <option key={st.value} value={st.value}>{st.label}</option>
+            ))}
+          </datalist>
           <FieldError message={errors.consigneeState} />
         </div>
         <div className="flex flex-col gap-1">
-          <FieldLabel required>Country</FieldLabel>
-          <input type="text" value={form.consigneeCountry} onChange={(e) => setForm({ ...form, consigneeCountry: e.target.value })} className={errors.consigneeCountry ? errorInputClass : inputClass} placeholder="Country" />
+          <FieldLabel required>Country (Master List)</FieldLabel>
+          <input
+            list="consignee-countries-datalist"
+            type="text"
+            value={form.consigneeCountry}
+            onChange={(e) => setForm({ ...form, consigneeCountry: e.target.value })}
+            className={errors.consigneeCountry ? errorInputClass : inputClass}
+            placeholder="Select Country..."
+          />
+          <datalist id="consignee-countries-datalist">
+            {countries.map((c) => (
+              <option key={c.value} value={c.name || c.value}>{c.label}</option>
+            ))}
+          </datalist>
           <FieldError message={errors.consigneeCountry} />
         </div>
         <div className="flex flex-col gap-1">

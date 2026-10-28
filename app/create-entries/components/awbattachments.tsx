@@ -16,6 +16,7 @@ import {
 import { PanelHeader } from "./form";
 import ExcelIcon from "@/public/icon/excel";
 import PdfIcon from "@/public/icon/pdf";
+import { api } from "@/app/src/lib/api";
 
 export type FileKind = "pdf" | "excel" | "any";
 
@@ -34,16 +35,21 @@ export interface AwbAttachmentsTabProps {
 }
 
 export const ATTACHMENT_FIELDS: UploadField[] = [
-  { key: "ewayBillCopy", label: "Eway/Declaration Bill Copy", kind: "pdf" },
-  { key: "shippingBill", label: "Shipping Bill", kind: "pdf" },
-  { key: "codInvoice", label: "COD Invoice", kind: "pdf" },
-  { key: "packingList", label: "Packing List", kind: "pdf" },
+  { key: "podImage", label: "POD IMAGE", kind: "pdf" },
+  { key: "signature", label: "SIGNATURE", kind: "pdf" },
+  { key: "shipmentImages", label: "SHIPMENT IMAGES", kind: "pdf" },
+  { key: "shipmentInvoiceImages", label: "SHIPMENT INVOICE IMAGES", kind: "pdf" },
+  { key: "customerAwbImage", label: "CUSTOMER AWB IMAGE", kind: "pdf" },
+  { key: "vendorAwbImage", label: "VENDOR AWB IMAGE", kind: "pdf" },
+  { key: "vendorChallanImage", label: "VENDOR CHALLAN IMAGE", kind: "pdf" },
+  { key: "ewayBillCopy", label: "EWAY/DECLARATION BILL COPY", kind: "pdf" },
+  { key: "shippingBill", label: "SHIPPING BILL", kind: "pdf" },
+  { key: "codInvoice", label: "COD INVOICE", kind: "pdf" },
+  { key: "packingList", label: "PACKING LIST", kind: "pdf" },
   { key: "lut", label: "LUT", kind: "pdf" },
-  { key: "dangerousGood", label: "Dangerous Good (Attach PDF Only)", kind: "pdf" },
-  { key: "excelManifest", label: "Excel Manifest / Data", kind: "excel" },
-  { key: "invoiceCopy", label: "Invoice Copy (PDF)", kind: "pdf" },
-  { key: "customsDeclaration", label: "Customs Declaration (PDF)", kind: "pdf" },
-  { key: "vendorBill", label: "Vendor Billing Sheet (Excel/PDF)", kind: "excel" },
+  { key: "salesPricingEmail", label: "SALES PRICING EMAIL", kind: "pdf" },
+  { key: "purchasePricingEmail", label: "PURCHASE PRICING EMAIL", kind: "pdf" },
+  { key: "dangerousGood", label: "DANGEROUS GOOD(ATTACH PDF ONLY)", kind: "pdf" },
 ];
 
 const ACCEPT_BY_KIND: Record<FileKind, string> = {
@@ -79,16 +85,16 @@ export function createSampleExcelFile(name: string, sizeMultiplier = 1): File {
 
 export function getDefaultSampleAttachments(): Record<string, File> {
   return {
-    ewayBillCopy: createSamplePdfFile("Eway_Declaration_Bill_Copy.pdf", 3),
-    shippingBill: createSamplePdfFile("Shipping_Bill_AXC_2026.pdf", 4),
-    codInvoice: createSamplePdfFile("COD_Invoice_Receipt.pdf", 2),
-    packingList: createSamplePdfFile("Packing_List_Items.pdf", 2),
-    lut: createSamplePdfFile("LUT_Authorization_Certificate.pdf", 1),
-    dangerousGood: createSamplePdfFile("Dangerous_Goods_Declaration_DGD.pdf", 3),
-    excelManifest: createSampleExcelFile("Manifest_Shipment_Data.xlsx", 5),
-    invoiceCopy: createSamplePdfFile("Commercial_Invoice_Copy.pdf", 3),
-    customsDeclaration: createSamplePdfFile("Customs_Export_Declaration.pdf", 4),
-    vendorBill: createSampleExcelFile("Vendor_Billing_Sheet_Q3.xlsx", 6),
+    podImage: createSamplePdfFile("POD_DELIVERY_RECEIPT.pdf", 2),
+    signature: createSamplePdfFile("CONSIGNEE_SIGNATURE.pdf", 1),
+    shipmentImages: createSamplePdfFile("SHIPMENT_CARGO_PHOTOS.pdf", 3),
+    ewayBillCopy: createSamplePdfFile("EWAY_DECLARATION_BILL_COPY.pdf", 3),
+    shippingBill: createSamplePdfFile("SHIPPING_BILL_AXC.pdf", 4),
+    codInvoice: createSamplePdfFile("COD_INVOICE_RECEIPT.pdf", 2),
+    packingList: createSamplePdfFile("PACKING_LIST_ITEMS.pdf", 2),
+    lut: createSamplePdfFile("LUT_CERTIFICATE.pdf", 1),
+    dangerousGood: createSamplePdfFile("DANGEROUS_GOODS_DECLARATION.pdf", 3),
+    salesPricingEmail: createSamplePdfFile("SALES_PRICING_CONFIRMATION.pdf", 1),
   };
 }
 
@@ -477,7 +483,116 @@ function FilePreviewModal({ file, onClose }: PreviewModalProps) {
     </div>
   );
 }
+
+export interface ApiDocumentItem {
+  key: string;
+  label: string;
+  kind: "pdf" | "excel" | "any";
+  fileName: string;
+  description: string;
+  url: string;
+}
+
+function ApiDocumentCard({
+  doc,
+  onPreview,
+}: {
+  doc: ApiDocumentItem;
+  onPreview: (url: string) => void;
+}) {
+  const handleDownload = () => {
+    const a = document.createElement("a");
+    a.href = doc.url;
+    a.download = doc.fileName;
+    a.target = "_blank";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  };
+
+  return (
+    <div className="relative bg-white rounded-md border border-gray-200 transition-all duration-200 flex flex-col justify-between overflow-hidden shadow-sm hover:shadow-md">
+      {/* Header */}
+      <div className="px-3.5 pt-3 pb-1 flex items-center justify-between gap-1 border-b border-gray-50">
+        <span
+          className="text-regular-medium font-bold text-axc-dark-gray truncate capitalize"
+          title={doc.label}
+        >
+          {doc.label}
+        </span>
+        <span className="text-[9px] font-semibold uppercase px-1.5 py-0.5 rounded bg-gray-100 text-gray-500 shrink-0">
+          {doc.kind === "excel" ? "EXCEL" : doc.kind === "any" ? "HTML" : "PDF"}
+        </span>
+      </div>
+
+      {/* Body matching bottom cards */}
+      <div className="p-3.5 flex flex-col items-center justify-center flex-1 min-h-[140px]">
+        <div className="w-full flex flex-col items-center gap-2">
+          <div className="w-full h-24 bg-gray-50/70 border border-gray-100 rounded-lg flex items-center justify-center p-2 overflow-hidden">
+            {doc.kind === "excel" ? (
+              <ExcelIllustration className="w-14 h-14" />
+            ) : doc.kind === "any" ? (
+              <div className="w-14 h-16 rounded bg-slate-800 text-white flex flex-col items-center justify-center gap-1 shadow-xs">
+                <span className="text-xs font-mono font-bold text-amber-300">&lt;/&gt;</span>
+                <span className="text-[9px] font-bold tracking-wider">HTML</span>
+              </div>
+            ) : (
+              <PdfIllustration className="w-14 h-16" />
+            )}
+          </div>
+          <div className="w-full px-0.5 mt-1">
+            <p
+              className="text-regular-medium text-axc-dark-gray truncate leading-tight font-medium"
+              title={doc.fileName}
+            >
+              {doc.fileName}
+            </p>
+            <p className="text-xs text-axc-gray mt-0.5">
+              {doc.description}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer matching bottom cards */}
+      <div className="px-3.5 py-2.5 bg-gray-50/50 border-t border-gray-100 flex items-center justify-between">
+        <div className="flex items-center gap-1.5 w-full justify-between">
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => onPreview(doc.url)}
+              title="Print / View"
+              className="w-6 h-6 rounded border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-600 flex items-center justify-center transition cursor-pointer"
+            >
+              <Eye size={12} />
+            </button>
+            <button
+              type="button"
+              onClick={handleDownload}
+              title="Download File"
+              className="w-6 h-6 rounded border border-red-300 bg-red-50 hover:bg-red-100 text-axc-red flex items-center justify-center transition cursor-pointer"
+            >
+              <Download size={12} />
+            </button>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => onPreview(doc.url)}
+              title="Print or View Document"
+              className="text-regular-small text-axc-navy hover:underline px-1 cursor-pointer"
+            >
+              Print / View
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function AwbAttachmentsTab({
+  awbTrackingNo,
   fields = ATTACHMENT_FIELDS,
   showToast,
   onSave,
@@ -539,6 +654,62 @@ export function AwbAttachmentsTab({
     return Object.values(files).filter(Boolean).length;
   }, [files]);
 
+  const effectiveAwb = awbTrackingNo || "30181174";
+
+  const apiDocuments: ApiDocumentItem[] = useMemo(
+    () => [
+      {
+        key: "apiLabel",
+        label: "API LABEL PDF",
+        kind: "pdf",
+        fileName: `FEDEX_THERMAL_${effectiveAwb}.pdf`,
+        description: "FedEx 4x6 Thermal",
+        url: api.getFedExLabelUrl(effectiveAwb),
+      },
+      {
+        key: "boxLabel",
+        label: "BOX LABEL A4",
+        kind: "any",
+        fileName: `BOX_LABEL_${effectiveAwb}.html`,
+        description: "Carton Label (A4)",
+        url: api.getBoxLabelUrl(effectiveAwb),
+      },
+      {
+        key: "shipmentInvoice",
+        label: "SHIPMENT INVOICE",
+        kind: "pdf",
+        fileName: `COMMERCIAL_INVOICE_${effectiveAwb}.pdf`,
+        description: "Commercial (PDF)",
+        url: api.getAwbInvoicePdfUrl(effectiveAwb),
+      },
+      {
+        key: "invoiceExcel",
+        label: "INVOICE EXCEL",
+        kind: "excel",
+        fileName: `INVOICE_DATA_${effectiveAwb}.xlsx`,
+        description: "Spreadsheet (.xlsx)",
+        url: api.getAwbInvoiceExcelUrl(effectiveAwb),
+      },
+      {
+        key: "consignment",
+        label: "4-UP CONSIGNMENT",
+        kind: "pdf",
+        fileName: `CONSIGNMENT_SLIPS_${effectiveAwb}.pdf`,
+        description: "4 Slips (A4 Sheet)",
+        url: api.getShippersAccountsCopyUrl(effectiveAwb),
+      },
+      {
+        key: "addressLabels",
+        label: "ADDRESS LABELS",
+        kind: "pdf",
+        fileName: `ADDRESS_LABELS_${effectiveAwb}.pdf`,
+        description: "Shipper & Consignee",
+        url: api.getAddressLabelsUrl(effectiveAwb),
+      },
+    ],
+    [effectiveAwb]
+  );
+
   return (
     <div className="w-full flex flex-col gap-6">
       <PanelHeader title="Attachments & Documents" />
@@ -548,49 +719,80 @@ export function AwbAttachmentsTab({
           Attachments saved successfully!
         </div>
       )}
-      {/* <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-        {filteredFields.map((field) => (
-          <AttachmentCard
-            key={field.key}
-            field={field}
-            file={files[field.key] ?? null}
-            error={errors[field.key]}
-            onUpload={(f) => handleUpload(field, f)}
-            onRemove={() => handleRemove(field.key)}
-            onPreview={(f) => setPreviewFile(f)}
-          />
-        ))}
-      </div> */}
 
+      {/* 1. Live AWB System Generated Documents & API Labels (Matches Bottom Card Design) */}
+      <div className="flex flex-col gap-3">
+        <div className="flex items-center justify-between pb-1 border-t border-gray-100 pt-4">
+          <div>
+            <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+              <FileText size={16} className="text-axc-navy" />
+              Shipment Documents & Attachments
+            </h3>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Upload customer bills, POD receipts, signatures, and customs documentation
+            </p>
+          </div>
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-gray-100 text-gray-600">
+            {totalUploadedCount} of {fields.length} Uploaded
+          </span>
+        </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-        {filteredFields.map((field) => (
-          <AttachmentCard
-            key={field.key}
-            field={field}
-            file={files[field.key] ?? null}
-            error={errors[field.key]}
-            onUpload={(f) => handleUpload(field, f)}
-            onRemove={() => handleRemove(field.key)}
-            onPreview={(f) => {
-              const url = URL.createObjectURL(f);
-              window.open(url, "_blank", "noopener,noreferrer");
-              setTimeout(() => URL.revokeObjectURL(url), 10000);
-            }}
-          />
-        ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+          {apiDocuments.map((doc) => (
+            <ApiDocumentCard
+              key={doc.key}
+              doc={doc}
+              onPreview={(url) => window.open(url, "_blank")}
+            />
+          ))}
+        </div>
       </div>
 
+      {/* 2. Shipment Documents & Attachments */}
+      {/* <div className="flex flex-col gap-3 pt-2">
+        <div className="flex items-center justify-between pb-1 border-t border-gray-100 pt-4">
+          <div>
+            <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+              <FileText size={16} className="text-axc-navy" />
+              Shipment Documents & Attachments
+            </h3>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Upload customer bills, POD receipts, signatures, and customs documentation
+            </p>
+          </div>
+          <span className="text-xs font-semibold px-2.5 py-1 rounded-md bg-gray-100 text-gray-600">
+            {totalUploadedCount} of {fields.length} Uploaded
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
+          {filteredFields.map((field) => (
+            <AttachmentCard
+              key={field.key}
+              field={field}
+              file={files[field.key] ?? null}
+              error={errors[field.key]}
+              onUpload={(f) => handleUpload(field, f)}
+              onRemove={() => handleRemove(field.key)}
+              onPreview={(f) => {
+                const url = URL.createObjectURL(f);
+                window.open(url, "_blank", "noopener,noreferrer");
+                setTimeout(() => URL.revokeObjectURL(url), 10000);
+              }}
+            />
+          ))}
+        </div>
+      </div> */}
+
       {/* Save Button */}
-      <div className="flex justify-end gap-3 bg-white">
-        {/* <button
+      <div className="flex justify-end gap-3 bg-white pt-2">
+        <button
           type="button"
           onClick={handleSave}
-          className="px-5 py-4 bg-axc-navy cursor-pointer text-white rounded-lg text-regular-small transition shadow-sm"
+          className="px-5 py-3 bg-axc-navy hover:bg-axc-navy/90 cursor-pointer text-white rounded-lg text-regular-small transition shadow-sm font-semibold"
         >
-          Save Attachment
-        </button> */}
-
+          Save Attachments
+        </button>
 
         {/* Modal File Preview Dialog */}
         <FilePreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />

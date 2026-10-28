@@ -133,11 +133,9 @@ export default function ProfileView({
           <ReadOnlyField label="First Name" value={firstName} />
           <ReadOnlyField label="Last Name" value={lastName} />
           <ReadOnlyField label="Username" value={username} />
-
           <ReadOnlyField label="Phone" value={phone} />
           <ReadOnlyField label="City" value={city} />
           <ReadOnlyField label="Country" value={country} />
-
           <div className="sm:col-span-2 lg:col-span-3">
               <ReadOnlyField label="Bio" value={bio} multiline />
             

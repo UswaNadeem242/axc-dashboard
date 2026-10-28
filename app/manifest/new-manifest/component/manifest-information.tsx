@@ -16,6 +16,7 @@ import CustomDatePicker from "@/app/src/common/datepicker";
 import CustomTimePicker from "@/app/src/common/timepicker";
 import Dropdown from "@/app/src/common/dropdown";
 import { Plus } from "lucide-react";
+import { useMasterData } from "@/app/src/lib/useMasterData";
 
 interface ManifestInformationProps {
   form: ManifestFormState;
@@ -23,7 +24,11 @@ interface ManifestInformationProps {
   updateField: (field: keyof ManifestFormState, value: string) => void;
   toggleEdit: (field: keyof ManifestFormState) => void;
   handleSearchAwb: () => void;
-  handleBagging: () => void;
+  handleBagging?: () => void;
+  showBagging?: boolean;
+  handleCreateManifest?: () => void;
+  loading?: boolean;
+  createButtonLabel?: string;
 }
 
 export default function ManifestInformation({
@@ -33,17 +38,20 @@ export default function ManifestInformation({
   toggleEdit,
   handleSearchAwb,
   handleBagging,
+  showBagging = true,
+  handleCreateManifest,
+  loading = false,
+  createButtonLabel = "Create Manifest",
 }: ManifestInformationProps) {
-  const [originHubOptions, setOriginHubOptions] = React.useState([
-    { value: "DEL", label: "Delhi" },
-    { value: "BOM", label: "Mumbai" },
-  ]);
+  const { hubs, vendors, services } = useMasterData();
+  const [customOriginHubs, setCustomOriginHubs] = React.useState<any[]>([]);
   const [isCityModalOpen, setIsCityModalOpen] = React.useState(false);
   const [newCityName, setNewCityName] = React.useState("");
 
   const finalOriginHubOptions = React.useMemo(() => {
+    const combined = [...hubs, ...customOriginHubs];
     return [
-      ...originHubOptions,
+      ...combined,
       {
         value: "OTHER",
         label: (
@@ -54,30 +62,27 @@ export default function ManifestInformation({
         ),
       },
     ];
-  }, [originHubOptions]);
+  }, [hubs, customOriginHubs]);
 
   const handleAddCity = () => {
     if (newCityName.trim()) {
       const code = newCityName.trim().substring(0, 3).toUpperCase();
-      const newOption = { value: code, label: newCityName.trim() };
-      setOriginHubOptions([...originHubOptions, newOption]);
+      const newOption = { value: code, label: `${code} - ${newCityName.trim()}` };
+      setCustomOriginHubs([...customOriginHubs, newOption]);
       updateField("originHub", code);
       setIsCityModalOpen(false);
-      setNewCityName("");
       setNewCityName("");
     }
   };
 
-  const [destHubOptions, setDestHubOptions] = React.useState([
-    { value: "JFK", label: "New York" },
-    { value: "LAX", label: "Los Angeles" },
-  ]);
+  const [customDestHubs, setCustomDestHubs] = React.useState<any[]>([]);
   const [isDestCityModalOpen, setIsDestCityModalOpen] = React.useState(false);
   const [newDestCityName, setNewDestCityName] = React.useState("");
 
   const finalDestHubOptions = React.useMemo(() => {
+    const combined = [...hubs, ...customDestHubs];
     return [
-      ...destHubOptions,
+      ...combined,
       {
         value: "OTHER",
         label: (
@@ -88,13 +93,13 @@ export default function ManifestInformation({
         ),
       },
     ];
-  }, [destHubOptions]);
+  }, [hubs, customDestHubs]);
 
   const handleAddDestCity = () => {
     if (newDestCityName.trim()) {
       const code = newDestCityName.trim().substring(0, 3).toUpperCase();
-      const newOption = { value: code, label: newDestCityName.trim() };
-      setDestHubOptions([...destHubOptions, newOption]);
+      const newOption = { value: code, label: `${code} - ${newDestCityName.trim()}` };
+      setCustomDestHubs([...customDestHubs, newOption]);
       updateField("destinationHub", code);
       setIsDestCityModalOpen(false);
       setNewDestCityName("");
@@ -223,10 +228,16 @@ export default function ManifestInformation({
                 onChange={(val) => updateField("flightNo", val)}
                 disabled={!form.editFlightNo}
                 placeholder="Select Flight No..."
-                options={[
-                  { value: "AI-101", label: "AI-101" },
-                  { value: "EK-501", label: "EK-501" },
-                ]}
+                options={
+                  services.length > 0
+                    ? services.map((s) => ({ value: s.code || s.value, label: `${s.code || s.value} - ${s.label}` }))
+                    : [
+                        { value: "AI-101", label: "AI-101" },
+                        { value: "EK-501", label: "EK-501" },
+                        { value: "BA-198", label: "BA-198" },
+                        { value: "QR-610", label: "QR-610" },
+                      ]
+                }
                 className="pr-10"
               />
               <div className="absolute right-1 top-1/2 -translate-y-1/2">
@@ -404,13 +415,25 @@ export default function ManifestInformation({
         >
           Search AWB
         </button>
-        <button
-          type="button"
-          onClick={handleBagging}
-          className="bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition "
-        >
-          Bagging
-        </button>
+        {showBagging && handleBagging && (
+          <button
+            type="button"
+            onClick={handleBagging}
+            className="bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition "
+          >
+            Bagging
+          </button>
+        )}
+        {handleCreateManifest && (
+          <button
+            type="button"
+            onClick={handleCreateManifest}
+            disabled={loading}
+            className="bg-axc-navy text-white text-regular-small px-5 py-4 rounded-lg cursor-pointer transition disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+          >
+            {loading ? "Creating..." : createButtonLabel}
+          </button>
+        )}
       </div>
 
       {isCityModalOpen && (

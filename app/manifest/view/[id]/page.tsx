@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { ArrowLeft, FileText } from "lucide-react";
+import { ArrowLeft, FileText, Printer } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { ManifestEntry, ManifestChargeRow } from "@/app/src/constant";
+import { api } from "@/app/src/lib/api";
 
 const SectionHeader = ({ title }: { title: string }) => (
   <div className="bg-axc-navy/60 px-5 py-4 rounded-tl-lg rounded-tr-lg text-white capitalize">
@@ -127,7 +128,15 @@ export default function ManifestViewPage() {
             className="object-contain"
           />
         </div>
-        <div className="flex items-center pr-4">
+        <div className="flex items-center gap-3 pr-4">
+          <button
+            type="button"
+            onClick={() => window.open(api.getManifestPrintUrl(manifestData.manifestNo), "_blank")}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-axc-navy text-white text-xs font-semibold rounded-md shadow-sm hover:bg-axc-navy/90 transition cursor-pointer"
+          >
+            <Printer size={15} />
+            <span>Print Run-Sheet</span>
+          </button>
           <h1 className="text-xl font-bold">Manifest#:{id}</h1>
         </div>
       </div>

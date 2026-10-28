@@ -5,6 +5,7 @@ import CommonDropdown from "../../src/common/dropdown";
 import CustomDatePicker from "../../src/common/datepicker";
 import { AwbFormErrors, AwbFormState } from "./formstate";
 import { EditIconButton, FieldError, FieldLabel, PanelHeader, errorInputClass, inputClass } from "./form";
+import { useMasterData } from "../../src/lib/useMasterData";
 
 interface Props {
   form: AwbFormState;
@@ -13,6 +14,27 @@ interface Props {
 }
 
 export default function AirWaybillInformation({ form, setForm, errors }: Props) {
+  const {
+    branches,
+    companies,
+    customers,
+    hubs,
+    vendors,
+    services,
+    products,
+    sectors,
+    currencies,
+  } = useMasterData();
+
+  const handleCustomerChange = (val: string) => {
+    const selected = customers.find((c) => c.value === val);
+    setForm((prev) => ({
+      ...prev,
+      customer: val,
+      customerCode: selected?.customerCode || prev.customerCode,
+    }));
+  };
+
   return (
     <div className="bg-white rounded-lg border border-axc-border shadow-sm flex flex-col">
       <PanelHeader
@@ -40,42 +62,103 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
 
         <div className="flex flex-col gap-1">
           <FieldLabel required>Branch</FieldLabel>
-          <CommonDropdown value={form.branch} onChange={(val) => setForm({ ...form, branch: val })} className="border-axc-border" options={[{ value: "MUMBAI", label: "MUMBAI" }, { value: "DELHI", label: "DELHI" }]} />
+          <CommonDropdown
+            value={form.branch}
+            onChange={(val) => setForm({ ...form, branch: val })}
+            className={errors.branch ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
+            options={branches}
+            placeholder="Select Branch..."
+          />
+          <FieldError message={errors.branch} />
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel required>Company</FieldLabel>
           <div className="relative">
-            <CommonDropdown value={form.company} onChange={(val) => setForm({ ...form, company: val })} className="w-full border-axc-border pr-10" options={[{ value: "AXC", label: "AXC" }]} />
+            <CommonDropdown
+              value={form.company}
+              onChange={(val) => setForm({ ...form, company: val })}
+              className={`w-full pr-10 ${errors.company ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}`}
+              options={companies}
+              placeholder="Select Company..."
+            />
             <div className="absolute right-1 top-1/2 -translate-y-1/2">
               <EditIconButton active={form.editCompany} onToggle={() => setForm({ ...form, editCompany: !form.editCompany })} title="Edit Company" />
             </div>
           </div>
+          <FieldError message={errors.company} />
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel required>Customer</FieldLabel>
-          <CommonDropdown value={form.customer} onChange={(val) => setForm({ ...form, customer: val })} className="border-axc-border" options={[{ value: "AMAZON", label: "AMAZON" }, { value: "FLIPKART", label: "FLIPKART" }]} />
+          <CommonDropdown
+            value={form.customer}
+            onChange={handleCustomerChange}
+            className={errors.customer ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
+            options={customers}
+            placeholder="Select Customer..."
+          />
+          <FieldError message={errors.customer} />
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel required>Customer Code</FieldLabel>
-          <input type="text" value={form.customerCode} onChange={(e) => setForm({ ...form, customerCode: e.target.value })} className={inputClass} placeholder="Customer Code" />
+          <input
+            type="text"
+            value={form.customerCode}
+            onChange={(e) => setForm({ ...form, customerCode: e.target.value })}
+            className={errors.customerCode ? errorInputClass : inputClass}
+            placeholder="Customer Code"
+          />
+          <FieldError message={errors.customerCode} />
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel required>Sector</FieldLabel>
-          <CommonDropdown value={form.sector} onChange={(val) => setForm({ ...form, sector: val })} className="border-axc-border" options={[{ value: "INTERNATIONAL", label: "INTERNATIONAL" }, { value: "DOMESTIC", label: "DOMESTIC" }]} />
+          <CommonDropdown
+            value={form.sector}
+            onChange={(val) => setForm({ ...form, sector: val })}
+            className={errors.sector ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
+            options={sectors}
+            placeholder="Select Sector..."
+          />
+          <FieldError message={errors.sector} />
+        </div>
+
+        <div className="flex flex-col gap-1">
+          <FieldLabel required>Origin Hub</FieldLabel>
+          <CommonDropdown
+            value={form.originHub}
+            onChange={(val) => setForm({ ...form, originHub: val })}
+            className={errors.originHub ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
+            options={hubs}
+            placeholder="Select Origin Hub..."
+          />
+          <FieldError message={errors.originHub} />
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel required>Destination Hub</FieldLabel>
-          <CommonDropdown value={form.destinationHub} onChange={(val) => setForm({ ...form, destinationHub: val })} className="border-axc-border" options={[{ value: "DELHI", label: "DELHI" }, { value: "MUMBAI", label: "MUMBAI" }]} />
+          <CommonDropdown
+            value={form.destinationHub}
+            onChange={(val) => setForm({ ...form, destinationHub: val })}
+            className={errors.destinationHub ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
+            options={hubs}
+            placeholder="Select Destination Hub..."
+          />
+          <FieldError message={errors.destinationHub} />
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel required>Product</FieldLabel>
-          <CommonDropdown value={form.product} onChange={(val) => setForm({ ...form, product: val })} className="border-axc-border" options={[{ value: "NONDOX", label: "NONDOX" }, { value: "DOX", label: "DOX" }]} />
+          <CommonDropdown
+            value={form.product}
+            onChange={(val) => setForm({ ...form, product: val })}
+            className={errors.product ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
+            options={products}
+            placeholder="Select Product..."
+          />
+          <FieldError message={errors.product} />
         </div>
 
         <div className="flex flex-col gap-1">
@@ -84,18 +167,27 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
             value={form.bookingDate}
             onChange={(val) => setForm({ ...form, bookingDate: val })}
             placeholder="Select Booking Date"
+            className={errors.bookingDate ? "!border-red-400 !bg-red-50/40" : ""}
           />
+          <FieldError message={errors.bookingDate} />
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel required>Service</FieldLabel>
-          <CommonDropdown value={form.service} onChange={(val) => setForm({ ...form, service: val })} className="border-axc-border" options={[{ value: "FEDEX IP EX NEW YORK - INDIA", label: "FEDEX IP EX NEW YORK - INDIA" }, { value: "FEDEX IE EX", label: "FEDEX IE EX" }]} />
+          <CommonDropdown
+            value={form.service}
+            onChange={(val) => setForm({ ...form, service: val })}
+            className={errors.service ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
+            options={services}
+            placeholder="Select Service..."
+          />
+          <FieldError message={errors.service} />
         </div>
 
         <div className="flex flex-col gap-1">
           <FieldLabel>Vendor</FieldLabel>
           <div className="relative">
-            <CommonDropdown value={form.vendor} onChange={(val) => setForm({ ...form, vendor: val })} className="w-full border-axc-border pr-10" options={[{ value: "FEDEX IP EX NEW YORK - INDIA 210588750", label: "FEDEX IP EX NEW YORK - INDIA 210588750" }]} />
+            <CommonDropdown value={form.vendor} onChange={(val) => setForm({ ...form, vendor: val })} className="w-full border-axc-border pr-10" options={vendors} placeholder="Select Vendor..." />
             <div className="absolute right-1 top-1/2 -translate-y-1/2">
               <EditIconButton active={form.editVendor} onToggle={() => setForm({ ...form, editVendor: !form.editVendor })} title="Edit Vendor" />
             </div>
@@ -121,7 +213,7 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
           <FieldLabel>Shipment Value</FieldLabel>
           <div className="grid grid-cols-2 gap-2">
             <input type="text" placeholder="Value" value={form.shipmentValue} onChange={(e) => setForm({ ...form, shipmentValue: e.target.value })} className={inputClass} />
-            <CommonDropdown className="border-axc-border" value={form.shipmentCurrency} onChange={(val) => setForm({ ...form, shipmentCurrency: val })} options={[{ value: "USD", label: "USD" }, { value: "INR", label: "INR" }]} />
+            <CommonDropdown className="border-axc-border" value={form.shipmentCurrency} onChange={(val) => setForm({ ...form, shipmentCurrency: val })} options={currencies} placeholder="Currency" />
           </div>
         </div>
 
@@ -247,18 +339,7 @@ export default function AirWaybillInformation({ form, setForm, errors }: Props) 
                 onChange={(val) => setForm({ ...form, originHub: val })}
                 className="w-full border-axc-border pr-10"
                 placeholder="SELECT ORIGIN HUB..."
-                options={[
-                  { value: "DEL", label: "DEL - Delhi" },
-                  { value: "BOM", label: "BOM - Mumbai" },
-                  { value: "BLR", label: "BLR - Bangalore" },
-                  { value: "AMD", label: "AMD - Ahmedabad" },
-                  { value: "HYD", label: "HYD - Hyderabad" },
-                  { value: "MAA", label: "MAA - Chennai" },
-                  { value: "CCU", label: "CCU - Kolkata" },
-                  { value: "DXB", label: "DXB - Dubai" },
-                  { value: "LHR", label: "LHR - London" },
-                  { value: "JFK", label: "JFK - New York" },
-                ]}
+                options={hubs}
               />
               <div className="absolute right-1 top-1/2 -translate-y-1/2">
                 <EditIconButton active={form.editOriginHub} onToggle={() => setForm({ ...form, editOriginHub: !form.editOriginHub })} title="Edit Origin Hub" />

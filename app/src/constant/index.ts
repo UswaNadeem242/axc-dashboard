@@ -699,6 +699,7 @@ export interface ManifestEntry {
   vendor: string;
   vendorName: string;
   originHubCode: string;
+  originHubName?: string;
   destinationHubName: string;
   destinationHubCode: string;
   forwarderCode: string;
