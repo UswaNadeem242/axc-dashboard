@@ -28,6 +28,8 @@ export interface SubMenuItem {
   label: string;
   id: string;
   href?: string;
+  hasSubDropdown?: boolean;
+  subItems?: { label: string; id: string; href?: string }[];
 }
 
 export interface MenuItem {
@@ -91,6 +93,23 @@ export const menuItems: MenuItem[] = [
       { label: "Credit & Debit Note", id: "credit-debit-notes", href: "/accounts" },
       { label: "Receipt", id: "receipts", href: "/accounts/receipt" },
       { label: "Bank Transfer", id: "bank-transfer", href: "/accounts/bank-transfer" },
+    ],
+  },
+  {
+    label: "Master",
+    icon: Database,
+    id: "master",
+    hasDropdown: true,
+    subItems: [
+      {
+        label: "Customer",
+        id: "customer",
+        href: "/master/customer",
+        hasSubDropdown: true,
+        subItems: [
+           { label: "Customer Contracts", id: "customer-contracts", href: "/master/customer-contracts" },
+        ],
+      },
     ],
   },
   // { label: "Rate Calculation", icon: Calculator, id: "rate-calculation" },

@@ -24,6 +24,9 @@ const SEGMENT_LABELS: Record<string, string> = {
   "receipt": "Receipt",
   "create": "Add Receipt",
   "add-receipt": "Add Receipt",
+  "master": "Master",
+  "customer": "Customer",
+  "customer-contracts": "Customer Contracts",
 };
 
 const PARENT_ROUTE_REDIRECTS: Record<string, string> = {
@@ -31,6 +34,7 @@ const PARENT_ROUTE_REDIRECTS: Record<string, string> = {
   "/invoice": "/invoice/all-invoices",
   "/vendorinvoice": "/vendorinvoice/all-vendorinvoices",
   "/accounts/receipt": "/accounts/receipt",
+  "/master": "/master/customer",
 };
 
 const ROUTE_TITLES: Record<string, string> = {
@@ -48,6 +52,9 @@ const ROUTE_TITLES: Record<string, string> = {
   "/accounts/receipt/create": "Accounts",
   "/accounts/receipt/add-receipt": "Accounts",
   "/accounts/credit-debit-note": "Accounts",
+  "/master/customer": "Master Management",
+  "/master/customer/create": "Master Management",
+  "/master/customer-contracts": "Master Management",
 };
 
 function formatSegmentLabel(segment: string): string {
@@ -97,6 +104,8 @@ function getPageTitle(pathname: string): string {
   if (pathname.includes("awb-entries") || pathname.includes("create-entries")) return "AWB Management";
   if (pathname.startsWith("/manifest")) return "Manifest Management";
   if (pathname.startsWith("/invoice")) return "Invoice & Billing";
+  if (pathname.startsWith("/master")) return "Master Management";
+  if (pathname.startsWith("/master")) return "Master Management";
   if (pathname.startsWith("/vendorinvoice")) return "Vendor Invoice";
   if (pathname.startsWith("/users")) return "Users";
 
