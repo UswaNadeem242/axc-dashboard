@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { User, MapPin } from "lucide-react";
+import { User, MapPin, ShieldCheck } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
 import { ORIGIN_HUB_OPTIONS, CustomerEntry, initialCustomerData } from "../types";
 
@@ -11,13 +11,15 @@ import CustomerTab, {
   CustomerFormErrors,
 } from "./component/customer-tab";
 import HubTab from "./component/hub-tab";
+import KycTab from "./component/kyc-tab";
 
 // ─── Tab config ───────────────────────────────────────────────────────────────
-type CustomerTab = "customer" | "hub";
+type CustomerTab = "customer" | "hub" | "kyc";
 
 const TABS: { id: CustomerTab; label: string; icon: React.ReactNode }[] = [
   { id: "customer", label: "Customer", icon: <User size={14} /> },
   { id: "hub",      label: "Hub",      icon: <MapPin size={14} /> },
+  { id: "kyc",      label: "KYC",      icon: <ShieldCheck size={14} /> },
 ];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -217,6 +219,7 @@ function CreateCustomerContent() {
           )}
 
           {tab === "hub" && <HubTab />}
+          {tab === "kyc" && <KycTab customerId={editId || undefined} customerName={form.name} />}
         </div>
 
       </div>

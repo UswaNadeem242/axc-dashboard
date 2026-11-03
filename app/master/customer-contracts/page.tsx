@@ -1,781 +1,694 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, Save, History, X, Trash2 } from "lucide-react";
-import CommonDropdown from "@/app/src/common/dropdown";
-import CustomDatePicker from "@/app/src/common/datepicker";
+import {
+  PlusCircleIcon,
+  FileText,
+  Eye,
+  Pencil,
+  Trash2,
+  X,
+  Building2,
+  Calendar,
+  Layers,
+  MapPin,
+} from "lucide-react";
+import CommonTable from "@/app/src/common/table";
+import FilterSearch from "@/app/src/common/filtersearch";
+import Button from "@/app/src/common/button";
+import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
+import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
 import {
-  PanelHeader,
-  FieldLabel,
-  inputClass,
-  errorInputClass,
-  FieldError,
-} from "@/app/create-entries/components/form";
-import {
   CustomerContractEntry,
-  CONTRACT_TYPE_OPTIONS,
-  INCOTERM_OPTIONS,
-  CALCULATION_METHOD_OPTIONS,
-  HUB_OPTIONS,
+  CustomerContractsHeadings,
+  customerContractFilterGroups,
+  initialCustomerContractsData,
 } from "./types";
 
-const initialFormState: Omit<CustomerContractEntry, "id" | "createdAt"> = {
-  customer: "",
-  customerCode: "",
-  service: "",
-  serviceCode: "",
-  product: "",
-  productCode: "",
-  airline: "",
-  airlineCode: "",
-  flight: "",
-  flightCode: "",
-  vendor: "",
-  vendorCode: "",
-  destinationZone: "",
-  destinationZoneCode: "",
-  destination: "",
-  destinationCode: "",
-  destinationCity: "",
-  destinationCityCode: "",
-  destinationState: "",
-  destinationStateCode: "",
-  destinationHub: "",
-  contractType: "Weight Wise",
-  incoterm: "",
-  status: "ACTIVE",
-
-  originZone: "",
-  origin: "",
-  originCode: "",
-  originCity: "",
-  originCityCode: "",
-  originState: "",
-  originStateCode: "",
-  originHub: "",
-  effectiveFrom: "",
-  effectiveTo: "",
-  remarks: "",
-  notes: "",
-  calculationMethod: "FIXED",
-  tat: "",
-  minimumFreight: "",
-};
-
-export default function CustomerContractsPage() {
+export default function CustomerContractsMasterPage() {
   const router = useRouter();
-  const [form, setForm] = useState(initialFormState);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [saving, setSaving] = useState(false);
-  const [showHistory, setShowHistory] = useState(false);
-  const [historyList, setHistoryList] = useState<CustomerContractEntry[]>([]);
+  const [data, setData] = useState<CustomerContractEntry[]>([]);
+  const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTags, setActiveTags] = useState<string[]>([]);
 
-  // Load history from localStorage
-  const loadHistory = () => {
-    try {
+  // Modals & Action State
+  const [viewContract, setViewContract] = useState<CustomerContractEntry | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<CustomerContractEntry | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+
+  // Sorting & Pagination
+  const [sortKey, setSortKey] = useState<string>("");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [page, setPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // LocalStorage Persistence
+  useEffect(() => {
+    if (typeof window !== "undefined") {
       const stored = localStorage.getItem("master_customer_contracts");
       if (stored) {
-        setHistoryList(JSON.parse(stored));
-      } else {
-        setHistoryList([]);
+        try {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setData(parsed);
+            return;
+          }
+        } catch (e) {
+          console.error("Error reading stored contracts:", e);
+        }
       }
-    } catch (e) {
-      console.error("Error reading customer contracts:", e);
+      setData(initialCustomerContractsData);
+      localStorage.setItem(
+        "master_customer_contracts",
+        JSON.stringify(initialCustomerContractsData)
+      );
     }
-  };
-
-  useEffect(() => {
-    loadHistory();
   }, []);
 
-  const handleFieldChange = (field: keyof typeof initialFormState, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
-    if (errors[field]) {
-      setErrors((prev) => ({ ...prev, [field]: "" }));
+  const saveContracts = (newList: CustomerContractEntry[]) => {
+    setData(newList);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("master_customer_contracts", JSON.stringify(newList));
     }
   };
 
-  const validate = (): boolean => {
-    const errs: Record<string, string> = {};
-
-    if (!form.customer.trim()) errs.customer = "Customer is required";
-    if (!form.service.trim()) errs.service = "Service is required";
-    if (!form.product.trim()) errs.product = "Product is required";
-    if (!form.contractType) errs.contractType = "Contract Type is required";
-    if (!form.calculationMethod) errs.calculationMethod = "Calculation Method is required";
-    if (!form.effectiveFrom) errs.effectiveFrom = "Effective From is required";
-    if (!form.effectiveTo) errs.effectiveTo = "Effective To is required";
-
-    setErrors(errs);
-    return Object.keys(errs).length === 0;
+  // Search filter submit
+  const handleSearchSubmit = (val: string) => {
+    const trimmed = val.trim();
+    if (!trimmed) return;
+    if (!activeTags.includes(trimmed)) {
+      setActiveTags((prev) => [...prev, trimmed]);
+      setSearchQuery("");
+      setPage(1);
+    }
   };
 
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleTagsChange = (newTags: string[]) => {
+    const addedTag = newTags.find((tag) => !activeTags.includes(tag));
+    if (addedTag) {
+      const group = customerContractFilterGroups.find((g) =>
+        g.options.some((o) => o.value === addedTag)
+      );
+      if (group) {
+        const otherOptions = group.options
+          .map((o) => o.value)
+          .filter((v) => v !== addedTag);
+        const filteredTags = newTags.filter((tag) => !otherOptions.includes(tag));
+        setActiveTags(filteredTags);
+        setPage(1);
+        return;
+      }
+    }
+    setActiveTags(newTags);
+    setPage(1);
+  };
 
-    if (!validate()) {
+  const searchSuggestions = useMemo(() => {
+    const q = searchQuery.toLowerCase().trim();
+    if (!q) return [];
+    const pool = new Set<string>();
+    data.forEach((c) => {
+      if (c.id?.toLowerCase().includes(q)) pool.add(c.id);
+      if (c.customer?.toLowerCase().includes(q)) pool.add(c.customer);
+      if (c.service?.toLowerCase().includes(q)) pool.add(c.service);
+      if (c.product?.toLowerCase().includes(q)) pool.add(c.product);
+      if (c.originHub?.toLowerCase().includes(q)) pool.add(c.originHub);
+      if (c.destinationHub?.toLowerCase().includes(q)) pool.add(c.destinationHub);
+    });
+    return Array.from(pool).slice(0, 6);
+  }, [data, searchQuery]);
+
+  // Filtering
+  const filteredData = useMemo(() => {
+    return data.filter((item) => {
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const matchesQuery =
+          item.id?.toLowerCase().includes(q) ||
+          item.customer?.toLowerCase().includes(q) ||
+          item.service?.toLowerCase().includes(q) ||
+          item.product?.toLowerCase().includes(q) ||
+          item.originHub?.toLowerCase().includes(q) ||
+          item.destinationHub?.toLowerCase().includes(q);
+        if (!matchesQuery) return false;
+      }
+
+      if (activeTags.length > 0) {
+        for (const tag of activeTags) {
+          const group = customerContractFilterGroups.find((g) =>
+            g.options.some((o) => o.value === tag)
+          );
+          if (group) {
+            if (group.group === "Contract Type" && item.contractType !== tag) return false;
+            if (group.group === "Calculation Method" && item.calculationMethod !== tag) return false;
+            if (group.group === "Origin Hub" && item.originHub !== tag) return false;
+            if (group.group === "Status" && item.status !== tag) return false;
+          } else {
+            const matchesTag =
+              item.id?.toLowerCase().includes(tag.toLowerCase()) ||
+              item.customer?.toLowerCase().includes(tag.toLowerCase()) ||
+              item.service?.toLowerCase().includes(tag.toLowerCase()) ||
+              item.product?.toLowerCase().includes(tag.toLowerCase()) ||
+              item.originHub?.toLowerCase().includes(tag.toLowerCase()) ||
+              item.destinationHub?.toLowerCase().includes(tag.toLowerCase());
+            if (!matchesTag) return false;
+          }
+        }
+      }
+      return true;
+    });
+  }, [data, searchQuery, activeTags]);
+
+  // Sorting
+  const sortedData = useMemo(() => {
+    if (!sortKey) return filteredData;
+    return [...filteredData].sort((a, b) => {
+      const aVal = (a as any)[sortKey] ?? "";
+      const bVal = (b as any)[sortKey] ?? "";
+      if (typeof aVal === "number" && typeof bVal === "number") {
+        return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
+      }
+      return sortDirection === "asc"
+        ? String(aVal).localeCompare(String(bVal))
+        : String(bVal).localeCompare(String(aVal));
+    });
+  }, [filteredData, sortKey, sortDirection]);
+
+  // Pagination
+  const totalPages = Math.ceil(sortedData.length / itemsPerPage) || 1;
+  const paginatedData = useMemo(() => {
+    const start = (page - 1) * itemsPerPage;
+    return sortedData.slice(start, start + itemsPerPage);
+  }, [sortedData, page, itemsPerPage]);
+
+  const handleSort = (key: string) => {
+    if (sortKey === key) {
+      setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortKey(key);
+      setSortDirection("asc");
+    }
+  };
+
+  // Row selection
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(paginatedData.map((d) => d.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectRow = (id: string | number, checked: boolean) => {
+    if (checked) {
+      setSelectedIds((prev) => [...prev, id]);
+    } else {
+      setSelectedIds((prev) => prev.filter((i) => i !== id));
+    }
+  };
+
+  // Delete Handlers
+  const handleConfirmSingleDelete = () => {
+    if (!deleteTarget) return;
+    setIsDeleting(true);
+    setTimeout(() => {
+      const updated = data.filter((c) => c.id !== deleteTarget.id);
+      saveContracts(updated);
+      setSelectedIds((prev) => prev.filter((i) => i !== deleteTarget.id));
+      showToast({
+        variant: "success",
+        message: `Contract "${deleteTarget.id}" deleted successfully.`,
+      });
+      setIsDeleting(false);
+      setDeleteTarget(null);
+    }, 400);
+  };
+
+  const handleConfirmBulkDelete = () => {
+    setIsDeleting(true);
+    setTimeout(() => {
+      const updated = data.filter((c) => !selectedIds.includes(c.id));
+      saveContracts(updated);
+      showToast({
+        variant: "success",
+        message: `${selectedIds.length} contract(s) deleted successfully.`,
+      });
+      setSelectedIds([]);
+      setIsDeleting(false);
+      setBulkDeleteOpen(false);
+    }, 400);
+  };
+
+  // Export CSV
+  const handleExport = (all: boolean = false) => {
+    const exportItems = all
+      ? data
+      : selectedIds.length > 0
+      ? data.filter((c) => selectedIds.includes(c.id))
+      : filteredData;
+
+    if (exportItems.length === 0) {
       showToast({
         variant: "error",
-        message: "Please fill in all required fields properly.",
+        message: "No contract records to export.",
       });
       return;
     }
 
-    setSaving(true);
+    const headers = [
+      "ID",
+      "Customer",
+      "Service",
+      "Product",
+      "Origin Hub",
+      "Destination Hub",
+      "Contract Type",
+      "Calculation Method",
+      "Effective From",
+      "Effective To",
+      "Status",
+    ];
 
-    try {
-      const newEntry: CustomerContractEntry = {
-        ...form,
-        id: `CC-${Date.now().toString().slice(-6)}`,
-        createdAt: new Date().toISOString(),
-      };
+    const csvRows = exportItems.map((c) => [
+      `"${c.id}"`,
+      `"${c.customer}"`,
+      `"${c.service}"`,
+      `"${c.product}"`,
+      `"${c.originHub}"`,
+      `"${c.destinationHub}"`,
+      `"${c.contractType}"`,
+      `"${c.calculationMethod}"`,
+      `"${c.effectiveFrom}"`,
+      `"${c.effectiveTo}"`,
+      `"${c.status}"`,
+    ]);
 
-      const stored = localStorage.getItem("master_customer_contracts");
-      const currentList: CustomerContractEntry[] = stored ? JSON.parse(stored) : [];
-      const updatedList = [newEntry, ...currentList];
+    const csvContent =
+      "data:text/csv;charset=utf-8," +
+      [headers.join(","), ...csvRows.map((e) => e.join(","))].join("\n");
 
-      localStorage.setItem("master_customer_contracts", JSON.stringify(updatedList));
-      setHistoryList(updatedList);
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `Customer_Contracts_${new Date().toISOString().slice(0, 10)}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
-      showToast({
-        variant: "success",
-        message: "Customer Contract saved successfully!",
-      });
-
-      // Reset form
-      setForm(initialFormState);
-    } catch (err) {
-      console.error("Failed to save customer contract:", err);
-      showToast({
-        variant: "error",
-        message: "Failed to save contract. Please try again.",
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDeleteHistory = (id: string) => {
-    const updated = historyList.filter((item) => item.id !== id);
-    localStorage.setItem("master_customer_contracts", JSON.stringify(updated));
-    setHistoryList(updated);
     showToast({
       variant: "success",
-      message: "Contract removed from history",
+      message: `Exported ${exportItems.length} contract records to CSV.`,
     });
   };
+
+  // Custom Table Headings & Cell Renderers
+  const tableHeadings = CustomerContractsHeadings.map((h) => {
+    if (h.key === "srNo") {
+      return {
+        ...h,
+        render: (_: any, idx?: number) => (
+          <span className="text-gray-500 font-medium">
+            {(page - 1) * itemsPerPage + (idx ?? 0) + 1}
+          </span>
+        ),
+      };
+    }
+    if (h.key === "id") {
+      return {
+        ...h,
+        render: (row: CustomerContractEntry) => (
+          <span className="font-semibold text-axc-navy bg-axc-navy/5 px-2 py-0.5 rounded text-[11px]">
+            {row.id}
+          </span>
+        ),
+      };
+    }
+    if (h.key === "customer") {
+      return {
+        ...h,
+        render: (row: CustomerContractEntry) => (
+          <span className="font-semibold text-gray-900">{row.customer}</span>
+        ),
+      };
+    }
+    if (h.key === "originHub") {
+      return {
+        ...h,
+        render: (row: CustomerContractEntry) => (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">
+            {row.originHub || "-"}
+          </span>
+        ),
+      };
+    }
+    if (h.key === "destinationHub") {
+      return {
+        ...h,
+        render: (row: CustomerContractEntry) => (
+          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">
+            {row.destinationHub || "-"}
+          </span>
+        ),
+      };
+    }
+    if (h.key === "status") {
+      return {
+        ...h,
+        render: (row: CustomerContractEntry) => (
+          <span
+            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+              row.status === "ACTIVE"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
+          >
+            {row.status}
+          </span>
+        ),
+      };
+    }
+    if (h.key === "action") {
+      return {
+        ...h,
+        render: (row: CustomerContractEntry) => (
+          <div className="flex items-center justify-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setViewContract(row)}
+              className="p-1 rounded text-axc-gray hover:text-axc-navy hover:bg-gray-100 transition cursor-pointer"
+              title="View Contract"
+            >
+              <Eye size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => router.push(`/master/customer-contracts/create?edit=${row.id}`)}
+              className="p-1 rounded text-axc-gray hover:text-axc-navy hover:bg-gray-100 transition cursor-pointer"
+              title="Edit Contract"
+            >
+              <Pencil size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setDeleteTarget(row)}
+              className="p-1 rounded text-axc-red hover:text-red-700 hover:bg-red-50 transition cursor-pointer"
+              title="Delete Contract"
+            >
+              <Trash2 size={15} />
+            </button>
+          </div>
+        ),
+      };
+    }
+    return h;
+  });
 
   return (
     <div className="flex flex-col gap-4 w-full h-full min-h-0 overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       <div className="relative bg-white p-4 rounded-lg border border-gray-200 w-full flex-1 min-h-0 flex flex-col overflow-hidden">
-        {/* Top Header Bar */}
-        <div className="flex items-center justify-between pb-3 border-b border-axc-border shrink-0">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/master/customer"
-              className="p-1.5 rounded-lg border border-axc-border text-axc-gray hover:text-axc-navy hover:bg-gray-50 transition cursor-pointer"
-              title="Back to Customers"
-            >
-              <ArrowLeft size={16} />
-            </Link>
-            <div>
-              <h2 className="text-sm font-semibold text-axc-dark-gray">
-                Add Customer Contracts
-              </h2>
-            </div>
+        {/* Top Controls Bar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-4 shrink-0">
+          <div className="flex flex-wrap items-center gap-3 flex-1 min-w-[280px]">
+            <FilterSearch
+              groups={customerContractFilterGroups}
+              selectedOptions={activeTags}
+              onOptionsChange={handleTagsChange}
+              searchValue={searchQuery}
+              onSearchChange={setSearchQuery}
+              onSearchSubmit={handleSearchSubmit}
+              placeholder="Search by Customer, Service, Hub, ID..."
+              searchSuggestions={searchSuggestions}
+            />
+
+            {selectedIds.length > 0 && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setSelectedIds([])}
+                  className="flex items-center gap-2 rounded-md border border-axc-border px-3 py-2 text-[12px] font-medium text-axc-dark-gray hover:bg-gray-50 cursor-pointer transition-colors"
+                  title="Click to clear selection"
+                >
+                  <span className="font-semibold text-axc-navy">{selectedIds.length}</span>
+                  Selected
+                  <X size={13} className="text-gray-400" />
+                </button>
+
+                <div className="[&_button]:cursor-pointer">
+                  <Dropdown
+                    title="Actions"
+                    items={[
+                      {
+                        label: "Export Selected (CSV)",
+                        icon: <FileText className="h-4 w-4 text-axc-navy" />,
+                        onClick: () => handleExport(false),
+                      },
+                      {
+                        label: `Delete Selected (${selectedIds.length})`,
+                        icon: <Trash2 className="h-4 w-4 text-red-500" />,
+                        onClick: () => setBulkDeleteOpen(true),
+                      },
+                    ]}
+                  />
+                </div>
+              </>
+            )}
           </div>
 
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => setShowHistory(true)}
-              className="px-3.5 py-2 border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-lg text-regular-small font-medium transition cursor-pointer flex items-center gap-1.5 shadow-xs"
-            >
-              <History size={14} />
-              Customer Contracts History
-            </button>
-          </div>
+          <Button
+            label="New Contract"
+            href="/master/customer-contracts/create"
+            variant="primary"
+            icon={PlusCircleIcon}
+          />
         </div>
 
-        {/* Form Body: Exactly matching Credit/Debit Note Information UI */}
-        <div className="flex-1 min-h-0 overflow-y-auto pt-4 pb-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          <form onSubmit={handleSave} className="flex flex-col gap-6 w-full">
-            <div className="bg-white rounded-lg border border-axc-border shadow-xs flex flex-col relative z-20">
-              <PanelHeader title="Customer Contracts Information" />
-
-              {/* 3-Column Grid Layout matching the reference image */}
-              <div className="p-5 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-4 items-start">
-                {/* 1. Customer */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel required>Customer</FieldLabel>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={form.customer}
-                      placeholder="SEARCH HERE.."
-                      onChange={(e) => handleFieldChange("customer", e.target.value)}
-                      className={`${errors.customer ? errorInputClass : inputClass} flex-1`}
-                    />
-                    <input
-                      type="text"
-                      value={form.customerCode}
-                      placeholder="Code"
-                      onChange={(e) => handleFieldChange("customerCode", e.target.value)}
-                      className={`${inputClass} w-24 bg-gray-50 text-gray-500`}
-                    />
-                  </div>
-                  <FieldError message={errors.customer} />
-                </div>
-
-                {/* 2. Service */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel required>Service</FieldLabel>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={form.service}
-                      placeholder="SEARCH HERE.."
-                      onChange={(e) => handleFieldChange("service", e.target.value)}
-                      className={`${errors.service ? errorInputClass : inputClass} flex-1`}
-                    />
-                    <input
-                      type="text"
-                      value={form.serviceCode}
-                      placeholder="Code"
-                      onChange={(e) => handleFieldChange("serviceCode", e.target.value)}
-                      className={`${inputClass} w-20 bg-gray-50 text-gray-500`}
-                    />
-                  </div>
-                  <FieldError message={errors.service} />
-                </div>
-
-                {/* 3. Product */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel required>Product</FieldLabel>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={form.product}
-                      placeholder="SEARCH HERE.."
-                      onChange={(e) => handleFieldChange("product", e.target.value)}
-                      className={`${errors.product ? errorInputClass : inputClass} flex-1`}
-                    />
-                    <input
-                      type="text"
-                      value={form.productCode}
-                      placeholder="Code"
-                      onChange={(e) => handleFieldChange("productCode", e.target.value)}
-                      className={`${inputClass} w-20 bg-gray-50 text-gray-500`}
-                    />
-                  </div>
-                  <FieldError message={errors.product} />
-                </div>
-
-                {/* 4. Airline */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Airline</FieldLabel>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={form.airline}
-                      placeholder="SEARCH HERE.."
-                      onChange={(e) => handleFieldChange("airline", e.target.value)}
-                      className={`${inputClass} flex-1`}
-                    />
-                    <input
-                      type="text"
-                      value={form.airlineCode}
-                      placeholder="Code"
-                      onChange={(e) => handleFieldChange("airlineCode", e.target.value)}
-                      className={`${inputClass} w-20 bg-gray-50 text-gray-500`}
-                    />
-                  </div>
-                </div>
-
-                {/* 5. Flight */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Flight</FieldLabel>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={form.flight}
-                      placeholder="SEARCH HERE.."
-                      onChange={(e) => handleFieldChange("flight", e.target.value)}
-                      className={`${inputClass} flex-1`}
-                    />
-                    <input
-                      type="text"
-                      value={form.flightCode}
-                      placeholder="Code"
-                      onChange={(e) => handleFieldChange("flightCode", e.target.value)}
-                      className={`${inputClass} w-20 bg-gray-50 text-gray-500`}
-                    />
-                  </div>
-                </div>
-
-                {/* 6. Vendor */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Vendor</FieldLabel>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={form.vendor}
-                      placeholder="SEARCH HERE.."
-                      onChange={(e) => handleFieldChange("vendor", e.target.value)}
-                      className={`${inputClass} flex-1`}
-                    />
-                    <input
-                      type="text"
-                      value={form.vendorCode}
-                      placeholder="Code"
-                      onChange={(e) => handleFieldChange("vendorCode", e.target.value)}
-                      className={`${inputClass} w-20 bg-gray-50 text-gray-500`}
-                    />
-                  </div>
-                </div>
-
-                {/* 7. Origin Hub */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Origin Hub</FieldLabel>
-                  <CommonDropdown
-                    value={form.originHub}
-                    onChange={(val) => handleFieldChange("originHub", val)}
-                    options={HUB_OPTIONS}
-                    placeholder="SELECT.."
-                  />
-                </div>
-
-                {/* 8. Origin Zone */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Origin Zone</FieldLabel>
-                  <input
-                    type="text"
-                    value={form.originZone}
-                    placeholder="Enter Origin Zone"
-                    onChange={(e) => handleFieldChange("originZone", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-
-                {/* 9. Origin */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Origin</FieldLabel>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={form.origin}
-                      placeholder="SEARCH HERE.."
-                      onChange={(e) => handleFieldChange("origin", e.target.value)}
-                      className={`${inputClass} flex-1`}
-                    />
-                    <input
-                      type="text"
-                      value={form.originCode}
-                      placeholder="Code"
-                      onChange={(e) => handleFieldChange("originCode", e.target.value)}
-                      className={`${inputClass} w-20 bg-gray-50 text-gray-500`}
-                    />
-                  </div>
-                </div>
-
-                {/* 10. Origin City */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Origin City</FieldLabel>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={form.originCity}
-                      placeholder="SEARCH HERE.."
-                      onChange={(e) => handleFieldChange("originCity", e.target.value)}
-                      className={`${inputClass} flex-1`}
-                    />
-                    <input
-                      type="text"
-                      value={form.originCityCode}
-                      placeholder="Code"
-                      onChange={(e) => handleFieldChange("originCityCode", e.target.value)}
-                      className={`${inputClass} w-20 bg-gray-50 text-gray-500`}
-                    />
-                  </div>
-                </div>
-
-                {/* 11. Origin State */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Origin State</FieldLabel>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={form.originState}
-                      placeholder="SEARCH HERE.."
-                      onChange={(e) => handleFieldChange("originState", e.target.value)}
-                      className={`${inputClass} flex-1`}
-                    />
-                    <input
-                      type="text"
-                      value={form.originStateCode}
-                      placeholder="Code"
-                      onChange={(e) => handleFieldChange("originStateCode", e.target.value)}
-                      className={`${inputClass} w-20 bg-gray-50 text-gray-500`}
-                    />
-                  </div>
-                </div>
-
-                {/* 12. Destination Hub */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Destination Hub</FieldLabel>
-                  <CommonDropdown
-                    value={form.destinationHub}
-                    onChange={(val) => handleFieldChange("destinationHub", val)}
-                    options={HUB_OPTIONS}
-                    placeholder="SELECT.."
-                  />
-                </div>
-
-                {/* 13. Destination Zone */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Destination Zone</FieldLabel>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={form.destinationZone}
-                      placeholder="SEARCH HERE..."
-                      onChange={(e) => handleFieldChange("destinationZone", e.target.value)}
-                      className={`${inputClass} flex-1`}
-                    />
-                    <input
-                      type="text"
-                      value={form.destinationZoneCode}
-                      placeholder="Code"
-                      onChange={(e) => handleFieldChange("destinationZoneCode", e.target.value)}
-                      className={`${inputClass} w-20 bg-gray-50 text-gray-500`}
-                    />
-                  </div>
-                </div>
-
-                {/* 14. Destination */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Destination</FieldLabel>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={form.destination}
-                      placeholder="Enter Destination"
-                      onChange={(e) => handleFieldChange("destination", e.target.value)}
-                      className={`${inputClass} flex-1`}
-                    />
-                    <input
-                      type="text"
-                      value={form.destinationCode}
-                      placeholder="Code"
-                      onChange={(e) => handleFieldChange("destinationCode", e.target.value)}
-                      className={`${inputClass} w-20 bg-gray-50 text-gray-500`}
-                    />
-                  </div>
-                </div>
-
-                {/* 15. Destination City */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Destination City</FieldLabel>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={form.destinationCity}
-                      placeholder="SEARCH HERE.."
-                      onChange={(e) => handleFieldChange("destinationCity", e.target.value)}
-                      className={`${inputClass} flex-1`}
-                    />
-                    <input
-                      type="text"
-                      value={form.destinationCityCode}
-                      placeholder="Code"
-                      onChange={(e) => handleFieldChange("destinationCityCode", e.target.value)}
-                      className={`${inputClass} w-20 bg-gray-50 text-gray-500`}
-                    />
-                  </div>
-                </div>
-
-                {/* 16. Destination State */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Destination State</FieldLabel>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={form.destinationState}
-                      placeholder="SEARCH HERE.."
-                      onChange={(e) => handleFieldChange("destinationState", e.target.value)}
-                      className={`${inputClass} flex-1`}
-                    />
-                    <input
-                      type="text"
-                      value={form.destinationStateCode}
-                      placeholder="Code"
-                      onChange={(e) => handleFieldChange("destinationStateCode", e.target.value)}
-                      className={`${inputClass} w-20 bg-gray-50 text-gray-500`}
-                    />
-                  </div>
-                </div>
-
-                {/* 17. Contract Type * */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel required>Contract Type</FieldLabel>
-                  <CommonDropdown
-                    value={form.contractType}
-                    onChange={(val) => handleFieldChange("contractType", val)}
-                    options={CONTRACT_TYPE_OPTIONS}
-                    placeholder="Select Contract Type"
-                    className={errors.contractType ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
-                  />
-                  <FieldError message={errors.contractType} />
-                </div>
-
-                {/* 18. Calculation Method * */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel required>Calculation Method</FieldLabel>
-                  <CommonDropdown
-                    value={form.calculationMethod}
-                    onChange={(val) => handleFieldChange("calculationMethod", val)}
-                    options={CALCULATION_METHOD_OPTIONS}
-                    placeholder="Select Method"
-                    className={errors.calculationMethod ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
-                  />
-                  <FieldError message={errors.calculationMethod} />
-                </div>
-
-                {/* 19. Effective From * */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel required>Effective From</FieldLabel>
-                  <CustomDatePicker
-                    value={form.effectiveFrom}
-                    onChange={(val) => handleFieldChange("effectiveFrom", val)}
-                    placeholder="mm/dd/yyyy"
-                    className={errors.effectiveFrom ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
-                  />
-                  <FieldError message={errors.effectiveFrom} />
-                </div>
-
-                {/* 20. Effective To * */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel required>Effective To</FieldLabel>
-                  <CustomDatePicker
-                    value={form.effectiveTo}
-                    onChange={(val) => handleFieldChange("effectiveTo", val)}
-                    placeholder="mm/dd/yyyy"
-                    className={errors.effectiveTo ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
-                  />
-                  <FieldError message={errors.effectiveTo} />
-                </div>
-
-                {/* 21. Incoterm */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Incoterm</FieldLabel>
-                  <CommonDropdown
-                    value={form.incoterm}
-                    onChange={(val) => handleFieldChange("incoterm", val)}
-                    options={INCOTERM_OPTIONS}
-                    placeholder="SELECT INCOTERM.."
-                  />
-                </div>
-
-                {/* 22. TAT */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>TAT</FieldLabel>
-                  <input
-                    type="text"
-                    value={form.tat}
-                    placeholder="Enter TAT"
-                    onChange={(e) => handleFieldChange("tat", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-
-                {/* 23. Minimum Freight */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Minimum Freight</FieldLabel>
-                  <input
-                    type="number"
-                    min="0"
-                    step="any"
-                    value={form.minimumFreight}
-                    placeholder="Enter Minimum Freight"
-                    onChange={(e) => handleFieldChange("minimumFreight", e.target.value)}
-                    className={inputClass}
-                  />
-                </div>
-
-                {/* 24. Status (Radio) */}
-                <div className="flex flex-col gap-1">
-                  <FieldLabel>Status</FieldLabel>
-                  <div className="flex items-center gap-6 h-10 px-1">
-                    <label className="flex items-center gap-2 cursor-pointer text-regular-medium text-axc-dark-gray">
-                      <input
-                        type="radio"
-                        name="status"
-                        value="ACTIVE"
-                        checked={form.status === "ACTIVE"}
-                        onChange={() => handleFieldChange("status", "ACTIVE")}
-                        className="w-4 h-4 accent-axc-navy cursor-pointer"
-                      />
-                      <span>ACTIVE</span>
-                    </label>
-                    <label className="flex items-center gap-2 cursor-pointer text-regular-medium text-axc-dark-gray">
-                      <input
-                        type="radio"
-                        name="status"
-                        value="INACTIVE"
-                        checked={form.status === "INACTIVE"}
-                        onChange={() => handleFieldChange("status", "INACTIVE")}
-                        className="w-4 h-4 accent-axc-navy cursor-pointer"
-                      />
-                      <span>INACTIVE</span>
-                    </label>
-                  </div>
-                </div>
-
-                {/* 25. Remarks */}
-                <div className="flex flex-col gap-1 md:col-span-2 lg:col-span-1">
-                  <FieldLabel>Remarks</FieldLabel>
-                  <textarea
-                    rows={2}
-                    value={form.remarks}
-                    placeholder="Enter Remarks"
-                    onChange={(e) => handleFieldChange("remarks", e.target.value)}
-                    className="border border-axc-border rounded-md px-3 py-2 outline-none w-full text-regular-small text-axc-gray resize-none focus:border-axc-navy focus:ring-1 focus:ring-axc-navy transition"
-                  />
-                </div>
-
-                {/* 26. Notes */}
-                <div className="flex flex-col gap-1 md:col-span-2 lg:col-span-2">
-                  <FieldLabel>Notes</FieldLabel>
-                  <textarea
-                    rows={2}
-                    value={form.notes}
-                    placeholder="Enter Notes"
-                    onChange={(e) => handleFieldChange("notes", e.target.value)}
-                    className="border border-axc-border rounded-md px-3 py-2 outline-none w-full text-regular-small text-axc-gray resize-none focus:border-axc-navy focus:ring-1 focus:ring-axc-navy transition"
-                  />
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom Actions */}
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <Link
-                href="/master/customer"
-                className="px-5 py-2.5 rounded-lg border border-axc-border bg-white text-axc-dark-gray text-regular-small hover:bg-gray-50 transition cursor-pointer font-medium"
+        {/* Active Filter Tags */}
+        {activeTags.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 mb-3 shrink-0">
+            {activeTags.map((tag) => (
+              <span
+                key={tag}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border border-axc-navy/20 bg-axc-navy/5 text-axc-navy"
               >
-                Cancel
-              </Link>
-              <button
-                type="submit"
-                disabled={saving}
-                className="px-6 py-2.5 bg-axc-navy text-white rounded-lg text-regular-small transition shadow-sm hover:bg-axc-navy/90 cursor-pointer font-medium disabled:opacity-50 flex items-center gap-2"
-              >
-                <Save size={15} />
-                {saving ? "Saving..." : "Save Customer Contract"}
-              </button>
-            </div>
-          </form>
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => setActiveTags((prev) => prev.filter((t) => t !== tag))}
+                  className="hover:text-red-500 transition cursor-pointer"
+                >
+                  <X size={12} />
+                </button>
+              </span>
+            ))}
+            <button
+              type="button"
+              onClick={() => setActiveTags([])}
+              className="text-xs text-axc-gray hover:text-axc-navy underline transition cursor-pointer ml-1"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
+
+        {/* Common Table */}
+        <div className="flex-1 min-h-0 flex flex-col">
+          <CommonTable
+            headings={tableHeadings}
+            data={paginatedData}
+            currentPage={page}
+            onPageChange={setPage}
+            itemsPerPage={itemsPerPage}
+            sortKey={sortKey}
+            sortDirection={sortDirection}
+            onSort={handleSort}
+            selectable={true}
+            rowKey="id"
+            selectedIds={selectedIds}
+            onSelectionChange={setSelectedIds}
+            showScroll={true}
+            emptyMessage={
+              activeTags.length > 0 || searchQuery
+                ? "No contracts found matching your filters."
+                : "No customer contracts found. Click 'New Contract' to add one."
+            }
+          />
         </div>
       </div>
 
-      {/* ══════════════ HISTORY MODAL ══════════════ */}
-      {showHistory && (
+      {/* ══════════════ VIEW CONTRACT DETAILS MODAL ══════════════ */}
+      {viewContract && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden border border-gray-200 animate-in fade-in zoom-in-95 duration-150">
-            {/* Modal Header */}
-            <div className="px-5 py-3.5 border-b border-gray-200 flex items-center justify-between bg-gray-50/60">
-              <div className="flex items-center gap-2">
-                <History className="text-amber-500" size={18} />
-                <h3 className="text-sm font-bold text-gray-800 uppercase tracking-wide">
-                  Customer Contracts History
-                </h3>
-                <span className="text-xs bg-amber-100 text-amber-800 font-semibold px-2 py-0.5 rounded-full">
-                  {historyList.length} Records
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-200 animate-in fade-in zoom-in-95 duration-150">
+            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-axc-navy/5">
+              <div className="flex items-center gap-3">
+                <span className="p-2 rounded-lg bg-axc-navy text-white">
+                  <FileText size={18} />
                 </span>
+                <div>
+                  <h3 className="text-base font-bold text-gray-900">
+                    Contract Details: {viewContract.id}
+                  </h3>
+                  <p className="text-xs text-gray-500 font-medium">{viewContract.customer}</p>
+                </div>
               </div>
               <button
                 type="button"
-                onClick={() => setShowHistory(false)}
-                className="text-gray-400 hover:text-gray-600 transition p-1 rounded-md cursor-pointer"
+                onClick={() => setViewContract(null)}
+                className="text-gray-400 hover:text-gray-600 transition p-1.5 rounded-md cursor-pointer"
               >
                 <X size={18} />
               </button>
             </div>
 
-            {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {historyList.length === 0 ? (
-                <div className="text-center py-12 text-gray-400 text-sm">
-                  No customer contracts saved yet. Fill the form and click Save!
+            <div className="flex-1 overflow-y-auto p-6 space-y-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {/* Primary Info Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 rounded-lg bg-gray-50/70 border border-gray-200 text-xs">
+                <div>
+                  <span className="text-gray-400 block mb-0.5">Customer</span>
+                  <span className="font-semibold text-gray-900">{viewContract.customer}</span>
                 </div>
-              ) : (
-                <div className="overflow-x-auto border border-gray-200 rounded-lg">
-                  <table className="w-full text-left text-xs text-gray-600">
-                    <thead className="bg-gray-50 border-b border-gray-200 text-gray-700 font-bold uppercase tracking-wider">
-                      <tr>
-                        <th className="px-3 py-2.5">ID</th>
-                        <th className="px-3 py-2.5">Customer</th>
-                        <th className="px-3 py-2.5">Service</th>
-                        <th className="px-3 py-2.5">Product</th>
-                        <th className="px-3 py-2.5">Contract Type</th>
-                        <th className="px-3 py-2.5">Method</th>
-                        <th className="px-3 py-2.5">Effective</th>
-                        <th className="px-3 py-2.5">Status</th>
-                        <th className="px-3 py-2.5 text-center">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {historyList.map((item) => (
-                        <tr key={item.id} className="hover:bg-gray-50/60 transition">
-                          <td className="px-3 py-2 font-semibold text-axc-navy">{item.id}</td>
-                          <td className="px-3 py-2 font-medium text-gray-800">
-                            {item.customer} {item.customerCode ? `(${item.customerCode})` : ""}
-                          </td>
-                          <td className="px-3 py-2">{item.service || "-"}</td>
-                          <td className="px-3 py-2">{item.product || "-"}</td>
-                          <td className="px-3 py-2">{item.contractType}</td>
-                          <td className="px-3 py-2">{item.calculationMethod}</td>
-                          <td className="px-3 py-2 whitespace-nowrap">
-                            {item.effectiveFrom} to {item.effectiveTo}
-                          </td>
-                          <td className="px-3 py-2">
-                            <span
-                              className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                item.status === "ACTIVE"
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              {item.status}
-                            </span>
-                          </td>
-                          <td className="px-3 py-2 text-center">
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteHistory(item.id)}
-                              className="text-red-500 hover:text-red-700 p-1 transition cursor-pointer"
-                              title="Delete record"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </td>
+                <div>
+                  <span className="text-gray-400 block mb-0.5">Service</span>
+                  <span className="font-semibold text-gray-900">{viewContract.service || "-"}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block mb-0.5">Product</span>
+                  <span className="font-semibold text-gray-900">{viewContract.product || "-"}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block mb-0.5">Origin Hub</span>
+                  <span className="font-semibold text-blue-700">{viewContract.originHub || "-"}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block mb-0.5">Destination Hub</span>
+                  <span className="font-semibold text-purple-700">{viewContract.destinationHub || "-"}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block mb-0.5">Contract Type</span>
+                  <span className="font-semibold text-gray-900">{viewContract.contractType}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block mb-0.5">Calculation Method</span>
+                  <span className="font-semibold text-gray-900">{viewContract.calculationMethod}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block mb-0.5">Effective Period</span>
+                  <span className="font-semibold text-gray-900">
+                    {viewContract.effectiveFrom} to {viewContract.effectiveTo}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block mb-0.5">Status</span>
+                  <span
+                    className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold ${
+                      viewContract.status === "ACTIVE"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {viewContract.status}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block mb-0.5">Airline / Flight</span>
+                  <span className="font-semibold text-gray-900">
+                    {viewContract.airline || "-"} {viewContract.flight ? `(${viewContract.flight})` : ""}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block mb-0.5">Vendor</span>
+                  <span className="font-semibold text-gray-900">{viewContract.vendor || "-"}</span>
+                </div>
+                <div>
+                  <span className="text-gray-400 block mb-0.5">TAT / Min Freight</span>
+                  <span className="font-semibold text-gray-900">
+                    {viewContract.tat || "-"} / {viewContract.minimumFreight || "-"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Rate Items Table */}
+              {viewContract.rateItems && viewContract.rateItems.length > 0 && (
+                <div>
+                  <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">
+                    Contract Rate Slabs ({viewContract.rateItems.length})
+                  </h4>
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <table className="w-full text-xs text-left">
+                      <thead className="bg-gray-100 border-b border-gray-200 text-gray-700 font-semibold">
+                        <tr>
+                          <th className="py-2 px-3 text-center w-12">Sr#</th>
+                          <th className="py-2 px-3">On Addition</th>
+                          <th className="py-2 px-3 text-center">Lower Wt./Box</th>
+                          <th className="py-2 px-3 text-center">Upper Wt./Box</th>
+                          <th className="py-2 px-3 text-center">Rate</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100">
+                        {viewContract.rateItems.map((item) => (
+                          <tr key={item.id} className="hover:bg-gray-50">
+                            <td className="py-2 px-3 text-center font-medium text-gray-500">
+                              {item.srNo}
+                            </td>
+                            <td className="py-2 px-3 font-semibold text-gray-800">
+                              {item.onAddition || "-"}
+                            </td>
+                            <td className="py-2 px-3 text-center">{item.lowerWtBox || "-"}</td>
+                            <td className="py-2 px-3 text-center">{item.upperWtBox || "-"}</td>
+                            <td className="py-2 px-3 text-center font-bold text-axc-navy">
+                              {item.rate || "-"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              )}
+
+              {/* Remarks & Notes */}
+              {(viewContract.remarks || viewContract.notes) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  {viewContract.remarks && (
+                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <span className="font-bold text-gray-700 block mb-1">Remarks:</span>
+                      <p className="text-gray-600 whitespace-pre-wrap">{viewContract.remarks}</p>
+                    </div>
+                  )}
+                  {viewContract.notes && (
+                    <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <span className="font-bold text-gray-700 block mb-1">Notes:</span>
+                      <p className="text-gray-600 whitespace-pre-wrap">{viewContract.notes}</p>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
-            {/* Modal Footer */}
-            <div className="px-5 py-3 border-t border-gray-200 bg-gray-50/50 flex justify-end">
+            <div className="px-6 py-3.5 border-t border-gray-200 bg-gray-50/70 flex items-center justify-between">
               <button
                 type="button"
-                onClick={() => setShowHistory(false)}
-                className="px-4 py-1.5 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-xs font-semibold transition cursor-pointer"
+                onClick={() => {
+                  const id = viewContract.id;
+                  setViewContract(null);
+                  router.push(`/master/customer-contracts/create?edit=${id}`);
+                }}
+                className="px-4 py-2 bg-axc-navy text-white rounded-lg text-xs font-semibold hover:bg-axc-navy/90 transition flex items-center gap-1.5 cursor-pointer"
+              >
+                <Pencil size={13} />
+                Edit Contract
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewContract(null)}
+                className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-xs font-semibold transition cursor-pointer"
               >
                 Close
               </button>
@@ -783,6 +696,26 @@ export default function CustomerContractsPage() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <DeleteConfirmationDialog
+        isOpen={Boolean(deleteTarget)}
+        itemName={deleteTarget?.customer ? `${deleteTarget.customer} (${deleteTarget.id})` : deleteTarget?.id}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={handleConfirmSingleDelete}
+        isLoading={isDeleting}
+      />
+
+      {/* Bulk Delete Dialog */}
+      <DeleteConfirmationDialog
+        isOpen={bulkDeleteOpen}
+        itemName={`${selectedIds.length} ${
+          selectedIds.length === 1 ? "contract" : "contracts"
+        }`}
+        onCancel={() => setBulkDeleteOpen(false)}
+        onConfirm={handleConfirmBulkDelete}
+        isLoading={isDeleting}
+      />
     </div>
   );
 }

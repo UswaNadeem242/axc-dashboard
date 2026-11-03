@@ -55,6 +55,7 @@ const ROUTE_TITLES: Record<string, string> = {
   "/master/customer": "Master Management",
   "/master/customer/create": "Master Management",
   "/master/customer-contracts": "Master Management",
+  "/master/customer-contracts/create": "Master Management",
 };
 
 function formatSegmentLabel(segment: string): string {

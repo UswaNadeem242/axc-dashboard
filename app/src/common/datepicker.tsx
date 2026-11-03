@@ -12,6 +12,7 @@ interface DatePickerProps {
   minDate?: string;
   maxDate?: string;
   align?: "left" | "right";
+  openDirection?: "up" | "down" | "auto";
 }
 
 const MONTH_NAMES = [
@@ -97,6 +98,7 @@ export default function CustomDatePicker({
   minDate,
   maxDate,
   align = "left",
+  openDirection = "auto",
 }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [openUpwards, setOpenUpwards] = useState(false);
@@ -133,6 +135,14 @@ export default function CustomDatePicker({
 
   useEffect(() => {
     if (isOpen && containerRef.current) {
+      if (openDirection === "down") {
+        setOpenUpwards(false);
+        return;
+      }
+      if (openDirection === "up") {
+        setOpenUpwards(true);
+        return;
+      }
       const rect = containerRef.current.getBoundingClientRect();
       const spaceBelow = window.innerHeight - rect.bottom;
       // If space below is tight (< 340px) and there's enough space above, flip upwards
@@ -142,7 +152,7 @@ export default function CustomDatePicker({
         setOpenUpwards(false);
       }
     }
-  }, [isOpen]);
+  }, [isOpen, openDirection]);
 
   useEffect(() => {
     if (!isOpen) return;

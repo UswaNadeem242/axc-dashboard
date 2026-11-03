@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { Save } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
+import { PanelHeader } from "@/app/create-entries/components/form";
 import { ORIGIN_HUB_OPTIONS } from "../../types";
 
 const ALL_HUBS = ORIGIN_HUB_OPTIONS.map((o) => o.value);
@@ -25,48 +25,53 @@ export default function HubTab() {
 
   return (
     <div className="flex flex-col gap-4 w-full mt-4 pb-6">
-      {/* Hub table */}
-      <div className="border border-axc-border rounded-lg overflow-hidden">
-        <table className="w-full text-regular-small">
-          <tbody>
-            {/* SELECT ALL row */}
-            <tr className="border-b border-axc-border bg-white">
-              <td className="px-4 py-2.5 font-semibold text-axc-dark-gray uppercase tracking-wide text-xs">
-                SELECT ALL
-              </td>
-              <td className="px-4 py-2.5 text-right w-12">
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  onChange={toggleSelectAll}
-                  className="w-4 h-4 accent-axc-navy cursor-pointer"
-                />
-              </td>
-            </tr>
+      {/* Hub Card with Top Panel Header */}
+      <div className="bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
+        <PanelHeader title="Hub information" />
 
-            {/* Individual hub rows */}
-            {ALL_HUBS.map((hub, idx) => (
-              <tr
-                key={hub}
-                className={`border-b border-axc-border last:border-b-0 ${
-                  idx % 2 === 0 ? "bg-white" : "bg-gray-50/60"
-                }`}
-              >
-                <td className="px-4 py-2.5 text-black text-regular-small">
-                  {hub}
+        {/* Hub table */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-regular-small">
+            <tbody>
+              {/* SELECT ALL row */}
+              <tr className="border-b border-axc-border bg-gray-50/70">
+                <td className="px-4 py-3 font-semibold text-axc-dark-gray uppercase tracking-wide text-xs">
+                  SELECT ALL
                 </td>
-                <td className="px-4 py-2.5 text-right w-12">
+                <td className="px-4 py-3 text-right w-12">
                   <input
                     type="checkbox"
-                    checked={selectedHubs.includes(hub)}
-                    onChange={() => toggleHub(hub)}
+                    checked={allSelected}
+                    onChange={toggleSelectAll}
                     className="w-4 h-4 accent-axc-navy cursor-pointer"
                   />
                 </td>
               </tr>
-            ))}
-          </tbody>
-        </table>
+
+              {/* Individual hub rows */}
+              {ALL_HUBS.map((hub, idx) => (
+                <tr
+                  key={hub}
+                  className={`border-b border-axc-border last:border-b-0 transition-colors ${
+                    idx % 2 === 0 ? "bg-white hover:bg-gray-50/50" : "bg-gray-50/40 hover:bg-gray-50/80"
+                  }`}
+                >
+                  <td className="px-4 py-2.5 text-black text-regular-small">
+                    {hub}
+                  </td>
+                  <td className="px-4 py-2.5 text-right w-12">
+                    <input
+                      type="checkbox"
+                      checked={selectedHubs.includes(hub)}
+                      onChange={() => toggleHub(hub)}
+                      className="w-4 h-4 accent-axc-navy cursor-pointer"
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* Save button — bottom right */}
@@ -75,6 +80,7 @@ export default function HubTab() {
           type="button"
           onClick={handleSave}
           className="px-5 py-4 bg-axc-navy cursor-pointer text-white rounded-lg text-regular-small transition shadow-sm"
+
         >
           Save
         </button>
@@ -82,4 +88,3 @@ export default function HubTab() {
     </div>
   );
 }
-

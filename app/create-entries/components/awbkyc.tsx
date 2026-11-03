@@ -271,7 +271,7 @@ function KycSection({
   return (
     <div className="w-full bg-white rounded-lg border border-axc-border shadow-sm overflow-hidden flex flex-col">
       {/* Section Header */}
-      <div className="bg-axc-navy/60 border-b border-axc-border px-4 py-5 white  flex items-center justify-between flex-wrap gap-
+      <div className="bg-axc-navy/60 border-b border-axc-border px-4 py-4 white  flex items-center justify-between flex-wrap gap-
         text-white p-4  rounded-tl-lg  rounded-tr-lg   gap-2">
         <div className="flex items-center gap-2 flex-wrap">
           <h2 className="text-regular-bold text-white capitalize tracking-wide">
