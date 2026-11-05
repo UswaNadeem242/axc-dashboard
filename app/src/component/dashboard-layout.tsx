@@ -27,6 +27,8 @@ const SEGMENT_LABELS: Record<string, string> = {
   "master": "Master",
   "customer": "Customer",
   "customer-contracts": "Customer Contracts",
+  "currency": "Currency",
+  "rate-modifier": "Rate Modifier",
 };
 
 const PARENT_ROUTE_REDIRECTS: Record<string, string> = {
@@ -56,6 +58,10 @@ const ROUTE_TITLES: Record<string, string> = {
   "/master/customer/create": "Master Management",
   "/master/customer-contracts": "Master Management",
   "/master/customer-contracts/create": "Master Management",
+  "/master/currency": "Master Management",
+  "/master/currency/create": "Master Management",
+  "/master/rate-modifier": "Master Management",
+  "/master/rate-modifier/create": "Master Management",
 };
 
 function formatSegmentLabel(segment: string): string {

@@ -110,6 +110,21 @@ export const menuItems: MenuItem[] = [
            { label: "Customer Contracts", id: "customer-contracts", href: "/master/customer-contracts" },
         ],
       },
+      {
+        label: "Currency",
+        id: "currency",
+        href: "/master/currency",
+      },
+      {
+        label: "Shipper",
+        id: "shipper",
+        href: "/master/shipper",
+      },
+      {
+        label: "Rate Modifier",
+        id: "rate-modifier",
+        href: "/master/rate-modifier",
+      },
     ],
   },
   // { label: "Rate Calculation", icon: Calculator, id: "rate-calculation" },
