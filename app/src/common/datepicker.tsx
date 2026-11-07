@@ -1,10 +1,16 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { ArrowLeft, ArrowRight, Calendar as CalendarIcon, X } from "lucide-react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Calendar as CalendarIcon,
+  X,
+} from "lucide-react";
 
 interface DatePickerProps {
-  value?: string; 
+  value?: string;
   onChange?: (date: string) => void;
   placeholder?: string;
   className?: string;
@@ -101,8 +107,21 @@ export default function CustomDatePicker({
   openDirection = "auto",
 }: DatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [openUpwards, setOpenUpwards] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const popupRef = useRef<HTMLDivElement>(null);
+
+  const [coords, setCoords] = useState<{
+    top: number;
+    left: number;
+    arrowLeft: number;
+    openUpwards: boolean;
+  }>({
+    top: 0,
+    left: 0,
+    arrowLeft: 24,
+    openUpwards: false,
+  });
 
   const selectedDate = parseDate(value);
   const minDateObj = (() => {
@@ -123,9 +142,15 @@ export default function CustomDatePicker({
     }
     return null;
   })();
+
   const [viewDate, setViewDate] = useState<Date>(() => {
     return selectedDate || new Date();
   });
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     if (value) {
       const parsed = parseDate(value);
@@ -133,36 +158,110 @@ export default function CustomDatePicker({
     }
   }, [value]);
 
-  useEffect(() => {
-    if (isOpen && containerRef.current) {
-      if (openDirection === "down") {
-        setOpenUpwards(false);
-        return;
-      }
-      if (openDirection === "up") {
-        setOpenUpwards(true);
-        return;
-      }
-      const rect = containerRef.current.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - rect.bottom;
-      // If space below is tight (< 340px) and there's enough space above, flip upwards
-      if (spaceBelow < 340 && rect.top > 340) {
-        setOpenUpwards(true);
+  const updatePosition = useCallback(() => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+
+    const CALENDAR_WIDTH = 300;
+    const CALENDAR_HEIGHT = 336;
+    const PADDING = 8;
+    const GAP = 6;
+
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+
+    let upwards = false;
+    if (openDirection === "up") {
+      upwards = true;
+    } else if (openDirection === "down") {
+      upwards = false;
+    } else {
+      // Auto: prefer downward unless not enough space below AND there's more space above
+      if (spaceBelow < CALENDAR_HEIGHT + GAP && spaceAbove > spaceBelow) {
+        upwards = true;
       } else {
-        setOpenUpwards(false);
+        upwards = false;
       }
     }
-  }, [isOpen, openDirection]);
 
+    let top = upwards
+      ? rect.top - CALENDAR_HEIGHT - GAP
+      : rect.bottom + GAP;
+
+    // Viewport edge clamping
+    if (top < PADDING) {
+      top = PADDING;
+    } else if (top + CALENDAR_HEIGHT > window.innerHeight - PADDING) {
+      top = Math.max(PADDING, window.innerHeight - CALENDAR_HEIGHT - PADDING);
+    }
+
+    let left = align === "right" ? rect.right - CALENDAR_WIDTH : rect.left;
+
+    // Viewport horizontal edge clamping
+    if (left + CALENDAR_WIDTH > window.innerWidth - PADDING) {
+      left = window.innerWidth - CALENDAR_WIDTH - PADDING;
+    }
+    if (left < PADDING) {
+      left = PADDING;
+    }
+
+    // Calculate pointer arrow position relative to popup
+    const targetAnchorX = rect.left + Math.min(28, rect.width / 2);
+    const arrowLeft = Math.max(16, Math.min(CALENDAR_WIDTH - 24, targetAnchorX - left));
+
+    setCoords({
+      top,
+      left,
+      arrowLeft,
+      openUpwards: upwards,
+    });
+  }, [openDirection, align]);
+
+  // Recalculate position when opened, resized, or scrolled
   useEffect(() => {
     if (!isOpen) return;
+    updatePosition();
+
+    const handleScrollOrResize = () => {
+      updatePosition();
+    };
+
+    window.addEventListener("scroll", handleScrollOrResize, true);
+    window.addEventListener("resize", handleScrollOrResize);
+    return () => {
+      window.removeEventListener("scroll", handleScrollOrResize, true);
+      window.removeEventListener("resize", handleScrollOrResize);
+    };
+  }, [isOpen, updatePosition]);
+
+  // Click outside and ESC handling
+  useEffect(() => {
+    if (!isOpen) return;
+
     const handleClickOutside = (e: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(target) &&
+        popupRef.current &&
+        !popupRef.current.contains(target)
+      ) {
         setIsOpen(false);
       }
     };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsOpen(false);
+      }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, [isOpen]);
 
   const viewYear = viewDate.getFullYear();
@@ -202,6 +301,7 @@ export default function CustomDatePicker({
       today.getDate() === day
     );
   };
+
   const isDayDisabled = (year: number, month: number, day: number) => {
     const date = new Date(year, month, day);
     date.setHours(0, 0, 0, 0);
@@ -217,15 +317,22 @@ export default function CustomDatePicker({
 
   return (
     <div ref={containerRef} className="relative w-full">
+      {/* Input Display Box */}
       <div
-        onClick={() => !disabled && setIsOpen(!isOpen)}
-        className={`flex items-center justify-between bg-white border border-axc-border rounded-md px-3 py-2.5 outline-none transition cursor-pointer select-none text-regular-small ${
-          disabled
-            ? "bg-gray-50 text-axc-dark-gray cursor-not-allowed"
-            : ""
+        onClick={() => {
+          if (!disabled) {
+            setIsOpen((prev) => !prev);
+          }
+        }}
+        className={`flex items-center justify-between bg-white border border-axc-border rounded-md px-3 py-2 outline-none transition cursor-pointer select-none text-xs ${
+          disabled ? "bg-gray-50 text-axc-dark-gray cursor-not-allowed" : ""
         } ${className}`}
       >
-        <span className={`block truncate ${value ? "text-gray-800 font-medium" : "text-gray-400"}`}>
+        <span
+          className={`block truncate ${
+            value ? "text-gray-800 font-medium" : "text-gray-400"
+          }`}
+        >
           {value || placeholder}
         </span>
         <div className="flex items-center gap-1.5 shrink-0 text-gray-400">
@@ -236,125 +343,167 @@ export default function CustomDatePicker({
                 e.stopPropagation();
                 onChange?.("");
               }}
-              className="hover:text-gray-600 transition"
+              className="p-0.5 rounded hover:bg-gray-100 hover:text-gray-600 transition"
               title="Clear Date"
             >
-              <X size={12} />
+              <X size={13} />
             </button>
           )}
           <CalendarIcon size={14} className="text-gray-400" />
         </div>
       </div>
-      {isOpen && (
-        <div
-          className={`absolute ${
-            openUpwards ? "bottom-full mb-1 pb-2" : "top-full mt-1 pt-2"
-          } z-[9999] w-[290px] animate-in fade-in zoom-in-95 duration-100 ${
-            align === "right" ? "right-0" : "left-0"
-          }`}
-        >
+
+      {/* Portal-Rendered Calendar to Prevent ANY Overflow Clipping */}
+      {isOpen &&
+        mounted &&
+        createPortal(
           <div
-            className={`absolute ${
-              openUpwards
-                ? "bottom-[2px] border-r border-b"
-                : "top-[2px] border-l border-t"
-            } ${
-              align === "right" ? "right-6" : "left-6"
-            } h-3.5 w-3.5 rotate-45 border-axc-border bg-white z-20`}
-          />
+            ref={popupRef}
+            style={{
+              position: "fixed",
+              top: `${coords.top}px`,
+              left: `${coords.left}px`,
+              zIndex: 99999,
+            }}
+            className="w-[300px] select-none animate-in fade-in zoom-in-95 duration-150 drop-shadow-2xl"
+          >
+            {/* Pointer Notch */}
+            <div
+              style={{ left: `${coords.arrowLeft}px` }}
+              className={`absolute ${
+                coords.openUpwards
+                  ? "bottom-[-5px] border-r border-b"
+                  : "top-[-5px] border-l border-t"
+              } h-2.5 w-2.5 rotate-45 border-axc-border bg-white z-20 pointer-events-none`}
+            />
 
-          <div className="relative z-10 bg-white rounded-2xl border border-axc-border shadow-xl p-4">
-            <div className="flex items-center justify-between mb-3 px-1">
-            <button
-              type="button"
-              onClick={handlePrevMonth}
-              className="p-1 rounded-lg hover:bg-gray-100 text-gray-700 transition cursor-pointer"
-              title="Previous Month"
-            >
-              <ArrowLeft size={16} />
-            </button>
+            {/* Calendar Card */}
+            <div className="relative z-10 bg-white rounded-2xl border border-axc-border shadow-2xl p-4">
+              {/* Header Navigation */}
+              <div className="flex items-center justify-between mb-3 px-1">
+                <button
+                  type="button"
+                  onClick={handlePrevMonth}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-700 transition cursor-pointer"
+                  title="Previous Month"
+                >
+                  <ChevronLeft size={16} />
+                </button>
 
-            <h4 className="text-[14px] font-bold text-gray-900 tracking-tight">
-              {MONTH_NAMES[viewMonth]} {viewYear}
-            </h4>
+                <h4 className="text-[13.5px] font-bold text-gray-900 tracking-tight">
+                  {MONTH_NAMES[viewMonth]} {viewYear}
+                </h4>
 
-            <button
-              type="button"
-              onClick={handleNextMonth}
-              className="p-1 rounded-lg hover:bg-gray-100 text-gray-700 transition cursor-pointer"
-              title="Next Month"
-            >
-              <ArrowRight size={16} />
-            </button>
-          </div>
+                <button
+                  type="button"
+                  onClick={handleNextMonth}
+                  className="p-1.5 rounded-lg hover:bg-gray-100 text-gray-700 transition cursor-pointer"
+                  title="Next Month"
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
 
-          <div className="grid grid-cols-7 text-center mb-1">
-            {WEEK_DAYS.map((d) => (
-              <span key={d} className="text-[11px] font-medium text-gray-400 py-1">
-                {d}
-              </span>
-            ))}
-          </div>
+              {/* Day of Week Labels */}
+              <div className="grid grid-cols-7 text-center mb-1.5">
+                {WEEK_DAYS.map((d) => (
+                  <span
+                    key={d}
+                    className="text-[10.5px] font-semibold text-gray-400 py-1 uppercase tracking-wider"
+                  >
+                    {d}
+                  </span>
+                ))}
+              </div>
 
-          <div className="grid grid-cols-7 gap-y-1.5 text-center">
-            {blanks.map((b) => (
-              <div key={`blank-${b}`} className="h-8 w-8" />
-            ))}
+              {/* Days Grid */}
+              <div className="grid grid-cols-7 gap-y-1 text-center">
+                {blanks.map((b) => (
+                  <div key={`blank-${b}`} className="h-8 w-8" />
+                ))}
 
-            {days.map((day) => {
-              const active = isSelected(viewYear, viewMonth, day);
-              const today = isToday(viewYear, viewMonth, day);
-              const isPast = isDayDisabled(viewYear, viewMonth, day);
+                {days.map((day) => {
+                  const active = isSelected(viewYear, viewMonth, day);
+                  const today = isToday(viewYear, viewMonth, day);
+                  const isPast = isDayDisabled(viewYear, viewMonth, day);
 
-              return (
-                <div key={`day-${day}`} className="flex items-center justify-center">
+                  return (
+                    <div
+                      key={`day-${day}`}
+                      className="flex items-center justify-center"
+                    >
+                      <button
+                        type="button"
+                        disabled={isPast}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (isPast) return;
+                          handleSelectDay(viewYear, viewMonth, day);
+                        }}
+                        className={`h-7.5 w-7.5 text-[12px] font-medium transition flex items-center justify-center rounded-full ${
+                          isPast
+                            ? "text-gray-300 opacity-40 cursor-not-allowed pointer-events-none"
+                            : active
+                            ? "bg-axc-navy text-white font-bold shadow-xs cursor-pointer"
+                            : today
+                            ? "border border-axc-navy text-axc-navy font-semibold hover:bg-blue-50 cursor-pointer"
+                            : "text-gray-800 hover:bg-gray-100 cursor-pointer"
+                        }`}
+                      >
+                        {day}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Footer Quick Action Buttons */}
+              <div className="mt-3.5 pt-2.5 border-t border-gray-100 flex items-center justify-between px-1">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const today = new Date();
+                    handleSelectDay(
+                      today.getFullYear(),
+                      today.getMonth(),
+                      today.getDate()
+                    );
+                  }}
+                  className="text-xs font-semibold text-axc-navy hover:underline cursor-pointer"
+                >
+                  Today
+                </button>
+
+                {value && (
                   <button
                     type="button"
-                    disabled={isPast}
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (isPast) return;
-                      handleSelectDay(viewYear, viewMonth, day);
+                      onChange?.("");
+                      setIsOpen(false);
                     }}
-                    className={`h-8 w-8 text-[12px] font-semibold transition flex items-center justify-center ${
-                      isPast
-                        ? "text-gray-300 opacity-50 cursor-not-allowed pointer-events-none"
-                        : active
-                        ? "bg-axc-navy text-white rounded-full shadow-sm cursor-pointer"
-                        : today
-                        ? "border border-axc-navy text-axc-navy rounded-full hover:bg-red-50 cursor-pointer"
-                        : "text-gray-800 hover:bg-gray-100 rounded-full cursor-pointer"
-                    }`}
+                    className="text-xs font-medium text-red-500 hover:text-red-700 hover:underline cursor-pointer"
                   >
-                    {day}
+                    Clear
                   </button>
-                </div>
-              );
-            })}
-          </div>
-            <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between px-1">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const today = new Date();
-                  handleSelectDay(today.getFullYear(), today.getMonth(), today.getDate());
-                }}
-                className="text-regular-medium text-axc-navy hover:underline cursor-pointer"
-              >
-                Today
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="text-[11px] font-semibold text-gray-400 hover:text-gray-700 cursor-pointer"
-              >
-                Close
-              </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsOpen(false);
+                  }}
+                  className="text-xs font-medium text-gray-400 hover:text-gray-700 cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </div>
   );
 }

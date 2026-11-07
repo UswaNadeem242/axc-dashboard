@@ -231,7 +231,7 @@ export default function KycTab({
         <div className="bg-axc-navy/60 border-b border-axc-border px-4 py-3.5 text-white flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2 flex-wrap">
             <h2 className="text-regular-bold text-white uppercase tracking-wide">
-             SHIPPER
+             Document
             </h2>
            
           </div>

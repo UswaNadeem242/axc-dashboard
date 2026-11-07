@@ -121,9 +121,74 @@ export const menuItems: MenuItem[] = [
         href: "/master/shipper",
       },
       {
+        label: "Consignee",
+        id: "consignee",
+        href: "/master/consignee",
+      },
+      {
+        label: "Charge Master",
+        id: "charge-master",
+        href: "/master/charge",
+      },
+      {
         label: "Rate Modifier",
         id: "rate-modifier",
         href: "/master/rate-modifier",
+      },
+      {
+        label: "CFT Contracts",
+        id: "cft-contracts",
+        href: "/master/cft-contracts",
+      },
+      {
+        label: "Zone",
+        id: "zone",
+        href: "/master/zone",
+      },
+      {
+        label: "Country",
+        id: "country",
+        href: "/master/country",
+      },
+      {
+        label: "State",
+        id: "state",
+        href: "/master/state",
+      },
+      {
+        label: "Hub",
+        id: "hub",
+        href: "/master/hub",
+      },
+      {
+        label: "City",
+        id: "city",
+        href: "/master/city",
+      },
+      {
+        label: "Invoice Range",
+        id: "invoice-range",
+        href: "/master/invoice-range",
+      },
+      {
+        label: "AWB Less Invoice",
+        id: "awb-less-invoice",
+        href: "/master/awb-less-invoice",
+      },
+      {
+        label: "AWB State",
+        id: "awb-state",
+        href: "/master/awb-state",
+      },
+      {
+        label: "AWB Status",
+        id: "awb-status",
+        href: "/master/awb-status",
+      },
+      {
+        label: "Whatsapp Masters",
+        id: "whatsapp-masters",
+        href: "/master/whatsapp-masters",
       },
     ],
   },
