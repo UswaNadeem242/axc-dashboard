@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { User, MapPin, ShieldCheck } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import { ORIGIN_HUB_OPTIONS, CustomerEntry, initialCustomerData } from "../types";
 
 import CustomerTab, {
@@ -40,6 +41,10 @@ const defaultForm = (): CustomerFormState => ({
   currency: "USD",
   paymentType: "Credit",
   creditLimit: "50000",
+  userType: "B2B",
+  operationsId: "",
+  billingId: "",
+  status: "Active",
 });
 
 // ─── Page content ─────────────────────────────────────────────────────────────
@@ -57,28 +62,46 @@ function CreateCustomerContent() {
   // Load existing record in edit mode
   useEffect(() => {
     if (!editId || typeof window === "undefined") return;
-    try {
-      const stored = localStorage.getItem("master_customers");
-      const list: CustomerEntry[] = stored ? JSON.parse(stored) : initialCustomerData;
-      const found = list.find((c) => c.id === editId || c.originCode === editId);
-      if (found) {
-        setForm({
-          name: found.name || "",
-          company: found.company || "",
-          originHub: found.originHub || ORIGIN_HUB_OPTIONS[0].value,
-          parentCustomer: found.parentCustomer || "",
-          originCode: found.originCode || "",
-          editOriginCode: true,
-          email: found.email || "",
-          address: found.address || "",
-          currency: found.currency || "USD",
-          paymentType: found.paymentType || "Credit",
-          creditLimit: String(found.creditLimit || ""),
-        });
+    const applyFound = (found: CustomerEntry) => {
+      setForm({
+        name: found.name || "",
+        company: found.company || "",
+        originHub: found.originHub || ORIGIN_HUB_OPTIONS[0].value,
+        parentCustomer: found.parentCustomer || "",
+        originCode: found.originCode || "",
+        editOriginCode: true,
+        email: found.email || "",
+        address: found.address || "",
+        currency: found.currency || "USD",
+        paymentType: found.paymentType || "Credit",
+        creditLimit: String(found.creditLimit || ""),
+        userType: found.userType || "B2B",
+        operationsId: found.operationsId || "",
+        billingId: found.billingId || "",
+        status: found.status || "Active",
+      });
+    };
+
+    const loadItem = async () => {
+      try {
+        const item = await api.getMasterItem<CustomerEntry>("/customers", editId);
+        if (item && item.name) {
+          applyFound(item);
+          return;
+        }
+      } catch (e) {
+        console.warn("API get customer fallback to localStorage:", e);
       }
-    } catch (e) {
-      console.error("Error loading customer for edit:", e);
-    }
+      try {
+        const stored = localStorage.getItem("master_customers");
+        const list: CustomerEntry[] = stored ? JSON.parse(stored) : initialCustomerData;
+        const found = list.find((c) => String(c.id) === String(editId) || c.originCode === editId);
+        if (found) applyFound(found);
+      } catch (e) {
+        console.error("Error loading customer for edit:", e);
+      }
+    };
+    loadItem();
   }, [editId]);
 
   // Auto-update origin code prefix when hub changes
@@ -112,7 +135,7 @@ function CreateCustomerContent() {
   };
 
   // Submit handler
-  const handleSubmit = (ev: React.FormEvent) => {
+  const handleSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
     if (!validate()) {
       showToast({ variant: "error", message: "Please fill in all required fields properly." });
@@ -120,24 +143,37 @@ function CreateCustomerContent() {
     }
     setLoading(true);
     try {
+      const payload = {
+        name: form.name.trim(),
+        company: form.company,
+        originHub: form.originHub,
+        parentCustomer: form.parentCustomer || "None",
+        originCode: form.originCode.trim(),
+        email: form.email.trim(),
+        address: form.address.trim(),
+        currency: form.currency,
+        paymentType: form.paymentType,
+        creditLimit: form.creditLimit ? Number(form.creditLimit) : 0,
+        userType: form.userType || "B2B",
+        operationsId: form.operationsId.trim(),
+        billingId: form.billingId.trim(),
+        status: form.status || "Active",
+      };
       const stored = localStorage.getItem("master_customers");
       const currentList: CustomerEntry[] = stored ? JSON.parse(stored) : [...initialCustomerData];
 
-      if (isEdit) {
+      if (isEdit && editId) {
+        let savedItem: CustomerEntry | null = null;
+        try {
+          savedItem = await api.updateMasterItem<CustomerEntry>("/customers", editId, payload);
+        } catch (e) {
+          console.warn("API update customer fallback to local:", e);
+        }
         const updatedList = currentList.map((item) => {
-          if (item.id === editId || item.originCode === editId) {
-            return {
+          if (String(item.id) === String(editId) || item.originCode === editId) {
+            return savedItem || {
               ...item,
-              name: form.name.trim(),
-              company: form.company,
-              originHub: form.originHub,
-              parentCustomer: form.parentCustomer,
-              originCode: form.originCode.trim(),
-              email: form.email.trim(),
-              address: form.address.trim(),
-              currency: form.currency,
-              paymentType: form.paymentType,
-              creditLimit: form.creditLimit ? Number(form.creditLimit) : "0",
+              ...payload,
             };
           }
           return item;
@@ -145,19 +181,16 @@ function CreateCustomerContent() {
         localStorage.setItem("master_customers", JSON.stringify(updatedList));
         showToast({ variant: "success", message: `Customer "${form.name}" updated successfully!` });
       } else {
-        const newCustomer: CustomerEntry = {
+        let createdItem: CustomerEntry | null = null;
+        try {
+          createdItem = await api.createMasterItem<CustomerEntry>("/customers", payload);
+        } catch (e) {
+          console.warn("API create customer fallback to local:", e);
+        }
+        const newCustomer: CustomerEntry = createdItem || {
           id: `CUST-${Date.now().toString().slice(-4)}`,
           srNo: currentList.length + 1,
-          name: form.name.trim(),
-          company: form.company,
-          originHub: form.originHub,
-          parentCustomer: form.parentCustomer || "None",
-          originCode: form.originCode.trim(),
-          email: form.email.trim(),
-          address: form.address.trim(),
-          currency: form.currency,
-          paymentType: form.paymentType,
-          creditLimit: form.creditLimit ? Number(form.creditLimit) : "0",
+          ...payload,
           createdAt: new Date().toISOString().split("T")[0],
         };
         const updatedList = [newCustomer, ...currentList];

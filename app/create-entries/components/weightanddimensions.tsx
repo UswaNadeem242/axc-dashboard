@@ -2,11 +2,14 @@
 import React from "react";
 import { AwbFormState } from "./formstate";
 import { FieldLabel, PanelHeader, inputClass } from "./form";
+import { useMasterData } from "@/app/src/lib/useMasterData";
 interface Props {
   form: AwbFormState;
   setForm: React.Dispatch<React.SetStateAction<AwbFormState>>;
 }
 export default function WeightsAndDimensions({ form, setForm }: Props) {
+  const { cftContracts } = useMasterData();
+
   const recalculateWeights = (patch: Partial<AwbFormState>) => {
     const updated = { ...form, ...patch };
 
@@ -17,8 +20,17 @@ export default function WeightsAndDimensions({ form, setForm }: Props) {
     let volWt = parseFloat(updated.volumetricWeight) || 0;
 
     if (l > 0 && b > 0 && h > 0) {
-      // Standard IATA courier formula: (L * B * H) / 5000 in cm/kg
-      volWt = Number(((l * b * h) / 5000).toFixed(2));
+      // Match CFT contract divisor & multiplier (fallback to standard IATA 5000)
+      const cust = updated.customer?.trim().toUpperCase();
+      const matchedCft =
+        cftContracts.find((c: any) => {
+          const cCode = String(c.customer_code || c.customerCode || c.customer_name || c.customerName || "").toUpperCase();
+          return !cust || !cCode || cCode.includes(cust);
+        }) || cftContracts[0];
+      const divisor = Number(matchedCft?.cft_value ?? matchedCft?.cftValue ?? 5000) || 5000;
+      const multiplier = Number(matchedCft?.cft_multiplier ?? matchedCft?.cftMultiplier ?? 1) || 1;
+      const pcsCount = Math.max(1, Number(updated.pcs) || 1);
+      volWt = Number((((l * b * h * pcsCount) / divisor) * multiplier).toFixed(2));
       updated.volumetricWeight = String(volWt);
       updated.parcelVolumetricWt = String(volWt);
     }

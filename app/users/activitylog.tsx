@@ -9,6 +9,7 @@ import ToggleSwitch from "./toggleswitch";
 import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
 import CommonTable from "../src/common/table";
 import { showToast } from "../src/common/toast";
+import { api } from "../src/lib/api";
 
 interface ActivityLog {
   id: number;
@@ -53,6 +54,50 @@ export default function ActivityLogsTab() {
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const itemsPerPage = 10;
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await api.getActivityLogs({ per_page: 100 });
+        if (mounted && Array.isArray(res?.data) && res.data.length > 0) {
+          setLogs(
+            res.data.map((l: any) => ({
+              id: l.id,
+              userName: l.userName || "System",
+              action: l.action || "",
+              module: l.module || "General",
+              date: l.date || "-",
+              ipAddress: l.ipAddress || "127.0.0.1",
+              isActive: l.isActive ?? true,
+            }))
+          );
+          return;
+        }
+      } catch {}
+      if (typeof window !== "undefined") {
+        try {
+          const cached = localStorage.getItem("axc_activity_logs");
+          if (cached && mounted) {
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed) && parsed.length > 0) setLogs(parsed);
+          }
+        } catch {}
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const syncLogsCache = (next: ActivityLog[]) => {
+    setLogs(next);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("axc_activity_logs", JSON.stringify(next));
+      } catch {}
+    }
+  };
 
   const dynamicGroups: FilterGroup[] = useMemo(() => {
     const modules = Array.from(new Set(logs.map((l) => l.module).filter(Boolean)));
@@ -161,20 +206,28 @@ export default function ActivityLogsTab() {
     return filteredLogs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   }, [filteredLogs, currentPage]);
 
-  const toggleStatus = (id: number) => {
-    setLogs((previous) => previous.map((log) => (log.id === id ? { ...log, isActive: !log.isActive } : log)));
+  const toggleStatus = async (id: number) => {
+    const next = logs.map((log) => (log.id === id ? { ...log, isActive: !log.isActive } : log));
+    syncLogsCache(next);
+    try {
+      await api.toggleActivityLogStatus(id);
+    } catch {}
     showToast({ variant: "success", message: "Status updated successfully" });
   };
 
-  const handleBulkDeleteConfirm = () => {
+  const handleBulkDeleteConfirm = async () => {
     const count = selectedIds.length;
-    setLogs((previous) => previous.filter((log) => !selectedIds.includes(log.id)));
+    const idsToRemove = [...selectedIds];
+    syncLogsCache(logs.filter((log) => !idsToRemove.includes(log.id)));
+    setSelectedIds([]);
+    setBulkDeleteOpen(false);
+    try {
+      await api.bulkDeleteActivityLogs(idsToRemove);
+    } catch {}
     showToast({
       variant: "success",
       message: `${count} ${count === 1 ? "log" : "logs"} deleted successfully`,
     });
-    setSelectedIds([]);
-    setBulkDeleteOpen(false);
   };
 
   const allSelected = paginatedLogs.length > 0 && paginatedLogs.every((row) => selectedIds.includes(row.id));

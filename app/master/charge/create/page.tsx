@@ -12,6 +12,7 @@ import {
   Settings,
 } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import CommonDropdown from "@/app/src/common/dropdown";
 import {
   PanelHeader,
@@ -28,8 +29,10 @@ import {
 } from "../types";
 
 const defaultFormState = {
+  code: "",
   name: "",
   sac: "",
+  defaultRate: "0.00",
   rateType: "Fixed",
   status: "ACTIVE" as "ACTIVE" | "INACTIVE",
 
@@ -71,42 +74,60 @@ function CreateChargeContent() {
   // Load existing charge if editing
   useEffect(() => {
     if (typeof window === "undefined" || !editId) return;
-    try {
-      const stored = localStorage.getItem("master_charges");
-      const list: ChargeEntry[] = stored
-        ? JSON.parse(stored)
-        : initialChargeData;
-      const found = list.find((item) => item.id === editId || item.name === editId);
-      if (found) {
-        setForm({
-          name: found.name || "",
-          sac: found.sac || "",
-          rateType: found.rateType || "Fixed",
-          status: found.status || "ACTIVE",
-          isVatApplicable: Boolean(found.isVatApplicable),
-          isFscApplicableSales: Boolean(found.isFscApplicableSales),
-          isFscApplicablePurchase: Boolean(found.isFscApplicablePurchase),
-          isManual: Boolean(found.isManual),
-          isCustomerOptional: Boolean(found.isCustomerOptional),
-          isVendorOptional: Boolean(found.isVendorOptional),
-          isDefault: Boolean(found.isDefault),
-          hideInInvoice: Boolean(found.hideInInvoice),
-          displayInAwbAppliesCharges: Boolean(found.displayInAwbAppliesCharges),
-          showInDutyInvoice: Boolean(found.showInDutyInvoice),
-          applyDrsAttemptCharge: Boolean(found.applyDrsAttemptCharge),
-          serviceMappings: {
-            fedex: found.serviceMappings?.fedex || "",
-            dhl: found.serviceMappings?.dhl || "",
-            ups: found.serviceMappings?.ups || "",
-            inxpress: found.serviceMappings?.inxpress || "",
-            norsk: found.serviceMappings?.norsk || "",
-            dsv: found.serviceMappings?.dsv || "",
-          },
-        });
-      }
-    } catch (e) {
-      console.error("Error loading charge:", e);
-    }
+    let mounted = true;
+    const applyFound = (found: ChargeEntry) => {
+      setForm({
+        code: found.code || "",
+        name: found.name || "",
+        sac: found.sac || "",
+        defaultRate: String(found.defaultRate ?? "0.00"),
+        rateType: found.rateType || "Fixed",
+        status: found.status || "ACTIVE",
+        isVatApplicable: Boolean(found.isVatApplicable),
+        isFscApplicableSales: Boolean(found.isFscApplicableSales),
+        isFscApplicablePurchase: Boolean(found.isFscApplicablePurchase),
+        isManual: Boolean(found.isManual),
+        isCustomerOptional: Boolean(found.isCustomerOptional),
+        isVendorOptional: Boolean(found.isVendorOptional),
+        isDefault: Boolean(found.isDefault),
+        hideInInvoice: Boolean(found.hideInInvoice),
+        displayInAwbAppliesCharges: Boolean(found.displayInAwbAppliesCharges),
+        showInDutyInvoice: Boolean(found.showInDutyInvoice),
+        applyDrsAttemptCharge: Boolean(found.applyDrsAttemptCharge),
+        serviceMappings: {
+          fedex: found.serviceMappings?.fedex || "",
+          dhl: found.serviceMappings?.dhl || "",
+          ups: found.serviceMappings?.ups || "",
+          inxpress: found.serviceMappings?.inxpress || "",
+          norsk: found.serviceMappings?.norsk || "",
+          dsv: found.serviceMappings?.dsv || "",
+        },
+      });
+    };
+
+    api
+      .getMasterItem<ChargeEntry>("/charge-masters", editId)
+      .then((found) => {
+        if (mounted && found) applyFound(found);
+      })
+      .catch(() => {
+        try {
+          const stored = localStorage.getItem("master_charges");
+          const list: ChargeEntry[] = stored
+            ? JSON.parse(stored)
+            : initialChargeData;
+          const found = list.find(
+            (item) => String(item.id) === String(editId) || item.name === editId
+          );
+          if (found && mounted) applyFound(found);
+        } catch (e) {
+          console.error("Error loading charge:", e);
+        }
+      });
+
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   // Validation
@@ -117,7 +138,7 @@ function CreateChargeContent() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = (e?: React.FormEvent) => {
+  const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!validate()) {
       showToast({
@@ -129,6 +150,17 @@ function CreateChargeContent() {
 
     setLoading(true);
     try {
+      let savedRecord: any = null;
+      try {
+        if (isEdit && editId) {
+          savedRecord = await api.updateMasterItem("/charge-masters", editId, form);
+        } else {
+          savedRecord = await api.createMasterItem("/charge-masters", form);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to local:", apiErr);
+      }
+
       const stored = localStorage.getItem("master_charges");
       const currentList: ChargeEntry[] = stored
         ? JSON.parse(stored)
@@ -136,8 +168,8 @@ function CreateChargeContent() {
 
       if (isEdit) {
         const updatedList = currentList.map((item) => {
-          if (item.id === editId || item.name === editId) {
-            return {
+          if (String(item.id) === String(editId) || item.name === editId) {
+            return savedRecord || {
               ...item,
               ...form,
             };
@@ -146,7 +178,7 @@ function CreateChargeContent() {
         });
         localStorage.setItem("master_charges", JSON.stringify(updatedList));
       } else {
-        const newCharge: ChargeEntry = {
+        const newCharge: ChargeEntry = savedRecord || {
           ...form,
           id: `CHG-${Date.now().toString().slice(-4)}`,
           srNo: currentList.length + 1,
@@ -284,6 +316,35 @@ function CreateChargeContent() {
                         onChange={(e) => setForm((prev) => ({ ...prev, sac: e.target.value }))}
                         className={`${inputClass} font-mono`}
                       />
+                    </div>
+                  </div>
+
+                  {/* 2b. CODE & DEFAULT RATE Row */}
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                    <label className="w-28 shrink-0 text-xs font-bold text-axc-dark-gray uppercase tracking-wide">
+                      CODE
+                    </label>
+                    <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <input
+                        type="text"
+                        placeholder="e.g. CHG-FSC (Optional)"
+                        value={form.code}
+                        onChange={(e) => setForm((prev) => ({ ...prev, code: e.target.value.toUpperCase() }))}
+                        className={`${inputClass} uppercase font-mono`}
+                      />
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-bold text-axc-dark-gray uppercase whitespace-nowrap">
+                          DEFAULT RATE:
+                        </span>
+                        <input
+                          type="number"
+                          step="0.01"
+                          placeholder="0.00"
+                          value={form.defaultRate}
+                          onChange={(e) => setForm((prev) => ({ ...prev, defaultRate: e.target.value }))}
+                          className={`${inputClass} font-mono`}
+                        />
+                      </div>
                     </div>
                   </div>
 

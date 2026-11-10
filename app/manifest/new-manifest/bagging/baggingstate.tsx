@@ -1,5 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { api } from "@/app/src/lib/api";
 
 export interface BagEntryRow {
   id: number;
@@ -104,7 +105,75 @@ export function useBaggingForm() {
   const [awbSummary, setAwbSummary] = useState<AwbSummaryRow[]>([]);
   const [bagSummary, setBagSummary] = useState<BagSummaryRow[]>([]);
   const [partialAwbRows] = useState<PartialAwbRow[]>([]);
-  const [awbDetails] = useState<AwbDetailsState>(emptyAwbDetails);
+  const [awbDetails, setAwbDetails] = useState<AwbDetailsState>(emptyAwbDetails);
+
+  // Auto-lookup AWB details when bagRow.awbNo is typed
+  useEffect(() => {
+    const awbNo = bagRow.awbNo?.trim();
+    if (!awbNo || awbNo.length < 3) return;
+    let mounted = true;
+    const timer = setTimeout(async () => {
+      try {
+        const res = await api.getAwb(awbNo);
+        const d = res?.data;
+        if (d && mounted) {
+          setAwbDetails({
+            contents: d.content || "Courier Shipment",
+            comments: d.invoiceNote || "",
+            remarks: d.invoiceDeclaration || "",
+            vendorName: d.vendor || "",
+            service: d.service || "",
+            shipperName: d.shipperPersonName || d.shipper || "",
+            customerName: d.customer || "",
+            consigneeAddress: [d.consigneeAddress1, d.consigneeCity, d.consigneeCountry].filter(Boolean).join(", "),
+            totalValue: `${d.shipmentCurrency || "USD"} ${d.shipmentValue || "0.00"}`,
+            pcs: String(d.pcs || "1"),
+            boxWeight: String(d.chargeableWeight || d.actualWeight || "1.00"),
+            consigneeName: d.consigneePersonName || d.consignee || "",
+            forwardingNo: d.forwardingNumber || "",
+          });
+          setBagRow((prev) => ({
+            ...prev,
+            pcs: prev.pcs || String(d.pcs || "1"),
+            weight: prev.weight || String(d.chargeableWeight || d.actualWeight || "1.00"),
+          }));
+          return;
+        }
+      } catch {}
+
+      if (typeof window !== "undefined") {
+        try {
+          const stored = localStorage.getItem("awb_entries");
+          if (stored) {
+            const list = JSON.parse(stored);
+            const found = list.find((a: any) => String(a.awbNumber).trim() === awbNo);
+            if (found && mounted) {
+              setAwbDetails((prev) => ({
+                ...prev,
+                vendorName: found.vendor || "",
+                service: found.service || "",
+                shipperName: found.shipper || "",
+                customerName: found.customer || "",
+                consigneeAddress: found.destination || "",
+                pcs: String(found.pcs || "1"),
+                consigneeName: found.consignee || "",
+                forwardingNo: found.forwardingNumber || "",
+              }));
+              setBagRow((prev) => ({
+                ...prev,
+                pcs: prev.pcs || String(found.pcs || "1"),
+              }));
+            }
+          }
+        } catch {}
+      }
+    }, 300);
+
+    return () => {
+      mounted = false;
+      clearTimeout(timer);
+    };
+  }, [bagRow.awbNo]);
 
   const updateField = <K extends keyof BaggingFormState>(key: K, value: BaggingFormState[K]) => {
     setForm((prev) => {
@@ -163,6 +232,7 @@ export function useBaggingForm() {
 
   return {
     form,
+    setForm,
     updateField,
     errors,
     validateRunNumber,
@@ -171,7 +241,9 @@ export function useBaggingForm() {
     weightBagRow,
     updateWeightBagRow,
     awbSummary,
+    setAwbSummary,
     bagSummary,
+    setBagSummary,
     partialAwbRows,
     awbDetails,
     handleSaveBag,

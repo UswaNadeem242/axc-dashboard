@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   PanelHeader,
   FieldLabel,
@@ -36,20 +37,32 @@ function CreateAwbStatusContent() {
 
   // Load existing AWB status if editing
   useEffect(() => {
-    if (editId && typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_awb_statuses");
-      if (stored) {
-        try {
-          const list: AwbStatusEntry[] = JSON.parse(stored);
-          const found = list.find((item) => item.id === editId);
-          if (found) {
-            setForm(found);
+    if (!editId) return;
+    let mounted = true;
+    api
+      .getMasterItem<AwbStatusEntry>("/awb-statuses", editId)
+      .then((found) => {
+        if (mounted && found) setForm(found);
+      })
+      .catch(() => {
+        if (typeof window !== "undefined") {
+          const stored = localStorage.getItem("master_awb_statuses");
+          if (stored) {
+            try {
+              const list: AwbStatusEntry[] = JSON.parse(stored);
+              const found = list.find((item) => String(item.id) === String(editId));
+              if (found && mounted) {
+                setForm(found);
+              }
+            } catch (e) {
+              console.error("Error loading AWB status:", e);
+            }
           }
-        } catch (e) {
-          console.error("Error loading AWB status:", e);
         }
-      }
-    }
+      });
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   const validate = () => {
@@ -60,7 +73,7 @@ function CreateAwbStatusContent() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!validate()) {
       showToast({
@@ -73,6 +86,17 @@ function CreateAwbStatusContent() {
     setLoading(true);
 
     try {
+      let savedRecord = form;
+      try {
+        if (isEdit && editId) {
+          savedRecord = await api.updateMasterItem<AwbStatusEntry>("/awb-statuses", editId, form);
+        } else {
+          savedRecord = await api.createMasterItem<AwbStatusEntry>("/awb-statuses", form);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to local:", apiErr);
+      }
+
       if (typeof window !== "undefined") {
         const stored = localStorage.getItem("master_awb_statuses");
         let list: AwbStatusEntry[] = stored
@@ -80,9 +104,9 @@ function CreateAwbStatusContent() {
           : initialAwbStatusData;
 
         if (isEdit) {
-          list = list.map((item) => (item.id === form.id ? form : item));
+          list = list.map((item) => (String(item.id) === String(editId) ? savedRecord : item));
         } else {
-          list = [form, ...list];
+          list = [savedRecord, ...list];
         }
 
         localStorage.setItem("master_awb_statuses", JSON.stringify(list));

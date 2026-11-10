@@ -190,6 +190,64 @@ export const menuItems: MenuItem[] = [
         id: "whatsapp-masters",
         href: "/master/whatsapp-masters",
       },
+      {
+        label: "Vendor",
+        id: "vendor",
+        href: "/master/vendor",
+      },
+      {
+        label: "Company",
+        id: "company",
+        href: "/master/company",
+        hasSubDropdown: true,
+        subItems: [
+          { label: "Company Address", id: "company-address", href: "/master/company-address" },
+        ],
+      },
+      {
+        label: "Product",
+        id: "product",
+        href: "/master/product",
+      },
+      {
+        label: "Service",
+        id: "service",
+        href: "/master/service",
+        hasSubDropdown: true,
+        subItems: [
+          { label: "Service Contracts", id: "service-contracts", href: "/master/service-contracts" },
+        ],
+      },
+      {
+        label: "District",
+        id: "district",
+        href: "/master/district",
+      },
+      {
+        label: "Location",
+        id: "location",
+        href: "/master/location",
+      },
+      {
+        label: "Custom Invoice",
+        id: "custom-invoice",
+        href: "/master/custom-invoice",
+      },
+      {
+        label: "Invoice Service Type",
+        id: "invoice-service-type",
+        href: "/master/invoice-service-type",
+      },
+      {
+        label: "Shipment Invoice Note",
+        id: "shipment-invoice-note",
+        href: "/master/shipment-invoice-note",
+      },
+      {
+        label: "Report Master",
+        id: "report-master",
+        href: "/master/report-master",
+      },
     ],
   },
   // { label: "Rate Calculation", icon: Calculator, id: "rate-calculation" },

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
 import CommonDropdown from "@/app/src/common/dropdown";
+import { api } from "@/app/src/lib/api";
 import {
   PanelHeader,
   FieldLabel,
@@ -55,20 +56,40 @@ function CreateHubContent() {
 
   // Load existing hub if editing
   useEffect(() => {
-    if (editId && typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_hubs");
-      if (stored) {
-        try {
-          const list: HubEntry[] = JSON.parse(stored);
-          const found = list.find((h) => h.id === editId);
-          if (found) {
-            setForm(found);
+    if (!editId) return;
+    let mounted = true;
+    async function loadItem() {
+      try {
+        const found = await api.getMasterItem<HubEntry>("/hubs", editId!);
+        if (mounted && found) {
+          setForm({
+            ...found,
+            id: String(found.id),
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn("API fetch fallback:", err);
+      }
+      if (mounted && typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_hubs");
+        if (stored) {
+          try {
+            const list: HubEntry[] = JSON.parse(stored);
+            const found = list.find((h) => String(h.id) === String(editId));
+            if (found) {
+              setForm(found);
+            }
+          } catch (e) {
+            console.error("Error loading hub:", e);
           }
-        } catch (e) {
-          console.error("Error loading hub:", e);
         }
       }
     }
+    loadItem();
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   const validate = () => {
@@ -79,7 +100,7 @@ function CreateHubContent() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
       showToast({
@@ -92,17 +113,28 @@ function CreateHubContent() {
     setLoading(true);
 
     try {
+      let savedRecord: HubEntry = form;
+      try {
+        if (editId) {
+          savedRecord = await api.updateMasterItem<HubEntry>("/hubs", editId, form);
+        } else {
+          savedRecord = await api.createMasterItem<HubEntry>("/hubs", form);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to localStorage:", apiErr);
+      }
+
       const stored = localStorage.getItem("master_hubs");
       let list: HubEntry[] = stored ? JSON.parse(stored) : initialHubData;
 
       if (editId) {
-        list = list.map((item) => (item.id === editId ? form : item));
+        list = list.map((item) => (String(item.id) === String(editId) ? savedRecord : item));
         showToast({
           message: `Hub ${form.name} updated successfully.`,
           variant: "success",
         });
       } else {
-        list = [form, ...list];
+        list = [savedRecord, ...list];
         showToast({
           message: `Hub ${form.name} created successfully.`,
           variant: "success",

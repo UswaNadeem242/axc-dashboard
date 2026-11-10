@@ -18,6 +18,7 @@ import {
   Clock,
 } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import CommonDropdown from "@/app/src/common/dropdown";
 import CustomDatePicker from "@/app/src/common/datepicker";
 import {
@@ -87,38 +88,52 @@ function CreateConsigneeContent() {
   // Load existing consignee for edit
   useEffect(() => {
     if (typeof window === "undefined" || !editId) return;
-    try {
-      const stored = localStorage.getItem("master_consignees");
-      const list: ConsigneeEntry[] = stored
-        ? JSON.parse(stored)
-        : initialConsigneeData;
-      const found = list.find((item) => item.id === editId || item.code === editId);
-      if (found) {
-        setForm({
-          customer: found.customer || "",
-          company: found.company || "AMERICAN XPRESS COURIER - AXC INC",
-          code: found.code || "",
-          name: found.name || "",
-          contactNo: found.contactNo || "",
-          email: found.email || "",
-          dob: found.dob || "",
-          idProof1: found.idProof1 || "",
-          idProof2: found.idProof2 || "",
-          status: found.status || "ACTIVE",
-          addressLine1: found.addressLine1 || "",
-          addressLine2: found.addressLine2 || "",
-          addressLine3: found.addressLine3 || "",
-          city: found.city || "",
-          state: found.state || "",
-          country: found.country || "INDIA",
-          pincode: found.pincode || "",
-          dialCode: found.dialCode || "+91",
-          editCode: true,
-        });
+    const applyFound = (found: ConsigneeEntry) => {
+      setForm({
+        customer: found.customer || "",
+        company: found.company || "AMERICAN XPRESS COURIER - AXC INC",
+        code: found.code || "",
+        name: found.name || "",
+        contactNo: found.contactNo || "",
+        email: found.email || "",
+        dob: found.dob || "",
+        idProof1: found.idProof1 || "",
+        idProof2: found.idProof2 || "",
+        status: found.status || "ACTIVE",
+        addressLine1: found.addressLine1 || "",
+        addressLine2: found.addressLine2 || "",
+        addressLine3: found.addressLine3 || "",
+        city: found.city || "",
+        state: found.state || "",
+        country: found.country || "INDIA",
+        pincode: found.pincode || "",
+        dialCode: found.dialCode || "+91",
+        editCode: true,
+      });
+    };
+
+    const loadItem = async () => {
+      try {
+        const item = await api.getMasterItem<ConsigneeEntry>("/consignees", editId);
+        if (item && item.code) {
+          applyFound(item);
+          return;
+        }
+      } catch (e) {
+        console.warn("API get consignee fallback to localStorage:", e);
       }
-    } catch (e) {
-      console.error("Error loading consignee:", e);
-    }
+      try {
+        const stored = localStorage.getItem("master_consignees");
+        const list: ConsigneeEntry[] = stored
+          ? JSON.parse(stored)
+          : initialConsigneeData;
+        const found = list.find((item) => String(item.id) === String(editId) || item.code === editId);
+        if (found) applyFound(found);
+      } catch (e) {
+        console.error("Error loading consignee:", e);
+      }
+    };
+    loadItem();
   }, [editId]);
 
   // Validation based on Image 1 mandatory fields (marked with red asterisk)
@@ -137,7 +152,7 @@ function CreateConsigneeContent() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = (e?: React.FormEvent) => {
+  const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!validate()) {
       showToast({
@@ -154,10 +169,16 @@ function CreateConsigneeContent() {
         ? JSON.parse(stored)
         : [...initialConsigneeData];
 
-      if (isEdit) {
+      if (isEdit && editId) {
+        let savedItem: ConsigneeEntry | null = null;
+        try {
+          savedItem = await api.updateMasterItem<ConsigneeEntry>("/consignees", editId, form);
+        } catch (err) {
+          console.warn("API update consignee fallback to local:", err);
+        }
         const updatedList = currentList.map((item) => {
-          if (item.id === editId || item.code === editId) {
-            return {
+          if (String(item.id) === String(editId) || item.code === editId) {
+            return savedItem || {
               ...item,
               ...form,
             };
@@ -166,7 +187,13 @@ function CreateConsigneeContent() {
         });
         localStorage.setItem("master_consignees", JSON.stringify(updatedList));
       } else {
-        const newConsignee: ConsigneeEntry = {
+        let createdItem: ConsigneeEntry | null = null;
+        try {
+          createdItem = await api.createMasterItem<ConsigneeEntry>("/consignees", form);
+        } catch (err) {
+          console.warn("API create consignee fallback to local:", err);
+        }
+        const newConsignee: ConsigneeEntry = createdItem || {
           ...form,
           id: `CSN-${Date.now().toString().slice(-4)}`,
           srNo: currentList.length + 1,

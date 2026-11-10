@@ -11,7 +11,9 @@ export interface CustomerEntry {
   currency: string;
   paymentType: string;
   creditLimit: string | number;
-  // userType: string;
+  userType?: string;
+  operationsId?: string;
+  billingId?: string;
   status?: string;
   createdAt?: string;
 }

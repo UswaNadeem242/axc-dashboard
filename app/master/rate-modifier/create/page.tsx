@@ -6,6 +6,7 @@ import { Save, ArrowLeft } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
 import CommonDropdown from "@/app/src/common/dropdown";
 import CustomDatePicker from "@/app/src/common/datepicker";
+import { api } from "@/app/src/lib/api";
 import {
   PanelHeader,
   FieldLabel,
@@ -122,94 +123,69 @@ function CreateRateModifierContent() {
 
   // Load existing entry if in edit mode
   useEffect(() => {
-    if (typeof window === "undefined" || !editId) return;
-    try {
-      const stored = localStorage.getItem("master_rate_modifiers");
-      const list: RateModifierEntry[] = stored
-        ? JSON.parse(stored)
-        : initialRateModifierData;
-      const found = list.find((item) => item.id === editId);
-      if (found) {
-        setForm({
-          charge: found.charge || "",
-          billingType: found.billingType || "",
-          insuranceType: found.insuranceType || "",
-          paymentMethod: found.paymentMethod || "",
-          fixedAmount: found.fixedAmount || "",
-          minAmount: found.minAmount || "",
-          percentageOnFreight: found.percentageOnFreight || "",
-          percentageOnShipmentValue: found.percentageOnShipmentValue || "",
-          percentageOnFreightAndFsc: found.percentageOnFreightAndFsc || "",
-          dispatchType: found.dispatchType || "",
-
-          minChargeableWeight: found.minChargeableWeight || "",
-          maxChargeableWeight: found.maxChargeableWeight || "",
-          minActualWeight: found.minActualWeight || "",
-          maxActualWeight: found.maxActualWeight || "",
-          minVolumeWeight: found.minVolumeWeight || "",
-          maxVolumeWeight: found.maxVolumeWeight || "",
-          minNoOfBoxes: found.minNoOfBoxes || "",
-          maxNoOfBoxes: found.maxNoOfBoxes || "",
-          minDimension: found.minDimension || "",
-          maxDimension: found.maxDimension || "",
-          minPerBoxActualWeight: found.minPerBoxActualWeight || "",
-          maxPerBoxActualWeight: found.maxPerBoxActualWeight || "",
-          minPerBoxVolumetricWeight: found.minPerBoxVolumetricWeight || "",
-          maxPerBoxVolumetricWeight: found.maxPerBoxVolumetricWeight || "",
-          minPerBoxChargeableWeight: found.minPerBoxChargeableWeight || "",
-          maxPerBoxChargeableWeight: found.maxPerBoxChargeableWeight || "",
-
-          minShipmentValue: found.minShipmentValue || "",
-          maxShipmentValue: found.maxShipmentValue || "",
-          flightNumber: found.flightNumber || "",
-
-          customer: found.customer || "",
-          product: found.product || "",
-          service: found.service || "",
-          vendor: found.vendor || "",
-          destinationLocation: found.destinationLocation || "",
-          originLocation: found.originLocation || "",
-          destinationZone: found.destinationZone || "",
-          originZone: found.originZone || "",
-          destinationHub: found.destinationHub || "",
-          originHub: found.originHub || "",
-
-          destinationState: found.destinationState || "",
-          originState: found.originState || "",
-          destinationCity: found.destinationCity || "",
-          originCity: found.originCity || "",
-          destinationPincode: found.destinationPincode || "",
-          originPincode: found.originPincode || "",
-          docketContent: found.docketContent || "",
-
-          effectiveFrom: found.effectiveFrom || "",
-          effectiveTo: found.effectiveTo || "",
-          ratePer: found.ratePer || "",
-          minDimensionPerPcs: Boolean(found.minDimensionPerPcs),
-          maxDimensionPerPcs: Boolean(found.maxDimensionPerPcs),
-
-          grith: Boolean(found.grith),
-          slabWiseRate: Boolean(found.slabWiseRate),
-          isDryIce: Boolean(found.isDryIce),
-          isCsbIvShipment: Boolean(found.isCsbIvShipment),
-          isCsbVShipment: Boolean(found.isCsbVShipment),
-          isCommercialShipment: Boolean(found.isCommercialShipment),
-          isOriginOda: Boolean(found.isOriginOda),
-          isDestinationOda: Boolean(found.isDestinationOda),
-          isOriginOda2: Boolean(found.isOriginOda2),
-          isDestinationOda2: Boolean(found.isDestinationOda2),
-
-          grith2ndSideMinDimension: found.grith2ndSideMinDimension || "",
-          grith2ndSideMaxDimension: found.grith2ndSideMaxDimension || "",
-          highValueChargeOn: found.highValueChargeOn || "",
-          highValueAmount: found.highValueAmount || "",
-
-          status: found.status || "ACTIVE",
-        });
+    if (!editId) return;
+    let mounted = true;
+    async function loadItem() {
+      try {
+        const found = await api.getMasterItem<RateModifierEntry>("/rate-modifiers", editId!);
+        if (mounted && found) {
+          setForm({
+            ...defaultFormState,
+            ...found,
+            minDimensionPerPcs: Boolean(found.minDimensionPerPcs),
+            maxDimensionPerPcs: Boolean(found.maxDimensionPerPcs),
+            grith: Boolean(found.grith),
+            slabWiseRate: Boolean(found.slabWiseRate),
+            isDryIce: Boolean(found.isDryIce),
+            isCsbIvShipment: Boolean(found.isCsbIvShipment),
+            isCsbVShipment: Boolean(found.isCsbVShipment),
+            isCommercialShipment: Boolean(found.isCommercialShipment),
+            isOriginOda: Boolean(found.isOriginOda),
+            isDestinationOda: Boolean(found.isDestinationOda),
+            isOriginOda2: Boolean(found.isOriginOda2),
+            isDestinationOda2: Boolean(found.isDestinationOda2),
+            status: found.status || "ACTIVE",
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn("API fetch fallback:", err);
       }
-    } catch (e) {
-      console.error("Error loading rate modifier:", e);
+      if (mounted && typeof window !== "undefined") {
+        try {
+          const stored = localStorage.getItem("master_rate_modifiers");
+          const list: RateModifierEntry[] = stored
+            ? JSON.parse(stored)
+            : initialRateModifierData;
+          const found = list.find((item) => String(item.id) === String(editId));
+          if (found) {
+            setForm({
+              ...defaultFormState,
+              ...found,
+              minDimensionPerPcs: Boolean(found.minDimensionPerPcs),
+              maxDimensionPerPcs: Boolean(found.maxDimensionPerPcs),
+              grith: Boolean(found.grith),
+              slabWiseRate: Boolean(found.slabWiseRate),
+              isDryIce: Boolean(found.isDryIce),
+              isCsbIvShipment: Boolean(found.isCsbIvShipment),
+              isCsbVShipment: Boolean(found.isCsbVShipment),
+              isCommercialShipment: Boolean(found.isCommercialShipment),
+              isOriginOda: Boolean(found.isOriginOda),
+              isDestinationOda: Boolean(found.isDestinationOda),
+              isOriginOda2: Boolean(found.isOriginOda2),
+              isDestinationOda2: Boolean(found.isDestinationOda2),
+              status: found.status || "ACTIVE",
+            });
+          }
+        } catch (e) {
+          console.error("Error loading rate modifier:", e);
+        }
+      }
     }
+    loadItem();
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   // Validation
@@ -223,7 +199,7 @@ function CreateRateModifierContent() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
       showToast({
@@ -235,6 +211,17 @@ function CreateRateModifierContent() {
 
     setLoading(true);
     try {
+      let savedRecord: RateModifierEntry | null = null;
+      try {
+        if (isEdit && editId) {
+          savedRecord = await api.updateMasterItem<RateModifierEntry>("/rate-modifiers", editId, form);
+        } else {
+          savedRecord = await api.createMasterItem<RateModifierEntry>("/rate-modifiers", form);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to localStorage:", apiErr);
+      }
+
       const stored = localStorage.getItem("master_rate_modifiers");
       const currentList: RateModifierEntry[] = stored
         ? JSON.parse(stored)
@@ -242,8 +229,8 @@ function CreateRateModifierContent() {
 
       if (isEdit) {
         const updatedList = currentList.map((item) => {
-          if (item.id === editId) {
-            return {
+          if (String(item.id) === String(editId)) {
+            return savedRecord || {
               ...item,
               ...form,
             };
@@ -262,12 +249,12 @@ function CreateRateModifierContent() {
         )
           .toString()
           .padStart(2, "0")}/${now.getFullYear()} ${now.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          })}`;
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })}`;
 
-        const newModifier: RateModifierEntry = {
+        const newModifier: RateModifierEntry = savedRecord || {
           id: `RM-${Date.now().toString().slice(-4)}`,
           srNo: currentList.length + 1,
           ...form,

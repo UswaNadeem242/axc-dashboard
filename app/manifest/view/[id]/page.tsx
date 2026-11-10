@@ -80,23 +80,42 @@ export default function ManifestViewPage() {
   const id = params?.id as string;
 
   const [manifestData, setManifestData] = useState<ManifestEntry | null>(null);
+  const [chargeRows, setChargeRows] = useState<ManifestChargeRow[]>([]);
   const [activeTab, setActiveTab] = useState("entry");
 
   useEffect(() => {
-    if (typeof window !== "undefined" && id) {
-      const stored = localStorage.getItem("manifest_entries");
-      if (stored) {
-        try {
-          const parsed: ManifestEntry[] = JSON.parse(stored);
-          const found = parsed.find((item) => item.manifestNo === id);
-          if (found) {
-            setManifestData(found);
+    if (!id) return;
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await api.getManifest(id);
+        if (res?.data && mounted) {
+          setManifestData(res.data);
+          if (Array.isArray(res.data.charge_rows) && res.data.charge_rows.length > 0) {
+            setChargeRows(res.data.charge_rows);
           }
-        } catch (e) {
-          console.error("Failed to load manifest data", e);
+          return;
+        }
+      } catch {}
+
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("manifest_entries");
+        if (stored) {
+          try {
+            const parsed: ManifestEntry[] = JSON.parse(stored);
+            const found = parsed.find((item) => item.manifestNo === id);
+            if (found && mounted) {
+              setManifestData(found);
+            }
+          } catch (e) {
+            console.error("Failed to load manifest data", e);
+          }
         }
       }
-    }
+    })();
+    return () => {
+      mounted = false;
+    };
   }, [id]);
 
   if (!manifestData) {
@@ -107,7 +126,7 @@ export default function ManifestViewPage() {
     );
   }
 
-  const billingRecords: ManifestChargeRow[] = DUMMY_BILLING_RECORDS;
+  const billingRecords: ManifestChargeRow[] = chargeRows.length > 0 ? chargeRows : DUMMY_BILLING_RECORDS;
 
   return (
     <div className="relative bg-white p-6 rounded-lg w-full flex-1 flex flex-col min-h-0 shadow-sm border border-axc-border overflow-x-hidden overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-lg">

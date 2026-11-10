@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { User, ShieldCheck, CheckCircle } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   ShipperEntry,
   initialShipperData,
@@ -89,58 +90,72 @@ function CreateShipperContent() {
   // Load existing entry if in edit mode
   useEffect(() => {
     if (typeof window === "undefined" || !editId) return;
-    try {
-      const stored = localStorage.getItem("master_shippers");
-      const list: ShipperEntry[] = stored
-        ? JSON.parse(stored)
-        : initialShipperData;
-      const found = list.find((item) => item.id === editId || item.code === editId);
-      if (found) {
-        setForm({
-          code: found.code || "",
-          name: found.name || "",
-          customer: found.customer || "",
-          accountCode: found.accountCode || "",
-          company: found.company || "",
-          contactNo: found.contactNo || "",
-          email: found.email || "",
-          pincode: found.pincode || "",
-          dob: found.dob || "",
-          gstinType: found.gstinType || "",
-          gstinNo: found.gstinNo || "",
-          gstinType2: found.gstinType2 || "",
-          gstinNo2: found.gstinNo2 || "",
-          addressLine1: found.addressLine1 || "",
-          addressLine2: found.addressLine2 || "",
-          addressLine3: found.addressLine3 || "",
-          city: found.city || "",
-          state: found.state || "",
-          country: found.country || "INDIA",
-          dialCode: found.dialCode || "+91",
-          page1File: found.page1File || "",
-          page2File: found.page2File || "",
-          shipperImage: found.shipperImage || "",
-          uploadSignature: found.uploadSignature || "",
-          status: found.status || "ACTIVE",
-          editCode: true,
-        });
+    const applyFound = (found: ShipperEntry) => {
+      setForm({
+        code: found.code || "",
+        name: found.name || "",
+        customer: found.customer || "",
+        accountCode: found.accountCode || "",
+        company: found.company || "",
+        contactNo: found.contactNo || "",
+        email: found.email || "",
+        pincode: found.pincode || "",
+        dob: found.dob || "",
+        gstinType: found.gstinType || "",
+        gstinNo: found.gstinNo || "",
+        gstinType2: found.gstinType2 || "",
+        gstinNo2: found.gstinNo2 || "",
+        addressLine1: found.addressLine1 || "",
+        addressLine2: found.addressLine2 || "",
+        addressLine3: found.addressLine3 || "",
+        city: found.city || "",
+        state: found.state || "",
+        country: found.country || "INDIA",
+        dialCode: found.dialCode || "+91",
+        page1File: found.page1File || "",
+        page2File: found.page2File || "",
+        shipperImage: found.shipperImage || "",
+        uploadSignature: found.uploadSignature || "",
+        status: found.status || "ACTIVE",
+        editCode: true,
+      });
 
-        if (found.kycDocuments) {
-          const loadedKyc: Record<string, KycRowItem> = {};
-          Object.entries(found.kycDocuments).forEach(([k, v]) => {
-            loadedKyc[k] = {
-              docNumber: v.docNumber || "",
-              name: v.name || "",
-              page1: v.page1 || "",
-              page2: v.page2 || "",
-            };
-          });
-          setKycRows(loadedKyc);
-        }
+      if (found.kycDocuments) {
+        const loadedKyc: Record<string, KycRowItem> = {};
+        Object.entries(found.kycDocuments).forEach(([k, v]) => {
+          loadedKyc[k] = {
+            docNumber: v.docNumber || "",
+            name: v.name || "",
+            page1: v.page1 || "",
+            page2: v.page2 || "",
+          };
+        });
+        setKycRows(loadedKyc);
       }
-    } catch (e) {
-      console.error("Error loading shipper:", e);
-    }
+    };
+
+    const loadItem = async () => {
+      try {
+        const item = await api.getMasterItem<ShipperEntry>("/shippers", editId);
+        if (item && item.code) {
+          applyFound(item);
+          return;
+        }
+      } catch (e) {
+        console.warn("API get shipper fallback to localStorage:", e);
+      }
+      try {
+        const stored = localStorage.getItem("master_shippers");
+        const list: ShipperEntry[] = stored
+          ? JSON.parse(stored)
+          : initialShipperData;
+        const found = list.find((item) => String(item.id) === String(editId) || item.code === editId);
+        if (found) applyFound(found);
+      } catch (e) {
+        console.error("Error loading shipper:", e);
+      }
+    };
+    loadItem();
   }, [editId]);
 
   // Mandatory field validation
@@ -159,7 +174,7 @@ function CreateShipperContent() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!validate()) {
       showToast({
         variant: "error",
@@ -171,15 +186,25 @@ function CreateShipperContent() {
 
     setLoading(true);
     try {
+      const payload = {
+        ...form,
+        kycDocuments: kycRows,
+      };
       const stored = localStorage.getItem("master_shippers");
       const currentList: ShipperEntry[] = stored
         ? JSON.parse(stored)
         : [...initialShipperData];
 
-      if (isEdit) {
+      if (isEdit && editId) {
+        let savedItem: ShipperEntry | null = null;
+        try {
+          savedItem = await api.updateMasterItem<ShipperEntry>("/shippers", editId, payload);
+        } catch (e) {
+          console.warn("API update shipper fallback to local:", e);
+        }
         const updatedList = currentList.map((item) => {
-          if (item.id === editId || item.code === editId) {
-            return {
+          if (String(item.id) === String(editId) || item.code === editId) {
+            return savedItem || {
               ...item,
               ...form,
               kycDocuments: kycRows,
@@ -189,7 +214,13 @@ function CreateShipperContent() {
         });
         localStorage.setItem("master_shippers", JSON.stringify(updatedList));
       } else {
-        const newShipper: ShipperEntry = {
+        let createdItem: ShipperEntry | null = null;
+        try {
+          createdItem = await api.createMasterItem<ShipperEntry>("/shippers", payload);
+        } catch (e) {
+          console.warn("API create shipper fallback to local:", e);
+        }
+        const newShipper: ShipperEntry = createdItem || {
           ...form,
           id: `SHP-${Date.now().toString().slice(-4)}`,
           srNo: currentList.length + 1,

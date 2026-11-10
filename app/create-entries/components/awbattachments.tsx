@@ -603,7 +603,7 @@ export function AwbAttachmentsTab({
   const [savedVisible, setSavedVisible] = useState(false);
   const [previewFile, setPreviewFile] = useState<File | null>(null);
 
-  const handleUpload = (field: UploadField, file: File) => {
+  const handleUpload = async (field: UploadField, file: File) => {
     const ext = file.name.toLowerCase();
     if (field.kind === "pdf" && !file.type.includes("pdf") && !ext.endsWith(".pdf")) {
       setErrors((prev) => ({ ...prev, [field.key]: "Only PDF files are allowed" }));
@@ -622,6 +622,14 @@ export function AwbAttachmentsTab({
 
     setErrors((prev) => ({ ...prev, [field.key]: null }));
     setFiles((prev) => ({ ...prev, [field.key]: file }));
+
+    if (awbTrackingNo) {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("field_key", field.key);
+      fd.append("file_kind", field.kind);
+      await api.uploadAwbAttachment(awbTrackingNo, fd).catch(() => {});
+    }
   };
 
   const handleRemove = (key: string) => {
@@ -629,7 +637,19 @@ export function AwbAttachmentsTab({
     setErrors((prev) => ({ ...prev, [key]: null }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    if (awbTrackingNo) {
+      for (const [key, file] of Object.entries(files)) {
+        if (file && file.size > 0) {
+          const field = fields.find((f) => f.key === key);
+          const fd = new FormData();
+          fd.append("file", file);
+          fd.append("field_key", key);
+          fd.append("file_kind", field?.kind || "any");
+          await api.uploadAwbAttachment(awbTrackingNo, fd).catch(() => {});
+        }
+      }
+    }
     onSave?.(files);
     showToast?.("Attachments saved successfully!", "success");
     setSavedVisible(true);

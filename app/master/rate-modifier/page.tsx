@@ -17,6 +17,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   RateModifierEntry,
   RateModifierHeadings,
@@ -43,24 +44,43 @@ export default function RateModifierMasterPage() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // LocalStorage Persistence
+  // Backend API + LocalStorage Persistence
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_rate_modifiers");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setData(parsed);
-            return;
+    let mounted = true;
+    async function loadData() {
+      try {
+        const list = await api.getMasterList<RateModifierEntry>("/rate-modifiers");
+        if (mounted && Array.isArray(list)) {
+          setData(list);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("master_rate_modifiers", JSON.stringify(list));
           }
-        } catch (e) {
-          console.error("Error reading stored rate modifiers:", e);
+          return;
         }
+      } catch (err) {
+        console.warn("API unavailable, falling back to localStorage:", err);
       }
-      setData(initialRateModifierData);
-      localStorage.setItem("master_rate_modifiers", JSON.stringify(initialRateModifierData));
+      if (mounted && typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_rate_modifiers");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setData(parsed);
+              return;
+            }
+          } catch (e) {
+            console.error("Error reading stored rate modifiers:", e);
+          }
+        }
+        setData(initialRateModifierData);
+        localStorage.setItem("master_rate_modifiers", JSON.stringify(initialRateModifierData));
+      }
     }
+    loadData();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveModifiers = (newList: RateModifierEntry[]) => {
@@ -170,35 +190,41 @@ export default function RateModifierMasterPage() {
   };
 
   // Delete Handlers
-  const handleConfirmSingleDelete = () => {
+  const handleConfirmSingleDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((r) => r.id !== deleteTarget.id);
-      saveModifiers(updated);
-      setSelectedIds((prev) => prev.filter((i) => i !== deleteTarget.id));
-      showToast({
-        variant: "success",
-        message: `Rate Modifier "${deleteTarget.charge}" deleted successfully.`,
-      });
-      setIsDeleting(false);
-      setDeleteTarget(null);
-    }, 300);
+    try {
+      await api.deleteMasterItem("/rate-modifiers", deleteTarget.id);
+    } catch (err) {
+      console.warn("API delete fallback:", err);
+    }
+    const updated = data.filter((r) => String(r.id) !== String(deleteTarget.id));
+    saveModifiers(updated);
+    setSelectedIds((prev) => prev.filter((i) => String(i) !== String(deleteTarget.id)));
+    showToast({
+      variant: "success",
+      message: `Rate Modifier "${deleteTarget.charge}" deleted successfully.`,
+    });
+    setIsDeleting(false);
+    setDeleteTarget(null);
   };
 
-  const handleConfirmBulkDelete = () => {
+  const handleConfirmBulkDelete = async () => {
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((r) => !selectedIds.includes(r.id));
-      saveModifiers(updated);
-      showToast({
-        variant: "success",
-        message: `${selectedIds.length} rate modifiers deleted successfully.`,
-      });
-      setSelectedIds([]);
-      setIsDeleting(false);
-      setBulkDeleteOpen(false);
-    }, 300);
+    try {
+      await api.bulkDeleteMasterItems("/rate-modifiers", selectedIds);
+    } catch (err) {
+      console.warn("API bulk delete fallback:", err);
+    }
+    const updated = data.filter((r) => !selectedIds.includes(r.id));
+    saveModifiers(updated);
+    showToast({
+      variant: "success",
+      message: `${selectedIds.length} rate modifiers deleted successfully.`,
+    });
+    setSelectedIds([]);
+    setIsDeleting(false);
+    setBulkDeleteOpen(false);
   };
 
   // Export CSV

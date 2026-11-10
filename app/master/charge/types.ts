@@ -12,8 +12,10 @@ export interface ChargeEntry {
   id: string;
   srNo: number;
 
+  code?: string;
   name: string;
   sac: string;
+  defaultRate?: number | string;
 
   // Checkbox Rules & Settings (from Reference Image 1)
   isVatApplicable: boolean;

@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   PanelHeader,
   FieldLabel,
@@ -34,20 +35,32 @@ function CreateAwbLessInvoiceContent() {
 
   // Load existing item if editing
   useEffect(() => {
-    if (editId && typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_awb_less_invoices");
-      if (stored) {
-        try {
-          const list: AwbLessInvoiceEntry[] = JSON.parse(stored);
-          const found = list.find((item) => item.id === editId);
-          if (found) {
-            setForm(found);
+    if (!editId) return;
+    let mounted = true;
+    api
+      .getMasterItem<AwbLessInvoiceEntry>("/docket-less-invoice-items", editId)
+      .then((found) => {
+        if (mounted && found) setForm(found);
+      })
+      .catch(() => {
+        if (typeof window !== "undefined") {
+          const stored = localStorage.getItem("master_awb_less_invoices");
+          if (stored) {
+            try {
+              const list: AwbLessInvoiceEntry[] = JSON.parse(stored);
+              const found = list.find((item) => String(item.id) === String(editId));
+              if (found && mounted) {
+                setForm(found);
+              }
+            } catch (e) {
+              console.error("Error loading item:", e);
+            }
           }
-        } catch (e) {
-          console.error("Error loading item:", e);
         }
-      }
-    }
+      });
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   const validate = () => {
@@ -57,7 +70,7 @@ function CreateAwbLessInvoiceContent() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
       showToast({
@@ -70,19 +83,30 @@ function CreateAwbLessInvoiceContent() {
     setLoading(true);
 
     try {
+      let savedRecord = form;
+      try {
+        if (editId) {
+          savedRecord = await api.updateMasterItem<AwbLessInvoiceEntry>("/docket-less-invoice-items", editId, form);
+        } else {
+          savedRecord = await api.createMasterItem<AwbLessInvoiceEntry>("/docket-less-invoice-items", form);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to local:", apiErr);
+      }
+
       const stored = localStorage.getItem("master_awb_less_invoices");
       let list: AwbLessInvoiceEntry[] = stored
         ? JSON.parse(stored)
         : initialAwbLessInvoiceData;
 
       if (editId) {
-        list = list.map((item) => (item.id === editId ? form : item));
+        list = list.map((item) => (String(item.id) === String(editId) ? savedRecord : item));
         showToast({
           message: `Item ${form.name} updated successfully.`,
           variant: "success",
         });
       } else {
-        list = [form, ...list];
+        list = [savedRecord, ...list];
         showToast({
           message: `Item ${form.name} created successfully.`,
           variant: "success",

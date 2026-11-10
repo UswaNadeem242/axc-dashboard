@@ -18,6 +18,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   CountryEntry,
   CountryHeadings,
@@ -47,24 +48,43 @@ export default function CountryMasterPage() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // LocalStorage Persistence
+  // Backend API + LocalStorage Persistence
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_countries");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setData(parsed);
-            return;
+    let mounted = true;
+    async function loadData() {
+      try {
+        const list = await api.getMasterList<CountryEntry>("/countries");
+        if (mounted && Array.isArray(list)) {
+          setData(list);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("master_countries", JSON.stringify(list));
           }
-        } catch (e) {
-          console.error("Error reading stored countries:", e);
+          return;
         }
+      } catch (err) {
+        console.warn("API unavailable, falling back to localStorage:", err);
       }
-      setData(initialCountryData);
-      localStorage.setItem("master_countries", JSON.stringify(initialCountryData));
+      if (mounted && typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_countries");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setData(parsed);
+              return;
+            }
+          } catch (e) {
+            console.error("Error reading stored countries:", e);
+          }
+        }
+        setData(initialCountryData);
+        localStorage.setItem("master_countries", JSON.stringify(initialCountryData));
+      }
     }
+    loadData();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveCountries = (newList: CountryEntry[]) => {
@@ -201,35 +221,41 @@ export default function CountryMasterPage() {
     setDeleteTarget(country);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((item) => item.id !== deleteTarget.id);
-      saveCountries(updated);
-      setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
-      setIsDeleting(false);
-      setDeleteTarget(null);
-      showToast({
-        variant: "success",
-        message: `Country "${deleteTarget.name}" deleted successfully!`,
-      });
-    }, 400);
+    try {
+      await api.deleteMasterItem("/countries", deleteTarget.id);
+    } catch (err) {
+      console.warn("API delete fallback:", err);
+    }
+    const updated = data.filter((item) => String(item.id) !== String(deleteTarget.id));
+    saveCountries(updated);
+    setSelectedIds((prev) => prev.filter((id) => String(id) !== String(deleteTarget.id)));
+    setIsDeleting(false);
+    setDeleteTarget(null);
+    showToast({
+      variant: "success",
+      message: `Country "${deleteTarget.name}" deleted successfully!`,
+    });
   };
 
-  const handleBulkDeleteConfirm = () => {
+  const handleBulkDeleteConfirm = async () => {
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((item) => !selectedIds.includes(item.id));
-      saveCountries(updated);
-      setSelectedIds([]);
-      setIsDeleting(false);
-      setBulkDeleteOpen(false);
-      showToast({
-        variant: "success",
-        message: `${selectedIds.length} Country(s) deleted successfully!`,
-      });
-    }, 400);
+    try {
+      await api.bulkDeleteMasterItems("/countries", selectedIds);
+    } catch (err) {
+      console.warn("API bulk delete fallback:", err);
+    }
+    const updated = data.filter((item) => !selectedIds.includes(item.id));
+    saveCountries(updated);
+    setSelectedIds([]);
+    setIsDeleting(false);
+    setBulkDeleteOpen(false);
+    showToast({
+      variant: "success",
+      message: `${selectedIds.length} Country(s) deleted successfully!`,
+    });
   };
 
   const handleBulkExport = () => {

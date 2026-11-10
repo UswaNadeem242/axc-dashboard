@@ -1,6 +1,7 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import CommonTable from "../../src/common/table";
+import { api } from "../../src/lib/api";
 
 interface ManifestRow {
   id: number;
@@ -173,7 +174,38 @@ const manifestData: ManifestRow[] = [
   },
 ];
 
-export default function ManifestDetailTable() {
+export default function ManifestDetailTable({ awbTrackingNo }: { awbTrackingNo?: string }) {
+  const [rows, setRows] = useState<ManifestRow[]>(manifestData);
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await api.getManifests(awbTrackingNo ? { awb_number: awbTrackingNo, per_page: 50 } : { per_page: 50 });
+        const list = res?.data || [];
+        if (Array.isArray(list) && list.length > 0 && mounted) {
+          const mapped: ManifestRow[] = list.map((m: any, idx: number) => ({
+            id: m.srNo || m.id || idx + 1,
+            awbNumber: awbTrackingNo || m.bag_rows?.[0]?.awbNo || "14066A",
+            forwarder: m.forwarderCode || m.forwarder_code || "-",
+            runNumber: m.runNumber || m.run_number || "-",
+            manifestDate: m.manifestDate || m.manifest_date || "-",
+            flightNumber: m.vehicleNo || m.vehicle_no || "-",
+            masterNumber: m.masterEdiBagNo || m.master_edi_bag_no || "-",
+            manifestNo: m.manifestNo || m.manifest_no || "-",
+            bagNumber: String(m.noOfBags || m.no_of_bags || "1"),
+            originHub: m.originHubCode || m.origin_hub_code || "-",
+          }));
+          setRows(mapped);
+        }
+      } catch {
+        // fallback to static manifestData
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [awbTrackingNo]);
   const headings = [
     {
       label: "Awb Number",
@@ -262,10 +294,10 @@ export default function ManifestDetailTable() {
 
       <CommonTable
         headings={headings}
-        data={manifestData}
+        data={rows}
         rowKey="id"
         hidePagination={true}
-        itemsPerPage={manifestData.length}
+        itemsPerPage={rows.length}
         showScroll={false}
       />
     </div>

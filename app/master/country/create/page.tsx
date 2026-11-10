@@ -15,6 +15,7 @@ import {
 import { showToast } from "@/app/src/common/toast";
 import CommonDropdown from "@/app/src/common/dropdown";
 import CustomDatePicker from "@/app/src/common/datepicker";
+import { api } from "@/app/src/lib/api";
 import {
   PanelHeader,
   FieldLabel,
@@ -62,39 +63,70 @@ function CreateCountryContent() {
 
   // Load existing country if editing
   useEffect(() => {
-    if (typeof window === "undefined" || !editId) return;
-    try {
-      const stored = localStorage.getItem("master_countries");
-      const list: CountryEntry[] = stored
-        ? JSON.parse(stored)
-        : initialCountryData;
-      const found = list.find((item) => item.id === editId || item.code === editId);
-      if (found) {
-        setForm({
-          name: found.name || "",
-          code: found.code || "",
-          dialCode: found.dialCode || "",
-          currencyCode: found.currencyCode || "",
-          currencySymbol: found.currencySymbol || "",
-          currencyName: found.currencyName || "",
-          currencyFractionalUnit: found.currencyFractionalUnit || "",
-          status: found.status || "ACTIVE",
-          exchangeRates:
-            found.exchangeRates && found.exchangeRates.length > 0
-              ? found.exchangeRates
-              : [
-                  {
-                    id: 1,
-                    rate: "",
-                    effectiveFrom: "",
-                    effectiveTill: "",
-                  },
-                ],
-        });
+    if (!editId) return;
+    let mounted = true;
+    async function loadItem() {
+      try {
+        const found = await api.getMasterItem<CountryEntry>("/countries", editId!);
+        if (mounted && found) {
+          setForm({
+            name: found.name || "",
+            code: found.code || "",
+            dialCode: found.dialCode || "",
+            currencyCode: found.currencyCode || "",
+            currencySymbol: found.currencySymbol || "",
+            currencyName: found.currencyName || "",
+            currencyFractionalUnit: found.currencyFractionalUnit || "",
+            status: found.status || "ACTIVE",
+            exchangeRates:
+              found.exchangeRates && found.exchangeRates.length > 0
+                ? found.exchangeRates
+                : [{ id: 1, rate: "", effectiveFrom: "", effectiveTill: "" }],
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn("API fetch fallback:", err);
       }
-    } catch (e) {
-      console.error("Error loading country:", e);
+      if (mounted && typeof window !== "undefined") {
+        try {
+          const stored = localStorage.getItem("master_countries");
+          const list: CountryEntry[] = stored
+            ? JSON.parse(stored)
+            : initialCountryData;
+          const found = list.find((item) => String(item.id) === String(editId) || item.code === editId);
+          if (found) {
+            setForm({
+              name: found.name || "",
+              code: found.code || "",
+              dialCode: found.dialCode || "",
+              currencyCode: found.currencyCode || "",
+              currencySymbol: found.currencySymbol || "",
+              currencyName: found.currencyName || "",
+              currencyFractionalUnit: found.currencyFractionalUnit || "",
+              status: found.status || "ACTIVE",
+              exchangeRates:
+                found.exchangeRates && found.exchangeRates.length > 0
+                  ? found.exchangeRates
+                  : [
+                      {
+                        id: 1,
+                        rate: "",
+                        effectiveFrom: "",
+                        effectiveTill: "",
+                      },
+                    ],
+            });
+          }
+        } catch (e) {
+          console.error("Error loading country:", e);
+        }
+      }
     }
+    loadItem();
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   // Auto-fill currency details on Currency Code change
@@ -169,7 +201,7 @@ function CreateCountryContent() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = (e?: React.FormEvent) => {
+  const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!validate()) {
       showToast({
@@ -181,6 +213,22 @@ function CreateCountryContent() {
 
     setLoading(true);
     try {
+      const payload = {
+        ...form,
+        name: form.name.trim().toUpperCase(),
+        code: form.code.trim().toUpperCase(),
+      };
+      let savedRecord: CountryEntry | null = null;
+      try {
+        if (isEdit && editId) {
+          savedRecord = await api.updateMasterItem<CountryEntry>("/countries", editId, payload);
+        } else {
+          savedRecord = await api.createMasterItem<CountryEntry>("/countries", payload);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to localStorage:", apiErr);
+      }
+
       const stored = localStorage.getItem("master_countries");
       const currentList: CountryEntry[] = stored
         ? JSON.parse(stored)
@@ -188,22 +236,18 @@ function CreateCountryContent() {
 
       if (isEdit) {
         const updatedList = currentList.map((item) => {
-          if (item.id === editId || item.code === editId) {
-            return {
+          if (String(item.id) === String(editId) || item.code === editId) {
+            return savedRecord || {
               ...item,
-              ...form,
-              name: form.name.trim().toUpperCase(),
-              code: form.code.trim().toUpperCase(),
+              ...payload,
             };
           }
           return item;
         });
         localStorage.setItem("master_countries", JSON.stringify(updatedList));
       } else {
-        const newCountry: CountryEntry = {
-          ...form,
-          name: form.name.trim().toUpperCase(),
-          code: form.code.trim().toUpperCase(),
+        const newCountry: CountryEntry = savedRecord || {
+          ...payload,
           id: `CTRY-${String(currentList.length + 1).padStart(3, "0")}`,
           srNo: currentList.length + 1,
           createdAt: new Date().toLocaleString("en-GB", {

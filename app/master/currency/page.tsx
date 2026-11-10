@@ -17,6 +17,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   CurrencyEntry,
   CurrencyHeadings,
@@ -43,24 +44,48 @@ export default function CurrencyMasterPage() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // LocalStorage Persistence
+  // API + LocalStorage Persistence
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_currencies");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setData(parsed);
-            return;
+    let mounted = true;
+    api
+      .getMasterList<CurrencyEntry>("/currencies")
+      .then((list) => {
+        if (!mounted) return;
+        if (Array.isArray(list) && list.length > 0) {
+          setData(list);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("master_currencies", JSON.stringify(list));
           }
-        } catch (e) {
-          console.error("Error reading stored currencies:", e);
+          return;
         }
+        loadLocalFallback();
+      })
+      .catch(() => {
+        if (mounted) loadLocalFallback();
+      });
+
+    function loadLocalFallback() {
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_currencies");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setData(parsed);
+              return;
+            }
+          } catch (e) {
+            console.error("Error reading stored currencies:", e);
+          }
+        }
+        setData(initialCurrencyData);
+        localStorage.setItem("master_currencies", JSON.stringify(initialCurrencyData));
       }
-      setData(initialCurrencyData);
-      localStorage.setItem("master_currencies", JSON.stringify(initialCurrencyData));
     }
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveCurrencies = (newList: CurrencyEntry[]) => {
@@ -176,35 +201,41 @@ export default function CurrencyMasterPage() {
   };
 
   // Delete Handlers
-  const handleConfirmSingleDelete = () => {
+  const handleConfirmSingleDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((c) => c.id !== deleteTarget.id);
-      saveCurrencies(updated);
-      setSelectedIds((prev) => prev.filter((i) => i !== deleteTarget.id));
-      showToast({
-        variant: "success",
-        message: `Currency "${deleteTarget.code}" deleted successfully.`,
-      });
-      setIsDeleting(false);
-      setDeleteTarget(null);
-    }, 300);
+    try {
+      await api.deleteMasterItem("/currencies", deleteTarget.id);
+    } catch {
+      // fallback to local
+    }
+    const updated = data.filter((c) => String(c.id) !== String(deleteTarget.id));
+    saveCurrencies(updated);
+    setSelectedIds((prev) => prev.filter((i) => String(i) !== String(deleteTarget.id)));
+    showToast({
+      variant: "success",
+      message: `Currency "${deleteTarget.code}" deleted successfully.`,
+    });
+    setIsDeleting(false);
+    setDeleteTarget(null);
   };
 
-  const handleConfirmBulkDelete = () => {
+  const handleConfirmBulkDelete = async () => {
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((c) => !selectedIds.includes(c.id));
-      saveCurrencies(updated);
-      showToast({
-        variant: "success",
-        message: `${selectedIds.length} currencies deleted successfully.`,
-      });
-      setSelectedIds([]);
-      setIsDeleting(false);
-      setBulkDeleteOpen(false);
-    }, 300);
+    try {
+      await api.bulkDeleteMasterItems("/currencies", selectedIds);
+    } catch {
+      // fallback to local
+    }
+    const updated = data.filter((c) => !selectedIds.map(String).includes(String(c.id)));
+    saveCurrencies(updated);
+    showToast({
+      variant: "success",
+      message: `${selectedIds.length} currencies deleted successfully.`,
+    });
+    setSelectedIds([]);
+    setIsDeleting(false);
+    setBulkDeleteOpen(false);
   };
 
   // Export CSV

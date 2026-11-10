@@ -13,6 +13,7 @@ import {
 import { showToast } from "@/app/src/common/toast";
 import CommonDropdown from "@/app/src/common/dropdown";
 import CustomDatePicker from "@/app/src/common/datepicker";
+import { api } from "@/app/src/lib/api";
 import {
   PanelHeader,
   FieldLabel,
@@ -56,30 +57,59 @@ function CreateCftContractContent() {
 
   // Load existing contract if editing
   useEffect(() => {
-    if (typeof window === "undefined" || !editId) return;
-    try {
-      const stored = localStorage.getItem("master_cft_contracts");
-      const list: CftContractEntry[] = stored
-        ? JSON.parse(stored)
-        : initialCftContractData;
-      const found = list.find((item) => item.id === editId);
-      if (found) {
-        setForm({
-          billingType: found.billingType || "BOTH",
-          customer: found.customer || "",
-          service: found.service || "",
-          vendor: found.vendor || "",
-          product: found.product || "",
-          effectiveFrom: found.effectiveFrom || "",
-          effectiveTo: found.effectiveTo || "",
-          cftValue: found.cftValue || "",
-          cftMultiplier: found.cftMultiplier || "",
-          status: found.status || "ACTIVE",
-        });
+    if (!editId) return;
+    let mounted = true;
+    async function loadItem() {
+      try {
+        const found = await api.getMasterItem<CftContractEntry>("/cft-contracts", editId!);
+        if (mounted && found) {
+          setForm({
+            billingType: found.billingType || "BOTH",
+            customer: found.customer || "",
+            service: found.service || "",
+            vendor: found.vendor || "",
+            product: found.product || "",
+            effectiveFrom: found.effectiveFrom || "",
+            effectiveTo: found.effectiveTo || "",
+            cftValue: String(found.cftValue || ""),
+            cftMultiplier: String(found.cftMultiplier || ""),
+            status: found.status || "ACTIVE",
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn("API fetch fallback:", err);
       }
-    } catch (e) {
-      console.error("Error loading CFT contract:", e);
+      if (mounted && typeof window !== "undefined") {
+        try {
+          const stored = localStorage.getItem("master_cft_contracts");
+          const list: CftContractEntry[] = stored
+            ? JSON.parse(stored)
+            : initialCftContractData;
+          const found = list.find((item) => String(item.id) === String(editId));
+          if (found) {
+            setForm({
+              billingType: found.billingType || "BOTH",
+              customer: found.customer || "",
+              service: found.service || "",
+              vendor: found.vendor || "",
+              product: found.product || "",
+              effectiveFrom: found.effectiveFrom || "",
+              effectiveTo: found.effectiveTo || "",
+              cftValue: found.cftValue || "",
+              cftMultiplier: found.cftMultiplier || "",
+              status: found.status || "ACTIVE",
+            });
+          }
+        } catch (e) {
+          console.error("Error loading CFT contract:", e);
+        }
+      }
     }
+    loadItem();
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   // Validation
@@ -94,7 +124,7 @@ function CreateCftContractContent() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = (e?: React.FormEvent) => {
+  const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!validate()) {
       showToast({
@@ -106,6 +136,17 @@ function CreateCftContractContent() {
 
     setLoading(true);
     try {
+      let savedRecord: CftContractEntry | null = null;
+      try {
+        if (isEdit && editId) {
+          savedRecord = await api.updateMasterItem<CftContractEntry>("/cft-contracts", editId, form);
+        } else {
+          savedRecord = await api.createMasterItem<CftContractEntry>("/cft-contracts", form);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to localStorage:", apiErr);
+      }
+
       const stored = localStorage.getItem("master_cft_contracts");
       const currentList: CftContractEntry[] = stored
         ? JSON.parse(stored)
@@ -113,8 +154,8 @@ function CreateCftContractContent() {
 
       if (isEdit) {
         const updatedList = currentList.map((item) => {
-          if (item.id === editId) {
-            return {
+          if (String(item.id) === String(editId)) {
+            return savedRecord || {
               ...item,
               ...form,
             };
@@ -123,7 +164,7 @@ function CreateCftContractContent() {
         });
         localStorage.setItem("master_cft_contracts", JSON.stringify(updatedList));
       } else {
-        const newContract: CftContractEntry = {
+        const newContract: CftContractEntry = savedRecord || {
           ...form,
           id: `CFT-2026-${String(currentList.length + 1).padStart(3, "0")}`,
           srNo: currentList.length + 1,

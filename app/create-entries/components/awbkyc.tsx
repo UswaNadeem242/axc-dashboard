@@ -2,6 +2,7 @@
 
 import React, { useRef, useState, useEffect } from "react";
 import { Upload, X, ExternalLink, FileText, AlertCircle } from "lucide-react";
+import { api } from "@/app/src/lib/api";
 
 interface KycField {
   key: string;
@@ -23,6 +24,8 @@ interface KycExistingFiles {
 }
 
 interface AwbKycTabProps {
+  awbTrackingNo?: string;
+  shipperCode?: string;
   showToast?: (message: string, type?: "success" | "info") => void;
   onSave?: (data: { customer: KycState; shipper: KycState; shipperMaster: KycState }) => void;
   existingCustomerFiles?: Record<string, KycExistingFiles>;
@@ -381,6 +384,8 @@ function SaveKycButton({ onClick }: { onClick: () => void }) {
 }
 
 export function AwbKycTab({
+  awbTrackingNo,
+  shipperCode,
   showToast,
   onSave,
   existingCustomerFiles,
@@ -390,6 +395,37 @@ export function AwbKycTab({
   const [customer, setCustomer] = React.useState<KycState>({});
   const [shipper, setShipper] = React.useState<KycState>({});
   const [shipperMaster, setShipperMaster] = React.useState<KycState>({});
+
+  useEffect(() => {
+    if (!awbTrackingNo) return;
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await api.getAwb(awbTrackingNo);
+        const kyc = res?.data?.kycData;
+        if (kyc && mounted) {
+          if (kyc.customer) setCustomer(kyc.customer);
+          if (kyc.shipper) setShipper(kyc.shipper);
+          if (kyc.shipperMaster) setShipperMaster(kyc.shipperMaster);
+          return;
+        }
+      } catch {}
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem(`awb_kyc_${awbTrackingNo}`);
+        if (stored && mounted) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (parsed.customer) setCustomer(parsed.customer);
+            if (parsed.shipper) setShipper(parsed.shipper);
+            if (parsed.shipperMaster) setShipperMaster(parsed.shipperMaster);
+          } catch {}
+        }
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [awbTrackingNo]);
 
   const updateCustomer = (key: string, patch: Partial<KycRowData>) => {
     setCustomer((prev) => ({ ...prev, [key]: { ...EMPTY_ROW, ...prev[key], ...patch } }));
@@ -403,7 +439,39 @@ export function AwbKycTab({
     setShipperMaster((prev) => ({ ...prev, [key]: { ...EMPTY_ROW, ...prev[key], ...patch } }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
+    const serializeKyc = (state: KycState) => {
+      const out: Record<string, any> = {};
+      for (const [k, v] of Object.entries(state)) {
+        out[k] = {
+          docNumber: v.docNumber || "",
+          name: v.name || "",
+          page1Name: v.page1?.name || null,
+          page2Name: v.page2?.name || null,
+        };
+      }
+      return out;
+    };
+    const payload = {
+      customer: serializeKyc(customer),
+      shipper: serializeKyc(shipper),
+      shipperMaster: serializeKyc(shipperMaster),
+    };
+    if (awbTrackingNo) {
+      await api.updateAwb(awbTrackingNo, { kycData: payload }).catch(() => {});
+      if (typeof window !== "undefined") {
+        localStorage.setItem(`awb_kyc_${awbTrackingNo}`, JSON.stringify(payload));
+      }
+    }
+    if (shipperCode) {
+      const kycDocs = Object.entries(shipperMaster).map(([k, v]) => ({
+        document_type: k,
+        document_number: v.docNumber || "",
+        name_as_per_document: v.name || "",
+        is_uploaded: Boolean(v.docNumber || v.name || v.page1),
+      }));
+      await api.updateMasterItem(`/shippers/${encodeURIComponent(shipperCode)}`, "kyc", { kyc_documents: kycDocs }).catch(() => {});
+    }
     onSave?.({ customer, shipper, shipperMaster });
     showToast?.("KYC saved successfully!", "success");
   };

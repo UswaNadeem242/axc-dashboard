@@ -4,6 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Save, Coins } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import { PanelHeader } from "@/app/create-entries/components/form";
 import { CurrencyEntry, initialCurrencyData } from "../types";
 
@@ -16,6 +17,8 @@ function CreateCurrencyContent() {
   const [form, setForm] = useState({
     name: "",
     code: "",
+    symbol: "",
+    exchangeRate: "1.00",
     fractionalUnit: "",
     srNo: "1",
     status: "ACTIVE" as "ACTIVE" | "INACTIVE",
@@ -27,32 +30,52 @@ function CreateCurrencyContent() {
   // Load existing records or auto-generate next SR NO
   useEffect(() => {
     if (typeof window === "undefined") return;
-    try {
-      const stored = localStorage.getItem("master_currencies");
-      const list: CurrencyEntry[] = stored
-        ? JSON.parse(stored)
-        : initialCurrencyData;
+    let mounted = true;
+    const stored = localStorage.getItem("master_currencies");
+    const list: CurrencyEntry[] = stored
+      ? JSON.parse(stored)
+      : initialCurrencyData;
 
-      if (editId) {
-        const found = list.find((c) => c.id === editId || c.code === editId);
-        if (found) {
-          setForm({
-            name: found.name,
-            code: found.code,
-            fractionalUnit: found.fractionalUnit || "",
-            srNo: String(found.srNo),
-            status: found.status,
-          });
-          return;
-        }
-      }
-
-      // Next auto SR NO for new currency
-      const maxSr = list.reduce((max, c) => (c.srNo > max ? c.srNo : max), 0);
-      setForm((prev) => ({ ...prev, srNo: String(maxSr + 1) }));
-    } catch (e) {
-      console.error("Error loading currency data:", e);
+    if (editId) {
+      api
+        .getMasterItem<CurrencyEntry>("/currencies", editId)
+        .then((found) => {
+          if (mounted && found) {
+            setForm({
+              name: found.name || "",
+              code: found.code || "",
+              symbol: found.symbol || "",
+              exchangeRate: String(found.exchangeRate ?? "1.00"),
+              fractionalUnit: found.fractionalUnit || "",
+              srNo: String(found.srNo || 1),
+              status: found.status || "ACTIVE",
+            });
+          }
+        })
+        .catch(() => {
+          const found = list.find((c) => String(c.id) === String(editId) || c.code === editId);
+          if (found && mounted) {
+            setForm({
+              name: found.name,
+              code: found.code,
+              symbol: found.symbol || "",
+              exchangeRate: String(found.exchangeRate ?? "1.00"),
+              fractionalUnit: found.fractionalUnit || "",
+              srNo: String(found.srNo),
+              status: found.status,
+            });
+          }
+        });
+      return () => {
+        mounted = false;
+      };
     }
+
+    const maxSr = list.reduce((max, c) => (c.srNo > max ? c.srNo : max), 0);
+    setForm((prev) => ({ ...prev, srNo: String(maxSr + 1) }));
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   const validate = (): boolean => {
@@ -66,7 +89,7 @@ function CreateCurrencyContent() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
       showToast({
@@ -78,6 +101,27 @@ function CreateCurrencyContent() {
 
     setLoading(true);
     try {
+      const payload = {
+        name: form.name.trim().toUpperCase(),
+        code: form.code.trim().toUpperCase(),
+        symbol: form.symbol.trim(),
+        exchangeRate: Number(form.exchangeRate) || 1,
+        fractionalUnit: form.fractionalUnit.trim().toUpperCase(),
+        srNo: Number(form.srNo) || 1,
+        status: form.status,
+      };
+
+      let savedRecord: any = null;
+      try {
+        if (isEdit && editId) {
+          savedRecord = await api.updateMasterItem("/currencies", editId, payload);
+        } else {
+          savedRecord = await api.createMasterItem("/currencies", payload);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to local:", apiErr);
+      }
+
       const stored = localStorage.getItem("master_currencies");
       const currentList: CurrencyEntry[] = stored
         ? JSON.parse(stored)
@@ -85,14 +129,10 @@ function CreateCurrencyContent() {
 
       if (isEdit) {
         const updatedList = currentList.map((item) => {
-          if (item.id === editId || item.code === editId) {
-            return {
+          if (String(item.id) === String(editId) || item.code === editId) {
+            return savedRecord || {
               ...item,
-              name: form.name.trim().toUpperCase(),
-              code: form.code.trim().toUpperCase(),
-              fractionalUnit: form.fractionalUnit.trim().toUpperCase(),
-              srNo: Number(form.srNo) || item.srNo,
-              status: form.status,
+              ...payload,
             };
           }
           return item;
@@ -115,11 +155,13 @@ function CreateCurrencyContent() {
             hour12: true,
           })}`;
 
-        const newCurrency: CurrencyEntry = {
+        const newCurrency: CurrencyEntry = savedRecord || {
           id: `CURR-${Date.now().toString().slice(-4)}`,
           srNo: Number(form.srNo) || currentList.length + 1,
           name: form.name.trim().toUpperCase(),
           code: form.code.trim().toUpperCase(),
+          symbol: form.symbol.trim(),
+          exchangeRate: Number(form.exchangeRate) || 1,
           fractionalUnit: form.fractionalUnit.trim().toUpperCase(),
           status: form.status,
           createdAt: formattedDate,
@@ -244,6 +286,39 @@ function CreateCurrencyContent() {
                 {errors.srNo && (
                   <p className="text-[11px] text-axc-red font-semibold">{errors.srNo}</p>
                 )}
+              </div>
+
+              {/* 5. CURRENCY SYMBOL */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-axc-dark-gray text-regular-medium">
+                  Symbol
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter Currency Symbol (e.g. $, Rs, £)"
+                  value={form.symbol}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, symbol: e.target.value }))
+                  }
+                  className="border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-regular-small text-axc-dark-gray bg-white"
+                />
+              </div>
+
+              {/* 6. EXCHANGE RATE */}
+              <div className="flex flex-col gap-1.5">
+                <label className="text-axc-dark-gray text-regular-medium">
+                  Exchange Rate
+                </label>
+                <input
+                  type="number"
+                  step="0.0001"
+                  placeholder="Enter Exchange Rate (e.g. 1.00)"
+                  value={form.exchangeRate}
+                  onChange={(e) =>
+                    setForm((prev) => ({ ...prev, exchangeRate: e.target.value }))
+                  }
+                  className="border border-axc-border rounded-md px-3 py-2.5 outline-none w-full text-regular-small text-axc-dark-gray bg-white"
+                />
               </div>
 
               {/* 5. STATUS (Radio buttons) */}

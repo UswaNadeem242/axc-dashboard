@@ -10,6 +10,7 @@ import {
   Globe2,
 } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   PanelHeader,
   FieldLabel,
@@ -24,7 +25,7 @@ import {
 
 const defaultFormState = {
   code: "",
-  // name: "",
+  name: "",
   status: "ACTIVE" as "ACTIVE" | "INACTIVE",
 };
 
@@ -41,22 +42,45 @@ function CreateZoneContent() {
 
   // Load existing zone if editing
   useEffect(() => {
-    if (typeof window === "undefined" || !editId) return;
-    try {
-      const stored = localStorage.getItem("master_zones");
-      const list: ZoneEntry[] = stored
-        ? JSON.parse(stored)
-        : initialZoneData;
-      const found = list.find((item) => item.id === editId || item.code === editId);
-      if (found) {
-        setForm({
-          code: found.code || "",
-          status: found.status || "ACTIVE",
-        });
+    if (!editId) return;
+    let mounted = true;
+    async function loadItem() {
+      try {
+        const found = await api.getMasterItem<ZoneEntry>("/zones", editId!);
+        if (mounted && found) {
+          setForm({
+            code: found.code || "",
+            name: found.name || "",
+            status: found.status || "ACTIVE",
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn("API fetch fallback:", err);
       }
-    } catch (e) {
-      console.error("Error loading zone:", e);
+      if (mounted && typeof window !== "undefined") {
+        try {
+          const stored = localStorage.getItem("master_zones");
+          const list: ZoneEntry[] = stored
+            ? JSON.parse(stored)
+            : initialZoneData;
+          const found = list.find((item) => String(item.id) === String(editId) || item.code === editId);
+          if (found) {
+            setForm({
+              code: found.code || "",
+              name: found.name || "",
+              status: found.status || "ACTIVE",
+            });
+          }
+        } catch (e) {
+          console.error("Error loading zone:", e);
+        }
+      }
     }
+    loadItem();
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   // Validation
@@ -67,7 +91,7 @@ function CreateZoneContent() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = (e?: React.FormEvent) => {
+  const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!validate()) {
       showToast({
@@ -79,6 +103,22 @@ function CreateZoneContent() {
 
     setLoading(true);
     try {
+      const payload = {
+        ...form,
+        code: form.code.trim().toUpperCase(),
+        name: form.name.trim().toUpperCase(),
+      };
+      let savedRecord: ZoneEntry | null = null;
+      try {
+        if (isEdit && editId) {
+          savedRecord = await api.updateMasterItem<ZoneEntry>("/zones", editId, payload);
+        } else {
+          savedRecord = await api.createMasterItem<ZoneEntry>("/zones", payload);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to localStorage:", apiErr);
+      }
+
       const stored = localStorage.getItem("master_zones");
       const currentList: ZoneEntry[] = stored
         ? JSON.parse(stored)
@@ -86,20 +126,18 @@ function CreateZoneContent() {
 
       if (isEdit) {
         const updatedList = currentList.map((item) => {
-          if (item.id === editId || item.code === editId) {
-            return {
+          if (String(item.id) === String(editId) || item.code === editId) {
+            return savedRecord || {
               ...item,
-              ...form,
-              code: form.code.trim().toUpperCase(),
+              ...payload,
             };
           }
           return item;
         });
         localStorage.setItem("master_zones", JSON.stringify(updatedList));
       } else {
-        const newZone: ZoneEntry = {
-          ...form,
-          code: form.code.trim().toUpperCase(),
+        const newZone: ZoneEntry = savedRecord || {
+          ...payload,
           id: `ZN-${String(currentList.length + 1).padStart(3, "0")}`,
           srNo: currentList.length + 1,
           createdAt: new Date().toLocaleString("en-GB", {
@@ -211,7 +249,7 @@ function CreateZoneContent() {
                 </div>
 
                 {/* 2. NAME */}
-                {/* <div className="flex flex-col gap-1 sm:col-span-1 lg:col-span-2">
+                <div className="flex flex-col gap-1">
                   <FieldLabel>Zone Name / Description</FieldLabel>
                   <input
                     type="text"
@@ -220,7 +258,7 @@ function CreateZoneContent() {
                     onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value.toUpperCase() }))}
                     className={`${inputClass} uppercase`}
                   />
-                </div> */}
+                </div>
 
 
                 <div className="flex flex-col gap-1 ">

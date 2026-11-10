@@ -20,6 +20,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   ShipperEntry,
   ShipperHeadings,
@@ -47,24 +48,45 @@ export default function ShipperMasterPage() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // LocalStorage Persistence
+  // Backend API + LocalStorage Persistence
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_shippers");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setData(parsed);
-            return;
+    let mounted = true;
+    const loadData = async () => {
+      try {
+        const list = await api.getMasterList<ShipperEntry>("/shippers", { per_page: 200 });
+        if (mounted && Array.isArray(list) && list.length > 0) {
+          setData(list);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("master_shippers", JSON.stringify(list));
           }
-        } catch (e) {
-          console.error("Error reading stored shippers:", e);
+          return;
+        }
+      } catch (e) {
+        console.warn("Using local fallback for shippers:", e);
+      }
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_shippers");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              if (mounted) setData(parsed);
+              return;
+            }
+          } catch (e) {
+            console.error("Error reading stored shippers:", e);
+          }
+        }
+        if (mounted) {
+          setData(initialShipperData);
+          localStorage.setItem("master_shippers", JSON.stringify(initialShipperData));
         }
       }
-      setData(initialShipperData);
-      localStorage.setItem("master_shippers", JSON.stringify(initialShipperData));
-    }
+    };
+    loadData();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveShippers = (newList: ShipperEntry[]) => {
@@ -208,36 +230,42 @@ export default function ShipperMasterPage() {
     setViewShipper(item);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((item) => item.id !== deleteTarget.id);
-      saveShippers(updated);
-      setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
-      setIsDeleting(false);
-      setDeleteTarget(null);
-      showToast({
-        variant: "success",
-        message: `Shipper "${deleteTarget.name}" deleted successfully.`,
-      });
-    }, 250);
+    try {
+      await api.deleteMasterItem("/shippers", deleteTarget.id);
+    } catch (e) {
+      console.warn("API delete fallback to local:", e);
+    }
+    const updated = data.filter((item) => item.id !== deleteTarget.id);
+    saveShippers(updated);
+    setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
+    setIsDeleting(false);
+    setDeleteTarget(null);
+    showToast({
+      variant: "success",
+      message: `Shipper "${deleteTarget.name}" deleted successfully.`,
+    });
   };
 
-  const handleBulkDeleteConfirm = () => {
+  const handleBulkDeleteConfirm = async () => {
     if (selectedIds.length === 0) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((item) => !selectedIds.includes(item.id));
-      saveShippers(updated);
-      setSelectedIds([]);
-      setIsDeleting(false);
-      setBulkDeleteOpen(false);
-      showToast({
-        variant: "success",
-        message: `Deleted ${selectedIds.length} shipper records.`,
-      });
-    }, 250);
+    try {
+      await api.bulkDeleteMasterItems("/shippers", selectedIds);
+    } catch (e) {
+      console.warn("API bulk delete fallback to local:", e);
+    }
+    const updated = data.filter((item) => !selectedIds.includes(item.id));
+    saveShippers(updated);
+    setSelectedIds([]);
+    setIsDeleting(false);
+    setBulkDeleteOpen(false);
+    showToast({
+      variant: "success",
+      message: `Deleted ${selectedIds.length} shipper records.`,
+    });
   };
 
   // Export CSV (exact AWB pattern)

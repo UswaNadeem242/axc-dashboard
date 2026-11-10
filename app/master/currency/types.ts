@@ -3,6 +3,8 @@ export interface CurrencyEntry {
   srNo: number;
   name: string;
   code: string;
+  symbol?: string;
+  exchangeRate?: number | string;
   fractionalUnit: string;
   status: "ACTIVE" | "INACTIVE";
   createdAt: string;

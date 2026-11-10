@@ -255,8 +255,41 @@ export function useManifestForm() {
     }, 1000);
   };
 
-  const handleSearchAwb = () => {
+  const handleSearchAwb = async () => {
     showToast("Searching AWB…");
+    try {
+      const res = await api.getAwbs({ per_page: 20 });
+      const list = res?.data || [];
+      if (Array.isArray(list) && list.length > 0) {
+        const mappedRows: ManifestBagRow[] = list.slice(0, 5).map((a: any, idx: number) => ({
+          id: Date.now() + idx,
+          selected: false,
+          bagNo: `BAG-0${idx + 1}`,
+          ediBagNo: form.masterEdiBagNo || "",
+          bagId: `ID-${idx + 1}`,
+          trackBy: "AWB NUMBER",
+          awbNo: String(a.awbNumber || ""),
+          forwarderNo: String(a.forwardingNumber || ""),
+          bookingDate: String(a.bookingDate || ""),
+          weight: String(a.chargeableWeight || a.actualWeight || "1.00"),
+          pcs: String(a.pcs || "1"),
+          destn: String(a.destination || ""),
+          service: String(a.service || ""),
+          actionDuty: String(a.duty || "DDU"),
+        }));
+        setRows(mappedRows);
+        const totalWt = mappedRows.reduce((acc, r) => acc + (parseFloat(r.weight) || 0), 0);
+        setForm((prev) => ({
+          ...prev,
+          noOfBags: String(mappedRows.length),
+          totalActualWt: String(Number(totalWt.toFixed(2))),
+          totalChargeableWt: String(Number(totalWt.toFixed(2))),
+        }));
+        showToast(`${mappedRows.length} AWB entries loaded into Bag Details!`, "success");
+      }
+    } catch {
+      // ignore fallback
+    }
   };
 
   const handleBagging = () => {

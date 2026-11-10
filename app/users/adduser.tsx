@@ -6,6 +6,8 @@ import { X } from "lucide-react";
 import Dropdown from "../src/common/dropdown";
 import CustomDatePicker from "../src/common/datepicker";
 import ToggleSwitch from "./toggleswitch";
+import { useMasterData } from "../src/lib/useMasterData";
+import { api } from "../src/lib/api";
 
 interface NewUserData {
   name: string;
@@ -100,12 +102,32 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
   const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState<NewUserData>(initialForm);
   const [error, setError] = useState("");
+  const [roleOptions, setRoleOptions] = useState(ROLE_OPTIONS);
+  const { hubs, services } = useMasterData();
+
+  const dynamicHubOptions =
+    hubs.length > 0
+      ? hubs.map((h) => ({ value: h.name || h.code || h.value, label: h.name || h.code || h.label }))
+      : ASSIGNED_HUB_OPTIONS;
+
+  const dynamicServiceOptions =
+    services.length > 0
+      ? services.map((s) => ({ value: s.name || s.code || s.value, label: s.name || s.code || s.label }))
+      : AWB_SERVICE_TYPE_OPTIONS;
 
   useEffect(() => {
     if (isOpen) {
       setFormData(initialForm);
       setError("");
       requestAnimationFrame(() => setVisible(true));
+      api
+        .getRoles()
+        .then((res) => {
+          if (Array.isArray(res?.data) && res.data.length > 0) {
+            setRoleOptions(res.data.map((r: any) => ({ value: r.name, label: r.name })));
+          }
+        })
+        .catch(() => {});
     } else {
       setVisible(false);
     }
@@ -204,7 +226,7 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
                   setFormData((previous) => ({ ...previous, role: val }));
                   setError("");
                 }}
-                options={ROLE_OPTIONS}
+                options={roleOptions}
                 placeholder="Select role"
                 className="h-10 text-regular-small border-axc-border"
               />
@@ -275,7 +297,7 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
                   setFormData((previous) => ({ ...previous, assignedHub: val }));
                   setError("");
                 }}
-                options={ASSIGNED_HUB_OPTIONS}
+                options={dynamicHubOptions}
                 placeholder="Select..."
                 className="h-10 text-regular-small border-axc-border"
               />
@@ -288,7 +310,7 @@ export default function AddUserModal({ isOpen, onClose, onSave }: AddUserModalPr
                   setFormData((previous) => ({ ...previous, awbServiceType: val }));
                   setError("");
                 }}
-                options={AWB_SERVICE_TYPE_OPTIONS}
+                options={dynamicServiceOptions}
                 placeholder="SELECT AWB SERVICE TYPE.."
                 className="h-10 text-regular-small border-axc-border"
               />

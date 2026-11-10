@@ -6,6 +6,7 @@ import { ArrowLeft, Save, Plus, XCircle, Trash } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
 import CustomDatePicker from "@/app/src/common/datepicker";
 import CommonDropdown from "@/app/src/common/dropdown";
+import { api } from "@/app/src/lib/api";
 import {
   PanelHeader,
   FieldLabel,
@@ -64,38 +65,74 @@ function CreateStateContent() {
 
   // Load existing state if edit mode
   useEffect(() => {
-    if (editId && typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_states");
-      if (stored) {
-        try {
-          const list: StateEntry[] = JSON.parse(stored);
-          const found = list.find((s) => s.id === editId);
-          if (found) {
-            setForm({
-              ...found,
-              zones:
-                found.zones && found.zones.length > 0
-                  ? found.zones
-                  : [
-                      {
-                        id: `zone_map_${Date.now()}_1`,
-                        zone: "",
-                        type: "BOTH",
-                        customer: "ALL",
-                        service: "ALL",
-                        vendor: "ALL",
-                        effectiveFrom: "",
-                        effectiveTill: "",
-                        serviceType: "SERVICEABLE",
-                      },
-                    ],
-            });
+    if (!editId) return;
+    let mounted = true;
+    async function loadItem() {
+      try {
+        const found = await api.getMasterItem<StateEntry>("/states", editId!);
+        if (mounted && found) {
+          setForm({
+            ...found,
+            id: String(found.id),
+            zones:
+              found.zones && found.zones.length > 0
+                ? found.zones
+                : [
+                    {
+                      id: `zone_map_${Date.now()}_1`,
+                      zone: "",
+                      type: "BOTH",
+                      customer: "ALL",
+                      service: "ALL",
+                      vendor: "ALL",
+                      effectiveFrom: "",
+                      effectiveTill: "",
+                      serviceType: "SERVICEABLE",
+                    },
+                  ],
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn("API fetch fallback:", err);
+      }
+      if (mounted && typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_states");
+        if (stored) {
+          try {
+            const list: StateEntry[] = JSON.parse(stored);
+            const found = list.find((s) => String(s.id) === String(editId));
+            if (found) {
+              setForm({
+                ...found,
+                zones:
+                  found.zones && found.zones.length > 0
+                    ? found.zones
+                    : [
+                        {
+                          id: `zone_map_${Date.now()}_1`,
+                          zone: "",
+                          type: "BOTH",
+                          customer: "ALL",
+                          service: "ALL",
+                          vendor: "ALL",
+                          effectiveFrom: "",
+                          effectiveTill: "",
+                          serviceType: "SERVICEABLE",
+                        },
+                      ],
+              });
+            }
+          } catch (e) {
+            console.error("Error loading state:", e);
           }
-        } catch (e) {
-          console.error("Error loading state:", e);
         }
       }
     }
+    loadItem();
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   // Zone Row Handlers
@@ -153,7 +190,7 @@ function CreateStateContent() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
       showToast({
@@ -166,17 +203,28 @@ function CreateStateContent() {
     setLoading(true);
 
     try {
+      let savedRecord: StateEntry = form;
+      try {
+        if (editId) {
+          savedRecord = await api.updateMasterItem<StateEntry>("/states", editId, form);
+        } else {
+          savedRecord = await api.createMasterItem<StateEntry>("/states", form);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to localStorage:", apiErr);
+      }
+
       const stored = localStorage.getItem("master_states");
       let list: StateEntry[] = stored ? JSON.parse(stored) : initialStateData;
 
       if (editId) {
-        list = list.map((item) => (item.id === editId ? form : item));
+        list = list.map((item) => (String(item.id) === String(editId) ? savedRecord : item));
         showToast({
           message: `State ${form.name} updated successfully.`,
           variant: "success",
         });
       } else {
-        list = [form, ...list];
+        list = [savedRecord, ...list];
         showToast({
           message: `State ${form.name} created successfully.`,
           variant: "success",

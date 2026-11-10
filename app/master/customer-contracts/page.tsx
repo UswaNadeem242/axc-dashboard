@@ -20,6 +20,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   CustomerContractEntry,
   CustomerContractsHeadings,
@@ -46,27 +47,46 @@ export default function CustomerContractsMasterPage() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // LocalStorage Persistence
+  // Backend API + LocalStorage Persistence
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_customer_contracts");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setData(parsed);
-            return;
+    let mounted = true;
+    async function loadData() {
+      try {
+        const list = await api.getMasterList<CustomerContractEntry>("/customer-contracts");
+        if (mounted && Array.isArray(list)) {
+          setData(list);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("master_customer_contracts", JSON.stringify(list));
           }
-        } catch (e) {
-          console.error("Error reading stored contracts:", e);
+          return;
         }
+      } catch (err) {
+        console.warn("API unavailable, falling back to localStorage:", err);
       }
-      setData(initialCustomerContractsData);
-      localStorage.setItem(
-        "master_customer_contracts",
-        JSON.stringify(initialCustomerContractsData)
-      );
+      if (mounted && typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_customer_contracts");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setData(parsed);
+              return;
+            }
+          } catch (e) {
+            console.error("Error reading stored contracts:", e);
+          }
+        }
+        setData(initialCustomerContractsData);
+        localStorage.setItem(
+          "master_customer_contracts",
+          JSON.stringify(initialCustomerContractsData)
+        );
+      }
     }
+    loadData();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveContracts = (newList: CustomerContractEntry[]) => {
@@ -212,35 +232,41 @@ export default function CustomerContractsMasterPage() {
   };
 
   // Delete Handlers
-  const handleConfirmSingleDelete = () => {
+  const handleConfirmSingleDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((c) => c.id !== deleteTarget.id);
-      saveContracts(updated);
-      setSelectedIds((prev) => prev.filter((i) => i !== deleteTarget.id));
-      showToast({
-        variant: "success",
-        message: `Contract "${deleteTarget.id}" deleted successfully.`,
-      });
-      setIsDeleting(false);
-      setDeleteTarget(null);
-    }, 400);
+    try {
+      await api.deleteMasterItem("/customer-contracts", deleteTarget.id);
+    } catch (err) {
+      console.warn("API delete fallback:", err);
+    }
+    const updated = data.filter((c) => String(c.id) !== String(deleteTarget.id));
+    saveContracts(updated);
+    setSelectedIds((prev) => prev.filter((i) => String(i) !== String(deleteTarget.id)));
+    showToast({
+      variant: "success",
+      message: `Contract "${deleteTarget.id}" deleted successfully.`,
+    });
+    setIsDeleting(false);
+    setDeleteTarget(null);
   };
 
-  const handleConfirmBulkDelete = () => {
+  const handleConfirmBulkDelete = async () => {
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((c) => !selectedIds.includes(c.id));
-      saveContracts(updated);
-      showToast({
-        variant: "success",
-        message: `${selectedIds.length} contract(s) deleted successfully.`,
-      });
-      setSelectedIds([]);
-      setIsDeleting(false);
-      setBulkDeleteOpen(false);
-    }, 400);
+    try {
+      await api.bulkDeleteMasterItems("/customer-contracts", selectedIds);
+    } catch (err) {
+      console.warn("API bulk delete fallback:", err);
+    }
+    const updated = data.filter((c) => !selectedIds.includes(c.id));
+    saveContracts(updated);
+    showToast({
+      variant: "success",
+      message: `${selectedIds.length} contract(s) deleted successfully.`,
+    });
+    setSelectedIds([]);
+    setIsDeleting(false);
+    setBulkDeleteOpen(false);
   };
 
   // Export CSV

@@ -140,7 +140,7 @@ function CreateEntriesContent() {
             <AwbSalesBillingTab form={form} setForm={setForm} errors={errors} />
           )}
 
-          {activeTab === "purchase-billing" && <AwbPurchaseBillingTab isEdit={isEdit} />}
+          {activeTab === "purchase-billing" && <AwbPurchaseBillingTab isEdit={isEdit} form={form} />}
 
           {activeTab === "attachment" && (
             <AwbAttachmentsTab awbTrackingNo={form.awbNumber} showToast={showToast} />
@@ -150,9 +150,13 @@ function CreateEntriesContent() {
             <AwbDeliveryTab awbTrackingNo={form.awbNumber} />
           )}
 
-          {activeTab === "kyc" && <AwbKycTab showToast={showToast} />}
+          {activeTab === "kyc" && (
+            <AwbKycTab awbTrackingNo={form.awbNumber} shipperCode={form.shipperCode} showToast={showToast} />
+          )}
 
-          {activeTab === "manifest-details" && isEdit && <ManifestDetailTable />}
+          {activeTab === "manifest-details" && isEdit && (
+            <ManifestDetailTable awbTrackingNo={form.awbNumber} />
+          )}
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { ArrowLeft, Save, Trash, Plus } from "lucide-react";
 import CommonDropdown from "@/app/src/common/dropdown";
 import CustomDatePicker from "@/app/src/common/datepicker";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   PanelHeader,
   FieldLabel,
@@ -89,66 +90,53 @@ function CreateCustomerContractContent() {
 
   // Load existing data in edit mode
   useEffect(() => {
-    if (!editId || typeof window === "undefined") return;
+    if (!editId) return;
+    let mounted = true;
+    async function loadItem() {
+      try {
+        const found = await api.getMasterItem<CustomerContractEntry>("/customer-contracts", editId!);
+        if (mounted && found) {
+          setForm({
+            ...initialFormState,
+            ...found,
+            status: found.status || "ACTIVE",
+          });
+          if (found.rateItems && found.rateItems.length > 0) {
+            setRateItems(found.rateItems);
+          }
+          return;
+        }
+      } catch (err) {
+        console.warn("API fetch fallback:", err);
+      }
+      if (mounted && typeof window !== "undefined") {
+        try {
+          const stored = localStorage.getItem("master_customer_contracts");
+          const list: CustomerContractEntry[] = stored
+            ? JSON.parse(stored)
+            : initialCustomerContractsData;
+          const found = list.find((c) => String(c.id) === String(editId));
 
-    try {
-      const stored = localStorage.getItem("master_customer_contracts");
-      const list: CustomerContractEntry[] = stored
-        ? JSON.parse(stored)
-        : initialCustomerContractsData;
-      const found = list.find((c) => c.id === editId);
+          if (found) {
+            setForm({
+              ...initialFormState,
+              ...found,
+              status: found.status || "ACTIVE",
+            });
 
-      if (found) {
-        setForm({
-          customer: found.customer || "",
-          customerCode: found.customerCode || "",
-          service: found.service || "",
-          serviceCode: found.serviceCode || "",
-          product: found.product || "",
-          productCode: found.productCode || "",
-          airline: found.airline || "",
-          airlineCode: found.airlineCode || "",
-          flight: found.flight || "",
-          flightCode: found.flightCode || "",
-          vendor: found.vendor || "",
-          vendorCode: found.vendorCode || "",
-          destinationZone: found.destinationZone || "",
-          destinationZoneCode: found.destinationZoneCode || "",
-          destination: found.destination || "",
-          destinationCode: found.destinationCode || "",
-          destinationCity: found.destinationCity || "",
-          destinationCityCode: found.destinationCityCode || "",
-          destinationState: found.destinationState || "",
-          destinationStateCode: found.destinationStateCode || "",
-          destinationHub: found.destinationHub || "",
-          contractType: found.contractType || "Weight Wise",
-          incoterm: found.incoterm || "",
-          status: found.status || "ACTIVE",
-
-          originZone: found.originZone || "",
-          origin: found.origin || "",
-          originCode: found.originCode || "",
-          originCity: found.originCity || "",
-          originCityCode: found.originCityCode || "",
-          originState: found.originState || "",
-          originStateCode: found.originStateCode || "",
-          originHub: found.originHub || "",
-          effectiveFrom: found.effectiveFrom || "",
-          effectiveTo: found.effectiveTo || "",
-          remarks: found.remarks || "",
-          notes: found.notes || "",
-          calculationMethod: found.calculationMethod || "Fixed",
-          tat: found.tat || "",
-          minimumFreight: found.minimumFreight || "",
-        });
-
-        if (found.rateItems && found.rateItems.length > 0) {
-          setRateItems(found.rateItems);
+            if (found.rateItems && found.rateItems.length > 0) {
+              setRateItems(found.rateItems);
+            }
+          }
+        } catch (e) {
+          console.error("Error loading contract for edit:", e);
         }
       }
-    } catch (e) {
-      console.error("Error loading contract for edit:", e);
     }
+    loadItem();
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   const handleFieldChange = (field: keyof typeof initialFormState, value: string) => {
@@ -206,7 +194,7 @@ function CreateCustomerContractContent() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validate()) {
@@ -220,6 +208,21 @@ function CreateCustomerContractContent() {
     setSaving(true);
 
     try {
+      const payload = {
+        ...form,
+        rateItems,
+      };
+      let savedRecord: CustomerContractEntry | null = null;
+      try {
+        if (isEdit && editId) {
+          savedRecord = await api.updateMasterItem<CustomerContractEntry>("/customer-contracts", editId, payload);
+        } else {
+          savedRecord = await api.createMasterItem<CustomerContractEntry>("/customer-contracts", payload);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to localStorage:", apiErr);
+      }
+
       const stored = localStorage.getItem("master_customer_contracts");
       const currentList: CustomerContractEntry[] = stored
         ? JSON.parse(stored)
@@ -227,8 +230,8 @@ function CreateCustomerContractContent() {
 
       if (isEdit) {
         const updatedList = currentList.map((item) => {
-          if (item.id === editId) {
-            return {
+          if (String(item.id) === String(editId)) {
+            return savedRecord || {
               ...item,
               ...form,
               rateItems,
@@ -243,7 +246,7 @@ function CreateCustomerContractContent() {
           message: `Contract for "${form.customer}" updated successfully!`,
         });
       } else {
-        const newEntry: CustomerContractEntry = {
+        const newEntry: CustomerContractEntry = savedRecord || {
           ...form,
           rateItems,
           id: `CC-${Date.now().toString().slice(-4)}`,

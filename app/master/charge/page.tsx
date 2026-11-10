@@ -21,6 +21,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   ChargeEntry,
   ChargeHeadings,
@@ -47,24 +48,48 @@ export default function ChargeMasterPage() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // LocalStorage Persistence
+  // API + LocalStorage Persistence
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_charges");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setData(parsed);
-            return;
+    let mounted = true;
+    api
+      .getMasterList<ChargeEntry>("/charge-masters")
+      .then((list) => {
+        if (!mounted) return;
+        if (Array.isArray(list) && list.length > 0) {
+          setData(list);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("master_charges", JSON.stringify(list));
           }
-        } catch (e) {
-          console.error("Error reading stored charges:", e);
+          return;
         }
+        loadLocalFallback();
+      })
+      .catch(() => {
+        if (mounted) loadLocalFallback();
+      });
+
+    function loadLocalFallback() {
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_charges");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setData(parsed);
+              return;
+            }
+          } catch (e) {
+            console.error("Error reading stored charges:", e);
+          }
+        }
+        setData(initialChargeData);
+        localStorage.setItem("master_charges", JSON.stringify(initialChargeData));
       }
-      setData(initialChargeData);
-      localStorage.setItem("master_charges", JSON.stringify(initialChargeData));
     }
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveCharges = (newList: ChargeEntry[]) => {
@@ -186,36 +211,42 @@ export default function ChargeMasterPage() {
     setDeleteTarget(row);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((item) => item.id !== deleteTarget.id);
-      saveCharges(updated);
-      setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
-      setIsDeleting(false);
-      setDeleteTarget(null);
-      showToast({
-        variant: "success",
-        message: `Charge "${deleteTarget.name}" deleted successfully.`,
-      });
-    }, 250);
+    try {
+      await api.deleteMasterItem("/charge-masters", deleteTarget.id);
+    } catch {
+      // fallback to local
+    }
+    const updated = data.filter((item) => String(item.id) !== String(deleteTarget.id));
+    saveCharges(updated);
+    setSelectedIds((prev) => prev.filter((id) => String(id) !== String(deleteTarget.id)));
+    setIsDeleting(false);
+    setDeleteTarget(null);
+    showToast({
+      variant: "success",
+      message: `Charge "${deleteTarget.name}" deleted successfully.`,
+    });
   };
 
-  const handleBulkDeleteConfirm = () => {
+  const handleBulkDeleteConfirm = async () => {
     if (selectedIds.length === 0) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((item) => !selectedIds.includes(item.id));
-      saveCharges(updated);
-      setSelectedIds([]);
-      setIsDeleting(false);
-      setBulkDeleteOpen(false);
-      showToast({
-        variant: "success",
-        message: `Deleted ${selectedIds.length} charge records.`,
-      });
-    }, 250);
+    try {
+      await api.bulkDeleteMasterItems("/charge-masters", selectedIds);
+    } catch {
+      // fallback to local
+    }
+    const updated = data.filter((item) => !selectedIds.map(String).includes(String(item.id)));
+    saveCharges(updated);
+    setSelectedIds([]);
+    setIsDeleting(false);
+    setBulkDeleteOpen(false);
+    showToast({
+      variant: "success",
+      message: `Deleted ${selectedIds.length} charge records.`,
+    });
   };
 
   // Export CSV

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { AwbEntry, initialData } from "../../src/constant";
 import { AwbFormErrors, AwbFormState, InvoiceItem, ToastState } from "./formstate";
 import { api } from "../../src/lib/api";
+import { useMasterData, calculateContractRateLocal, invalidateMasterDataCache } from "../../src/lib/useMasterData";
 import { showToast as showAppToast } from "../../src/common/toast";
 
 const emptyForm: AwbFormState = {
@@ -109,12 +110,91 @@ const emptyInvoiceItems: InvoiceItem[] = [
 ];
 export function useAwbEntryForm(editAwbId?: string | null) {
   const router = useRouter();
+  const { customerContracts, serviceContracts, cftContracts } = useMasterData();
   const [form, setForm] = useState<AwbFormState>(emptyForm);
   const [invoiceItems, setInvoiceItems] = useState<InvoiceItem[]>(emptyInvoiceItems);
   const [errors, setErrors] = useState<AwbFormErrors>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
+
+  // Auto-match Customer Contract, Vendor/Service Contract, and CFT Contract when customer/service/vendor/weights change
+  useEffect(() => {
+    const cust = form.customer?.trim().toUpperCase();
+    const srv = form.service?.trim().toUpperCase();
+    const vnd = form.vendor?.trim().toUpperCase();
+    if (!cust && !srv && !vnd) return;
+
+    const matchedCC =
+      customerContracts.find((c: any) => {
+        const cCode = String(c.customer_code || c.customerCode || c.customer_name || c.customerName || "").toUpperCase();
+        const sCode = String(c.service_code || c.serviceCode || c.service_name || c.serviceName || "").toUpperCase();
+        return (!cust || cCode.includes(cust)) && (!srv || !sCode || sCode.includes(srv));
+      }) || customerContracts[0];
+
+    const matchedSC =
+      serviceContracts.find((c: any) => {
+        const vCode = String(c.vendor_code || c.vendorCode || c.vendor_name || c.vendorName || "").toUpperCase();
+        const sCode = String(c.service_code || c.serviceCode || c.service_name || c.serviceName || "").toUpperCase();
+        return (!vnd || !vCode || vCode.includes(vnd)) && (!srv || !sCode || sCode.includes(srv));
+      }) || serviceContracts[0];
+
+    const matchedCftCust =
+      cftContracts.find((c: any) => {
+        const cCode = String(c.customer_code || c.customerCode || c.customer_name || c.customerName || "").toUpperCase();
+        return !cust || !cCode || cCode.includes(cust);
+      }) || cftContracts[0];
+
+    const matchedCftVend =
+      cftContracts.find((c: any) => {
+        const vCode = String(c.vendor_code || c.vendorCode || c.vendor_name || c.vendorName || "").toUpperCase();
+        return !vnd || !vCode || vCode.includes(vnd);
+      }) || matchedCftCust;
+
+    const ccRate = matchedCC ? calculateContractRateLocal(matchedCC, Number(form.chargeableWeight || form.actualWeight || 1), Number(form.pcs || 1)) : null;
+    const scRate = matchedSC ? calculateContractRateLocal(matchedSC, Number(form.chargeableWeight || form.actualWeight || 1), Number(form.pcs || 1)) : null;
+
+    setForm((prev) => {
+      const nextRateCust = ccRate?.contractNumber || prev.rateContractCustomer;
+      const nextRateVend = scRate?.contractNumber || prev.rateContractVendor;
+      const nextCftCust = matchedCftCust ? String(matchedCftCust.contract_number || matchedCftCust.contractNumber || `CFT-${matchedCftCust.id}`) : prev.cftContractCustomer;
+      const nextCftVend = matchedCftVend ? String(matchedCftVend.contract_number || matchedCftVend.contractNumber || `CFT-${matchedCftVend.id}`) : prev.cftContractVendor;
+      const nextTatCust = ccRate?.tat || prev.tatCustomer;
+      const nextTatVend = scRate?.tat || prev.tatVendor;
+
+      if (
+        nextRateCust === prev.rateContractCustomer &&
+        nextRateVend === prev.rateContractVendor &&
+        nextCftCust === prev.cftContractCustomer &&
+        nextCftVend === prev.cftContractVendor &&
+        nextTatCust === prev.tatCustomer &&
+        nextTatVend === prev.tatVendor
+      ) {
+        return prev;
+      }
+
+      return {
+        ...prev,
+        contractId: nextRateCust || prev.contractId,
+        rateContractCustomer: nextRateCust,
+        rateContractVendor: nextRateVend,
+        cftContractCustomer: nextCftCust,
+        cftContractVendor: nextCftVend,
+        tatCustomer: nextTatCust,
+        tatVendor: nextTatVend,
+      };
+    });
+  }, [
+    form.customer,
+    form.service,
+    form.vendor,
+    form.chargeableWeight,
+    form.actualWeight,
+    form.pcs,
+    customerContracts,
+    serviceContracts,
+    cftContracts,
+  ]);
 
   useEffect(() => {
     if (!editAwbId) {
@@ -437,6 +517,56 @@ export function useAwbEntryForm(editAwbId?: string | null) {
         await api.updateAwb(form.awbNumber, payload);
       } else {
         await api.createAwb(payload);
+      }
+
+      if ((form.shipperSaveToAddressBook || form.shipperUpdateAddressBook) && form.shipperPersonName) {
+        const shipperPayload = {
+          code: form.shipperCode || `SHP-${Date.now().toString().slice(-4)}`,
+          name: form.shipperPersonName,
+          company: form.shipperCompany || form.shipperPersonName,
+          contact_no: form.shipperPhone || "0000000000",
+          email: form.shipperEmail,
+          address_line_1: form.shipperAddress1 || "-",
+          address_line_2: form.shipperAddress2,
+          address_line_3: form.shipperAddress3,
+          pincode: form.shipperZipCode || "00000",
+          city: form.shipperCity,
+          state: form.shipperState,
+          country: form.shipperCountry || form.origin || "Pakistan",
+          gstin_type: form.shipperKycType,
+          gstin_no: form.shipperKycNumber,
+          status: "ACTIVE",
+        };
+        if (form.shipperUpdateAddressBook && form.shipperCode) {
+          await api.updateShipper(form.shipperCode, shipperPayload).catch(() => {});
+        } else {
+          await api.createShipper(shipperPayload).catch(() => {});
+        }
+        invalidateMasterDataCache();
+      }
+
+      if ((form.consigneeSaveToAddressBook || form.consigneeUpdateAddressBook) && form.consigneePersonName) {
+        const consigneePayload = {
+          code: form.consigneeCode || `CON-${Date.now().toString().slice(-4)}`,
+          name: form.consigneePersonName,
+          company: form.consigneeCompany || form.consigneePersonName,
+          contact_no: form.consigneePhone || "0000000000",
+          email: form.consigneeEmail,
+          address_line_1: form.consigneeAddress1 || "-",
+          address_line_2: form.consigneeAddress2,
+          address_line_3: form.consigneeAddress3,
+          pincode: form.consigneeZipCode || "00000",
+          city: form.consigneeCity,
+          state: form.consigneeState,
+          country: form.consigneeCountry || form.destination || "United Kingdom",
+          status: "ACTIVE",
+        };
+        if (form.consigneeUpdateAddressBook && form.consigneeCode) {
+          await api.updateConsignee(form.consigneeCode, consigneePayload).catch(() => {});
+        } else {
+          await api.createConsignee(consigneePayload).catch(() => {});
+        }
+        invalidateMasterDataCache();
       }
     } catch (err) {
       console.warn("API submit fallback:", err);
