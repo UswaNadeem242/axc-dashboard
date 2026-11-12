@@ -269,15 +269,11 @@ export async function loadAllMasterData(force = false): Promise<MasterData> {
     const rawStates = mergeByKey(d.states || [], readLocalMaster("master_states"), ["code", "name"]);
     const rawCities = mergeByKey(d.cities || [], readLocalMaster("master_cities"), ["code", "name"]);
     const rawZones = mergeByKey(d.zones || [], readLocalMaster("master_zones"), ["code", "name"]);
-<<<<<<< HEAD
     const rawChargeHeads = mergeByKey(
       d.chargeMaster || d.chargeMasters || d.charge_masters || d.chargeHeads || d.charges || [],
       readLocalMaster("master_charge_masters"),
       ["code", "name", "chargeMasterName", "charge_master_name"]
     );
-=======
-    const rawChargeHeads = mergeByKey(d.chargeHeads || d.charges || [], readLocalMaster("master_charge_masters"), ["code", "name"]);
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
     const rawAwbStatuses = mergeByKey(d.awbStatuses || [], readLocalMaster("master_awb_statuses"), ["code", "name"]);
     const rawShippers = mergeByKey(d.shippers || [], readLocalMaster("master_shippers"), ["code", "name"]);
     const rawConsignees = mergeByKey(d.consignees || [], readLocalMaster("master_consignees"), ["code", "name"]);
@@ -286,11 +282,7 @@ export async function loadAllMasterData(force = false): Promise<MasterData> {
     const customerContracts = mergeByKey(d.customerContracts || [], readLocalMaster("master_customer_contracts"), ["contract_number", "contractNumber", "id"]);
     const serviceContracts = mergeByKey(d.serviceContracts || [], readLocalMaster("master_service_contracts"), ["contract_number", "contractNumber", "id"]);
     const cftContracts = mergeByKey(d.cftContracts || [], readLocalMaster("master_cft_contracts"), ["contract_number", "contractNumber", "id"]);
-<<<<<<< HEAD
     const rateModifiers = mergeByKey(d.rateModifiers || d.rate_modifiers || [], readLocalMaster("master_rate_modifiers"), ["id", "charge_master_name", "chargeMasterName", "charge"]);
-=======
-    const rateModifiers = mergeByKey(d.rateModifiers || [], readLocalMaster("master_rate_modifiers"), ["id", "charge_master_name"]);
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
     const shipmentInvoiceNotes = mergeByKey(d.shipmentInvoiceNotes || [], readLocalMaster("master_shipment_invoice_notes"), ["id", "title", "note"]);
     const docketLessItems = mergeByKey(d.docketLessItems || [], readLocalMaster("master_docket_less_invoice_items"), ["id", "description"]);
     const invoiceRanges = mergeByKey(d.invoiceRanges || [], readLocalMaster("master_invoice_ranges"), ["id", "prefix"]);
@@ -452,15 +444,9 @@ export async function loadAllMasterData(force = false): Promise<MasterData> {
       chargeHeads:
         rawChargeHeads.length > 0
           ? rawChargeHeads.map((c: any) => ({
-<<<<<<< HEAD
               value: c.name || c.chargeMasterName || c.charge_master_name || c.charge || c.code,
               label: c.name || c.chargeMasterName || c.charge_master_name || c.charge || c.code,
               code: c.code || c.name || c.chargeMasterName || c.charge_master_name,
-=======
-              value: c.name || c.code,
-              label: c.name || c.code,
-              code: c.code || c.name,
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
               raw: c,
             }))
           : DEFAULT_DATA.chargeHeads,

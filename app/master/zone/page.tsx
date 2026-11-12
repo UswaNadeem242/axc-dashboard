@@ -18,11 +18,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
-<<<<<<< HEAD
 import { api, formatDateOnly } from "@/app/src/lib/api";
-=======
-import { api } from "@/app/src/lib/api";
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
 import {
   ZoneEntry,
   ZoneHeadings,

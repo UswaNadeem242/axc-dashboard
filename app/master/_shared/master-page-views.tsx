@@ -21,10 +21,7 @@ import Dropdown from "@/app/src/common/dropdown";
 import CustomDatePicker from "@/app/src/common/datepicker";
 import { showToast } from "@/app/src/common/toast";
 import { api } from "@/app/src/lib/api";
-<<<<<<< HEAD
 import { invalidateMasterDataCache } from "@/app/src/lib/useMasterData";
-=======
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
 import {
   PanelHeader,
   FieldLabel,
@@ -200,7 +197,6 @@ export function StandardMasterListPage<T extends Record<string, any>>({
   }, [data, searchQuery, activeTags]);
 
   const sortedData = useMemo(() => {
-<<<<<<< HEAD
     if (!sortKey) {
       return [...filteredData].sort((a, b) => {
         const rawDateA = a.createdAt || a.created_at || a.createdDate;
@@ -216,9 +212,6 @@ export function StandardMasterListPage<T extends Record<string, any>>({
         return String(b.id || "").localeCompare(String(a.id || ""));
       });
     }
-=======
-    if (!sortKey) return filteredData;
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
     return [...filteredData].sort((a, b) => {
       const valA = a[sortKey] ?? "";
       const valB = b[sortKey] ?? "";
@@ -862,11 +855,8 @@ function StandardCreateFormContent<T extends Record<string, any>>({
         });
       }
 
-<<<<<<< HEAD
       invalidateMasterDataCache();
 
-=======
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
       setTimeout(() => {
         router.push(config.basePath);
       }, 400);

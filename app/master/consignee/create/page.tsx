@@ -19,10 +19,7 @@ import {
 } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
 import { api } from "@/app/src/lib/api";
-<<<<<<< HEAD
 import { useMasterData, invalidateMasterDataCache } from "@/app/src/lib/useMasterData";
-=======
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
 import CommonDropdown from "@/app/src/common/dropdown";
 import CustomDatePicker from "@/app/src/common/datepicker";
 import {
@@ -237,7 +234,6 @@ function CreateConsigneeContent() {
         ? JSON.parse(stored)
         : [...initialConsigneeData];
 
-<<<<<<< HEAD
       const payload = {
         ...form,
         code: form.code,
@@ -274,12 +270,6 @@ function CreateConsigneeContent() {
         let savedItem: ConsigneeEntry | null = null;
         try {
           savedItem = await api.updateMasterItem<ConsigneeEntry>("/consignees", editId, payload);
-=======
-      if (isEdit && editId) {
-        let savedItem: ConsigneeEntry | null = null;
-        try {
-          savedItem = await api.updateMasterItem<ConsigneeEntry>("/consignees", editId, form);
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
         } catch (err) {
           console.warn("API update consignee fallback to local:", err);
         }
@@ -296,11 +286,7 @@ function CreateConsigneeContent() {
       } else {
         let createdItem: ConsigneeEntry | null = null;
         try {
-<<<<<<< HEAD
           createdItem = await api.createMasterItem<ConsigneeEntry>("/consignees", payload);
-=======
-          createdItem = await api.createMasterItem<ConsigneeEntry>("/consignees", form);
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
         } catch (err) {
           console.warn("API create consignee fallback to local:", err);
         }

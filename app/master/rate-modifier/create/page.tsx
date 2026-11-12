@@ -7,10 +7,7 @@ import { showToast } from "@/app/src/common/toast";
 import CommonDropdown from "@/app/src/common/dropdown";
 import CustomDatePicker from "@/app/src/common/datepicker";
 import { api } from "@/app/src/lib/api";
-<<<<<<< HEAD
 import { useMasterData, invalidateMasterDataCache } from "@/app/src/lib/useMasterData";
-=======
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
 import {
   PanelHeader,
   FieldLabel,
@@ -147,17 +144,11 @@ function CreateRateModifierContent() {
       try {
         const found = await api.getMasterItem<RateModifierEntry>("/rate-modifiers", editId!);
         if (mounted && found) {
-<<<<<<< HEAD
           const chargeVal = (found as any).chargeMasterName || (found as any).charge_master_name || found.charge || "";
           setForm({
             ...defaultFormState,
             ...found,
             charge: chargeVal,
-=======
-          setForm({
-            ...defaultFormState,
-            ...found,
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
             minDimensionPerPcs: Boolean(found.minDimensionPerPcs),
             maxDimensionPerPcs: Boolean(found.maxDimensionPerPcs),
             grith: Boolean(found.grith),
@@ -185,17 +176,11 @@ function CreateRateModifierContent() {
             : initialRateModifierData;
           const found = list.find((item) => String(item.id) === String(editId));
           if (found) {
-<<<<<<< HEAD
             const chargeVal = (found as any).chargeMasterName || (found as any).charge_master_name || found.charge || "";
             setForm({
               ...defaultFormState,
               ...found,
               charge: chargeVal,
-=======
-            setForm({
-              ...defaultFormState,
-              ...found,
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
               minDimensionPerPcs: Boolean(found.minDimensionPerPcs),
               maxDimensionPerPcs: Boolean(found.maxDimensionPerPcs),
               grith: Boolean(found.grith),
@@ -245,7 +230,6 @@ function CreateRateModifierContent() {
 
     setLoading(true);
     try {
-<<<<<<< HEAD
       const submitPayload = {
         ...form,
         charge: form.charge,
@@ -259,14 +243,6 @@ function CreateRateModifierContent() {
           savedRecord = await api.updateMasterItem<RateModifierEntry>("/rate-modifiers", editId, submitPayload);
         } else {
           savedRecord = await api.createMasterItem<RateModifierEntry>("/rate-modifiers", submitPayload);
-=======
-      let savedRecord: RateModifierEntry | null = null;
-      try {
-        if (isEdit && editId) {
-          savedRecord = await api.updateMasterItem<RateModifierEntry>("/rate-modifiers", editId, form);
-        } else {
-          savedRecord = await api.createMasterItem<RateModifierEntry>("/rate-modifiers", form);
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
         }
       } catch (apiErr) {
         console.warn("API save fallback to localStorage:", apiErr);

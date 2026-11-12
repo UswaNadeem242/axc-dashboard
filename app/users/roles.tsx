@@ -24,18 +24,55 @@ const CARD_STYLES = [
   { bg: "bg-axc-sky/10", border: "border-axc-sky/30", icon: "text-axc-sky" },
 ];
 
-const defaultPermissions: PagePermission[] = [
-  { id: "users", title: "Users", view: true, add: true, edit: true, delete: false },
-  { id: "roles", title: "Roles & Permissions", view: true, add: false, edit: false, delete: false },
-  { id: "hubs", title: "Hubs", view: true, add: true, edit: true, delete: false },
-  { id: "awb", title: "AWB Services", view: true, add: true, edit: true, delete: true },
+export const defaultPermissions: PagePermission[] = [
+  { id: "awb_manifest", title: "AWB / Manifest", view: true, add: true, edit: true, delete: false },
+  { id: "run_sheet", title: "Run Sheet", view: true, add: true, edit: true, delete: false },
+  { id: "pickup_request", title: "Pickup Request", view: true, add: true, edit: true, delete: false },
+  { id: "invoice", title: "Invoice", view: true, add: true, edit: true, delete: false },
   { id: "reports", title: "Reports", view: true, add: false, edit: false, delete: false },
+  { id: "sales_account", title: "Sales Account", view: true, add: true, edit: true, delete: false },
+  { id: "customer_master", title: "Customer Master", view: true, add: true, edit: true, delete: false },
+  { id: "shipper_master", title: "Shipper Master", view: true, add: true, edit: true, delete: false },
+  { id: "consignee_master", title: "Consignee Master", view: true, add: true, edit: true, delete: false },
+  { id: "product_master", title: "Product Master", view: true, add: true, edit: true, delete: false },
+  { id: "service_master", title: "Service Master", view: true, add: true, edit: true, delete: false },
+  { id: "rate_modifier_master", title: "Rate Modifier Master", view: true, add: true, edit: true, delete: false },
+  { id: "service_contract_master", title: "Service Contract Master", view: true, add: true, edit: true, delete: false },
+  { id: "customer_contract_master", title: "Customer Contract Master", view: true, add: true, edit: true, delete: false },
+  { id: "cft_contract_master", title: "CFT Contract Master", view: true, add: true, edit: true, delete: false },
+  { id: "invoice_master", title: "Invoice Master", view: true, add: true, edit: true, delete: false },
+  { id: "inventory_master", title: "Inventory Master", view: true, add: true, edit: true, delete: false },
+  { id: "import_awb", title: "Import AWB", view: true, add: true, edit: true, delete: false },
+  { id: "awb_status", title: "AWB Status", view: true, add: true, edit: true, delete: false },
 ];
 
+export function normalizeRolePermissions(permissions?: PagePermission[]): PagePermission[] {
+  if (!Array.isArray(permissions) || permissions.length === 0) {
+    return defaultPermissions;
+  }
+  const existingMap = new Map<string, PagePermission>();
+  permissions.forEach((p) => {
+    if (p.id) existingMap.set(p.id, p);
+    if (p.title) existingMap.set(p.title.trim().toLowerCase(), p);
+  });
+  return defaultPermissions.map((def) => {
+    const found = existingMap.get(def.id) || existingMap.get(def.title.trim().toLowerCase());
+    return found
+      ? {
+          ...def,
+          view: Boolean(found.view),
+          add: Boolean(found.add),
+          edit: Boolean(found.edit),
+          delete: Boolean(found.delete),
+        }
+      : def;
+  });
+}
+
 const initialRoles: Role[] = [
-  { id: 1, name: "Super Admin", description: "Full system access across every module.", users: 1, status: true, permissions: defaultPermissions },
-  { id: 2, name: "Admin", description: "Administrative access with limited deletion rights.", users: 3, status: true, permissions: defaultPermissions.map((p) => ({ ...p, delete: false })) },
-  { id: 3, name: "Manager", description: "Management level access to day-to-day operations.", users: 5, status: true, permissions: defaultPermissions.map((p) => ({ ...p, add: false, delete: false })) },
+  { id: 1, name: "Super Admin", description: "Full system access across every module.", users: 1, status: true, permissions: defaultPermissions.map((p) => ({ ...p, view: true, add: true, edit: true, delete: true })) },
+  { id: 2, name: "Admin", description: "Administrative access with limited deletion rights.", users: 3, status: true, permissions: defaultPermissions.map((p) => ({ ...p, view: true, add: true, edit: true, delete: false })) },
+  { id: 3, name: "Manager", description: "Management level access to day-to-day operations.", users: 5, status: true, permissions: defaultPermissions.map((p) => ({ ...p, view: true, add: true, edit: false, delete: false })) },
 ];
 
 export default function RolesTab() {
@@ -58,7 +95,7 @@ export default function RolesTab() {
               description: r.description || "",
               users: r.users ?? 0,
               status: r.status ?? true,
-              permissions: Array.isArray(r.permissions) && r.permissions.length > 0 ? r.permissions : defaultPermissions,
+              permissions: normalizeRolePermissions(r.permissions),
             }))
           );
           return;
@@ -69,7 +106,14 @@ export default function RolesTab() {
           const cached = localStorage.getItem("axc_roles_list");
           if (cached && mounted) {
             const parsed = JSON.parse(cached);
-            if (Array.isArray(parsed) && parsed.length > 0) setRoles(parsed);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setRoles(
+                parsed.map((r: any) => ({
+                  ...r,
+                  permissions: normalizeRolePermissions(r.permissions),
+                }))
+              );
+            }
           }
         } catch {}
       }
@@ -236,7 +280,7 @@ export default function RolesTab() {
           setSelectedRole(null);
         }}
         roleName={selectedRole?.name}
-        initialPermissions={selectedRole?.permissions || []}
+        initialPermissions={normalizeRolePermissions(selectedRole?.permissions)}
         onSave={handleSavePermissions}
       />
 

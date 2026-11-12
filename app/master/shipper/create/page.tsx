@@ -5,10 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { User, ShieldCheck, CheckCircle } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
 import { api } from "@/app/src/lib/api";
-<<<<<<< HEAD
 import { invalidateMasterDataCache } from "@/app/src/lib/useMasterData";
-=======
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
 import {
   ShipperEntry,
   initialShipperData,
@@ -192,7 +189,6 @@ function CreateShipperContent() {
     try {
       const payload = {
         ...form,
-<<<<<<< HEAD
         customer_name: form.customer,
         customer_code: form.accountCode,
         account_code: form.accountCode,
@@ -206,8 +202,6 @@ function CreateShipperContent() {
         gstin_type_2: form.gstinType2,
         gstin_no_2: form.gstinNo2,
         kyc_documents: kycRows,
-=======
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
         kycDocuments: kycRows,
       };
       const stored = localStorage.getItem("master_shippers");
@@ -219,10 +213,7 @@ function CreateShipperContent() {
         let savedItem: ShipperEntry | null = null;
         try {
           savedItem = await api.updateMasterItem<ShipperEntry>("/shippers", editId, payload);
-<<<<<<< HEAD
           invalidateMasterDataCache();
-=======
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
         } catch (e) {
           console.warn("API update shipper fallback to local:", e);
         }
@@ -241,10 +232,7 @@ function CreateShipperContent() {
         let createdItem: ShipperEntry | null = null;
         try {
           createdItem = await api.createMasterItem<ShipperEntry>("/shippers", payload);
-<<<<<<< HEAD
           invalidateMasterDataCache();
-=======
->>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
         } catch (e) {
           console.warn("API create shipper fallback to local:", e);
         }

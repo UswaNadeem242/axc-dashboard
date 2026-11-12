@@ -80,7 +80,7 @@ export default function PagesPermissionsModal({ isOpen, onClose, roleName, initi
         </div>
 
         {/* Quick grant row */}
-        <div className="flex shrink-0 items-center justify-between border-b border-axc-border bg-axc-light-bg px-4 py-2.5">
+        {/* <div className="flex shrink-0 items-center justify-between border-b border-axc-border bg-axc-light-bg px-4 py-2.5">
           <span className="text-[11px] font-semibold text-axc-gray">Quick Grant Options:</span>
           <div className="flex items-center gap-2">
             <button
@@ -98,7 +98,7 @@ export default function PagesPermissionsModal({ isOpen, onClose, roleName, initi
               ✕ Revoke All
             </button>
           </div>
-        </div>
+        </div> */}
 
         {/* Table */}
         <div className="mt-4 flex-1 overflow-auto rounded-md border border-axc-border mx-4">
@@ -146,7 +146,7 @@ export default function PagesPermissionsModal({ isOpen, onClose, roleName, initi
           <button
             type="button"
             onClick={onClose}
-            className="h-[38px] min-w-[100px] rounded-md border border-axc-border bg-white px-4 text-[12px] font-semibold text-axc-dark-gray hover:bg-axc-light-bg"
+            className="px-5 py-4 border border-axc-border bg-white text-axc-dark-gray rounded-lg text-regular-small hover:bg-gray-50 transition cursor-pointer"
           >
             Cancel
           </button>
@@ -154,7 +154,7 @@ export default function PagesPermissionsModal({ isOpen, onClose, roleName, initi
           <button
             type="button"
             onClick={handleSave}
-            className="h-[38px] min-w-[120px] rounded-md bg-axc-blue px-4 text-[12px] font-semibold text-white hover:bg-axc-blue-dark"
+            className="px-5 py-4 bg-axc-navy cursor-pointer text-white rounded-lg text-regular-small transition shadow-sm disabled:opacity-50"
           >
             Save & Close
           </button>
