@@ -8,7 +8,10 @@ import CommonDropdown from "@/app/src/common/dropdown";
 import CustomDatePicker from "@/app/src/common/datepicker";
 import { showToast } from "@/app/src/common/toast";
 import { api } from "@/app/src/lib/api";
+<<<<<<< HEAD
 import { useMasterData, invalidateMasterDataCache } from "@/app/src/lib/useMasterData";
+=======
+>>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
 import {
   PanelHeader,
   FieldLabel,
@@ -299,6 +302,7 @@ function CreateCustomerContractContent() {
             ...found,
             status: found.status || "ACTIVE",
           });
+<<<<<<< HEAD
           if (Array.isArray((found as any).items) && (found as any).items.length > 0) {
             setRateItems(
               (found as any).items.map((it: any, idx: number) => ({
@@ -311,6 +315,9 @@ function CreateCustomerContractContent() {
               }))
             );
           } else if (found.rateItems && found.rateItems.length > 0) {
+=======
+          if (found.rateItems && found.rateItems.length > 0) {
+>>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
             setRateItems(found.rateItems);
           }
           return;
@@ -419,6 +426,7 @@ function CreateCustomerContractContent() {
     try {
       const payload = {
         ...form,
+<<<<<<< HEAD
         customer_code: form.customerCode || form.customer,
         customer_name: form.customer,
         service_code: form.serviceCode || form.service,
@@ -456,6 +464,8 @@ function CreateCustomerContractContent() {
           rate: parseFloat(it.rate) || 0,
           sort_order: idx + 1,
         })),
+=======
+>>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
         rateItems,
       };
       let savedRecord: CustomerContractEntry | null = null;
@@ -465,7 +475,10 @@ function CreateCustomerContractContent() {
         } else {
           savedRecord = await api.createMasterItem<CustomerContractEntry>("/customer-contracts", payload);
         }
+<<<<<<< HEAD
         invalidateMasterDataCache();
+=======
+>>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
       } catch (apiErr) {
         console.warn("API save fallback to localStorage:", apiErr);
       }

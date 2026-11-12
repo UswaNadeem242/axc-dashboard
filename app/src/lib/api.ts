@@ -1,5 +1,123 @@
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "https://axc.barakedge.com/api";
+  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+
+function toCamelCase(str: string): string {
+  return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+}
+
+function toSnakeCase(str: string): string {
+  return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
+}
+
+export function normalizeMasterRecord<T = any>(raw: any): T {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) return raw;
+  const out: Record<string, any> = { ...raw };
+
+  for (const [key, val] of Object.entries(raw)) {
+    const camel = toCamelCase(key);
+    if (!(camel in out)) {
+      out[camel] = val;
+    }
+    const snake = toSnakeCase(key);
+    if (!(snake in out)) {
+      out[snake] = val;
+    }
+  }
+
+  // Normalize status ('ACTIVE' | 'INACTIVE') <-> is_active / isActive
+  if (typeof out.status === "string" && (out.status.toUpperCase() === "ACTIVE" || out.status.toUpperCase() === "INACTIVE")) {
+    out.status = out.status.toUpperCase();
+    out.isActive = out.status === "ACTIVE";
+    out.is_active = out.status === "ACTIVE";
+  } else if (typeof out.isActive === "boolean") {
+    out.status = out.isActive ? "ACTIVE" : "INACTIVE";
+    out.is_active = out.isActive;
+  } else if (typeof out.is_active === "boolean") {
+    out.status = out.is_active ? "ACTIVE" : "INACTIVE";
+    out.isActive = out.is_active;
+  } else if (!out.status) {
+    out.status = "ACTIVE";
+    out.isActive = true;
+    out.is_active = true;
+  }
+
+  // Normalize createdAt / updatedAt strings
+  if (!out.createdAt && out.created_at) {
+    out.createdAt = String(out.created_at);
+  }
+  if (!out.updatedAt && out.updated_at) {
+    out.updatedAt = String(out.updated_at);
+  }
+
+  // Common field aliases across Master modules
+  if (out.dialing_code !== undefined && out.dialingCode === undefined) out.dialingCode = String(out.dialing_code ?? "");
+  if (out.state_name !== undefined && out.state === undefined) out.state = out.state_name;
+  if (out.stateName !== undefined && out.state === undefined) out.state = out.stateName;
+  if (out.country_name !== undefined && out.country === undefined) out.country = out.country_name;
+  if (out.countryName !== undefined && out.country === undefined) out.country = out.countryName;
+  if (out.city_name !== undefined && out.city === undefined) out.city = out.city_name;
+  if (out.cityName !== undefined && out.city === undefined) out.city = out.cityName;
+  if (out.hub_name !== undefined && out.hub === undefined) out.hub = out.hub_name;
+  if (out.hubName !== undefined && out.hub === undefined) out.hub = out.hubName;
+  if (out.service_name !== undefined && out.service === undefined) out.service = out.service_name;
+  if (out.serviceName !== undefined && out.service === undefined) out.service = out.serviceName;
+  if (out.vendor_name !== undefined && out.vendor === undefined) out.vendor = out.vendor_name;
+  if (out.vendorName !== undefined && out.vendor === undefined) out.vendor = out.vendorName;
+  if (out.customer_name !== undefined && out.customer === undefined) out.customer = out.customer_name;
+  if (out.customerName !== undefined && out.customer === undefined) out.customer = out.customerName;
+  if (out.origin_name !== undefined && out.origin === undefined) out.origin = out.origin_name;
+  if (out.originName !== undefined && out.origin === undefined) out.origin = out.originName;
+  if (out.zone_matrix !== undefined && out.zones === undefined) out.zones = out.zone_matrix;
+  if (out.zoneMatrix !== undefined && out.zones === undefined) out.zones = out.zoneMatrix;
+  if (out.Countries !== undefined && out.countries === undefined) out.countries = out.Countries;
+  if (out.States !== undefined && out.states === undefined) out.states = out.States;
+  if (out.Cities !== undefined && out.cities === undefined) out.cities = out.Cities;
+
+  return out as T;
+}
+
+export function prepareMasterPayload(data: any): any {
+  if (!data || typeof data !== "object" || data instanceof FormData || Array.isArray(data)) {
+    return data;
+  }
+  const payload: Record<string, any> = { ...data };
+
+  for (const [key, val] of Object.entries(data)) {
+    const snake = toSnakeCase(key);
+    if (!(snake in payload)) {
+      payload[snake] = val;
+    }
+    const camel = toCamelCase(key);
+    if (!(camel in payload)) {
+      payload[camel] = val;
+    }
+  }
+
+  if (typeof payload.status === "string") {
+    const isAct = payload.status.toUpperCase() === "ACTIVE";
+    payload.is_active = isAct;
+    payload.isActive = isAct;
+  } else if (typeof payload.isActive === "boolean") {
+    payload.is_active = payload.isActive;
+    payload.status = payload.isActive ? "ACTIVE" : "INACTIVE";
+  } else if (typeof payload.is_active === "boolean") {
+    payload.isActive = payload.is_active;
+    payload.status = payload.is_active ? "ACTIVE" : "INACTIVE";
+  }
+
+  // Common field aliases expected by Laravel controllers
+  if (payload.state !== undefined && payload.state_name === undefined) payload.state_name = payload.state;
+  if (payload.country !== undefined && payload.country_name === undefined) payload.country_name = payload.country;
+  if (payload.city !== undefined && payload.city_name === undefined) payload.city_name = payload.city;
+  if (payload.hub !== undefined && payload.hub_name === undefined) payload.hub_name = payload.hub;
+  if (payload.service !== undefined && payload.service_name === undefined) payload.service_name = payload.service;
+  if (payload.vendor !== undefined && payload.vendor_name === undefined) payload.vendor_name = payload.vendor;
+  if (payload.customer !== undefined && payload.customer_name === undefined) payload.customer_name = payload.customer;
+  if (payload.origin !== undefined && payload.origin_name === undefined) payload.origin_name = payload.origin;
+  if (payload.zones !== undefined && payload.zone_matrix === undefined) payload.zone_matrix = payload.zones;
+
+  return payload;
+}
 
 function toCamelCase(str: string): string {
   return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());

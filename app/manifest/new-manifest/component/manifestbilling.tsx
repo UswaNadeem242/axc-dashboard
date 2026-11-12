@@ -5,6 +5,7 @@ import CommonTable from "../../../src/common/table";
 import Dropdown from "../../../src/common/dropdown";
 import { ManifestChargeRow } from "./state";
 import { showToast } from "../../../src/common/toast";
+import { useMasterData } from "../../../src/lib/useMasterData";
 
 interface ManifestBillingProps {
   charges: ManifestChargeRow[];
@@ -32,6 +33,12 @@ export default function ManifestBilling({
   updateCharge,
   removeCharge,
 }: ManifestBillingProps) {
+  const { vendors, companies, chargeHeads } = useMasterData();
+  const vendorOptions = vendors.length > 0 ? vendors.map((v) => v.label || v.value) : VENDOR_OPTIONS;
+  const companyOptions = companies.length > 0 ? companies.map((c) => c.label || c.value) : COMPANY_OPTIONS;
+  const chargeOptions = chargeHeads.length > 0 ? chargeHeads.map((c) => c.label || c.value) : CHARGE_OPTIONS;
+  const coLoaderOptions = vendors.length > 0 ? vendors.map((v) => v.label || v.value) : CO_LOADER_OPTIONS;
+
   const handleRemoveCharge = (id: number) => {
     removeCharge(id);
     showToast({ variant: "success", message: "Charge removed successfully" });
@@ -92,28 +99,28 @@ export default function ManifestBilling({
       key: "coLoader",
       truncate: false,
       render: (row: ManifestChargeRow) =>
-        selectCell(row, "coLoader", CO_LOADER_OPTIONS, "SELECT CO-LOADER...", "min-w-[170px]"),
+        selectCell(row, "coLoader", coLoaderOptions, "SELECT CO-LOADER...", "min-w-[170px]"),
     },
     {
       label: "Vendor",
       key: "vendor",
       truncate: false,
       render: (row: ManifestChargeRow) =>
-        selectCell(row, "vendor", VENDOR_OPTIONS, "SELECT VENDOR...", "min-w-[160px]"),
+        selectCell(row, "vendor", vendorOptions, "SELECT VENDOR...", "min-w-[160px]"),
     },
     {
       label: "Company",
       key: "company",
       truncate: false,
       render: (row: ManifestChargeRow) =>
-        selectCell(row, "company", COMPANY_OPTIONS, "SELECT...", "min-w-[140px]"),
+        selectCell(row, "company", companyOptions, "SELECT...", "min-w-[140px]"),
     },
     {
       label: "Charge",
       key: "charge",
       truncate: false,
       render: (row: ManifestChargeRow) =>
-        selectCell(row, "charge", CHARGE_OPTIONS, "SELECT...", "min-w-[140px]"),
+        selectCell(row, "charge", chargeOptions, "SELECT...", "min-w-[140px]"),
     },
     { label: "Amount", key: "amount", truncate: false, render: (row: ManifestChargeRow) => textCell(row, "amount") },
     { label: "Remark", key: "remark", truncate: false, render: (row: ManifestChargeRow) => textareaCell(row, "remark") },

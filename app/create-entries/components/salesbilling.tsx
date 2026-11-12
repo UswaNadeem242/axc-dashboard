@@ -1,6 +1,7 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
+  AwbFormState,
   ChargeKey,
   InvoiceRemarksFormState,
   PaymentDetailsFormState,
@@ -9,6 +10,9 @@ import {
   SalesBillingFormState,
   emptyCharge,
 } from "./formstate";
+import { api } from "@/app/src/lib/api";
+import { useMasterData, calculateContractRateLocal } from "@/app/src/lib/useMasterData";
+import { showToast } from "@/app/src/common/toast";
 
 const chargeKeys: ChargeKey[] = [
   "additionalHandling", "additionalHandlingCharge", "addressCorrectionFees", "ahsWeight",
@@ -91,13 +95,82 @@ const toNumber = (v: string) => {
   return Number.isFinite(n) ? n : 0;
 };
 
-export function useSalesBilling() {
+export function useSalesBilling(form?: AwbFormState) {
+  const { customerContracts, rateModifiers } = useMasterData();
   const [billing, setBilling] = useState<SalesBillingFormState>(emptyBillingForm);
   const [payment, setPayment] = useState<PaymentDetailsFormState>(emptyPayment);
   const [remarks, setRemarks] = useState<InvoiceRemarksFormState>(emptyRemarks);
   const [refund, setRefund] = useState<RefundDetailsFormState>(emptyRefund);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  // Load saved salesBilling from backend or localStorage when editing an AWB
+  useEffect(() => {
+    const awbNo = form?.awbNumber?.trim();
+    if (!awbNo) return;
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await api.getAwb(awbNo);
+        const sb = res?.data?.salesBilling;
+        if (sb && mounted) {
+          setBilling((prev) => ({
+            ...prev,
+            ...sb,
+            charges: { ...prev.charges, ...(sb.charges || {}) },
+          }));
+          return;
+        }
+      } catch {
+        // fallback to localStorage
+      }
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem(`awb_sales_billing_${awbNo}`);
+        if (stored && mounted) {
+          try {
+            const parsed = JSON.parse(stored);
+            setBilling((prev) => ({ ...prev, ...parsed }));
+          } catch {}
+        }
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [form?.awbNumber]);
+
+  // Auto-calculate freight & FSC from matched Customer Contract & Rate Modifiers when customer/service/weight changes
+  useEffect(() => {
+    if (!form) return;
+    const cust = form.customer?.trim().toUpperCase();
+    const srv = form.service?.trim().toUpperCase();
+    const wt = parseFloat(form.chargeableWeight || form.actualWeight || "0");
+    if ((!cust && !srv) || wt <= 0) return;
+
+    const matchedCC =
+      customerContracts.find((c: any) => {
+        const cCode = String(c.customer_code || c.customerCode || c.customer_name || c.customerName || "").toUpperCase();
+        const sCode = String(c.service_code || c.serviceCode || c.service_name || c.serviceName || "").toUpperCase();
+        return (!cust || cCode.includes(cust)) && (!srv || !sCode || sCode.includes(srv));
+      }) || customerContracts[0];
+
+    if (matchedCC) {
+      const rateRes = calculateContractRateLocal(matchedCC, wt, Number(form.pcs || 1));
+      setBilling((prev) => {
+        if (prev.editFreightAmount) return prev;
+        const nextFreight = rateRes.finalFreight > 0 ? String(rateRes.finalFreight) : prev.freight;
+        const nextPerKg = rateRes.freightPerKg > 0 ? String(rateRes.freightPerKg) : prev.freightPerKg;
+        const fscPct = parseFloat(prev.fscPercent || "0");
+        const nextFsc = !prev.editFsc && fscPct > 0 ? (( parseFloat(nextFreight) * fscPct ) / 100).toFixed(2) : prev.fsc;
+        return {
+          ...prev,
+          freight: nextFreight,
+          freightPerKg: nextPerKg,
+          fsc: nextFsc,
+        };
+      });
+    }
+  }, [form?.customer, form?.service, form?.chargeableWeight, form?.actualWeight, form?.pcs, customerContracts, rateModifiers]);
 
   const toggleCharge = (key: ChargeKey) => {
     setBilling((prev) => ({
@@ -154,14 +227,27 @@ export function useSalesBilling() {
     };
   }, [billing]);
 
-  const handleSaveBilling = () => {
+  const handleSaveBilling = async () => {
     setSaving(true);
-    setTimeout(() => {
-      setBilling((prev) => ({ ...prev, ...totals }));
-      setSaving(false);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 2000);
-    }, 600);
+    const updatedBilling = { ...billing, ...totals };
+    setBilling(updatedBilling);
+
+    const awbNo = form?.awbNumber?.trim();
+    if (awbNo) {
+      try {
+        await api.updateAwb(awbNo, { salesBilling: updatedBilling });
+      } catch (err) {
+        console.warn("API save salesBilling fallback:", err);
+      }
+      if (typeof window !== "undefined") {
+        localStorage.setItem(`awb_sales_billing_${awbNo}`, JSON.stringify(updatedBilling));
+      }
+    }
+
+    setSaving(false);
+    setSaved(true);
+    showToast({ variant: "success", message: "Sales billing saved successfully!" });
+    setTimeout(() => setSaved(false), 2000);
   };
 
   return {

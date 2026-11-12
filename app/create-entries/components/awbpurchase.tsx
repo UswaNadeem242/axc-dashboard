@@ -5,10 +5,11 @@ import { PurchaseBillingPanel } from "./purchasebilling";
 import { VendorDetailsPanel } from "./vendordetails";
 import { VendorInvoicePanel } from "./vendorinvoice";
 import {
+  AwbFormState,
   PurchaseBillingFormState, VendorDetailsFormState, VendorInvoiceFormState,
 } from "./formstate";
 
-export function AwbPurchaseBillingTab({ isEdit }: { isEdit?: boolean }) {
+export function AwbPurchaseBillingTab({ isEdit, form }: { isEdit?: boolean; form?: AwbFormState }) {
   const {
     billing, setBilling,
     vendorDetails, setVendorDetails,
@@ -17,7 +18,7 @@ export function AwbPurchaseBillingTab({ isEdit }: { isEdit?: boolean }) {
     addWeightRow, removeWeightRow, updateWeightRow,
     totals,
     saving, saved, handleSavePurchaseBilling,
-  } = usePurchaseBilling();
+  } = usePurchaseBilling(form);
 
   return (
     <div className="flex flex-col gap-6 w-full pb-2">

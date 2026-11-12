@@ -1,22 +1,87 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
+  AwbFormState,
   PurchaseBillingFormState, PurchaseChargeKey,
   VendorDetailsFormState, VendorInvoiceFormState, VendorWeightRow,
   defaultPurchaseBilling, defaultVendorDetails, defaultVendorInvoice, defaultVendorWeightRow,
 } from "./formstate";
+import { api } from "@/app/src/lib/api";
+import { useMasterData, calculateContractRateLocal } from "@/app/src/lib/useMasterData";
+import { showToast } from "@/app/src/common/toast";
 
 function toNum(v: string) {
   const n = parseFloat(v);
   return isNaN(n) ? 0 : n;
 }
 
-export function usePurchaseBilling() {
+export function usePurchaseBilling(form?: AwbFormState) {
+  const { serviceContracts } = useMasterData();
   const [billing, setBilling] = useState<PurchaseBillingFormState>(defaultPurchaseBilling());
   const [vendorDetails, setVendorDetails] = useState<VendorDetailsFormState>(defaultVendorDetails());
   const [vendorInvoice, setVendorInvoice] = useState<VendorInvoiceFormState>(defaultVendorInvoice());
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    const awbNo = form?.awbNumber?.trim();
+    if (!awbNo) return;
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await api.getAwb(awbNo);
+        const pb = res?.data?.purchaseBilling;
+        if (pb && mounted) {
+          if (pb.billing) setBilling((prev) => ({ ...prev, ...pb.billing }));
+          if (pb.vendorDetails) setVendorDetails((prev) => ({ ...prev, ...pb.vendorDetails }));
+          if (pb.vendorInvoice) setVendorInvoice((prev) => ({ ...prev, ...pb.vendorInvoice }));
+          return;
+        }
+      } catch {}
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem(`awb_purchase_billing_${awbNo}`);
+        if (stored && mounted) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (parsed.billing) setBilling((prev) => ({ ...prev, ...parsed.billing }));
+            if (parsed.vendorDetails) setVendorDetails((prev) => ({ ...prev, ...parsed.vendorDetails }));
+            if (parsed.vendorInvoice) setVendorInvoice((prev) => ({ ...prev, ...parsed.vendorInvoice }));
+          } catch {}
+        }
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [form?.awbNumber]);
+
+  // Auto-calculate vendor freight from matched Service/Vendor Contract
+  useEffect(() => {
+    if (!form) return;
+    const vnd = form.vendor?.trim().toUpperCase();
+    const srv = form.service?.trim().toUpperCase();
+    const wt = parseFloat(form.chargeableWeight || form.actualWeight || "0");
+    if ((!vnd && !srv) || wt <= 0) return;
+
+    const matchedSC =
+      serviceContracts.find((c: any) => {
+        const vCode = String(c.vendor_code || c.vendorCode || c.vendor_name || c.vendorName || "").toUpperCase();
+        const sCode = String(c.service_code || c.serviceCode || c.service_name || c.serviceName || "").toUpperCase();
+        return (!vnd || !vCode || vCode.includes(vnd)) && (!srv || !sCode || sCode.includes(srv));
+      }) || serviceContracts[0];
+
+    if (matchedSC) {
+      const rateRes = calculateContractRateLocal(matchedSC, wt, Number(form.pcs || 1));
+      setBilling((prev) => {
+        if (prev.editFreightAmount) return prev;
+        return {
+          ...prev,
+          freight: rateRes.finalFreight > 0 ? String(rateRes.finalFreight) : prev.freight,
+          freightPerKg: rateRes.freightPerKg > 0 ? String(rateRes.freightPerKg) : prev.freightPerKg,
+        };
+      });
+    }
+  }, [form?.vendor, form?.service, form?.chargeableWeight, form?.actualWeight, form?.pcs, serviceContracts]);
 
   const toggleCharge = (key: PurchaseChargeKey) => {
     setBilling((prev) => ({
@@ -101,8 +166,18 @@ export function usePurchaseBilling() {
   const handleSavePurchaseBilling = async () => {
     setSaving(true);
     try {
-      await new Promise((res) => setTimeout(res, 600));
+      const updatedBilling = { ...billing, ...totals };
+      setBilling(updatedBilling);
+      const payload = { billing: updatedBilling, vendorDetails, vendorInvoice };
+      const awbNo = form?.awbNumber?.trim();
+      if (awbNo) {
+        await api.updateAwb(awbNo, { purchaseBilling: payload }).catch(() => {});
+        if (typeof window !== "undefined") {
+          localStorage.setItem(`awb_purchase_billing_${awbNo}`, JSON.stringify(payload));
+        }
+      }
       setSaved(true);
+      showToast({ variant: "success", message: "Purchase billing saved successfully!" });
       setTimeout(() => setSaved(false), 1500);
     } finally {
       setSaving(false);

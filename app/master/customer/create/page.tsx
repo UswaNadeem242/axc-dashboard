@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { User, MapPin, ShieldCheck, Mail, Globe, Bell } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
 import { api } from "@/app/src/lib/api";
+<<<<<<< HEAD
 import { invalidateMasterDataCache } from "@/app/src/lib/useMasterData";
 import {
   ORIGIN_HUB_OPTIONS,
@@ -17,6 +18,9 @@ import {
   CustomerNotificationSettings,
   defaultNotificationSettings,
 } from "../types";
+=======
+import { ORIGIN_HUB_OPTIONS, CustomerEntry, initialCustomerData } from "../types";
+>>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
 
 import CustomerTab, {
   CustomerFormState,
@@ -111,6 +115,7 @@ function CreateCustomerContent() {
 
   // Load existing record in edit mode
   useEffect(() => {
+<<<<<<< HEAD
     if (!editId || typeof window === "undefined") {
       // If creating new, check if draft hubs, kyc, or email settings exist
       try {
@@ -161,10 +166,21 @@ function CreateCustomerContent() {
         originHub: found.originHub || found.origin_hub || ORIGIN_HUB_OPTIONS[0].value,
         parentCustomer: found.parentCustomer || found.parent_customer || "",
         originCode: found.originCode || found.origin_code || "",
+=======
+    if (!editId || typeof window === "undefined") return;
+    const applyFound = (found: CustomerEntry) => {
+      setForm({
+        name: found.name || "",
+        company: found.company || "",
+        originHub: found.originHub || ORIGIN_HUB_OPTIONS[0].value,
+        parentCustomer: found.parentCustomer || "",
+        originCode: found.originCode || "",
+>>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
         editOriginCode: true,
         email: found.email || "",
         address: found.address || "",
         currency: found.currency || "USD",
+<<<<<<< HEAD
         paymentType: found.paymentType || found.payment_type || "Credit",
         creditLimit: String(found.creditLimit ?? found.credit_limit ?? ""),
         userType: found.userType || found.user_type || "B2B",
@@ -202,6 +218,15 @@ function CreateCustomerContent() {
       if (notifConfig && typeof notifConfig === "object") {
         setNotificationsSettings((prev) => ({ ...prev, ...notifConfig }));
       }
+=======
+        paymentType: found.paymentType || "Credit",
+        creditLimit: String(found.creditLimit || ""),
+        userType: found.userType || "B2B",
+        operationsId: found.operationsId || "",
+        billingId: found.billingId || "",
+        status: found.status || "Active",
+      });
+>>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
     };
 
     const loadItem = async () => {
@@ -364,6 +389,7 @@ function CreateCustomerContent() {
         operationsId: form.operationsId.trim(),
         billingId: form.billingId.trim(),
         status: form.status || "Active",
+<<<<<<< HEAD
         hubs: selectedHubs.length > 0 ? selectedHubs : [form.originHub],
         kycData: kycData,
         contracts: kycContracts,
@@ -373,6 +399,8 @@ function CreateCustomerContent() {
         web_portal: webPortal,
         notificationsSettings: notificationsSettings,
         notifications_settings: notificationsSettings,
+=======
+>>>>>>> 1857e6c4bcd752cfb854388be178686e21382f68
       };
       const stored = localStorage.getItem("master_customers");
       const currentList: CustomerEntry[] = stored ? JSON.parse(stored) : [...initialCustomerData];

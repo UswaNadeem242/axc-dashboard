@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Eye, Pencil, Plus, Shield, Trash2, Users, X } from "lucide-react";
 
 import PagesPermissionsModal, { PagePermission } from "./pagepermision";
 import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
 import { showToast } from "../src/common/toast";
+import { api } from "../src/lib/api";
 
 interface Role {
   id: number;
@@ -44,22 +45,76 @@ export default function RolesTab() {
   const [deleteRole, setDeleteRole] = useState<Role | null>(null);
   const [formOpen, setFormOpen] = useState<{ open: boolean; role?: Role | null }>({ open: false });
 
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await api.getRoles();
+        if (mounted && Array.isArray(res?.data) && res.data.length > 0) {
+          setRoles(
+            res.data.map((r: any) => ({
+              id: r.id,
+              name: r.name || "",
+              description: r.description || "",
+              users: r.users ?? 0,
+              status: r.status ?? true,
+              permissions: Array.isArray(r.permissions) && r.permissions.length > 0 ? r.permissions : defaultPermissions,
+            }))
+          );
+          return;
+        }
+      } catch {}
+      if (typeof window !== "undefined") {
+        try {
+          const cached = localStorage.getItem("axc_roles_list");
+          if (cached && mounted) {
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed) && parsed.length > 0) setRoles(parsed);
+          }
+        } catch {}
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const syncRolesCache = (next: Role[]) => {
+    setRoles(next);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("axc_roles_list", JSON.stringify(next));
+      } catch {}
+    }
+  };
+
   const handlePermissions = (role: Role) => {
     setSelectedRole(role);
     setIsPermissionsOpen(true);
   };
 
-  const handleSavePermissions = (permissions: PagePermission[]) => {
+  const handleSavePermissions = async (permissions: PagePermission[]) => {
     if (!selectedRole) return;
-    setRoles((previous) => previous.map((role) => (role.id === selectedRole.id ? { ...role, permissions } : role)));
+    const next = roles.map((role) => (role.id === selectedRole.id ? { ...role, permissions } : role));
+    syncRolesCache(next);
+    try {
+      await api.saveRolePermissions(selectedRole.id, permissions);
+      await api.createActivityLog({ userName: "System", action: `Permissions Updated (${selectedRole.name})`, module: "Roles & Permissions" });
+    } catch {}
     showToast({ variant: "success", message: "Permissions saved successfully" });
   };
 
-  const handleDeleteRole = () => {
+  const handleDeleteRole = async () => {
     if (!deleteRole) return;
-    setRoles((previous) => previous.filter((role) => role.id !== deleteRole.id));
-    showToast({ variant: "success", message: "Role deleted successfully" });
+    const targetId = deleteRole.id;
+    const targetName = deleteRole.name;
+    syncRolesCache(roles.filter((role) => role.id !== targetId));
     setDeleteRole(null);
+    try {
+      await api.deleteRole(targetId);
+      await api.createActivityLog({ userName: "System", action: `Role Deleted (${targetName})`, module: "Roles & Permissions" });
+    } catch {}
+    showToast({ variant: "success", message: "Role deleted successfully" });
   };
 
   return (
@@ -143,15 +198,30 @@ export default function RolesTab() {
         <RoleFormPanel
           role={formOpen.role}
           onClose={() => setFormOpen({ open: false })}
-          onSave={(name, description) => {
+          onSave={async (name, description) => {
             if (formOpen.role) {
-              setRoles((prev) => prev.map((r) => (r.id === formOpen.role!.id ? { ...r, name, description } : r)));
+              const roleId = formOpen.role.id;
+              syncRolesCache(roles.map((r) => (r.id === roleId ? { ...r, name, description } : r)));
+              try {
+                await api.updateRole(roleId, { name, description });
+              } catch {}
               showToast({ variant: "success", message: "Role updated" });
             } else {
-              setRoles((prev) => [
-                ...prev,
-                { id: Date.now(), name, description, users: 0, status: true, permissions: defaultPermissions },
-              ]);
+              let createdRole: Role = { id: Date.now(), name, description, users: 0, status: true, permissions: defaultPermissions };
+              try {
+                const res = await api.createRole({ name, description, permissions: defaultPermissions });
+                if (res?.data?.id) {
+                  createdRole = {
+                    id: res.data.id,
+                    name: res.data.name || name,
+                    description: res.data.description || description,
+                    users: res.data.users ?? 0,
+                    status: res.data.status ?? true,
+                    permissions: Array.isArray(res.data.permissions) && res.data.permissions.length > 0 ? res.data.permissions : defaultPermissions,
+                  };
+                }
+              } catch {}
+              syncRolesCache([...roles, createdRole]);
               showToast({ variant: "success", message: "Role created" });
             }
             setFormOpen({ open: false });

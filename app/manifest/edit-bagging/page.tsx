@@ -13,6 +13,7 @@ import {
 } from "../new-manifest/bagging/bagging";
 import Button from "@/app/src/common/button";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 
 function EditBaggingContent() {
   const router = useRouter();
@@ -22,16 +23,45 @@ function EditBaggingContent() {
   const [loading, setLoading] = useState(false);
 
   const { awbDetails, ...baggingProps } = useBaggingForm();
-  const { form, updateField, validateRunNumber } = baggingProps;
+  const { form, setForm, updateField, validateRunNumber, awbSummary, setAwbSummary, bagSummary, setBagSummary, totals } = baggingProps;
 
   useEffect(() => {
-    if (manifestId && !form.runNumber) {
-      updateField("runNumber", manifestId);
-    }
+    if (!manifestId) return;
+    updateField("runNumber", manifestId);
+
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await api.getManifest(manifestId);
+        const m = res?.data;
+        if (m && mounted) {
+          setForm((prev) => ({
+            ...prev,
+            runNumber: m.runNumber || m.run_number || manifestId,
+            flightNo: m.vehicleNo || m.vehicle_no || prev.flightNo,
+            manifestDate: m.manifestDate || m.manifest_date || prev.manifestDate,
+            origin: m.originHubCode || m.origin_hub_code || prev.origin,
+            destination: m.destinationHubCode || m.destination_hub_code || prev.destination,
+            forwarder: m.forwarderCode || m.forwarder_code || prev.forwarder,
+            masterNo: m.masterEdiBagNo || m.master_edi_bag_no || prev.masterNo,
+            ...(m.bagging_data?.form || {}),
+          }));
+          if (Array.isArray(m.bagging_data?.awbSummary)) {
+            setAwbSummary(m.bagging_data.awbSummary);
+          }
+          if (Array.isArray(m.bagging_data?.bagSummary)) {
+            setBagSummary(m.bagging_data.bagSummary);
+          }
+        }
+      } catch {}
+    })();
+
+    return () => {
+      mounted = false;
+    };
   }, [manifestId]);
 
-
-  const handleSaveChanges = () => {
+  const handleSaveChanges = async () => {
     if (!validateRunNumber()) {
       showToast({ variant: "error", message: "Please fill all the required fields" });
       return;
@@ -39,13 +69,27 @@ function EditBaggingContent() {
 
     setLoading(true);
 
+    if (manifestId) {
+      await api
+        .updateManifest(manifestId, {
+          runNumber: form.runNumber,
+          noOfBags: totals.totalBag || 1,
+          weight: totals.totalWeight > 0 ? String(totals.totalWeight) : undefined,
+          bagging_data: {
+            form,
+            awbSummary,
+            bagSummary,
+            totals,
+          },
+        })
+        .catch(() => {});
+    }
+
+    setLoading(false);
+    showToast({ variant: "success", message: "Bagging updated successfully!" });
     setTimeout(() => {
-      setLoading(false);
-      showToast({ variant: "success", message: "Bagging updated successfully!" });
-      setTimeout(() => {
-        router.push("/manifest");
-      }, 800);
-    }, 500);
+      router.push("/manifest");
+    }, 800);
   };
 
   return (

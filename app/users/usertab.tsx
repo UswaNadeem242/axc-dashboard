@@ -11,6 +11,7 @@ import AddUserModal from "./adduser";
 import DeleteConfirmationDialog from "../src/common/deleteConfirmation";
 import CommonTable from "../src/common/table";
 import { showToast } from "../src/common/toast";
+import { api } from "../src/lib/api";
 
 interface UserRow {
   id: number;
@@ -123,6 +124,52 @@ export default function UserTab() {
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
   const itemsPerPage = 10;
+
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await api.getUsers({ per_page: 100 });
+        if (mounted && Array.isArray(res?.data) && res.data.length > 0) {
+          setUsers(
+            res.data.map((u: any) => ({
+              id: u.id,
+              name: u.name || "",
+              email: u.email || "",
+              role: u.role || "Staff",
+              store: u.store || u.assignedHub || "-",
+              lastLogin: u.lastLogin || "-",
+              isActive: u.isActive ?? true,
+            }))
+          );
+          return;
+        }
+      } catch {
+        // fallback to localStorage / initialUsers
+      }
+      if (typeof window !== "undefined") {
+        try {
+          const cached = localStorage.getItem("axc_users_list");
+          if (cached && mounted) {
+            const parsed = JSON.parse(cached);
+            if (Array.isArray(parsed) && parsed.length > 0) setUsers(parsed);
+          }
+        } catch {}
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const syncUsersCache = (next: UserRow[]) => {
+    setUsers(next);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("axc_users_list", JSON.stringify(next));
+      } catch {}
+    }
+  };
 
   const dynamicGroups: FilterGroup[] = useMemo(() => {
     const roles = Array.from(new Set(users.map((u) => u.role).filter(Boolean)));
@@ -240,48 +287,104 @@ export default function UserTab() {
     return filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
   }, [filteredUsers, currentPage]);
 
-  const toggleStatus = (id: number) => {
-    setUsers((previous) => previous.map((user) => (user.id === id ? { ...user, isActive: !user.isActive } : user)));
+  const toggleStatus = async (id: number) => {
+    const next = users.map((user) => (user.id === id ? { ...user, isActive: !user.isActive } : user));
+    syncUsersCache(next);
+    try {
+      await api.toggleUserStatus(id);
+    } catch {}
     showToast({ variant: "success", message: "Status updated successfully" });
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deleteUser) return;
-    setUsers((previous) => previous.filter((user) => user.id !== deleteUser.id));
-    showToast({ variant: "success", message: "User deleted successfully" });
+    const targetId = deleteUser.id;
+    const targetName = deleteUser.name;
+    syncUsersCache(users.filter((user) => user.id !== targetId));
     setDeleteUser(null);
+    try {
+      await api.deleteUser(targetId);
+      await api.createActivityLog({ userName: "System", action: `Deleted User (${targetName})`, module: "Users" });
+    } catch {}
+    showToast({ variant: "success", message: "User deleted successfully" });
   };
 
-  const handleBulkDeleteConfirm = () => {
+  const handleBulkDeleteConfirm = async () => {
     const count = selectedIds.length;
-    setUsers((previous) => previous.filter((user) => !selectedIds.includes(user.id)));
+    const idsToRemove = [...selectedIds];
+    syncUsersCache(users.filter((user) => !idsToRemove.includes(user.id)));
+    setSelectedIds([]);
+    setBulkDeleteOpen(false);
+    try {
+      await api.bulkDeleteUsers(idsToRemove);
+    } catch {}
     showToast({
       variant: "success",
       message: `${count} ${count === 1 ? "user" : "users"} deleted successfully`,
     });
-    setSelectedIds([]);
-    setBulkDeleteOpen(false);
   };
 
-  const handleAddUser = (formData: {
+  const handleAddUser = async (formData: {
     name: string;
     email: string;
+    contactNo?: string;
     role: string;
+    userType?: string;
+    password?: string;
+    autoGeneratePassword?: boolean;
     assignedHub: string;
+    awbServiceType?: string;
     status: boolean;
+    emailNotification?: boolean;
+    birthDate?: string;
+    joiningDate?: string;
+    kycType?: string;
+    leaveUser?: string;
+    manageSubscription?: boolean;
   }) => {
-    setUsers((previous) => [
-      ...previous,
-      {
-        id: Date.now(),
+    let createdRow: UserRow = {
+      id: Date.now(),
+      name: formData.name,
+      email: formData.email,
+      role: formData.role,
+      store: formData.assignedHub || "-",
+      lastLogin: "-",
+      isActive: formData.status,
+    };
+    try {
+      const res = await api.createUser({
         name: formData.name,
         email: formData.email,
+        contactNo: formData.contactNo,
         role: formData.role,
+        userType: formData.userType,
+        password: formData.autoGeneratePassword ? "Axc@123456" : formData.password || "Axc@123456",
+        assignedHub: formData.assignedHub,
         store: formData.assignedHub || "-",
-        lastLogin: "-",
+        awbServiceType: formData.awbServiceType,
+        status: formData.status,
         isActive: formData.status,
-      },
-    ]);
+        emailNotification: formData.emailNotification,
+        birthDate: formData.birthDate,
+        joiningDate: formData.joiningDate,
+        kycType: formData.kycType,
+        leaveUser: formData.leaveUser,
+        manageSubscription: formData.manageSubscription,
+      });
+      if (res?.data?.id) {
+        createdRow = {
+          id: res.data.id,
+          name: res.data.name || formData.name,
+          email: res.data.email || formData.email,
+          role: res.data.role || formData.role,
+          store: res.data.store || formData.assignedHub || "-",
+          lastLogin: res.data.lastLogin || "-",
+          isActive: res.data.isActive ?? formData.status,
+        };
+      }
+      await api.createActivityLog({ userName: formData.name, action: "User Created", module: "Users" });
+    } catch {}
+    syncUsersCache([...users, createdRow]);
     showToast({ variant: "success", message: "User created successfully" });
     setIsAddUserOpen(false);
   };

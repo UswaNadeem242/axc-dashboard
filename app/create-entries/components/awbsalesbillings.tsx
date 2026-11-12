@@ -28,7 +28,7 @@ export function AwbSalesBillingTab({
     toggleCharge, updateCharge, totals,
     setBilling, setPayment, setRemarks, setRefund,
     saving, saved, handleSaveBilling,
-  } = useSalesBilling();
+  } = useSalesBilling(form);
 
   return (
     <div className="flex flex-col gap-6 w-full pb-2">

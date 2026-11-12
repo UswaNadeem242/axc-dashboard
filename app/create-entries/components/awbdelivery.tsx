@@ -17,7 +17,7 @@ export function AwbDeliveryTab({ awbTrackingNo }: { awbTrackingNo: string }) {
     updating,
     handleUpdateForwarding,
     handleSaveDelivery,
-  } = useAwbDelivery();
+  } = useAwbDelivery(awbTrackingNo);
 
   return (
     <div className="flex flex-col gap-6 w-full pb-2">
