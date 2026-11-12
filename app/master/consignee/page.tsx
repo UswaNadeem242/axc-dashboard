@@ -20,6 +20,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   ConsigneeEntry,
   ConsigneeHeadings,
@@ -45,24 +46,45 @@ export default function ConsigneeMasterPage() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // LocalStorage Persistence (Exact Shipper Pattern)
+  // Backend API + LocalStorage Persistence
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_consignees");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setData(parsed);
-            return;
+    let mounted = true;
+    const loadData = async () => {
+      try {
+        const list = await api.getMasterList<ConsigneeEntry>("/consignees", { per_page: 200 });
+        if (mounted && Array.isArray(list) && list.length > 0) {
+          setData(list);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("master_consignees", JSON.stringify(list));
           }
-        } catch (e) {
-          console.error("Error reading stored consignees:", e);
+          return;
+        }
+      } catch (e) {
+        console.warn("Using local fallback for consignees:", e);
+      }
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_consignees");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              if (mounted) setData(parsed);
+              return;
+            }
+          } catch (e) {
+            console.error("Error reading stored consignees:", e);
+          }
+        }
+        if (mounted) {
+          setData(initialConsigneeData);
+          localStorage.setItem("master_consignees", JSON.stringify(initialConsigneeData));
         }
       }
-      setData(initialConsigneeData);
-      localStorage.setItem("master_consignees", JSON.stringify(initialConsigneeData));
-    }
+    };
+    loadData();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveConsignees = (newList: ConsigneeEntry[]) => {
@@ -174,11 +196,28 @@ export default function ConsigneeMasterPage() {
     });
   }, [data, searchQuery, activeTags]);
 
+  // Latest first sorted data
+  const sortedData = useMemo(() => {
+    return [...filteredData].sort((a, b) => {
+      const rawDateA = a.createdAt || (a as any).created_at || (a as any).createdDate;
+      const rawDateB = b.createdAt || (b as any).created_at || (b as any).createdDate;
+      const dateA = rawDateA ? new Date(rawDateA).getTime() : 0;
+      const dateB = rawDateB ? new Date(rawDateB).getTime() : 0;
+      if (dateA && dateB && dateA !== dateB) return dateB - dateA;
+
+      const idA = Number(a.id) || 0;
+      const idB = Number(b.id) || 0;
+      if (idA && idB && idA !== idB) return idB - idA;
+
+      return String(b.id || "").localeCompare(String(a.id || ""));
+    });
+  }, [filteredData]);
+
   // Paginated Data
   const paginatedData = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
-    return filteredData.slice(start, start + itemsPerPage);
-  }, [filteredData, page]);
+    return sortedData.slice(start, start + itemsPerPage);
+  }, [sortedData, page]);
 
   // Row Action Handlers (Exact Shipper Pattern)
   const handleView = (row: ConsigneeEntry) => {
@@ -193,36 +232,42 @@ export default function ConsigneeMasterPage() {
     setDeleteTarget(row);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((item) => item.id !== deleteTarget.id);
-      saveConsignees(updated);
-      setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
-      setIsDeleting(false);
-      setDeleteTarget(null);
-      showToast({
-        variant: "success",
-        message: `Consignee "${deleteTarget.name}" (${deleteTarget.code}) deleted.`,
-      });
-    }, 250);
+    try {
+      await api.deleteMasterItem("/consignees", deleteTarget.id);
+    } catch (e) {
+      console.warn("API delete fallback to local:", e);
+    }
+    const updated = data.filter((item) => item.id !== deleteTarget.id);
+    saveConsignees(updated);
+    setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
+    setIsDeleting(false);
+    setDeleteTarget(null);
+    showToast({
+      variant: "success",
+      message: `Consignee "${deleteTarget.name}" (${deleteTarget.code}) deleted.`,
+    });
   };
 
-  const handleBulkDeleteConfirm = () => {
+  const handleBulkDeleteConfirm = async () => {
     if (selectedIds.length === 0) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((item) => !selectedIds.includes(item.id));
-      saveConsignees(updated);
-      setSelectedIds([]);
-      setIsDeleting(false);
-      setBulkDeleteOpen(false);
-      showToast({
-        variant: "success",
-        message: `Deleted ${selectedIds.length} consignee records.`,
-      });
-    }, 250);
+    try {
+      await api.bulkDeleteMasterItems("/consignees", selectedIds);
+    } catch (e) {
+      console.warn("API bulk delete fallback to local:", e);
+    }
+    const updated = data.filter((item) => !selectedIds.includes(item.id));
+    saveConsignees(updated);
+    setSelectedIds([]);
+    setIsDeleting(false);
+    setBulkDeleteOpen(false);
+    showToast({
+      variant: "success",
+      message: `Deleted ${selectedIds.length} consignee records.`,
+    });
   };
 
   // Export CSV (Exact Shipper Pattern)
@@ -287,7 +332,7 @@ export default function ConsigneeMasterPage() {
         ...h,
         render: (_row: ConsigneeEntry, idx?: number) => (
           <span className="font-medium text-axc-dark-gray">
-            {idx !== undefined ? idx + 1 : _row.srNo}
+            {idx !== undefined ? (page - 1) * itemsPerPage + idx + 1 : _row.srNo}
           </span>
         ),
       };
@@ -373,7 +418,9 @@ export default function ConsigneeMasterPage() {
       return {
         ...h,
         render: (row: ConsigneeEntry) => (
-          <span className="text-axc-dark-gray whitespace-nowrap">{row.customer || "-"}</span>
+          <span className="text-axc-dark-gray whitespace-nowrap">
+            {row.customer || (row as any).customerName || (row as any).customerCode || "-"}
+          </span>
         ),
       };
     }

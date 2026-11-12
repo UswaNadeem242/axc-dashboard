@@ -16,6 +16,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   HubEntry,
   HubHeadings,
@@ -45,24 +46,43 @@ export default function HubMasterPage() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // LocalStorage Persistence
+  // Backend API + LocalStorage Persistence
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_hubs");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setData(parsed);
-            return;
+    let mounted = true;
+    async function loadData() {
+      try {
+        const list = await api.getMasterList<HubEntry>("/hubs");
+        if (mounted && Array.isArray(list)) {
+          setData(list);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("master_hubs", JSON.stringify(list));
           }
-        } catch (e) {
-          console.error("Error reading stored hubs:", e);
+          return;
         }
+      } catch (err) {
+        console.warn("API unavailable, falling back to localStorage:", err);
       }
-      setData(initialHubData);
-      localStorage.setItem("master_hubs", JSON.stringify(initialHubData));
+      if (mounted && typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_hubs");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setData(parsed);
+              return;
+            }
+          } catch (e) {
+            console.error("Error reading stored hubs:", e);
+          }
+        }
+        setData(initialHubData);
+        localStorage.setItem("master_hubs", JSON.stringify(initialHubData));
+      }
     }
+    loadData();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveHubs = (newList: HubEntry[]) => {
@@ -175,6 +195,19 @@ export default function HubMasterPage() {
           ? String(aVal).localeCompare(String(bVal))
           : String(bVal).localeCompare(String(aVal));
       });
+    } else {
+      result.sort((a, b) => {
+        const rawDateA = a.createdAt || (a as any).created_at || (a as any).createdDate;
+        const rawDateB = b.createdAt || (b as any).created_at || (b as any).createdDate;
+        const dateA = rawDateA ? new Date(rawDateA).getTime() : 0;
+        const dateB = rawDateB ? new Date(rawDateB).getTime() : 0;
+        if (dateA && dateB && dateA !== dateB) return dateB - dateA;
+
+        const idA = Number(a.id) || 0;
+        const idB = Number(b.id) || 0;
+        if (idA && idB && idA !== idB) return idB - idA;
+        return String(b.id || "").localeCompare(String(a.id || ""));
+      });
     }
 
     return result;
@@ -217,6 +250,7 @@ export default function HubMasterPage() {
       `"${h.status}"`,
     ]);
 
+     
     const csvContent =
       "data:text/csv;charset=utf-8," +
       [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
@@ -238,6 +272,7 @@ export default function HubMasterPage() {
     });
   };
 
+
   // Sorting Handler
   const handleSort = (key: string) => {
     if (sortKey === key) {
@@ -249,37 +284,43 @@ export default function HubMasterPage() {
   };
 
   // Delete Single Hub
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((d) => d.id !== deleteTarget.id);
-      saveHubs(updated);
-      setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
-      setIsDeleting(false);
-      setDeleteTarget(null);
-      showToast({
-        variant: "success",
-        message: `Hub ${deleteTarget.name} has been removed.`,
-      });
-    }, 400);
+    try {
+      await api.deleteMasterItem("/hubs", deleteTarget.id);
+    } catch (err) {
+      console.warn("API delete fallback:", err);
+    }
+    const updated = data.filter((d) => String(d.id) !== String(deleteTarget.id));
+    saveHubs(updated);
+    setSelectedIds((prev) => prev.filter((id) => String(id) !== String(deleteTarget.id)));
+    setIsDeleting(false);
+    setDeleteTarget(null);
+    showToast({
+      variant: "success",
+      message: `Hub ${deleteTarget.name} has been removed.`,
+    });
   };
 
   // Bulk Delete
-  const handleBulkDeleteConfirm = () => {
+  const handleBulkDeleteConfirm = async () => {
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((d) => !selectedIds.includes(d.id));
-      saveHubs(updated);
-      const count = selectedIds.length;
-      setSelectedIds([]);
-      setIsDeleting(false);
-      setBulkDeleteOpen(false);
-      showToast({
-        variant: "success",
-        message: `${count} hubs deleted successfully.`,
-      });
-    }, 500);
+    try {
+      await api.bulkDeleteMasterItems("/hubs", selectedIds);
+    } catch (err) {
+      console.warn("API bulk delete fallback:", err);
+    }
+    const updated = data.filter((d) => !selectedIds.includes(d.id));
+    saveHubs(updated);
+    const count = selectedIds.length;
+    setSelectedIds([]);
+    setIsDeleting(false);
+    setBulkDeleteOpen(false);
+    showToast({
+      variant: "success",
+      message: `${count} hubs deleted successfully.`,
+    });
   };
 
   // Exact AWB Table Headings mapping
@@ -355,16 +396,14 @@ export default function HubMasterPage() {
           const isActive = row.status === "ACTIVE";
           return (
             <span
-              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border whitespace-nowrap ${
-                isActive
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border whitespace-nowrap ${isActive
                   ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                   : "bg-red-50 text-red-600 border-red-200"
-              }`}
+                }`}
             >
               <span
-                className={`h-1.5 w-1.5 rounded-full ${
-                  isActive ? "bg-emerald-500" : "bg-red-500"
-                }`}
+                className={`h-1.5 w-1.5 rounded-full ${isActive ? "bg-emerald-500" : "bg-red-500"
+                  }`}
               />
               {row.status}
             </span>
@@ -651,11 +690,10 @@ export default function HubMasterPage() {
                     Status
                   </span>
                   <span
-                    className={`inline-block px-2 py-0.5 rounded text-[11px] font-bold ${
-                      viewHub.status === "ACTIVE"
+                    className={`inline-block px-2 py-0.5 rounded text-[11px] font-bold ${viewHub.status === "ACTIVE"
                         ? "bg-green-100 text-green-800"
                         : "bg-red-100 text-red-800"
-                    }`}
+                      }`}
                   >
                     {viewHub.status}
                   </span>
@@ -709,9 +747,8 @@ export default function HubMasterPage() {
       {/* ══════════════ BULK DELETE DIALOG (AWB STYLE) ══════════════ */}
       <DeleteConfirmationDialog
         isOpen={bulkDeleteOpen}
-        itemName={`${selectedIds.length} ${
-          selectedIds.length === 1 ? "Hub" : "Hubs"
-        }`}
+        itemName={`${selectedIds.length} ${selectedIds.length === 1 ? "Hub" : "Hubs"
+          }`}
         onCancel={() => setBulkDeleteOpen(false)}
         onConfirm={handleBulkDeleteConfirm}
         isLoading={isDeleting}

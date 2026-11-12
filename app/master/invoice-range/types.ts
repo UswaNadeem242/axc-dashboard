@@ -5,6 +5,7 @@ export interface InvoiceRangeEntry {
   prefix?: string;
   startNumber?: string;
   endNumber?: string;
+  currentNumber?: string;
   suffix?: string;
   status: "ACTIVE" | "INACTIVE";
   createdAt?: string;

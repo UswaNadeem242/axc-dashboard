@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
 import CommonDropdown from "@/app/src/common/dropdown";
+import { api } from "@/app/src/lib/api";
 import {
   PanelHeader,
   FieldLabel,
@@ -29,6 +30,8 @@ function CreateCityContent() {
     name: "",
     code: "",
     district: "",
+    stateCode: "",
+    countryCode: "",
     status: "ACTIVE",
   });
 
@@ -37,20 +40,45 @@ function CreateCityContent() {
 
   // Load existing city if editing
   useEffect(() => {
-    if (editId && typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_cities");
-      if (stored) {
-        try {
-          const list: CityEntry[] = JSON.parse(stored);
-          const found = list.find((c) => c.id === editId);
-          if (found) {
-            setForm(found);
+    if (!editId) return;
+    let mounted = true;
+    async function loadItem() {
+      try {
+        const found = await api.getMasterItem<CityEntry>("/cities", editId!);
+        if (mounted && found) {
+          setForm({
+            id: String(found.id),
+            name: found.name || "",
+            code: found.code || "",
+            district: found.district || "",
+            stateCode: found.stateCode || "",
+            countryCode: found.countryCode || "",
+            status: found.status || "ACTIVE",
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn("API fetch fallback:", err);
+      }
+      if (mounted && typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_cities");
+        if (stored) {
+          try {
+            const list: CityEntry[] = JSON.parse(stored);
+            const found = list.find((c) => String(c.id) === String(editId));
+            if (found) {
+              setForm(found);
+            }
+          } catch (e) {
+            console.error("Error loading city:", e);
           }
-        } catch (e) {
-          console.error("Error loading city:", e);
         }
       }
     }
+    loadItem();
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   const validate = () => {
@@ -62,7 +90,7 @@ function CreateCityContent() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
       showToast({
@@ -75,17 +103,28 @@ function CreateCityContent() {
     setLoading(true);
 
     try {
+      let savedRecord: CityEntry = form;
+      try {
+        if (editId) {
+          savedRecord = await api.updateMasterItem<CityEntry>("/cities", editId, form);
+        } else {
+          savedRecord = await api.createMasterItem<CityEntry>("/cities", form);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to localStorage:", apiErr);
+      }
+
       const stored = localStorage.getItem("master_cities");
       let list: CityEntry[] = stored ? JSON.parse(stored) : initialCityData;
 
       if (editId) {
-        list = list.map((item) => (item.id === editId ? form : item));
+        list = list.map((item) => (String(item.id) === String(editId) ? savedRecord : item));
         showToast({
           message: `City ${form.name} updated successfully.`,
           variant: "success",
         });
       } else {
-        list = [form, ...list];
+        list = [savedRecord, ...list];
         showToast({
           message: `City ${form.name} created successfully.`,
           variant: "success",
@@ -180,7 +219,40 @@ function CreateCityContent() {
                   <FieldError message={errors.district} />
                 </div>
 
-                {/* ROW 2: STATUS */}
+                {/* ROW 2: STATE CODE & COUNTRY CODE */}
+                <div className="flex flex-col gap-1">
+                  <FieldLabel>State Code</FieldLabel>
+                  <input
+                    type="text"
+                    placeholder="e.g. DXB"
+                    value={form.stateCode || ""}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        stateCode: e.target.value.toUpperCase(),
+                      }))
+                    }
+                    className={`${inputClass} uppercase font-medium`}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <FieldLabel>Country Code</FieldLabel>
+                  <input
+                    type="text"
+                    placeholder="e.g. AE"
+                    value={form.countryCode || ""}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        countryCode: e.target.value.toUpperCase(),
+                      }))
+                    }
+                    className={`${inputClass} uppercase font-medium`}
+                  />
+                </div>
+
+                {/* ROW 3: STATUS */}
                 <div className="flex flex-col gap-1.5 sm:col-span-2 xl:col-span-3 pt-2">
                   <FieldLabel>Status</FieldLabel>
                   <div className="flex items-center gap-6 pt-1">

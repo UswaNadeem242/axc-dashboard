@@ -188,7 +188,7 @@ export const ShipperHeadings = [
   { label: "CITY", key: "city", sortable: true },
   { label: "STATE", key: "state", sortable: true },
   { label: "COUNTRY", key: "country", sortable: true },
-  { label: "GSTIN NO", key: "gstinNo", sortable: true },
+  // { label: "GSTIN NO", key: "gstinNo", sortable: true },
   { label: "STATUS", key: "status", sortable: true },
   { label: "ACTION", key: "action" },
 ];

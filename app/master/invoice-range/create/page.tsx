@@ -4,6 +4,8 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Save } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
+import { invalidateMasterDataCache } from "@/app/src/lib/useMasterData";
 import {
   PanelHeader,
   FieldLabel,
@@ -29,6 +31,7 @@ function CreateInvoiceRangeContent() {
     prefix: "",
     startNumber: "",
     endNumber: "",
+    currentNumber: "",
     suffix: "",
     status: "ACTIVE",
   });
@@ -38,20 +41,32 @@ function CreateInvoiceRangeContent() {
 
   // Load existing invoice range if editing
   useEffect(() => {
-    if (editId && typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_invoice_ranges");
-      if (stored) {
-        try {
-          const list: InvoiceRangeEntry[] = JSON.parse(stored);
-          const found = list.find((item) => item.id === editId);
-          if (found) {
-            setForm(found);
+    if (!editId) return;
+    let mounted = true;
+    api
+      .getMasterItem<InvoiceRangeEntry>("/invoice-ranges", editId)
+      .then((found) => {
+        if (mounted && found) setForm(found);
+      })
+      .catch(() => {
+        if (typeof window !== "undefined") {
+          const stored = localStorage.getItem("master_invoice_ranges");
+          if (stored) {
+            try {
+              const list: InvoiceRangeEntry[] = JSON.parse(stored);
+              const found = list.find((item) => String(item.id) === String(editId));
+              if (found && mounted) {
+                setForm(found);
+              }
+            } catch (e) {
+              console.error("Error loading invoice range:", e);
+            }
           }
-        } catch (e) {
-          console.error("Error loading invoice range:", e);
         }
-      }
-    }
+      });
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   const validate = () => {
@@ -62,7 +77,7 @@ function CreateInvoiceRangeContent() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
       showToast({
@@ -75,19 +90,30 @@ function CreateInvoiceRangeContent() {
     setLoading(true);
 
     try {
+      let savedRecord = form;
+      try {
+        if (editId) {
+          savedRecord = await api.updateMasterItem<InvoiceRangeEntry>("/invoice-ranges", editId, form);
+        } else {
+          savedRecord = await api.createMasterItem<InvoiceRangeEntry>("/invoice-ranges", form);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to local:", apiErr);
+      }
+
       const stored = localStorage.getItem("master_invoice_ranges");
       let list: InvoiceRangeEntry[] = stored
         ? JSON.parse(stored)
         : initialInvoiceRangeData;
 
       if (editId) {
-        list = list.map((item) => (item.id === editId ? form : item));
+        list = list.map((item) => (String(item.id) === String(editId) ? savedRecord : item));
         showToast({
           message: `Invoice Range ${form.name} updated successfully.`,
           variant: "success",
         });
       } else {
-        list = [form, ...list];
+        list = [savedRecord, ...list];
         showToast({
           message: `Invoice Range ${form.name} created successfully.`,
           variant: "success",
@@ -95,6 +121,7 @@ function CreateInvoiceRangeContent() {
       }
 
       localStorage.setItem("master_invoice_ranges", JSON.stringify(list));
+      invalidateMasterDataCache();
       router.push("/master/invoice-range");
     } catch (err) {
       console.error(err);
@@ -222,6 +249,22 @@ function CreateInvoiceRangeContent() {
                       }))
                     }
                     className={`${inputClass} uppercase font-mono`}
+                  />
+                </div>
+
+                <div className="flex flex-col gap-1">
+                  <FieldLabel>Current Number</FieldLabel>
+                  <input
+                    type="text"
+                    placeholder="e.g. 10001 (Optional, defaults to Start Number)"
+                    value={form.currentNumber || ""}
+                    onChange={(e) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        currentNumber: e.target.value,
+                      }))
+                    }
+                    className={`${inputClass} font-mono`}
                   />
                 </div>
 

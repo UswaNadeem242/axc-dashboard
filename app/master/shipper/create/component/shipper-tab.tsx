@@ -1,9 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import { Save } from "lucide-react";
 import CommonDropdown from "@/app/src/common/dropdown";
 import CustomDatePicker from "@/app/src/common/datepicker";
+import { useMasterData } from "@/app/src/lib/useMasterData";
 import {
   PanelHeader,
   FieldLabel,
@@ -16,7 +17,6 @@ import {
 import {
   GSTIN_TYPE_OPTIONS,
   COUNTRY_OPTIONS,
-  CUSTOMER_OPTIONS,
 } from "../../types";
 
 export interface ShipperTabProps {
@@ -67,6 +67,73 @@ export default function ShipperTab({
   onCancel,
   onSubmit,
 }: ShipperTabProps) {
+  const { customers, countries, cities, states } = useMasterData();
+
+  const customerOptions = useMemo(() => {
+    const list = customers.map((c) => ({
+      value: c.name || c.label || c.code || c.value,
+      label: c.label || `${c.code} - ${c.name}`,
+    }));
+    if (form.customer && !list.some((o) => o.value === form.customer || o.label === form.customer)) {
+      list.unshift({ value: form.customer, label: form.customer });
+    }
+    return [{ value: "", label: "Select Customer..." }, ...list];
+  }, [customers, form.customer]);
+
+  const countryOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    COUNTRY_OPTIONS.forEach((c) => map.set(c.value.toUpperCase(), c.label));
+    countries.forEach((c) => {
+      const code = (c.code || c.name || c.value || "").toUpperCase();
+      if (code && !map.has(code)) {
+        map.set(code, c.label || c.name || code);
+      }
+    });
+    const list = Array.from(map.entries()).map(([k, v]) => ({ value: k, label: v }));
+    return [{ value: "", label: "SELECT COUNTRY..." }, ...list];
+  }, [countries]);
+
+  const handleCustomerChange = (val: string) => {
+    if (!val) {
+      setForm((prev: any) => ({ ...prev, customer: "", accountCode: "" }));
+      return;
+    }
+    const found = customers.find(
+      (c) => c.value === val || c.code === val || c.name === val || c.label === val
+    );
+    const code = found
+      ? found.code || (found.raw && (found.raw.billing_id || found.raw.account_code || found.raw.customer_code)) || found.value
+      : "";
+    setForm((prev: any) => ({
+      ...prev,
+      customer: found ? (found.name || found.label) : val,
+      accountCode: code || prev.accountCode,
+    }));
+    if (errors.customer) setErrors((prev) => ({ ...prev, customer: "" }));
+  };
+
+  const handleCountryChange = (val: string) => {
+    let code = form.dialCode;
+    const upper = val.toUpperCase();
+    if (upper === "INDIA") code = "+91";
+    else if (upper === "UNITED STATES" || upper === "USA" || upper === "US") code = "+1";
+    else if (upper === "UNITED ARAB EMIRATES" || upper === "UAE" || upper === "DUBAI") code = "+971";
+    else if (upper === "PAKISTAN" || upper === "PK") code = "+92";
+    else if (upper === "UNITED KINGDOM" || upper === "UK") code = "+44";
+    else if (upper === "CANADA") code = "+1";
+    else if (upper === "AUSTRALIA") code = "+61";
+    else if (upper === "GERMANY") code = "+49";
+    else if (upper === "SINGAPORE") code = "+65";
+    else if (upper === "SAUDI ARABIA") code = "+966";
+
+    setForm((prev: any) => ({
+      ...prev,
+      country: val,
+      dialCode: code,
+    }));
+    if (errors.country) setErrors((prev) => ({ ...prev, country: "" }));
+  };
+
   const handleFileUpload = (
     field: "page1File" | "page2File" | "shipperImage" | "uploadSignature",
     file: File | null
@@ -154,12 +221,10 @@ export default function ShipperTab({
             <CommonDropdown
               placeholder="Select Customer..."
               value={form.customer}
-              onChange={(val) => {
-                setForm((prev: any) => ({ ...prev, customer: val }));
-                if (errors.customer) setErrors((prev) => ({ ...prev, customer: "" }));
-              }}
-              options={CUSTOMER_OPTIONS}
-              className={errors.customer ? "border-red-400" : "border-axc-border"}
+              onChange={handleCustomerChange}
+              options={customerOptions}
+              searchable
+              className={errors.customer ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
             />
             <FieldError message={errors.customer} />
           </div>
@@ -270,6 +335,7 @@ export default function ShipperTab({
             <FieldLabel required>City</FieldLabel>
             <input
               type="text"
+              list="shipper-cities-list"
               placeholder="Enter City..."
               value={form.city}
               onChange={(e) => {
@@ -278,6 +344,11 @@ export default function ShipperTab({
               }}
               className={errors.city ? errorInputClass : inputClass}
             />
+            <datalist id="shipper-cities-list">
+              {cities.map((c, i) => (
+                <option key={i} value={c.name || c.value} />
+              ))}
+            </datalist>
             <FieldError message={errors.city} />
           </div>
 
@@ -285,6 +356,7 @@ export default function ShipperTab({
             <FieldLabel required>State</FieldLabel>
             <input
               type="text"
+              list="shipper-states-list"
               placeholder="Enter State..."
               value={form.state}
               onChange={(e) => {
@@ -293,6 +365,11 @@ export default function ShipperTab({
               }}
               className={errors.state ? errorInputClass : inputClass}
             />
+            <datalist id="shipper-states-list">
+              {states.map((s, i) => (
+                <option key={i} value={s.name || s.value} />
+              ))}
+            </datalist>
             <FieldError message={errors.state} />
           </div>
 
@@ -302,12 +379,10 @@ export default function ShipperTab({
             <CommonDropdown
               placeholder="Select Country..."
               value={form.country}
-              onChange={(val) => {
-                setForm((prev: any) => ({ ...prev, country: val }));
-                if (errors.country) setErrors((prev) => ({ ...prev, country: "" }));
-              }}
-              options={COUNTRY_OPTIONS}
-              className={errors.country ? "border-red-400" : "border-axc-border"}
+              onChange={handleCountryChange}
+              options={countryOptions}
+              searchable
+              className={errors.country ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
             />
             <FieldError message={errors.country} />
           </div>

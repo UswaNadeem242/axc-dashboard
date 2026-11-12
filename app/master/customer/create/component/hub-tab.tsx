@@ -7,20 +7,44 @@ import { ORIGIN_HUB_OPTIONS } from "../../types";
 
 const ALL_HUBS = ORIGIN_HUB_OPTIONS.map((o) => o.value);
 
-export default function HubTab() {
-  const [selectedHubs, setSelectedHubs] = useState<string[]>([]);
-  const allSelected = selectedHubs.length === ALL_HUBS.length;
+interface HubTabProps {
+  selectedHubs?: string[];
+  onChange?: (hubs: string[]) => void;
+  onSave?: () => void;
+  loading?: boolean;
+}
 
-  const toggleSelectAll = () =>
-    setSelectedHubs(allSelected ? [] : [...ALL_HUBS]);
+export default function HubTab({
+  selectedHubs: propHubs,
+  onChange,
+  onSave,
+  loading = false,
+}: HubTabProps = {}) {
+  const [internalHubs, setInternalHubs] = useState<string[]>([]);
+  const selectedHubs = propHubs !== undefined ? propHubs : internalHubs;
 
-  const toggleHub = (hub: string) =>
-    setSelectedHubs((prev) =>
-      prev.includes(hub) ? prev.filter((h) => h !== hub) : [...prev, hub]
-    );
+  const allSelected = selectedHubs.length > 0 && selectedHubs.length === ALL_HUBS.length;
+
+  const toggleSelectAll = () => {
+    const next = allSelected ? [] : [...ALL_HUBS];
+    if (onChange) onChange(next);
+    else setInternalHubs(next);
+  };
+
+  const toggleHub = (hub: string) => {
+    const next = selectedHubs.includes(hub)
+      ? selectedHubs.filter((h) => h !== hub)
+      : [...selectedHubs, hub];
+    if (onChange) onChange(next);
+    else setInternalHubs(next);
+  };
 
   const handleSave = () => {
-    showToast({ variant: "success", message: "Hub selection saved successfully!" });
+    if (onSave) {
+      onSave();
+    } else {
+      showToast({ variant: "success", message: "Hub selection saved successfully!" });
+    }
   };
 
   return (

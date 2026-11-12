@@ -20,6 +20,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   CustomerEntry,
   CustomerHeadings,
@@ -46,24 +47,45 @@ export default function CustomerMasterPage() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // LocalStorage Persistence
+  // Backend API + LocalStorage Persistence
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_customers");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setData(parsed);
-            return;
+    let mounted = true;
+    const loadData = async () => {
+      try {
+        const list = await api.getMasterList<CustomerEntry>("/customers", { per_page: 200 });
+        if (mounted && Array.isArray(list) && list.length > 0) {
+          setData(list);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("master_customers", JSON.stringify(list));
           }
-        } catch (e) {
-          console.error("Error reading stored customers:", e);
+          return;
+        }
+      } catch (e) {
+        console.warn("Using local fallback for customers:", e);
+      }
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_customers");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              if (mounted) setData(parsed);
+              return;
+            }
+          } catch (e) {
+            console.error("Error reading stored customers:", e);
+          }
+        }
+        if (mounted) {
+          setData(initialCustomerData);
+          localStorage.setItem("master_customers", JSON.stringify(initialCustomerData));
         }
       }
-      setData(initialCustomerData);
-      localStorage.setItem("master_customers", JSON.stringify(initialCustomerData));
-    }
+    };
+    loadData();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveCustomers = (newList: CustomerEntry[]) => {
@@ -137,7 +159,21 @@ export default function CustomerMasterPage() {
   }, [data, searchQuery, activeTags]);
 
   const sortedData = useMemo(() => {
-    if (!sortKey) return filteredData;
+    if (!sortKey) {
+      return [...filteredData].sort((a, b) => {
+        const rawDateA = a.createdAt || (a as any).created_at || (a as any).createdDate;
+        const rawDateB = b.createdAt || (b as any).created_at || (b as any).createdDate;
+        const dateA = rawDateA ? new Date(rawDateA).getTime() : 0;
+        const dateB = rawDateB ? new Date(rawDateB).getTime() : 0;
+        if (dateA && dateB && dateA !== dateB) return dateB - dateA;
+
+        const idA = Number(a.id) || 0;
+        const idB = Number(b.id) || 0;
+        if (idA && idB && idA !== idB) return idB - idA;
+
+        return String(b.id || "").localeCompare(String(a.id || ""));
+      });
+    }
     return [...filteredData].sort((a, b) => {
       const valA = (a as any)[sortKey] ?? "";
       const valB = (b as any)[sortKey] ?? "";
@@ -179,36 +215,42 @@ export default function CustomerMasterPage() {
   }, [data]);
 
   // Delete Handlers
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((c) => c.id !== deleteTarget.id);
-      saveCustomers(updated);
-      setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
-      setIsDeleting(false);
-      setDeleteTarget(null);
-      showToast({
-        variant: "success",
-        message: `Customer "${deleteTarget.name}" deleted successfully.`,
-      });
-    }, 300);
+    try {
+      await api.deleteMasterItem("/customers", deleteTarget.id);
+    } catch (e) {
+      console.warn("API delete fallback to local:", e);
+    }
+    const updated = data.filter((c) => c.id !== deleteTarget.id);
+    saveCustomers(updated);
+    setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
+    setIsDeleting(false);
+    setDeleteTarget(null);
+    showToast({
+      variant: "success",
+      message: `Customer "${deleteTarget.name}" deleted successfully.`,
+    });
   };
 
-  const handleBulkDeleteConfirm = () => {
+  const handleBulkDeleteConfirm = async () => {
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((c) => !selectedIds.includes(c.id));
-      saveCustomers(updated);
-      const count = selectedIds.length;
-      setSelectedIds([]);
-      setIsDeleting(false);
-      setBulkDeleteOpen(false);
-      showToast({
-        variant: "success",
-        message: `${count} customers deleted successfully.`,
-      });
-    }, 300);
+    try {
+      await api.bulkDeleteMasterItems("/customers", selectedIds);
+    } catch (e) {
+      console.warn("API bulk delete fallback to local:", e);
+    }
+    const updated = data.filter((c) => !selectedIds.includes(c.id));
+    saveCustomers(updated);
+    const count = selectedIds.length;
+    setSelectedIds([]);
+    setIsDeleting(false);
+    setBulkDeleteOpen(false);
+    showToast({
+      variant: "success",
+      message: `${count} customers deleted successfully.`,
+    });
   };
 
   // Bulk Export to CSV

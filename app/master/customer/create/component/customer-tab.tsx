@@ -15,6 +15,7 @@ import {
   ORIGIN_HUB_OPTIONS,
   CURRENCY_OPTIONS,
   PAYMENT_TYPE_OPTIONS,
+  USER_TYPE_OPTIONS,
 } from "../../types";
 
 // ── Exact-case label (bypasses project toSentenceCase) ──────────────────────
@@ -46,6 +47,10 @@ export interface CustomerFormState {
   currency: string;
   paymentType: string;
   creditLimit: string;
+  userType: string;
+  operationsId: string;
+  billingId: string;
+  status: string;
 }
 
 export interface CustomerFormErrors {
@@ -260,6 +265,57 @@ export default function CustomerTab({
               className={`${errors.creditLimit ? errorInputClass : inputClass} text-regular-small`}
             />
             <FieldError message={errors.creditLimit} />
+          </div>
+
+          {/* 11. User Type */}
+          <div className="flex flex-col gap-1">
+            <ExactFieldLabel>User Type</ExactFieldLabel>
+            <Dropdown
+              value={form.userType}
+              onChange={(val) => onChange({ ...form, userType: val })}
+              className="border-axc-border"
+              placeholder="Select User Type..."
+              options={USER_TYPE_OPTIONS}
+            />
+          </div>
+
+          {/* 12. Operations ID */}
+          <div className="flex flex-col gap-1">
+            <ExactFieldLabel>Operations ID</ExactFieldLabel>
+            <input
+              type="text"
+              value={form.operationsId}
+              placeholder="Enter Operations ID"
+              onChange={(e) => onChange({ ...form, operationsId: e.target.value })}
+              className={`${inputClass} text-regular-small`}
+            />
+          </div>
+
+          {/* 13. Billing ID */}
+          <div className="flex flex-col gap-1">
+            <ExactFieldLabel>Billing ID</ExactFieldLabel>
+            <input
+              type="text"
+              value={form.billingId}
+              placeholder="Enter Billing ID"
+              onChange={(e) => onChange({ ...form, billingId: e.target.value })}
+              className={`${inputClass} text-regular-small`}
+            />
+          </div>
+
+          {/* 14. Status */}
+          <div className="flex flex-col gap-1">
+            <ExactFieldLabel>Status</ExactFieldLabel>
+            <Dropdown
+              value={form.status}
+              onChange={(val) => onChange({ ...form, status: val })}
+              className="border-axc-border"
+              placeholder="Select Status..."
+              options={[
+                { value: "Active", label: "Active" },
+                { value: "Inactive", label: "Inactive" },
+              ]}
+            />
           </div>
 
         </div>

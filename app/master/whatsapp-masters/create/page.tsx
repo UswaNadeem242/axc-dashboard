@@ -13,6 +13,8 @@ import {
   Search,
 } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
+import { invalidateMasterDataCache } from "@/app/src/lib/useMasterData";
 import CommonDropdown from "@/app/src/common/dropdown";
 import {
   PanelHeader,
@@ -55,33 +57,60 @@ function CreateWhatsappMasterContent() {
 
   // Load existing entry if editing
   useEffect(() => {
-    if (editId && typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_whatsapp_masters");
-      if (stored) {
-        try {
-          const list: WhatsappMasterEntry[] = JSON.parse(stored);
-          const found = list.find((item) => item.id === editId);
-          if (found) {
-            setForm({
-              ...found,
-              variables:
-                found.variables && found.variables.length > 0
-                  ? found.variables
-                  : [
-                      {
-                        id: `var_${Date.now()}`,
-                        variable: "VAR1",
-                        valueExtractor: "",
-                        isButton: false,
-                      },
-                    ],
-            });
-          }
-        } catch (e) {
-          console.error("Error loading WhatsApp Master:", e);
+    if (!editId) return;
+    let mounted = true;
+    api
+      .getMasterItem<WhatsappMasterEntry>("/whatsapp-masters", editId)
+      .then((found) => {
+        if (mounted && found) {
+          setForm({
+            ...found,
+            variables:
+              found.variables && found.variables.length > 0
+                ? found.variables
+                : [
+                    {
+                      id: `var_${Date.now()}`,
+                      variable: "VAR1",
+                      valueExtractor: "",
+                      isButton: false,
+                    },
+                  ],
+          });
         }
-      }
-    }
+      })
+      .catch(() => {
+        if (typeof window !== "undefined") {
+          const stored = localStorage.getItem("master_whatsapp_masters");
+          if (stored) {
+            try {
+              const list: WhatsappMasterEntry[] = JSON.parse(stored);
+              const found = list.find((item) => String(item.id) === String(editId));
+              if (found && mounted) {
+                setForm({
+                  ...found,
+                  variables:
+                    found.variables && found.variables.length > 0
+                      ? found.variables
+                      : [
+                          {
+                            id: `var_${Date.now()}`,
+                            variable: "VAR1",
+                            valueExtractor: "",
+                            isButton: false,
+                          },
+                        ],
+                });
+              }
+            } catch (e) {
+              console.error("Error loading WhatsApp Master:", e);
+            }
+          }
+        }
+      });
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   // Variables Table Handlers
@@ -205,7 +234,7 @@ function CreateWhatsappMasterContent() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e?: React.FormEvent) => {
+  const handleSubmit = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!validate()) {
       showToast({
@@ -218,6 +247,17 @@ function CreateWhatsappMasterContent() {
     setLoading(true);
 
     try {
+      let savedRecord = form;
+      try {
+        if (isEdit && editId) {
+          savedRecord = await api.updateMasterItem<WhatsappMasterEntry>("/whatsapp-masters", editId, form);
+        } else {
+          savedRecord = await api.createMasterItem<WhatsappMasterEntry>("/whatsapp-masters", form);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to local:", apiErr);
+      }
+
       if (typeof window !== "undefined") {
         const stored = localStorage.getItem("master_whatsapp_masters");
         let list: WhatsappMasterEntry[] = stored
@@ -225,9 +265,9 @@ function CreateWhatsappMasterContent() {
           : initialWhatsappMasterData;
 
         if (isEdit) {
-          list = list.map((item) => (item.id === form.id ? form : item));
+          list = list.map((item) => (String(item.id) === String(editId) ? savedRecord : item));
         } else {
-          list = [form, ...list];
+          list = [savedRecord, ...list];
         }
 
         localStorage.setItem(
@@ -235,6 +275,8 @@ function CreateWhatsappMasterContent() {
           JSON.stringify(list)
         );
       }
+
+      invalidateMasterDataCache();
 
       showToast({
         message: `WhatsApp Master "${form.title || form.whatsappIdentifier}" ${

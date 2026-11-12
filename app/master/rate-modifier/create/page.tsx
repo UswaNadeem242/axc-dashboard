@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Save, ArrowLeft } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
 import CommonDropdown from "@/app/src/common/dropdown";
 import CustomDatePicker from "@/app/src/common/datepicker";
+import { api } from "@/app/src/lib/api";
+import { useMasterData, invalidateMasterDataCache } from "@/app/src/lib/useMasterData";
 import {
   PanelHeader,
   FieldLabel,
@@ -116,100 +118,93 @@ function CreateRateModifierContent() {
   const editId = searchParams.get("edit");
   const isEdit = Boolean(editId);
 
+  const { customers, products, services, vendors, hubs, zones, states, cities, chargeHeads } = useMasterData();
+
+  const chargeOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    CHARGE_OPTIONS.forEach((c) => map.set(c.value, c.label));
+    chargeHeads.forEach((c) => {
+      const val = c.label || c.name || c.value;
+      if (val && !map.has(val)) {
+        map.set(val, val);
+      }
+    });
+    return Array.from(map.entries()).map(([k, v]) => ({ value: k, label: v }));
+  }, [chargeHeads]);
+
   const [form, setForm] = useState(defaultFormState);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
 
   // Load existing entry if in edit mode
   useEffect(() => {
-    if (typeof window === "undefined" || !editId) return;
-    try {
-      const stored = localStorage.getItem("master_rate_modifiers");
-      const list: RateModifierEntry[] = stored
-        ? JSON.parse(stored)
-        : initialRateModifierData;
-      const found = list.find((item) => item.id === editId);
-      if (found) {
-        setForm({
-          charge: found.charge || "",
-          billingType: found.billingType || "",
-          insuranceType: found.insuranceType || "",
-          paymentMethod: found.paymentMethod || "",
-          fixedAmount: found.fixedAmount || "",
-          minAmount: found.minAmount || "",
-          percentageOnFreight: found.percentageOnFreight || "",
-          percentageOnShipmentValue: found.percentageOnShipmentValue || "",
-          percentageOnFreightAndFsc: found.percentageOnFreightAndFsc || "",
-          dispatchType: found.dispatchType || "",
-
-          minChargeableWeight: found.minChargeableWeight || "",
-          maxChargeableWeight: found.maxChargeableWeight || "",
-          minActualWeight: found.minActualWeight || "",
-          maxActualWeight: found.maxActualWeight || "",
-          minVolumeWeight: found.minVolumeWeight || "",
-          maxVolumeWeight: found.maxVolumeWeight || "",
-          minNoOfBoxes: found.minNoOfBoxes || "",
-          maxNoOfBoxes: found.maxNoOfBoxes || "",
-          minDimension: found.minDimension || "",
-          maxDimension: found.maxDimension || "",
-          minPerBoxActualWeight: found.minPerBoxActualWeight || "",
-          maxPerBoxActualWeight: found.maxPerBoxActualWeight || "",
-          minPerBoxVolumetricWeight: found.minPerBoxVolumetricWeight || "",
-          maxPerBoxVolumetricWeight: found.maxPerBoxVolumetricWeight || "",
-          minPerBoxChargeableWeight: found.minPerBoxChargeableWeight || "",
-          maxPerBoxChargeableWeight: found.maxPerBoxChargeableWeight || "",
-
-          minShipmentValue: found.minShipmentValue || "",
-          maxShipmentValue: found.maxShipmentValue || "",
-          flightNumber: found.flightNumber || "",
-
-          customer: found.customer || "",
-          product: found.product || "",
-          service: found.service || "",
-          vendor: found.vendor || "",
-          destinationLocation: found.destinationLocation || "",
-          originLocation: found.originLocation || "",
-          destinationZone: found.destinationZone || "",
-          originZone: found.originZone || "",
-          destinationHub: found.destinationHub || "",
-          originHub: found.originHub || "",
-
-          destinationState: found.destinationState || "",
-          originState: found.originState || "",
-          destinationCity: found.destinationCity || "",
-          originCity: found.originCity || "",
-          destinationPincode: found.destinationPincode || "",
-          originPincode: found.originPincode || "",
-          docketContent: found.docketContent || "",
-
-          effectiveFrom: found.effectiveFrom || "",
-          effectiveTo: found.effectiveTo || "",
-          ratePer: found.ratePer || "",
-          minDimensionPerPcs: Boolean(found.minDimensionPerPcs),
-          maxDimensionPerPcs: Boolean(found.maxDimensionPerPcs),
-
-          grith: Boolean(found.grith),
-          slabWiseRate: Boolean(found.slabWiseRate),
-          isDryIce: Boolean(found.isDryIce),
-          isCsbIvShipment: Boolean(found.isCsbIvShipment),
-          isCsbVShipment: Boolean(found.isCsbVShipment),
-          isCommercialShipment: Boolean(found.isCommercialShipment),
-          isOriginOda: Boolean(found.isOriginOda),
-          isDestinationOda: Boolean(found.isDestinationOda),
-          isOriginOda2: Boolean(found.isOriginOda2),
-          isDestinationOda2: Boolean(found.isDestinationOda2),
-
-          grith2ndSideMinDimension: found.grith2ndSideMinDimension || "",
-          grith2ndSideMaxDimension: found.grith2ndSideMaxDimension || "",
-          highValueChargeOn: found.highValueChargeOn || "",
-          highValueAmount: found.highValueAmount || "",
-
-          status: found.status || "ACTIVE",
-        });
+    if (!editId) return;
+    let mounted = true;
+    async function loadItem() {
+      try {
+        const found = await api.getMasterItem<RateModifierEntry>("/rate-modifiers", editId!);
+        if (mounted && found) {
+          const chargeVal = (found as any).chargeMasterName || (found as any).charge_master_name || found.charge || "";
+          setForm({
+            ...defaultFormState,
+            ...found,
+            charge: chargeVal,
+            minDimensionPerPcs: Boolean(found.minDimensionPerPcs),
+            maxDimensionPerPcs: Boolean(found.maxDimensionPerPcs),
+            grith: Boolean(found.grith),
+            slabWiseRate: Boolean(found.slabWiseRate),
+            isDryIce: Boolean(found.isDryIce),
+            isCsbIvShipment: Boolean(found.isCsbIvShipment),
+            isCsbVShipment: Boolean(found.isCsbVShipment),
+            isCommercialShipment: Boolean(found.isCommercialShipment),
+            isOriginOda: Boolean(found.isOriginOda),
+            isDestinationOda: Boolean(found.isDestinationOda),
+            isOriginOda2: Boolean(found.isOriginOda2),
+            isDestinationOda2: Boolean(found.isDestinationOda2),
+            status: found.status || "ACTIVE",
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn("API fetch fallback:", err);
       }
-    } catch (e) {
-      console.error("Error loading rate modifier:", e);
+      if (mounted && typeof window !== "undefined") {
+        try {
+          const stored = localStorage.getItem("master_rate_modifiers");
+          const list: RateModifierEntry[] = stored
+            ? JSON.parse(stored)
+            : initialRateModifierData;
+          const found = list.find((item) => String(item.id) === String(editId));
+          if (found) {
+            const chargeVal = (found as any).chargeMasterName || (found as any).charge_master_name || found.charge || "";
+            setForm({
+              ...defaultFormState,
+              ...found,
+              charge: chargeVal,
+              minDimensionPerPcs: Boolean(found.minDimensionPerPcs),
+              maxDimensionPerPcs: Boolean(found.maxDimensionPerPcs),
+              grith: Boolean(found.grith),
+              slabWiseRate: Boolean(found.slabWiseRate),
+              isDryIce: Boolean(found.isDryIce),
+              isCsbIvShipment: Boolean(found.isCsbIvShipment),
+              isCsbVShipment: Boolean(found.isCsbVShipment),
+              isCommercialShipment: Boolean(found.isCommercialShipment),
+              isOriginOda: Boolean(found.isOriginOda),
+              isDestinationOda: Boolean(found.isDestinationOda),
+              isOriginOda2: Boolean(found.isOriginOda2),
+              isDestinationOda2: Boolean(found.isDestinationOda2),
+              status: found.status || "ACTIVE",
+            });
+          }
+        } catch (e) {
+          console.error("Error loading rate modifier:", e);
+        }
+      }
     }
+    loadItem();
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   // Validation
@@ -223,7 +218,7 @@ function CreateRateModifierContent() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
       showToast({
@@ -235,6 +230,24 @@ function CreateRateModifierContent() {
 
     setLoading(true);
     try {
+      const submitPayload = {
+        ...form,
+        charge: form.charge,
+        chargeMasterName: form.charge,
+        charge_master_name: form.charge,
+      };
+
+      let savedRecord: RateModifierEntry | null = null;
+      try {
+        if (isEdit && editId) {
+          savedRecord = await api.updateMasterItem<RateModifierEntry>("/rate-modifiers", editId, submitPayload);
+        } else {
+          savedRecord = await api.createMasterItem<RateModifierEntry>("/rate-modifiers", submitPayload);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to localStorage:", apiErr);
+      }
+
       const stored = localStorage.getItem("master_rate_modifiers");
       const currentList: RateModifierEntry[] = stored
         ? JSON.parse(stored)
@@ -242,10 +255,10 @@ function CreateRateModifierContent() {
 
       if (isEdit) {
         const updatedList = currentList.map((item) => {
-          if (item.id === editId) {
-            return {
+          if (String(item.id) === String(editId)) {
+            return savedRecord || {
               ...item,
-              ...form,
+              ...submitPayload,
             };
           }
           return item;
@@ -262,15 +275,15 @@ function CreateRateModifierContent() {
         )
           .toString()
           .padStart(2, "0")}/${now.getFullYear()} ${now.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-            hour12: true,
-          })}`;
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })}`;
 
-        const newModifier: RateModifierEntry = {
+        const newModifier: RateModifierEntry = savedRecord || {
           id: `RM-${Date.now().toString().slice(-4)}`,
           srNo: currentList.length + 1,
-          ...form,
+          ...submitPayload,
           createdAt: formattedDate,
         };
 
@@ -278,9 +291,11 @@ function CreateRateModifierContent() {
         localStorage.setItem("master_rate_modifiers", JSON.stringify(updatedList));
         showToast({
           variant: "success",
-          message: `Rate Modifier "${newModifier.charge}" created successfully!`,
+          message: `Rate Modifier "${newModifier.chargeMasterName || newModifier.charge}" created successfully!`,
         });
       }
+
+      invalidateMasterDataCache();
 
       setTimeout(() => {
         router.push("/master/rate-modifier");
@@ -321,11 +336,12 @@ function CreateRateModifierContent() {
                   <CommonDropdown
                     placeholder="Select Charge..."
                     value={form.charge}
+                    searchable
                     onChange={(val) => {
                       setForm((prev) => ({ ...prev, charge: val }));
                       if (errors.charge) setErrors((prev) => ({ ...prev, charge: "" }));
                     }}
-                    options={CHARGE_OPTIONS}
+                    options={chargeOptions}
                     className={errors.charge ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
                   />
                   <FieldError message={errors.charge} />
@@ -690,11 +706,17 @@ function CreateRateModifierContent() {
                   <FieldLabel>Customer</FieldLabel>
                   <input
                     type="text"
+                    list="rm-customers-list"
                     placeholder="Search here..."
                     value={form.customer}
                     onChange={(e) => setForm((prev) => ({ ...prev, customer: e.target.value }))}
                     className={inputClass}
                   />
+                  <datalist id="rm-customers-list">
+                    {customers.map((c) => (
+                      <option key={c.value} value={c.label || c.name || c.value} />
+                    ))}
+                  </datalist>
                 </div>
 
                 {/* 2. Product */}
@@ -702,11 +724,17 @@ function CreateRateModifierContent() {
                   <FieldLabel>Product</FieldLabel>
                   <input
                     type="text"
+                    list="rm-products-list"
                     placeholder="Search here..."
                     value={form.product}
                     onChange={(e) => setForm((prev) => ({ ...prev, product: e.target.value }))}
                     className={inputClass}
                   />
+                  <datalist id="rm-products-list">
+                    {products.map((p) => (
+                      <option key={p.value} value={p.label || p.name || p.value} />
+                    ))}
+                  </datalist>
                 </div>
 
                 {/* 3. Service */}
@@ -714,11 +742,17 @@ function CreateRateModifierContent() {
                   <FieldLabel>Service</FieldLabel>
                   <input
                     type="text"
+                    list="rm-services-list"
                     placeholder="Search here..."
                     value={form.service}
                     onChange={(e) => setForm((prev) => ({ ...prev, service: e.target.value }))}
                     className={inputClass}
                   />
+                  <datalist id="rm-services-list">
+                    {services.map((s) => (
+                      <option key={s.value} value={s.label || s.name || s.value} />
+                    ))}
+                  </datalist>
                 </div>
 
                 {/* 4. Vendor */}
@@ -726,11 +760,17 @@ function CreateRateModifierContent() {
                   <FieldLabel>Vendor</FieldLabel>
                   <input
                     type="text"
+                    list="rm-vendors-list"
                     placeholder="Search here..."
                     value={form.vendor}
                     onChange={(e) => setForm((prev) => ({ ...prev, vendor: e.target.value }))}
                     className={inputClass}
                   />
+                  <datalist id="rm-vendors-list">
+                    {vendors.map((v) => (
+                      <option key={v.value} value={v.label || v.name || v.value} />
+                    ))}
+                  </datalist>
                 </div>
 
                 {/* 5. Origin Location */}
@@ -738,6 +778,7 @@ function CreateRateModifierContent() {
                   <FieldLabel>Origin Location</FieldLabel>
                   <input
                     type="text"
+                    list="rm-cities-list"
                     placeholder="Search here..."
                     value={form.originLocation}
                     onChange={(e) => setForm((prev) => ({ ...prev, originLocation: e.target.value }))}
@@ -750,11 +791,17 @@ function CreateRateModifierContent() {
                   <FieldLabel>Destination Location</FieldLabel>
                   <input
                     type="text"
+                    list="rm-cities-list"
                     placeholder="Search here..."
                     value={form.destinationLocation}
                     onChange={(e) => setForm((prev) => ({ ...prev, destinationLocation: e.target.value }))}
                     className={inputClass}
                   />
+                  <datalist id="rm-cities-list">
+                    {cities.map((c) => (
+                      <option key={c.value} value={c.name || c.label || c.value} />
+                    ))}
+                  </datalist>
                 </div>
 
                 {/* 7. Origin Zone */}
@@ -762,6 +809,7 @@ function CreateRateModifierContent() {
                   <FieldLabel>Origin Zone</FieldLabel>
                   <input
                     type="text"
+                    list="rm-zones-list"
                     placeholder="Search here..."
                     value={form.originZone}
                     onChange={(e) => setForm((prev) => ({ ...prev, originZone: e.target.value }))}
@@ -774,11 +822,17 @@ function CreateRateModifierContent() {
                   <FieldLabel>Destination Zone</FieldLabel>
                   <input
                     type="text"
+                    list="rm-zones-list"
                     placeholder="Search here..."
                     value={form.destinationZone}
                     onChange={(e) => setForm((prev) => ({ ...prev, destinationZone: e.target.value }))}
                     className={inputClass}
                   />
+                  <datalist id="rm-zones-list">
+                    {zones.map((z) => (
+                      <option key={z.value} value={z.name || z.label || z.value} />
+                    ))}
+                  </datalist>
                 </div>
 
                 {/* 9. Origin Hub */}
@@ -786,6 +840,7 @@ function CreateRateModifierContent() {
                   <FieldLabel>Origin Hub</FieldLabel>
                   <input
                     type="text"
+                    list="rm-hubs-list"
                     placeholder="Search here..."
                     value={form.originHub}
                     onChange={(e) => setForm((prev) => ({ ...prev, originHub: e.target.value }))}
@@ -798,11 +853,17 @@ function CreateRateModifierContent() {
                   <FieldLabel>Destination Hub</FieldLabel>
                   <input
                     type="text"
+                    list="rm-hubs-list"
                     placeholder="Search here..."
                     value={form.destinationHub}
                     onChange={(e) => setForm((prev) => ({ ...prev, destinationHub: e.target.value }))}
                     className={inputClass}
                   />
+                  <datalist id="rm-hubs-list">
+                    {hubs.map((h) => (
+                      <option key={h.value} value={h.label || h.name || h.value} />
+                    ))}
+                  </datalist>
                 </div>
 
                 {/* 11. Origin State (From Reference Image) */}

@@ -3,6 +3,8 @@ export interface CityEntry {
   name: string;
   code: string;
   district: string;
+  stateCode?: string;
+  countryCode?: string;
   status: "ACTIVE" | "INACTIVE";
   createdAt?: string;
 }

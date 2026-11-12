@@ -17,6 +17,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   CityEntry,
   CityHeadings,
@@ -46,24 +47,43 @@ export default function CityMasterPage() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // LocalStorage Persistence
+  // Backend API + LocalStorage Persistence
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_cities");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setData(parsed);
-            return;
+    let mounted = true;
+    async function loadData() {
+      try {
+        const list = await api.getMasterList<CityEntry>("/cities");
+        if (mounted && Array.isArray(list)) {
+          setData(list);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("master_cities", JSON.stringify(list));
           }
-        } catch (e) {
-          console.error("Error reading stored cities:", e);
+          return;
         }
+      } catch (err) {
+        console.warn("API unavailable, falling back to localStorage:", err);
       }
-      setData(initialCityData);
-      localStorage.setItem("master_cities", JSON.stringify(initialCityData));
+      if (mounted && typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_cities");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setData(parsed);
+              return;
+            }
+          } catch (e) {
+            console.error("Error reading stored cities:", e);
+          }
+        }
+        setData(initialCityData);
+        localStorage.setItem("master_cities", JSON.stringify(initialCityData));
+      }
     }
+    loadData();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveCities = (newList: CityEntry[]) => {
@@ -227,37 +247,43 @@ export default function CityMasterPage() {
   };
 
   // Delete Single City
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((d) => d.id !== deleteTarget.id);
-      saveCities(updated);
-      setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
-      setIsDeleting(false);
-      setDeleteTarget(null);
-      showToast({
-        variant: "success",
-        message: `City ${deleteTarget.name} has been removed.`,
-      });
-    }, 400);
+    try {
+      await api.deleteMasterItem("/cities", deleteTarget.id);
+    } catch (err) {
+      console.warn("API delete fallback:", err);
+    }
+    const updated = data.filter((d) => String(d.id) !== String(deleteTarget.id));
+    saveCities(updated);
+    setSelectedIds((prev) => prev.filter((id) => String(id) !== String(deleteTarget.id)));
+    setIsDeleting(false);
+    setDeleteTarget(null);
+    showToast({
+      variant: "success",
+      message: `City ${deleteTarget.name} has been removed.`,
+    });
   };
 
   // Bulk Delete
-  const handleBulkDeleteConfirm = () => {
+  const handleBulkDeleteConfirm = async () => {
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((d) => !selectedIds.includes(d.id));
-      saveCities(updated);
-      const count = selectedIds.length;
-      setSelectedIds([]);
-      setIsDeleting(false);
-      setBulkDeleteOpen(false);
-      showToast({
-        variant: "success",
-        message: `${count} cities deleted successfully.`,
-      });
-    }, 500);
+    try {
+      await api.bulkDeleteMasterItems("/cities", selectedIds);
+    } catch (err) {
+      console.warn("API bulk delete fallback:", err);
+    }
+    const updated = data.filter((d) => !selectedIds.includes(d.id));
+    saveCities(updated);
+    const count = selectedIds.length;
+    setSelectedIds([]);
+    setIsDeleting(false);
+    setBulkDeleteOpen(false);
+    showToast({
+      variant: "success",
+      message: `${count} cities deleted successfully.`,
+    });
   };
 
   // Exact AWB Table Headings mapping

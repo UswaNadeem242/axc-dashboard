@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Save, Trash, Plus } from "lucide-react";
 import CommonDropdown from "@/app/src/common/dropdown";
 import CustomDatePicker from "@/app/src/common/datepicker";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
+import { useMasterData, invalidateMasterDataCache } from "@/app/src/lib/useMasterData";
 import {
   PanelHeader,
   FieldLabel,
@@ -82,73 +84,268 @@ function CreateCustomerContractContent() {
   const editId = searchParams.get("edit");
   const isEdit = Boolean(editId);
 
+  const {
+    customers,
+    services,
+    products,
+    vendors,
+    hubs,
+    zones,
+    cities,
+    states,
+    countries,
+  } = useMasterData();
+
   const [form, setForm] = useState(initialFormState);
   const [rateItems, setRateItems] = useState<ContractRateItem[]>([initialRateItem]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
 
+  // Memoized Master Options
+  const customerOptions = useMemo(() => {
+    const list = customers.map((c) => ({
+      value: c.code || c.value,
+      label: c.label || `${c.code} - ${c.name}`,
+    }));
+    if (form.customerCode && !list.some((o) => o.value === form.customerCode)) {
+      list.unshift({
+        value: form.customerCode,
+        label: form.customer ? `${form.customerCode} - ${form.customer}` : form.customerCode,
+      });
+    } else if (form.customer && !form.customerCode && !list.some((o) => o.value === form.customer || o.label === form.customer)) {
+      list.unshift({ value: form.customer, label: form.customer });
+    }
+    return [{ value: "", label: "SELECT CUSTOMER.." }, ...list];
+  }, [customers, form.customer, form.customerCode]);
+
+  const handleCustomerChange = (val: string) => {
+    if (!val) {
+      setForm((p) => ({ ...p, customer: "", customerCode: "" }));
+      return;
+    }
+    const found = customers.find((c) => c.value === val || c.code === val);
+    setForm((p) => ({
+      ...p,
+      customer: found ? (found.name || found.label) : val,
+      customerCode: found ? (found.code || found.value) : val,
+    }));
+    if (errors.customer) setErrors((p) => ({ ...p, customer: "" }));
+  };
+
+  const serviceOptions = useMemo(() => {
+    const list = services.map((s) => ({
+      value: s.code || s.value,
+      label: s.label || s.name || s.code,
+    }));
+    if (form.serviceCode && !list.some((o) => o.value === form.serviceCode)) {
+      list.unshift({
+        value: form.serviceCode,
+        label: form.service ? `${form.serviceCode} - ${form.service}` : form.serviceCode,
+      });
+    } else if (form.service && !form.serviceCode && !list.some((o) => o.value === form.service || o.label === form.service)) {
+      list.unshift({ value: form.service, label: form.service });
+    }
+    return [{ value: "", label: "SELECT SERVICE.." }, ...list];
+  }, [services, form.service, form.serviceCode]);
+
+  const handleServiceChange = (val: string) => {
+    if (!val) {
+      setForm((p) => ({ ...p, service: "", serviceCode: "" }));
+      return;
+    }
+    const found = services.find((s) => s.value === val || s.code === val);
+    setForm((p) => ({
+      ...p,
+      service: found ? (found.name || found.label) : val,
+      serviceCode: found ? (found.code || found.value) : val,
+    }));
+    if (errors.service) setErrors((p) => ({ ...p, service: "" }));
+  };
+
+  const productOptions = useMemo(() => {
+    const list = products.map((p) => ({
+      value: p.code || p.value,
+      label: p.label || p.name || p.code,
+    }));
+    if (form.productCode && !list.some((o) => o.value === form.productCode)) {
+      list.unshift({
+        value: form.productCode,
+        label: form.product ? `${form.productCode} - ${form.product}` : form.productCode,
+      });
+    } else if (form.product && !form.productCode && !list.some((o) => o.value === form.product || o.label === form.product)) {
+      list.unshift({ value: form.product, label: form.product });
+    }
+    return [{ value: "", label: "SELECT PRODUCT.." }, ...list];
+  }, [products, form.product, form.productCode]);
+
+  const handleProductChange = (val: string) => {
+    if (!val) {
+      setForm((p) => ({ ...p, product: "", productCode: "" }));
+      return;
+    }
+    const found = products.find((p) => p.value === val || p.code === val);
+    setForm((p) => ({
+      ...p,
+      product: found ? (found.name || found.label) : val,
+      productCode: found ? (found.code || found.value) : val,
+    }));
+    if (errors.product) setErrors((p) => ({ ...p, product: "" }));
+  };
+
+  const vendorOptions = useMemo(() => {
+    const list = vendors.map((v) => ({
+      value: v.code || v.value,
+      label: v.label || v.name || v.code,
+    }));
+    if (form.vendorCode && !list.some((o) => o.value === form.vendorCode)) {
+      list.unshift({
+        value: form.vendorCode,
+        label: form.vendor ? `${form.vendorCode} - ${form.vendor}` : form.vendorCode,
+      });
+    } else if (form.vendor && !form.vendorCode && !list.some((o) => o.value === form.vendor || o.label === form.vendor)) {
+      list.unshift({ value: form.vendor, label: form.vendor });
+    }
+    return [{ value: "", label: "SELECT VENDOR.." }, ...list];
+  }, [vendors, form.vendor, form.vendorCode]);
+
+  const handleVendorChange = (val: string) => {
+    if (!val) {
+      setForm((p) => ({ ...p, vendor: "", vendorCode: "" }));
+      return;
+    }
+    const found = vendors.find((v) => v.value === val || v.code === val);
+    setForm((p) => ({
+      ...p,
+      vendor: found ? (found.name || found.label) : val,
+      vendorCode: found ? (found.code || found.value) : val,
+    }));
+  };
+
+  const hubOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    HUB_OPTIONS.forEach((h) => {
+      if (h.value) map.set(h.value.toUpperCase(), h.label);
+    });
+    hubs.forEach((h) => {
+      const code = (h.code || h.value || "").toUpperCase();
+      if (code && !map.has(code)) {
+        map.set(code, h.label || code);
+      }
+    });
+    const list = Array.from(map.entries()).map(([k, v]) => ({ value: k, label: v }));
+    return [{ value: "", label: "SELECT.." }, ...list];
+  }, [hubs]);
+
+  const zoneOptions = useMemo(() => {
+    const list = zones
+      .map((z) => ({
+        value: z.code || z.value || z.name || "",
+        label: z.label || z.name || z.code || "",
+      }))
+      .filter((z) => z.value);
+    return [{ value: "", label: "SELECT ZONE.." }, ...list];
+  }, [zones]);
+
+  const cityOptions = useMemo(() => {
+    const list = cities
+      .map((c) => ({
+        value: c.name || c.code || c.value || "",
+        label: c.label || c.name || c.code || "",
+      }))
+      .filter((c) => c.value);
+    return [{ value: "", label: "SELECT CITY.." }, ...list];
+  }, [cities]);
+
+  const stateOptions = useMemo(() => {
+    const list = states
+      .map((s) => ({
+        value: s.name || s.code || s.value || "",
+        label: s.label || s.name || s.code || "",
+      }))
+      .filter((s) => s.value);
+    return [{ value: "", label: "SELECT STATE.." }, ...list];
+  }, [states]);
+
+  const countryOptions = useMemo(() => {
+    const list = countries
+      .map((c) => ({
+        value: c.code || c.value || c.name || "",
+        label: c.label || c.name || c.code || "",
+      }))
+      .filter((c) => c.value);
+    return [{ value: "", label: "SELECT COUNTRY.." }, ...list];
+  }, [countries]);
+
+  const getDynamicOptions = (baseList: { value: string; label: string }[], currentValue: string) => {
+    if (!currentValue) return baseList;
+    if (!baseList.some((o) => o.value.toLowerCase() === currentValue.toLowerCase())) {
+      const copy = [...baseList];
+      copy.splice(1, 0, { value: currentValue, label: currentValue });
+      return copy;
+    }
+    return baseList;
+  };
+
   // Load existing data in edit mode
   useEffect(() => {
-    if (!editId || typeof window === "undefined") return;
+    if (!editId) return;
+    let mounted = true;
+    async function loadItem() {
+      try {
+        const found = await api.getMasterItem<CustomerContractEntry>("/customer-contracts", editId!);
+        if (mounted && found) {
+          setForm({
+            ...initialFormState,
+            ...found,
+            status: found.status || "ACTIVE",
+          });
+          if (Array.isArray((found as any).items) && (found as any).items.length > 0) {
+            setRateItems(
+              (found as any).items.map((it: any, idx: number) => ({
+                id: it.id || idx + 1,
+                srNo: it.sort_order || idx + 1,
+                onAddition: String(it.on_addition ?? ""),
+                lowerWtBox: String(it.lower_wt ?? ""),
+                upperWtBox: String(it.upper_wt ?? ""),
+                rate: String(it.rate ?? ""),
+              }))
+            );
+          } else if (found.rateItems && found.rateItems.length > 0) {
+            setRateItems(found.rateItems);
+          }
+          return;
+        }
+      } catch (err) {
+        console.warn("API fetch fallback:", err);
+      }
+      if (mounted && typeof window !== "undefined") {
+        try {
+          const stored = localStorage.getItem("master_customer_contracts");
+          const list: CustomerContractEntry[] = stored
+            ? JSON.parse(stored)
+            : initialCustomerContractsData;
+          const found = list.find((c) => String(c.id) === String(editId));
 
-    try {
-      const stored = localStorage.getItem("master_customer_contracts");
-      const list: CustomerContractEntry[] = stored
-        ? JSON.parse(stored)
-        : initialCustomerContractsData;
-      const found = list.find((c) => c.id === editId);
+          if (found) {
+            setForm({
+              ...initialFormState,
+              ...found,
+              status: found.status || "ACTIVE",
+            });
 
-      if (found) {
-        setForm({
-          customer: found.customer || "",
-          customerCode: found.customerCode || "",
-          service: found.service || "",
-          serviceCode: found.serviceCode || "",
-          product: found.product || "",
-          productCode: found.productCode || "",
-          airline: found.airline || "",
-          airlineCode: found.airlineCode || "",
-          flight: found.flight || "",
-          flightCode: found.flightCode || "",
-          vendor: found.vendor || "",
-          vendorCode: found.vendorCode || "",
-          destinationZone: found.destinationZone || "",
-          destinationZoneCode: found.destinationZoneCode || "",
-          destination: found.destination || "",
-          destinationCode: found.destinationCode || "",
-          destinationCity: found.destinationCity || "",
-          destinationCityCode: found.destinationCityCode || "",
-          destinationState: found.destinationState || "",
-          destinationStateCode: found.destinationStateCode || "",
-          destinationHub: found.destinationHub || "",
-          contractType: found.contractType || "Weight Wise",
-          incoterm: found.incoterm || "",
-          status: found.status || "ACTIVE",
-
-          originZone: found.originZone || "",
-          origin: found.origin || "",
-          originCode: found.originCode || "",
-          originCity: found.originCity || "",
-          originCityCode: found.originCityCode || "",
-          originState: found.originState || "",
-          originStateCode: found.originStateCode || "",
-          originHub: found.originHub || "",
-          effectiveFrom: found.effectiveFrom || "",
-          effectiveTo: found.effectiveTo || "",
-          remarks: found.remarks || "",
-          notes: found.notes || "",
-          calculationMethod: found.calculationMethod || "Fixed",
-          tat: found.tat || "",
-          minimumFreight: found.minimumFreight || "",
-        });
-
-        if (found.rateItems && found.rateItems.length > 0) {
-          setRateItems(found.rateItems);
+            if (found.rateItems && found.rateItems.length > 0) {
+              setRateItems(found.rateItems);
+            }
+          }
+        } catch (e) {
+          console.error("Error loading contract for edit:", e);
         }
       }
-    } catch (e) {
-      console.error("Error loading contract for edit:", e);
     }
+    loadItem();
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   const handleFieldChange = (field: keyof typeof initialFormState, value: string) => {
@@ -206,7 +403,7 @@ function CreateCustomerContractContent() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!validate()) {
@@ -220,6 +417,59 @@ function CreateCustomerContractContent() {
     setSaving(true);
 
     try {
+      const payload = {
+        ...form,
+        customer_code: form.customerCode || form.customer,
+        customer_name: form.customer,
+        service_code: form.serviceCode || form.service,
+        service_name: form.service,
+        product_code: form.productCode || form.product,
+        product_name: form.product,
+        vendor_code: form.vendorCode || form.vendor,
+        vendor_name: form.vendor,
+        origin_hub_code: form.originHub,
+        destination_hub_code: form.destinationHub,
+        origin_code: form.originCode || form.origin || "PK",
+        origin_name: form.origin,
+        origin_zone: form.originZone,
+        origin_city: form.originCity,
+        origin_state: form.originState,
+        destination_code: form.destinationCode || form.destination,
+        destination_name: form.destination,
+        destination_zone: form.destinationZone,
+        destination_city: form.destinationCity,
+        destination_state: form.destinationState,
+        contract_type: form.contractType,
+        calculation_method: form.calculationMethod,
+        effective_from: form.effectiveFrom,
+        effective_till: form.effectiveTo,
+        effective_to: form.effectiveTo,
+        tat: form.tat,
+        minimum_freight: form.minimumFreight ? parseFloat(form.minimumFreight) : 0,
+        remarks: form.remarks,
+        notes: form.notes,
+        status: form.status,
+        items: rateItems.map((it, idx) => ({
+          on_addition: parseFloat(it.onAddition) || 0,
+          lower_wt: parseFloat(it.lowerWtBox) || 0,
+          upper_wt: parseFloat(it.upperWtBox) || 0,
+          rate: parseFloat(it.rate) || 0,
+          sort_order: idx + 1,
+        })),
+        rateItems,
+      };
+      let savedRecord: CustomerContractEntry | null = null;
+      try {
+        if (isEdit && editId) {
+          savedRecord = await api.updateMasterItem<CustomerContractEntry>("/customer-contracts", editId, payload);
+        } else {
+          savedRecord = await api.createMasterItem<CustomerContractEntry>("/customer-contracts", payload);
+        }
+        invalidateMasterDataCache();
+      } catch (apiErr) {
+        console.warn("API save fallback to localStorage:", apiErr);
+      }
+
       const stored = localStorage.getItem("master_customer_contracts");
       const currentList: CustomerContractEntry[] = stored
         ? JSON.parse(stored)
@@ -227,8 +477,8 @@ function CreateCustomerContractContent() {
 
       if (isEdit) {
         const updatedList = currentList.map((item) => {
-          if (item.id === editId) {
-            return {
+          if (String(item.id) === String(editId)) {
+            return savedRecord || {
               ...item,
               ...form,
               rateItems,
@@ -243,7 +493,7 @@ function CreateCustomerContractContent() {
           message: `Contract for "${form.customer}" updated successfully!`,
         });
       } else {
-        const newEntry: CustomerContractEntry = {
+        const newEntry: CustomerContractEntry = savedRecord || {
           ...form,
           rateItems,
           id: `CC-${Date.now().toString().slice(-4)}`,
@@ -266,8 +516,9 @@ function CreateCustomerContractContent() {
       console.error("Failed to save customer contract:", err);
       showToast({
         variant: "error",
-        message: "Failed to save contract. Please try again.",
+        message: "Failed to save customer contract.",
       });
+    } finally {
       setSaving(false);
     }
   };
@@ -305,12 +556,13 @@ function CreateCustomerContractContent() {
                 {/* 1. Customer */}
                 <div className="flex flex-col gap-1">
                   <FieldLabel required>Customer</FieldLabel>
-                  <input
-                    type="text"
-                    value={form.customer}
-                    placeholder="Enter Customer"
-                    onChange={(e) => handleFieldChange("customer", e.target.value)}
-                    className={`${errors.customer ? errorInputClass : inputClass} w-full`}
+                  <CommonDropdown
+                    value={form.customerCode || form.customer}
+                    onChange={handleCustomerChange}
+                    options={customerOptions}
+                    placeholder="Select Customer..."
+                    searchable
+                    className={errors.customer ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
                   />
                   <FieldError message={errors.customer} />
                 </div>
@@ -318,12 +570,13 @@ function CreateCustomerContractContent() {
                 {/* 2. Service */}
                 <div className="flex flex-col gap-1">
                   <FieldLabel required>Service</FieldLabel>
-                  <input
-                    type="text"
-                    value={form.service}
-                    placeholder="Enter Service"
-                    onChange={(e) => handleFieldChange("service", e.target.value)}
-                    className={`${errors.service ? errorInputClass : inputClass} w-full`}
+                  <CommonDropdown
+                    value={form.serviceCode || form.service}
+                    onChange={handleServiceChange}
+                    options={serviceOptions}
+                    placeholder="Select Service..."
+                    searchable
+                    className={errors.service ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
                   />
                   <FieldError message={errors.service} />
                 </div>
@@ -331,12 +584,13 @@ function CreateCustomerContractContent() {
                 {/* 3. Product */}
                 <div className="flex flex-col gap-1">
                   <FieldLabel required>Product</FieldLabel>
-                  <input
-                    type="text"
-                    value={form.product}
-                    placeholder="Enter Product"
-                    onChange={(e) => handleFieldChange("product", e.target.value)}
-                    className={`${errors.product ? errorInputClass : inputClass} w-full`}
+                  <CommonDropdown
+                    value={form.productCode || form.product}
+                    onChange={handleProductChange}
+                    options={productOptions}
+                    placeholder="Select Product..."
+                    searchable
+                    className={errors.product ? "!border-red-400 !bg-red-50/40" : "border-axc-border"}
                   />
                   <FieldError message={errors.product} />
                 </div>
@@ -368,12 +622,13 @@ function CreateCustomerContractContent() {
                 {/* 6. Vendor */}
                 <div className="flex flex-col gap-1">
                   <FieldLabel>Vendor</FieldLabel>
-                  <input
-                    type="text"
-                    value={form.vendor}
-                    placeholder="Enter Vendor"
-                    onChange={(e) => handleFieldChange("vendor", e.target.value)}
-                    className={`${inputClass} w-full`}
+                  <CommonDropdown
+                    value={form.vendorCode || form.vendor}
+                    onChange={handleVendorChange}
+                    options={vendorOptions}
+                    placeholder="Select Vendor..."
+                    searchable
+                    className="border-axc-border"
                   />
                 </div>
 
@@ -383,56 +638,62 @@ function CreateCustomerContractContent() {
                   <CommonDropdown
                     value={form.originHub}
                     onChange={(val) => handleFieldChange("originHub", val)}
-                    options={HUB_OPTIONS}
+                    options={hubOptions}
                     placeholder="SELECT.."
+                    searchable
+                    className="border-axc-border"
                   />
                 </div>
 
                 {/* 8. Origin Zone */}
                 <div className="flex flex-col gap-1">
                   <FieldLabel>Origin Zone</FieldLabel>
-                  <input
-                    type="text"
+                  <CommonDropdown
                     value={form.originZone}
-                    placeholder="Enter Origin Zone"
-                    onChange={(e) => handleFieldChange("originZone", e.target.value)}
-                    className={`${inputClass} w-full`}
+                    onChange={(val) => handleFieldChange("originZone", val)}
+                    options={getDynamicOptions(zoneOptions, form.originZone)}
+                    placeholder="Select Origin Zone..."
+                    searchable
+                    className="border-axc-border"
                   />
                 </div>
 
                 {/* 9. Origin */}
                 <div className="flex flex-col gap-1">
                   <FieldLabel>Origin</FieldLabel>
-                  <input
-                    type="text"
+                  <CommonDropdown
                     value={form.origin}
-                    placeholder="Enter Origin"
-                    onChange={(e) => handleFieldChange("origin", e.target.value)}
-                    className={`${inputClass} w-full`}
+                    onChange={(val) => handleFieldChange("origin", val)}
+                    options={getDynamicOptions(countryOptions, form.origin)}
+                    placeholder="Select Origin..."
+                    searchable
+                    className="border-axc-border"
                   />
                 </div>
 
                 {/* 10. Origin City */}
                 <div className="flex flex-col gap-1">
                   <FieldLabel>Origin City</FieldLabel>
-                  <input
-                    type="text"
+                  <CommonDropdown
                     value={form.originCity}
-                    placeholder="Enter Origin City"
-                    onChange={(e) => handleFieldChange("originCity", e.target.value)}
-                    className={`${inputClass} w-full`}
+                    onChange={(val) => handleFieldChange("originCity", val)}
+                    options={getDynamicOptions(cityOptions, form.originCity)}
+                    placeholder="Select Origin City..."
+                    searchable
+                    className="border-axc-border"
                   />
                 </div>
 
                 {/* 11. Origin State */}
                 <div className="flex flex-col gap-1">
                   <FieldLabel>Origin State</FieldLabel>
-                  <input
-                    type="text"
+                  <CommonDropdown
                     value={form.originState}
-                    placeholder="Enter Origin State"
-                    onChange={(e) => handleFieldChange("originState", e.target.value)}
-                    className={`${inputClass} w-full`}
+                    onChange={(val) => handleFieldChange("originState", val)}
+                    options={getDynamicOptions(stateOptions, form.originState)}
+                    placeholder="Select Origin State..."
+                    searchable
+                    className="border-axc-border"
                   />
                 </div>
 
@@ -442,56 +703,62 @@ function CreateCustomerContractContent() {
                   <CommonDropdown
                     value={form.destinationHub}
                     onChange={(val) => handleFieldChange("destinationHub", val)}
-                    options={HUB_OPTIONS}
+                    options={hubOptions}
                     placeholder="SELECT.."
+                    searchable
+                    className="border-axc-border"
                   />
                 </div>
 
                 {/* 13. Destination Zone */}
                 <div className="flex flex-col gap-1">
                   <FieldLabel>Destination Zone</FieldLabel>
-                  <input
-                    type="text"
+                  <CommonDropdown
                     value={form.destinationZone}
-                    placeholder="Enter Destination Zone"
-                    onChange={(e) => handleFieldChange("destinationZone", e.target.value)}
-                    className={`${inputClass} w-full`}
+                    onChange={(val) => handleFieldChange("destinationZone", val)}
+                    options={getDynamicOptions(zoneOptions, form.destinationZone)}
+                    placeholder="Select Destination Zone..."
+                    searchable
+                    className="border-axc-border"
                   />
                 </div>
 
                 {/* 14. Destination */}
                 <div className="flex flex-col gap-1">
                   <FieldLabel>Destination</FieldLabel>
-                  <input
-                    type="text"
+                  <CommonDropdown
                     value={form.destination}
-                    placeholder="Enter Destination"
-                    onChange={(e) => handleFieldChange("destination", e.target.value)}
-                    className={`${inputClass} w-full`}
+                    onChange={(val) => handleFieldChange("destination", val)}
+                    options={getDynamicOptions(countryOptions, form.destination)}
+                    placeholder="Select Destination..."
+                    searchable
+                    className="border-axc-border"
                   />
                 </div>
 
                 {/* 15. Destination City */}
                 <div className="flex flex-col gap-1">
                   <FieldLabel>Destination City</FieldLabel>
-                  <input
-                    type="text"
+                  <CommonDropdown
                     value={form.destinationCity}
-                    placeholder="Enter Destination City"
-                    onChange={(e) => handleFieldChange("destinationCity", e.target.value)}
-                    className={`${inputClass} w-full`}
+                    onChange={(val) => handleFieldChange("destinationCity", val)}
+                    options={getDynamicOptions(cityOptions, form.destinationCity)}
+                    placeholder="Select Destination City..."
+                    searchable
+                    className="border-axc-border"
                   />
                 </div>
 
                 {/* 16. Destination State */}
                 <div className="flex flex-col gap-1">
                   <FieldLabel>Destination State</FieldLabel>
-                  <input
-                    type="text"
+                  <CommonDropdown
                     value={form.destinationState}
-                    placeholder="Enter Destination State"
-                    onChange={(e) => handleFieldChange("destinationState", e.target.value)}
-                    className={`${inputClass} w-full`}
+                    onChange={(val) => handleFieldChange("destinationState", val)}
+                    options={getDynamicOptions(stateOptions, form.destinationState)}
+                    placeholder="Select Destination State..."
+                    searchable
+                    className="border-axc-border"
                   />
                 </div>
 

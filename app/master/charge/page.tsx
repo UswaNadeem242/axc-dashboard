@@ -21,6 +21,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   ChargeEntry,
   ChargeHeadings,
@@ -47,24 +48,48 @@ export default function ChargeMasterPage() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // LocalStorage Persistence
+  // API + LocalStorage Persistence
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_charges");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setData(parsed);
-            return;
+    let mounted = true;
+    api
+      .getMasterList<ChargeEntry>("/charge-masters")
+      .then((list) => {
+        if (!mounted) return;
+        if (Array.isArray(list) && list.length > 0) {
+          setData(list);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("master_charges", JSON.stringify(list));
           }
-        } catch (e) {
-          console.error("Error reading stored charges:", e);
+          return;
         }
+        loadLocalFallback();
+      })
+      .catch(() => {
+        if (mounted) loadLocalFallback();
+      });
+
+    function loadLocalFallback() {
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_charges");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setData(parsed);
+              return;
+            }
+          } catch (e) {
+            console.error("Error reading stored charges:", e);
+          }
+        }
+        setData(initialChargeData);
+        localStorage.setItem("master_charges", JSON.stringify(initialChargeData));
       }
-      setData(initialChargeData);
-      localStorage.setItem("master_charges", JSON.stringify(initialChargeData));
     }
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveCharges = (newList: ChargeEntry[]) => {
@@ -167,11 +192,30 @@ export default function ChargeMasterPage() {
     });
   }, [data, searchQuery, activeTags]);
 
+  // Latest first sorted data
+  const sortedData = useMemo(() => {
+    return [...filteredData].sort((a, b) => {
+      // 1. Primary: latest created date first
+      const rawDateA = a.createdAt || (a as any).created_at || (a as any).createdDate;
+      const rawDateB = b.createdAt || (b as any).created_at || (b as any).createdDate;
+      const dateA = rawDateA ? new Date(rawDateA).getTime() : 0;
+      const dateB = rawDateB ? new Date(rawDateB).getTime() : 0;
+      if (dateA && dateB && dateA !== dateB) return dateB - dateA;
+
+      // 2. Secondary: latest numeric ID first
+      const idA = Number(a.id) || 0;
+      const idB = Number(b.id) || 0;
+      if (idA && idB && idA !== idB) return idB - idA;
+
+      return String(b.id || "").localeCompare(String(a.id || ""));
+    });
+  }, [filteredData]);
+
   // Paginated Data
   const paginatedData = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
-    return filteredData.slice(start, start + itemsPerPage);
-  }, [filteredData, page]);
+    return sortedData.slice(start, start + itemsPerPage);
+  }, [sortedData, page]);
 
   // Row Action Handlers
   const handleView = (row: ChargeEntry) => {
@@ -186,36 +230,42 @@ export default function ChargeMasterPage() {
     setDeleteTarget(row);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((item) => item.id !== deleteTarget.id);
-      saveCharges(updated);
-      setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
-      setIsDeleting(false);
-      setDeleteTarget(null);
-      showToast({
-        variant: "success",
-        message: `Charge "${deleteTarget.name}" deleted successfully.`,
-      });
-    }, 250);
+    try {
+      await api.deleteMasterItem("/charge-masters", deleteTarget.id);
+    } catch {
+      // fallback to local
+    }
+    const updated = data.filter((item) => String(item.id) !== String(deleteTarget.id));
+    saveCharges(updated);
+    setSelectedIds((prev) => prev.filter((id) => String(id) !== String(deleteTarget.id)));
+    setIsDeleting(false);
+    setDeleteTarget(null);
+    showToast({
+      variant: "success",
+      message: `Charge "${deleteTarget.name}" deleted successfully.`,
+    });
   };
 
-  const handleBulkDeleteConfirm = () => {
+  const handleBulkDeleteConfirm = async () => {
     if (selectedIds.length === 0) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((item) => !selectedIds.includes(item.id));
-      saveCharges(updated);
-      setSelectedIds([]);
-      setIsDeleting(false);
-      setBulkDeleteOpen(false);
-      showToast({
-        variant: "success",
-        message: `Deleted ${selectedIds.length} charge records.`,
-      });
-    }, 250);
+    try {
+      await api.bulkDeleteMasterItems("/charge-masters", selectedIds);
+    } catch {
+      // fallback to local
+    }
+    const updated = data.filter((item) => !selectedIds.map(String).includes(String(item.id)));
+    saveCharges(updated);
+    setSelectedIds([]);
+    setIsDeleting(false);
+    setBulkDeleteOpen(false);
+    showToast({
+      variant: "success",
+      message: `Deleted ${selectedIds.length} charge records.`,
+    });
   };
 
   // Export CSV
@@ -282,7 +332,7 @@ export default function ChargeMasterPage() {
         ...h,
         render: (_row: ChargeEntry, idx?: number) => (
           <span className="font-medium text-axc-dark-gray">
-            {idx !== undefined ? idx + 1 : _row.srNo}
+            {idx !== undefined ? (page - 1) * itemsPerPage + idx + 1 : _row.srNo}
           </span>
         ),
       };
@@ -405,10 +455,10 @@ export default function ChargeMasterPage() {
         ...h,
         render: (row: ChargeEntry) => (
           <span
-            className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded ${
+            className={`inline-flex items-center justify-center text-[11px] font-semibold px-2.5 py-0.5 rounded border whitespace-nowrap ${
               row.isManual
-                ? "bg-purple-50 text-purple-700 border border-purple-200"
-                : "bg-gray-50 text-gray-400"
+                ? "bg-purple-50 text-purple-700 border-purple-200"
+                : "bg-blue-50 text-blue-700 border-blue-200"
             }`}
           >
             {row.isManual ? "MANUAL" : "AUTO"}

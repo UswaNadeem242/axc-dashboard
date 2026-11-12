@@ -1,8 +1,8 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption, Menu, MenuButton, MenuItem, MenuItems, Transition } from "@headlessui/react";
-import { ChevronDown, MoreVertical, Check } from "lucide-react";
+import { ChevronDown, MoreVertical, Check, Search } from "lucide-react";
 
 interface Option {
   value: string;
@@ -25,6 +25,7 @@ interface DropdownProps {
   className?: string;
   disabled?: boolean;
   multiple?: boolean;
+  searchable?: boolean;
 }
 
 export default function Dropdown({
@@ -37,7 +38,9 @@ export default function Dropdown({
   className = "",
   disabled = false,
   multiple = false,
+  searchable = false,
 }: DropdownProps) {
+  const [query, setQuery] = useState("");
   if (items) {
     return (
       <Menu as="div" className={`relative inline-block text-left ${className}`}>
@@ -86,6 +89,16 @@ export default function Dropdown({
     }
   }
 
+  const filteredOptions = query.trim()
+    ? options?.filter((opt) => {
+        const text = typeof opt.label === "string" ? opt.label : String(opt.value);
+        return (
+          text.toLowerCase().includes(query.toLowerCase()) ||
+          String(opt.value).toLowerCase().includes(query.toLowerCase())
+        );
+      })
+    : options;
+
   return (
     <Listbox value={value || (multiple ? [] : "")} onChange={onChange} disabled={disabled} multiple={multiple}>
       <div className="relative w-full">
@@ -111,8 +124,27 @@ export default function Dropdown({
 
             {/* Rounded Popover Card with clearly defined border-axc-border */}
             <div className="relative z-10 max-h-64 overflow-y-auto rounded-2xl border border-axc-border bg-white divide-y divide-gray-100">
-              {options && options.length > 0 ? (
-                options.map((option) => (
+              {searchable && options && options.length > 3 && (
+                <div
+                  className="p-2 border-b border-gray-100 sticky top-0 bg-white z-20"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                    <input
+                      type="text"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder="Search options..."
+                      className="w-full pl-8 pr-2.5 py-1 text-xs rounded border border-gray-200 outline-none focus:border-axc-navy text-gray-700 bg-gray-50/50"
+                      onKeyDown={(e) => e.stopPropagation()}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {filteredOptions && filteredOptions.length > 0 ? (
+                filteredOptions.map((option) => (
                   <ListboxOption
                     key={option.value}
                     value={option.value}

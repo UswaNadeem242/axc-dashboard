@@ -4,6 +4,8 @@ export interface RateModifierEntry {
 
   // The 10 Charge & Billing Fields
   charge: string;
+  chargeMasterName?: string;
+  charge_master_name?: string;
   billingType: string;
   insuranceType: string;
   paymentMethod: string;

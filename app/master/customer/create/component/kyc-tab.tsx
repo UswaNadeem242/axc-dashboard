@@ -233,11 +233,26 @@ function KycFileCell({ label = "Upload", file, onChange }: KycFileCellProps) {
 interface KycTabProps {
   customerId?: string;
   customerName?: string;
+  data?: Record<string, KycRowData>;
+  onChange?: (data: Record<string, KycRowData>) => void;
+  contracts?: CustomerContractRow[];
+  onContractsChange?: (contracts: CustomerContractRow[]) => void;
+  onSave?: () => void;
+  saving?: boolean;
 }
 
-export default function KycTab({ customerId, customerName }: KycTabProps) {
-  // KYC Documents Data
-  const [data, setData] = useState<Record<string, KycRowData>>(() => {
+export default function KycTab({
+  customerId,
+  customerName,
+  data: propData,
+  onChange,
+  contracts: propContracts,
+  onContractsChange,
+  onSave,
+  saving: propSaving = false,
+}: KycTabProps) {
+  // KYC Documents Data fallback
+  const [internalData, setInternalData] = useState<Record<string, KycRowData>>(() => {
     const initial: Record<string, KycRowData> = {};
     CUSTOMER_FIELDS.forEach((f) => {
       initial[f.key] = { ...EMPTY_ROW };
@@ -245,16 +260,20 @@ export default function KycTab({ customerId, customerName }: KycTabProps) {
     return initial;
   });
 
-  // Customer Contracts Data
-  const [contracts, setContracts] = useState<CustomerContractRow[]>([
+  // Customer Contracts Data fallback
+  const [internalContracts, setInternalContracts] = useState<CustomerContractRow[]>([
     createEmptyContract(1),
   ]);
 
-  const [saving, setSaving] = useState(false);
+  const [internalSaving, setInternalSaving] = useState(false);
+  const saving = propSaving || internalSaving;
 
-  // Load saved state from localStorage
+  const data = propData !== undefined ? propData : internalData;
+  const contracts = propContracts !== undefined ? propContracts : internalContracts;
+
+  // Load saved state from localStorage if not provided via props
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || propData !== undefined) return;
     const storageKey = customerId ? `customer_kyc_${customerId}` : "customer_kyc_draft";
     const contractsKey = customerId ? `customer_contracts_${customerId}` : "customer_contracts_draft";
 
@@ -263,7 +282,7 @@ export default function KycTab({ customerId, customerName }: KycTabProps) {
       try {
         const parsed = JSON.parse(savedKyc);
         if (parsed && typeof parsed === "object") {
-          setData((prev) => ({ ...prev, ...parsed }));
+          setInternalData((prev) => ({ ...prev, ...parsed }));
         }
       } catch (err) {
         console.error("Failed to load KYC documents:", err);
@@ -275,71 +294,90 @@ export default function KycTab({ customerId, customerName }: KycTabProps) {
       try {
         const parsedContracts = JSON.parse(savedContracts);
         if (Array.isArray(parsedContracts) && parsedContracts.length > 0) {
-          setContracts(parsedContracts);
+          setInternalContracts(parsedContracts);
         }
       } catch (err) {
         console.error("Failed to load customer contracts:", err);
       }
     }
-  }, [customerId]);
+  }, [customerId, propData]);
 
   const updateRow = (key: string, patch: Partial<KycRowData>) => {
-    setData((prev) => ({
-      ...prev,
+    const next = {
+      ...data,
       [key]: {
-        ...(prev[key] || EMPTY_ROW),
+        ...(data[key] || EMPTY_ROW),
         ...patch,
       },
-    }));
+    };
+    if (onChange) {
+      onChange(next);
+    } else {
+      setInternalData(next);
+    }
   };
 
   // Contract Table Handlers
   const addContract = () => {
-    setContracts((prev) => [
-      ...prev,
+    const next = [
+      ...contracts,
       {
         id: Date.now(),
         effectiveFrom: "",
         effectiveTill: "",
         file: null,
       },
-    ]);
-    // showToast({ variant: "success", message: "Contract item added" });
+    ];
+    if (onContractsChange) {
+      onContractsChange(next);
+    } else {
+      setInternalContracts(next);
+    }
   };
 
   const removeContract = (id: number) => {
-    setContracts((prev) => {
-      if (prev.length <= 1) {
-        return [createEmptyContract(Date.now())];
-      }
-      return prev.filter((c) => c.id !== id);
-    });
-    // showToast({ variant: "success", message: "Contract item removed" });
+    const next = contracts.length <= 1
+      ? [createEmptyContract(Date.now())]
+      : contracts.filter((c) => c.id !== id);
+    if (onContractsChange) {
+      onContractsChange(next);
+    } else {
+      setInternalContracts(next);
+    }
   };
 
   const updateContract = (id: number, patch: Partial<CustomerContractRow>) => {
-    setContracts((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, ...patch } : c))
-    );
+    const next = contracts.map((c) => (c.id === id ? { ...c, ...patch } : c));
+    if (onContractsChange) {
+      onContractsChange(next);
+    } else {
+      setInternalContracts(next);
+    }
   };
 
   const handleSave = () => {
-    setSaving(true);
+    setInternalSaving(true);
     const storageKey = customerId ? `customer_kyc_${customerId}` : "customer_kyc_draft";
     const contractsKey = customerId ? `customer_contracts_${customerId}` : "customer_contracts_draft";
 
     if (typeof window !== "undefined") {
-      localStorage.setItem(storageKey, JSON.stringify(data));
-      localStorage.setItem(contractsKey, JSON.stringify(contracts));
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(data));
+        localStorage.setItem(contractsKey, JSON.stringify(contracts));
+      } catch {}
     }
 
-    setTimeout(() => {
-      setSaving(false);
-      showToast({
-        variant: "success",
-        message: "Customer KYC and Contract details saved successfully!",
-      });
-    }, 300);
+    if (onSave) {
+      onSave();
+    } else {
+      setTimeout(() => {
+        setInternalSaving(false);
+        showToast({
+          variant: "success",
+          message: "Customer KYC and Contract details saved successfully!",
+        });
+      }, 300);
+    }
   };
 
   const filledCount = CUSTOMER_FIELDS.filter((f) => {

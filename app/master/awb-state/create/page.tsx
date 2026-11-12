@@ -4,6 +4,8 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Save, Plus, XCircle, Trash } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
+import { invalidateMasterDataCache } from "@/app/src/lib/useMasterData";
 import CommonDropdown from "@/app/src/common/dropdown";
 import {
   PanelHeader,
@@ -39,26 +41,46 @@ function CreateAwbStateContent() {
 
   // Load existing AWB state if editing
   useEffect(() => {
-    if (editId && typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_awb_states");
-      if (stored) {
-        try {
-          const list: AwbStateEntry[] = JSON.parse(stored);
-          const found = list.find((item) => item.id === editId);
-          if (found) {
-            setForm({
-              ...found,
-              descriptions:
-                found.descriptions && found.descriptions.length > 0
-                  ? found.descriptions
-                  : [""],
-            });
-          }
-        } catch (e) {
-          console.error("Error loading AWB state:", e);
+    if (!editId) return;
+    let mounted = true;
+    api
+      .getMasterItem<AwbStateEntry>("/awb-states", editId)
+      .then((found) => {
+        if (mounted && found) {
+          setForm({
+            ...found,
+            descriptions:
+              found.descriptions && found.descriptions.length > 0
+                ? found.descriptions
+                : [""],
+          });
         }
-      }
-    }
+      })
+      .catch(() => {
+        if (typeof window !== "undefined") {
+          const stored = localStorage.getItem("master_awb_states");
+          if (stored) {
+            try {
+              const list: AwbStateEntry[] = JSON.parse(stored);
+              const found = list.find((item) => String(item.id) === String(editId));
+              if (found && mounted) {
+                setForm({
+                  ...found,
+                  descriptions:
+                    found.descriptions && found.descriptions.length > 0
+                      ? found.descriptions
+                      : [""],
+                });
+              }
+            } catch (e) {
+              console.error("Error loading AWB state:", e);
+            }
+          }
+        }
+      });
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   // Description dynamic list handlers
@@ -111,7 +133,7 @@ function CreateAwbStateContent() {
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) {
       showToast({
@@ -124,11 +146,6 @@ function CreateAwbStateContent() {
     setLoading(true);
 
     try {
-      const stored = localStorage.getItem("master_awb_states");
-      let list: AwbStateEntry[] = stored
-        ? JSON.parse(stored)
-        : initialAwbStateData;
-
       const cleanedDescriptions = form.descriptions.filter((d) => d.trim().length > 0);
       const payload: AwbStateEntry = {
         ...form,
@@ -136,14 +153,30 @@ function CreateAwbStateContent() {
           cleanedDescriptions.length > 0 ? cleanedDescriptions : ["Updated status."],
       };
 
+      let savedRecord = payload;
+      try {
+        if (editId) {
+          savedRecord = await api.updateMasterItem<AwbStateEntry>("/awb-states", editId, payload);
+        } else {
+          savedRecord = await api.createMasterItem<AwbStateEntry>("/awb-states", payload);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to local:", apiErr);
+      }
+
+      const stored = localStorage.getItem("master_awb_states");
+      let list: AwbStateEntry[] = stored
+        ? JSON.parse(stored)
+        : initialAwbStateData;
+
       if (editId) {
-        list = list.map((item) => (item.id === editId ? payload : item));
+        list = list.map((item) => (String(item.id) === String(editId) ? savedRecord : item));
         showToast({
           message: `AWB State ${payload.stateName} updated successfully.`,
           variant: "success",
         });
       } else {
-        list = [payload, ...list];
+        list = [savedRecord, ...list];
         showToast({
           message: `AWB State ${payload.stateName} created successfully.`,
           variant: "success",
@@ -151,6 +184,7 @@ function CreateAwbStateContent() {
       }
 
       localStorage.setItem("master_awb_states", JSON.stringify(list));
+      invalidateMasterDataCache();
       router.push("/master/awb-state");
     } catch (err) {
       console.error(err);

@@ -12,8 +12,10 @@ export interface ChargeEntry {
   id: string;
   srNo: number;
 
+  code?: string;
   name: string;
   sac: string;
+  defaultRate?: number | string;
 
   // Checkbox Rules & Settings (from Reference Image 1)
   isVatApplicable: boolean;
@@ -55,16 +57,16 @@ export const SERVICE_PROVIDERS = [
 ];
 
 export const ChargeHeadings = [
-  { label: "SR.NO.", key: "srNo" },
-  { label: "SELECT CHARGE", key: "selectCharge" },
-  { label: "CHARGE NAME", key: "name", sortable: true },
-  { label: "SAC CODE", key: "sac", sortable: true },
-  { label: "RATE TYPE", key: "rateType", sortable: true },
-  { label: "VAT APPLICABLE", key: "isVatApplicable", sortable: true },
-  { label: "FSC SALES", key: "isFscApplicableSales", sortable: true },
-  { label: "MANUAL ENTRY", key: "isManual", sortable: true },
-  { label: "STATUS", key: "status", sortable: true },
-  { label: "ACTION", key: "action" },
+  { label: "SR.NO.", key: "srNo", align: "left" as const },
+  { label: "SELECT CHARGE", key: "selectCharge", align: "center" as const },
+  { label: "CHARGE NAME", key: "name", sortable: true, align: "left" as const },
+  { label: "SAC CODE", key: "sac", sortable: true, align: "center" as const },
+  { label: "RATE TYPE", key: "rateType", sortable: true, align: "center" as const },
+  { label: "VAT APPLICABLE", key: "isVatApplicable", sortable: true, align: "center" as const },
+  { label: "FSC SALES", key: "isFscApplicableSales", sortable: true, align: "center" as const },
+  { label: "MANUAL ENTRY", key: "isManual", sortable: true, align: "center" as const },
+  { label: "STATUS", key: "status", sortable: true, align: "center" as const },
+  { label: "ACTION", key: "action", align: "center" as const },
 ];
 
 export const chargeFilterGroups = [

@@ -18,6 +18,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { api, formatDateOnly } from "@/app/src/lib/api";
 import {
   ZoneEntry,
   ZoneHeadings,
@@ -47,24 +48,43 @@ export default function ZoneMasterPage() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // LocalStorage Persistence
+  // Backend API + LocalStorage Persistence
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_zones");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setData(parsed);
-            return;
+    let mounted = true;
+    async function loadData() {
+      try {
+        const list = await api.getMasterList<ZoneEntry>("/zones");
+        if (mounted && Array.isArray(list)) {
+          setData(list);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("master_zones", JSON.stringify(list));
           }
-        } catch (e) {
-          console.error("Error reading stored zones:", e);
+          return;
         }
+      } catch (err) {
+        console.warn("API unavailable, falling back to localStorage:", err);
       }
-      setData(initialZoneData);
-      localStorage.setItem("master_zones", JSON.stringify(initialZoneData));
+      if (mounted && typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_zones");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setData(parsed);
+              return;
+            }
+          } catch (e) {
+            console.error("Error reading stored zones:", e);
+          }
+        }
+        setData(initialZoneData);
+        localStorage.setItem("master_zones", JSON.stringify(initialZoneData));
+      }
     }
+    loadData();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveZones = (newList: ZoneEntry[]) => {
@@ -195,35 +215,41 @@ export default function ZoneMasterPage() {
     setDeleteTarget(zone);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((item) => item.id !== deleteTarget.id);
-      saveZones(updated);
-      setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
-      setIsDeleting(false);
-      setDeleteTarget(null);
-      showToast({
-        variant: "success",
-        message: `Zone "${deleteTarget.code}" deleted successfully!`,
-      });
-    }, 400);
+    try {
+      await api.deleteMasterItem("/zones", deleteTarget.id);
+    } catch (err) {
+      console.warn("API delete fallback:", err);
+    }
+    const updated = data.filter((item) => String(item.id) !== String(deleteTarget.id));
+    saveZones(updated);
+    setSelectedIds((prev) => prev.filter((id) => String(id) !== String(deleteTarget.id)));
+    setIsDeleting(false);
+    setDeleteTarget(null);
+    showToast({
+      variant: "success",
+      message: `Zone "${deleteTarget.code}" deleted successfully!`,
+    });
   };
 
-  const handleBulkDeleteConfirm = () => {
+  const handleBulkDeleteConfirm = async () => {
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((item) => !selectedIds.includes(item.id));
-      saveZones(updated);
-      setSelectedIds([]);
-      setIsDeleting(false);
-      setBulkDeleteOpen(false);
-      showToast({
-        variant: "success",
-        message: `${selectedIds.length} Zone(s) deleted successfully!`,
-      });
-    }, 400);
+    try {
+      await api.bulkDeleteMasterItems("/zones", selectedIds);
+    } catch (err) {
+      console.warn("API bulk delete fallback:", err);
+    }
+    const updated = data.filter((item) => !selectedIds.includes(item.id));
+    saveZones(updated);
+    setSelectedIds([]);
+    setIsDeleting(false);
+    setBulkDeleteOpen(false);
+    showToast({
+      variant: "success",
+      message: `${selectedIds.length} Zone(s) deleted successfully!`,
+    });
   };
 
   const handleBulkExport = () => {
@@ -367,7 +393,7 @@ export default function ZoneMasterPage() {
         ...h,
         render: (row: ZoneEntry) => (
           <span className="text-xs text-gray-500 font-mono">
-            {row.createdAt || "—"}
+            {formatDateOnly(row.createdAt || (row as any).created_at) || "—"}
           </span>
         ),
       };

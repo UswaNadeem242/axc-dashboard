@@ -20,6 +20,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   CustomerContractEntry,
   CustomerContractsHeadings,
@@ -46,27 +47,46 @@ export default function CustomerContractsMasterPage() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // LocalStorage Persistence
+  // Backend API + LocalStorage Persistence
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_customer_contracts");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setData(parsed);
-            return;
+    let mounted = true;
+    async function loadData() {
+      try {
+        const list = await api.getMasterList<CustomerContractEntry>("/customer-contracts");
+        if (mounted && Array.isArray(list)) {
+          setData(list);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("master_customer_contracts", JSON.stringify(list));
           }
-        } catch (e) {
-          console.error("Error reading stored contracts:", e);
+          return;
         }
+      } catch (err) {
+        console.warn("API unavailable, falling back to localStorage:", err);
       }
-      setData(initialCustomerContractsData);
-      localStorage.setItem(
-        "master_customer_contracts",
-        JSON.stringify(initialCustomerContractsData)
-      );
+      if (mounted && typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_customer_contracts");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setData(parsed);
+              return;
+            }
+          } catch (e) {
+            console.error("Error reading stored contracts:", e);
+          }
+        }
+        setData(initialCustomerContractsData);
+        localStorage.setItem(
+          "master_customer_contracts",
+          JSON.stringify(initialCustomerContractsData)
+        );
+      }
     }
+    loadData();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveContracts = (newList: CustomerContractEntry[]) => {
@@ -163,16 +183,35 @@ export default function CustomerContractsMasterPage() {
     });
   }, [data, searchQuery, activeTags]);
 
-  // Sorting
+  // Sorting: Default latest first (Created date / ID descending)
   const sortedData = useMemo(() => {
-    if (!sortKey) return filteredData;
-    return [...filteredData].sort((a, b) => {
-      const aVal = (a as any)[sortKey] ?? "";
-      const bVal = (b as any)[sortKey] ?? "";
-      if (typeof aVal === "number" && typeof bVal === "number") {
-        return sortDirection === "asc" ? aVal - bVal : bVal - aVal;
+    const list = [...filteredData];
+    if (!sortKey) {
+      return list.sort((a, b) => {
+        const rawDateA = a.createdAt || (a as any).created_at || (a as any).createdDate;
+        const rawDateB = b.createdAt || (b as any).created_at || (b as any).createdDate;
+        const dateA = rawDateA ? new Date(rawDateA).getTime() : 0;
+        const dateB = rawDateB ? new Date(rawDateB).getTime() : 0;
+        if (dateA && dateB && dateA !== dateB) return dateB - dateA;
+
+        const aNum = Number(a.id);
+        const bNum = Number(b.id);
+        if (!isNaN(aNum) && !isNaN(bNum) && aNum !== bNum) return bNum - aNum;
+
+        return String(b.id || "").localeCompare(String(a.id || ""));
+      });
+    }
+    const key = sortKey;
+    const dir = sortDirection;
+    return list.sort((a, b) => {
+      const aVal = (a as any)[key] ?? "";
+      const bVal = (b as any)[key] ?? "";
+      const aNum = Number(aVal);
+      const bNum = Number(bVal);
+      if (!isNaN(aNum) && !isNaN(bNum)) {
+        return dir === "asc" ? aNum - bNum : bNum - aNum;
       }
-      return sortDirection === "asc"
+      return dir === "asc"
         ? String(aVal).localeCompare(String(bVal))
         : String(bVal).localeCompare(String(aVal));
     });
@@ -212,35 +251,41 @@ export default function CustomerContractsMasterPage() {
   };
 
   // Delete Handlers
-  const handleConfirmSingleDelete = () => {
+  const handleConfirmSingleDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((c) => c.id !== deleteTarget.id);
-      saveContracts(updated);
-      setSelectedIds((prev) => prev.filter((i) => i !== deleteTarget.id));
-      showToast({
-        variant: "success",
-        message: `Contract "${deleteTarget.id}" deleted successfully.`,
-      });
-      setIsDeleting(false);
-      setDeleteTarget(null);
-    }, 400);
+    try {
+      await api.deleteMasterItem("/customer-contracts", deleteTarget.id);
+    } catch (err) {
+      console.warn("API delete fallback:", err);
+    }
+    const updated = data.filter((c) => String(c.id) !== String(deleteTarget.id));
+    saveContracts(updated);
+    setSelectedIds((prev) => prev.filter((i) => String(i) !== String(deleteTarget.id)));
+    showToast({
+      variant: "success",
+      message: `Contract "${deleteTarget.id}" deleted successfully.`,
+    });
+    setIsDeleting(false);
+    setDeleteTarget(null);
   };
 
-  const handleConfirmBulkDelete = () => {
+  const handleConfirmBulkDelete = async () => {
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((c) => !selectedIds.includes(c.id));
-      saveContracts(updated);
-      showToast({
-        variant: "success",
-        message: `${selectedIds.length} contract(s) deleted successfully.`,
-      });
-      setSelectedIds([]);
-      setIsDeleting(false);
-      setBulkDeleteOpen(false);
-    }, 400);
+    try {
+      await api.bulkDeleteMasterItems("/customer-contracts", selectedIds);
+    } catch (err) {
+      console.warn("API bulk delete fallback:", err);
+    }
+    const updated = data.filter((c) => !selectedIds.includes(c.id));
+    saveContracts(updated);
+    showToast({
+      variant: "success",
+      message: `${selectedIds.length} contract(s) deleted successfully.`,
+    });
+    setSelectedIds([]);
+    setIsDeleting(false);
+    setBulkDeleteOpen(false);
   };
 
   // Export CSV
@@ -334,7 +379,23 @@ export default function CustomerContractsMasterPage() {
       return {
         ...h,
         render: (row: CustomerContractEntry) => (
-          <span className="font-semibold text-gray-900">{row.customer}</span>
+          <span className="font-semibold text-gray-900">{row.customer || (row as any).customerName || (row as any).customerCode || "-"}</span>
+        ),
+      };
+    }
+    if (h.key === "service") {
+      return {
+        ...h,
+        render: (row: CustomerContractEntry) => (
+          <span className="text-gray-800">{row.service || (row as any).serviceName || (row as any).serviceCode || "-"}</span>
+        ),
+      };
+    }
+    if (h.key === "product") {
+      return {
+        ...h,
+        render: (row: CustomerContractEntry) => (
+          <span className="font-medium text-gray-800">{row.product || (row as any).productName || (row as any).productCode || "-"}</span>
         ),
       };
     }
@@ -343,7 +404,7 @@ export default function CustomerContractsMasterPage() {
         ...h,
         render: (row: CustomerContractEntry) => (
           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">
-            {row.originHub || "-"}
+            {row.originHub || (row as any).originHubCode || (row as any).origin_hub || "-"}
           </span>
         ),
       };
@@ -353,7 +414,7 @@ export default function CustomerContractsMasterPage() {
         ...h,
         render: (row: CustomerContractEntry) => (
           <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700">
-            {row.destinationHub || "-"}
+            {row.destinationHub || (row as any).destinationHubCode || (row as any).destination_hub || "-"}
           </span>
         ),
       };

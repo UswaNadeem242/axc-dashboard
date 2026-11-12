@@ -20,6 +20,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   ShipperEntry,
   ShipperHeadings,
@@ -47,24 +48,45 @@ export default function ShipperMasterPage() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // LocalStorage Persistence
+  // Backend API + LocalStorage Persistence
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_shippers");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setData(parsed);
-            return;
+    let mounted = true;
+    const loadData = async () => {
+      try {
+        const list = await api.getMasterList<ShipperEntry>("/shippers", { per_page: 200 });
+        if (mounted && Array.isArray(list) && list.length > 0) {
+          setData(list);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("master_shippers", JSON.stringify(list));
           }
-        } catch (e) {
-          console.error("Error reading stored shippers:", e);
+          return;
+        }
+      } catch (e) {
+        console.warn("Using local fallback for shippers:", e);
+      }
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_shippers");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              if (mounted) setData(parsed);
+              return;
+            }
+          } catch (e) {
+            console.error("Error reading stored shippers:", e);
+          }
+        }
+        if (mounted) {
+          setData(initialShipperData);
+          localStorage.setItem("master_shippers", JSON.stringify(initialShipperData));
         }
       }
-      setData(initialShipperData);
-      localStorage.setItem("master_shippers", JSON.stringify(initialShipperData));
-    }
+    };
+    loadData();
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveShippers = (newList: ShipperEntry[]) => {
@@ -159,22 +181,41 @@ export default function ShipperMasterPage() {
   }, [data, searchQuery, activeTags]);
 
   // Sorting
+  // Sorting: Default latest first (ID or created_at descending)
   const sortedData = useMemo(() => {
     const list = [...filteredData];
-    if (!sortKey) return list;
+    if (!sortKey) {
+      return list.sort((a, b) => {
+        const rawDateA = a.createdAt || (a as any).created_at || (a as any).createdDate;
+        const rawDateB = b.createdAt || (b as any).created_at || (b as any).createdDate;
+        const dateA = rawDateA ? new Date(rawDateA).getTime() : 0;
+        const dateB = rawDateB ? new Date(rawDateB).getTime() : 0;
+        if (dateA && dateB && dateA !== dateB) return dateB - dateA;
+
+        const numA = Number(a.id);
+        const numB = Number(b.id);
+        if (!isNaN(numA) && !isNaN(numB) && numA !== numB) return numB - numA;
+
+        return String(b.id || "").localeCompare(String(a.id || ""));
+      });
+    }
+    const key = sortKey;
+    const dir = sortDirection;
 
     list.sort((a, b) => {
-      let valA = (a as unknown as Record<string, unknown>)[sortKey] ?? "";
-      let valB = (b as unknown as Record<string, unknown>)[sortKey] ?? "";
+      let valA = (a as unknown as Record<string, unknown>)[key] ?? "";
+      let valB = (b as unknown as Record<string, unknown>)[key] ?? "";
 
-      if (typeof valA === "number" && typeof valB === "number") {
-        return sortDirection === "asc" ? valA - valB : valB - valA;
+      const numA = Number(valA);
+      const numB = Number(valB);
+      if (!isNaN(numA) && !isNaN(numB)) {
+        return dir === "asc" ? numA - numB : numB - numA;
       }
 
       valA = String(valA).toLowerCase();
       valB = String(valB).toLowerCase();
-      if (valA < valB) return sortDirection === "asc" ? -1 : 1;
-      if (valA > valB) return sortDirection === "asc" ? 1 : -1;
+      if (valA < valB) return dir === "asc" ? -1 : 1;
+      if (valA > valB) return dir === "asc" ? 1 : -1;
       return 0;
     });
     return list;
@@ -208,36 +249,42 @@ export default function ShipperMasterPage() {
     setViewShipper(item);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((item) => item.id !== deleteTarget.id);
-      saveShippers(updated);
-      setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
-      setIsDeleting(false);
-      setDeleteTarget(null);
-      showToast({
-        variant: "success",
-        message: `Shipper "${deleteTarget.name}" deleted successfully.`,
-      });
-    }, 250);
+    try {
+      await api.deleteMasterItem("/shippers", deleteTarget.id);
+    } catch (e) {
+      console.warn("API delete fallback to local:", e);
+    }
+    const updated = data.filter((item) => item.id !== deleteTarget.id);
+    saveShippers(updated);
+    setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
+    setIsDeleting(false);
+    setDeleteTarget(null);
+    showToast({
+      variant: "success",
+      message: `Shipper "${deleteTarget.name}" deleted successfully.`,
+    });
   };
 
-  const handleBulkDeleteConfirm = () => {
+  const handleBulkDeleteConfirm = async () => {
     if (selectedIds.length === 0) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((item) => !selectedIds.includes(item.id));
-      saveShippers(updated);
-      setSelectedIds([]);
-      setIsDeleting(false);
-      setBulkDeleteOpen(false);
-      showToast({
-        variant: "success",
-        message: `Deleted ${selectedIds.length} shipper records.`,
-      });
-    }, 250);
+    try {
+      await api.bulkDeleteMasterItems("/shippers", selectedIds);
+    } catch (e) {
+      console.warn("API bulk delete fallback to local:", e);
+    }
+    const updated = data.filter((item) => !selectedIds.includes(item.id));
+    saveShippers(updated);
+    setSelectedIds([]);
+    setIsDeleting(false);
+    setBulkDeleteOpen(false);
+    showToast({
+      variant: "success",
+      message: `Deleted ${selectedIds.length} shipper records.`,
+    });
   };
 
   // Export CSV (exact AWB pattern)
@@ -390,7 +437,7 @@ export default function ShipperMasterPage() {
       return {
         ...h,
         render: (row: ShipperEntry) => (
-          <span className="text-axc-dark-gray whitespace-nowrap">{row.customer || "-"}</span>
+          <span className="text-axc-dark-gray whitespace-nowrap">{row.customer || (row as any).customerName || (row as any).customerCode || "-"}</span>
         ),
       };
     }
@@ -399,7 +446,7 @@ export default function ShipperMasterPage() {
       return {
         ...h,
         render: (row: ShipperEntry) => (
-          <span className="text-axc-dark-gray whitespace-nowrap font-mono">{row.accountCode || "-"}</span>
+          <span className="text-axc-dark-gray whitespace-nowrap font-mono">{row.accountCode || (row as any).customerCode || "-"}</span>
         ),
       };
     }

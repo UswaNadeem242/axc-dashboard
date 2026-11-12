@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Save,
@@ -13,6 +13,8 @@ import {
 import { showToast } from "@/app/src/common/toast";
 import CommonDropdown from "@/app/src/common/dropdown";
 import CustomDatePicker from "@/app/src/common/datepicker";
+import { api } from "@/app/src/lib/api";
+import { useMasterData, invalidateMasterDataCache } from "@/app/src/lib/useMasterData";
 import {
   PanelHeader,
   FieldLabel,
@@ -54,32 +56,127 @@ function CreateCftContractContent() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
+  const { customers, services, vendors, products } = useMasterData();
+
+  const customerOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    CUSTOMER_OPTIONS.forEach((c) => map.set(c.value, c.label));
+    customers.forEach((c) => {
+      const val = c.value || c.code || c.name || "";
+      if (val && !map.has(val)) {
+        map.set(val, c.label || c.name || val);
+      }
+    });
+    if (form.customer && !map.has(form.customer)) {
+      map.set(form.customer, form.customer);
+    }
+    const list = Array.from(map.entries()).map(([k, v]) => ({ value: k, label: v }));
+    return [{ value: "", label: "SELECT CUSTOMER..." }, ...list];
+  }, [customers, form.customer]);
+
+  const serviceOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    SERVICE_OPTIONS.forEach((s) => map.set(s.value, s.label));
+    services.forEach((s) => {
+      const val = s.value || s.code || s.name || "";
+      if (val && !map.has(val)) {
+        map.set(val, s.label || s.name || val);
+      }
+    });
+    if (form.service && !map.has(form.service)) {
+      map.set(form.service, form.service);
+    }
+    const list = Array.from(map.entries()).map(([k, v]) => ({ value: k, label: v }));
+    return [{ value: "", label: "SELECT SERVICE..." }, ...list];
+  }, [services, form.service]);
+
+  const vendorOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    VENDOR_OPTIONS.forEach((v) => map.set(v.value, v.label));
+    vendors.forEach((v) => {
+      const val = v.value || v.code || v.name || "";
+      if (val && !map.has(val)) {
+        map.set(val, v.label || v.name || val);
+      }
+    });
+    if (form.vendor && !map.has(form.vendor)) {
+      map.set(form.vendor, form.vendor);
+    }
+    const list = Array.from(map.entries()).map(([k, v]) => ({ value: k, label: v }));
+    return [{ value: "", label: "SELECT VENDOR..." }, ...list];
+  }, [vendors, form.vendor]);
+
+  const productOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    PRODUCT_OPTIONS.forEach((p) => map.set(p.value, p.label));
+    products.forEach((p) => {
+      const val = p.value || p.code || p.name || "";
+      if (val && !map.has(val)) {
+        map.set(val, p.label || p.name || val);
+      }
+    });
+    if (form.product && !map.has(form.product)) {
+      map.set(form.product, form.product);
+    }
+    const list = Array.from(map.entries()).map(([k, v]) => ({ value: k, label: v }));
+    return [{ value: "", label: "SELECT PRODUCT..." }, ...list];
+  }, [products, form.product]);
+
   // Load existing contract if editing
   useEffect(() => {
-    if (typeof window === "undefined" || !editId) return;
-    try {
-      const stored = localStorage.getItem("master_cft_contracts");
-      const list: CftContractEntry[] = stored
-        ? JSON.parse(stored)
-        : initialCftContractData;
-      const found = list.find((item) => item.id === editId);
-      if (found) {
-        setForm({
-          billingType: found.billingType || "BOTH",
-          customer: found.customer || "",
-          service: found.service || "",
-          vendor: found.vendor || "",
-          product: found.product || "",
-          effectiveFrom: found.effectiveFrom || "",
-          effectiveTo: found.effectiveTo || "",
-          cftValue: found.cftValue || "",
-          cftMultiplier: found.cftMultiplier || "",
-          status: found.status || "ACTIVE",
-        });
+    if (!editId) return;
+    let mounted = true;
+    async function loadItem() {
+      try {
+        const found = await api.getMasterItem<CftContractEntry>("/cft-contracts", editId!);
+        if (mounted && found) {
+          setForm({
+            billingType: found.billingType || "BOTH",
+            customer: found.customer || "",
+            service: found.service || "",
+            vendor: found.vendor || "",
+            product: found.product || "",
+            effectiveFrom: found.effectiveFrom || "",
+            effectiveTo: found.effectiveTo || "",
+            cftValue: String(found.cftValue || ""),
+            cftMultiplier: String(found.cftMultiplier || ""),
+            status: found.status || "ACTIVE",
+          });
+          return;
+        }
+      } catch (err) {
+        console.warn("API fetch fallback:", err);
       }
-    } catch (e) {
-      console.error("Error loading CFT contract:", e);
+      if (mounted && typeof window !== "undefined") {
+        try {
+          const stored = localStorage.getItem("master_cft_contracts");
+          const list: CftContractEntry[] = stored
+            ? JSON.parse(stored)
+            : initialCftContractData;
+          const found = list.find((item) => String(item.id) === String(editId));
+          if (found) {
+            setForm({
+              billingType: found.billingType || "BOTH",
+              customer: found.customer || "",
+              service: found.service || "",
+              vendor: found.vendor || "",
+              product: found.product || "",
+              effectiveFrom: found.effectiveFrom || "",
+              effectiveTo: found.effectiveTo || "",
+              cftValue: found.cftValue || "",
+              cftMultiplier: found.cftMultiplier || "",
+              status: found.status || "ACTIVE",
+            });
+          }
+        } catch (e) {
+          console.error("Error loading CFT contract:", e);
+        }
+      }
     }
+    loadItem();
+    return () => {
+      mounted = false;
+    };
   }, [editId]);
 
   // Validation
@@ -94,7 +191,7 @@ function CreateCftContractContent() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = (e?: React.FormEvent) => {
+  const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!validate()) {
       showToast({
@@ -106,6 +203,17 @@ function CreateCftContractContent() {
 
     setLoading(true);
     try {
+      let savedRecord: CftContractEntry | null = null;
+      try {
+        if (isEdit && editId) {
+          savedRecord = await api.updateMasterItem<CftContractEntry>("/cft-contracts", editId, form);
+        } else {
+          savedRecord = await api.createMasterItem<CftContractEntry>("/cft-contracts", form);
+        }
+      } catch (apiErr) {
+        console.warn("API save fallback to localStorage:", apiErr);
+      }
+
       const stored = localStorage.getItem("master_cft_contracts");
       const currentList: CftContractEntry[] = stored
         ? JSON.parse(stored)
@@ -113,8 +221,8 @@ function CreateCftContractContent() {
 
       if (isEdit) {
         const updatedList = currentList.map((item) => {
-          if (item.id === editId) {
-            return {
+          if (String(item.id) === String(editId)) {
+            return savedRecord || {
               ...item,
               ...form,
             };
@@ -123,7 +231,7 @@ function CreateCftContractContent() {
         });
         localStorage.setItem("master_cft_contracts", JSON.stringify(updatedList));
       } else {
-        const newContract: CftContractEntry = {
+        const newContract: CftContractEntry = savedRecord || {
           ...form,
           id: `CFT-2026-${String(currentList.length + 1).padStart(3, "0")}`,
           srNo: currentList.length + 1,
@@ -139,6 +247,8 @@ function CreateCftContractContent() {
         const updatedList = [newContract, ...currentList];
         localStorage.setItem("master_cft_contracts", JSON.stringify(updatedList));
       }
+
+      invalidateMasterDataCache();
 
       setSuccess(true);
       showToast({
@@ -237,7 +347,8 @@ function CreateCftContractContent() {
                   <FieldLabel>Customer</FieldLabel>
                   <CommonDropdown
                     value={form.customer}
-                    options={CUSTOMER_OPTIONS}
+                    options={customerOptions}
+                    searchable
                     onChange={(val) => setForm((prev) => ({ ...prev, customer: val }))}
                   />
                 </div>
@@ -247,7 +358,8 @@ function CreateCftContractContent() {
                   <FieldLabel>Service</FieldLabel>
                   <CommonDropdown
                     value={form.service}
-                    options={SERVICE_OPTIONS}
+                    options={serviceOptions}
+                    searchable
                     onChange={(val) => setForm((prev) => ({ ...prev, service: val }))}
                   />
                 </div>
@@ -258,7 +370,8 @@ function CreateCftContractContent() {
                   <FieldLabel>Vendor</FieldLabel>
                   <CommonDropdown
                     value={form.vendor}
-                    options={VENDOR_OPTIONS}
+                    options={vendorOptions}
+                    searchable
                     onChange={(val) => setForm((prev) => ({ ...prev, vendor: val }))}
                   />
                 </div>
@@ -268,7 +381,8 @@ function CreateCftContractContent() {
                   <FieldLabel>Product</FieldLabel>
                   <CommonDropdown
                     value={form.product}
-                    options={PRODUCT_OPTIONS}
+                    options={productOptions}
+                    searchable
                     onChange={(val) => setForm((prev) => ({ ...prev, product: val }))}
                   />
                 </div>

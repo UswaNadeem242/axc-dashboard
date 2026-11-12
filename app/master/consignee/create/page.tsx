@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, Suspense } from "react";
+import React, { useState, useEffect, useMemo, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Save,
@@ -18,6 +18,8 @@ import {
   Clock,
 } from "lucide-react";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
+import { useMasterData, invalidateMasterDataCache } from "@/app/src/lib/useMasterData";
 import CommonDropdown from "@/app/src/common/dropdown";
 import CustomDatePicker from "@/app/src/common/datepicker";
 import {
@@ -67,11 +69,75 @@ function CreateConsigneeContent() {
   const editId = searchParams.get("edit");
   const isEdit = Boolean(editId);
 
+  const { customers, companies, countries, cities, states } = useMasterData();
+
   const [form, setForm] = useState(defaultFormState);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+
+  // Dynamic dropdown options with fallbacks
+  const customerOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    CUSTOMER_OPTIONS.forEach((c) => map.set(c.value, c.label));
+    customers.forEach((c) => {
+      const val = c.value || c.code || c.name || "";
+      if (val && !map.has(val)) {
+        map.set(val, c.label || c.name || val);
+      }
+    });
+    if (form.customer && !map.has(form.customer)) {
+      map.set(form.customer, form.customer);
+    }
+    const list = Array.from(map.entries()).map(([k, v]) => ({ value: k, label: v }));
+    return [{ value: "", label: "SEARCH HERE..." }, ...list];
+  }, [customers, form.customer]);
+
+  const companyOptions = useMemo(() => {
+    const set = new Set<string>();
+    COMPANY_OPTIONS.forEach((c) => set.add(c.value));
+    companies.forEach((c) => {
+      const val = c.label || c.name || c.value;
+      if (val) set.add(val);
+    });
+    return Array.from(set).map((c) => ({ value: c, label: c }));
+  }, [companies]);
+
+  const countryOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    COUNTRY_OPTIONS.forEach((c) => map.set(c.value.toUpperCase(), c.label));
+    countries.forEach((c) => {
+      const code = (c.code || c.name || c.value || "").toUpperCase();
+      if (code && !map.has(code)) {
+        map.set(code, c.label || c.name || code);
+      }
+    });
+    const list = Array.from(map.entries()).map(([k, v]) => ({ value: k, label: v }));
+    return [{ value: "", label: "SELECT COUNTRY..." }, ...list];
+  }, [countries]);
+
+  const handleCountryChange = (val: string) => {
+    let code = form.dialCode;
+    const upper = val.toUpperCase();
+    if (upper === "INDIA") code = "+91";
+    else if (upper === "UNITED STATES" || upper === "USA" || upper === "US") code = "+1";
+    else if (upper === "UNITED ARAB EMIRATES" || upper === "UAE" || upper === "DUBAI") code = "+971";
+    else if (upper === "PAKISTAN" || upper === "PK") code = "+92";
+    else if (upper === "UNITED KINGDOM" || upper === "UK") code = "+44";
+    else if (upper === "CANADA") code = "+1";
+    else if (upper === "AUSTRALIA") code = "+61";
+    else if (upper === "GERMANY") code = "+49";
+    else if (upper === "SINGAPORE") code = "+65";
+    else if (upper === "SAUDI ARABIA") code = "+966";
+
+    setForm((prev) => ({
+      ...prev,
+      country: val,
+      dialCode: code,
+    }));
+    if (errors.country) setErrors((prev) => ({ ...prev, country: "" }));
+  };
 
   // Auto-generate Consignee code
   useEffect(() => {
@@ -87,38 +153,52 @@ function CreateConsigneeContent() {
   // Load existing consignee for edit
   useEffect(() => {
     if (typeof window === "undefined" || !editId) return;
-    try {
-      const stored = localStorage.getItem("master_consignees");
-      const list: ConsigneeEntry[] = stored
-        ? JSON.parse(stored)
-        : initialConsigneeData;
-      const found = list.find((item) => item.id === editId || item.code === editId);
-      if (found) {
-        setForm({
-          customer: found.customer || "",
-          company: found.company || "AMERICAN XPRESS COURIER - AXC INC",
-          code: found.code || "",
-          name: found.name || "",
-          contactNo: found.contactNo || "",
-          email: found.email || "",
-          dob: found.dob || "",
-          idProof1: found.idProof1 || "",
-          idProof2: found.idProof2 || "",
-          status: found.status || "ACTIVE",
-          addressLine1: found.addressLine1 || "",
-          addressLine2: found.addressLine2 || "",
-          addressLine3: found.addressLine3 || "",
-          city: found.city || "",
-          state: found.state || "",
-          country: found.country || "INDIA",
-          pincode: found.pincode || "",
-          dialCode: found.dialCode || "+91",
-          editCode: true,
-        });
+    const applyFound = (found: ConsigneeEntry) => {
+      setForm({
+        customer: found.customer || "",
+        company: found.company || "AMERICAN XPRESS COURIER - AXC INC",
+        code: found.code || "",
+        name: found.name || "",
+        contactNo: found.contactNo || "",
+        email: found.email || "",
+        dob: found.dob || "",
+        idProof1: found.idProof1 || "",
+        idProof2: found.idProof2 || "",
+        status: found.status || "ACTIVE",
+        addressLine1: found.addressLine1 || "",
+        addressLine2: found.addressLine2 || "",
+        addressLine3: found.addressLine3 || "",
+        city: found.city || "",
+        state: found.state || "",
+        country: found.country || "INDIA",
+        pincode: found.pincode || "",
+        dialCode: found.dialCode || "+91",
+        editCode: true,
+      });
+    };
+
+    const loadItem = async () => {
+      try {
+        const item = await api.getMasterItem<ConsigneeEntry>("/consignees", editId);
+        if (item && item.code) {
+          applyFound(item);
+          return;
+        }
+      } catch (e) {
+        console.warn("API get consignee fallback to localStorage:", e);
       }
-    } catch (e) {
-      console.error("Error loading consignee:", e);
-    }
+      try {
+        const stored = localStorage.getItem("master_consignees");
+        const list: ConsigneeEntry[] = stored
+          ? JSON.parse(stored)
+          : initialConsigneeData;
+        const found = list.find((item) => String(item.id) === String(editId) || item.code === editId);
+        if (found) applyFound(found);
+      } catch (e) {
+        console.error("Error loading consignee:", e);
+      }
+    };
+    loadItem();
   }, [editId]);
 
   // Validation based on Image 1 mandatory fields (marked with red asterisk)
@@ -137,7 +217,7 @@ function CreateConsigneeContent() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSave = (e?: React.FormEvent) => {
+  const handleSave = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!validate()) {
       showToast({
@@ -154,10 +234,48 @@ function CreateConsigneeContent() {
         ? JSON.parse(stored)
         : [...initialConsigneeData];
 
-      if (isEdit) {
+      const payload = {
+        ...form,
+        code: form.code,
+        consignee_code: form.code,
+        name: form.name,
+        consignee_name: form.name,
+        company: form.company,
+        customer: form.customer,
+        customer_name: form.customer,
+        contact_no: form.contactNo,
+        contactNo: form.contactNo,
+        dial_code: form.dialCode,
+        dialCode: form.dialCode,
+        email: form.email,
+        dob: form.dob,
+        city: form.city,
+        state: form.state,
+        country: form.country,
+        pincode: form.pincode,
+        zip_code: form.pincode,
+        status: form.status,
+        is_active: form.status === "ACTIVE",
+        address_line_1: form.addressLine1,
+        addressLine1: form.addressLine1,
+        address_line_2: form.addressLine2,
+        addressLine2: form.addressLine2,
+        address_line_3: form.addressLine3,
+        addressLine3: form.addressLine3,
+        id_proof_1: form.idProof1,
+        id_proof_2: form.idProof2,
+      };
+
+      if (isEdit && editId) {
+        let savedItem: ConsigneeEntry | null = null;
+        try {
+          savedItem = await api.updateMasterItem<ConsigneeEntry>("/consignees", editId, payload);
+        } catch (err) {
+          console.warn("API update consignee fallback to local:", err);
+        }
         const updatedList = currentList.map((item) => {
-          if (item.id === editId || item.code === editId) {
-            return {
+          if (String(item.id) === String(editId) || item.code === editId) {
+            return savedItem || {
               ...item,
               ...form,
             };
@@ -166,7 +284,13 @@ function CreateConsigneeContent() {
         });
         localStorage.setItem("master_consignees", JSON.stringify(updatedList));
       } else {
-        const newConsignee: ConsigneeEntry = {
+        let createdItem: ConsigneeEntry | null = null;
+        try {
+          createdItem = await api.createMasterItem<ConsigneeEntry>("/consignees", payload);
+        } catch (err) {
+          console.warn("API create consignee fallback to local:", err);
+        }
+        const newConsignee: ConsigneeEntry = createdItem || {
           ...form,
           id: `CSN-${Date.now().toString().slice(-4)}`,
           srNo: currentList.length + 1,
@@ -182,6 +306,8 @@ function CreateConsigneeContent() {
         const updatedList = [newConsignee, ...currentList];
         localStorage.setItem("master_consignees", JSON.stringify(updatedList));
       }
+
+      invalidateMasterDataCache();
 
       setSuccess(true);
       showToast({
@@ -318,7 +444,8 @@ function CreateConsigneeContent() {
                   <CommonDropdown
                     value={form.company}
                     placeholder="SELECT COMPANY..."
-                    options={COMPANY_OPTIONS}
+                    options={companyOptions}
+                    searchable
                     onChange={(val) => {
                       setForm((prev) => ({ ...prev, company: val }));
                       if (errors.company) setErrors((prev) => ({ ...prev, company: "" }));
@@ -333,7 +460,8 @@ function CreateConsigneeContent() {
                   <CommonDropdown
                     value={form.customer}
                     placeholder="SEARCH HERE..."
-                    options={CUSTOMER_OPTIONS}
+                    options={customerOptions}
+                    searchable
                     onChange={(val) => setForm((prev) => ({ ...prev, customer: val }))}
                   />
                 </div>
@@ -387,6 +515,7 @@ function CreateConsigneeContent() {
                   <FieldLabel required>City</FieldLabel>
                   <input
                     type="text"
+                    list="master-consignee-cities"
                     placeholder="Enter City..."
                     value={form.city}
                     onChange={(e) => {
@@ -395,6 +524,11 @@ function CreateConsigneeContent() {
                     }}
                     className={errors.city ? errorInputClass : inputClass}
                   />
+                  <datalist id="master-consignee-cities">
+                    {cities.map((c) => (
+                      <option key={c.value} value={c.name || c.label || c.value} />
+                    ))}
+                  </datalist>
                   <FieldError message={errors.city} />
                 </div>
 
@@ -402,6 +536,7 @@ function CreateConsigneeContent() {
                   <FieldLabel required>State</FieldLabel>
                   <input
                     type="text"
+                    list="master-consignee-states"
                     placeholder="Enter State / Province..."
                     value={form.state}
                     onChange={(e) => {
@@ -410,6 +545,11 @@ function CreateConsigneeContent() {
                     }}
                     className={errors.state ? errorInputClass : inputClass}
                   />
+                  <datalist id="master-consignee-states">
+                    {states.map((s) => (
+                      <option key={s.value} value={s.name || s.label || s.value} />
+                    ))}
+                  </datalist>
                   <FieldError message={errors.state} />
                 </div>
 
@@ -419,11 +559,9 @@ function CreateConsigneeContent() {
                   <CommonDropdown
                     value={form.country}
                     placeholder="SELECT COUNTRY..."
-                    options={COUNTRY_OPTIONS}
-                    onChange={(val) => {
-                      setForm((prev) => ({ ...prev, country: val }));
-                      if (errors.country) setErrors((prev) => ({ ...prev, country: "" }));
-                    }}
+                    options={countryOptions}
+                    searchable
+                    onChange={handleCountryChange}
                   />
                   <FieldError message={errors.country} />
                 </div>

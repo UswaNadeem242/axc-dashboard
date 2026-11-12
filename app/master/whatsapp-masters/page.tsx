@@ -17,6 +17,7 @@ import Button from "@/app/src/common/button";
 import DeleteConfirmationDialog from "@/app/src/common/deleteConfirmation";
 import Dropdown from "@/app/src/common/dropdown";
 import { showToast } from "@/app/src/common/toast";
+import { api } from "@/app/src/lib/api";
 import {
   WhatsappMasterEntry,
   WhatsappMasterHeadings,
@@ -47,27 +48,51 @@ export default function WhatsappMastersListPage() {
   const [page, setPage] = useState(1);
   const itemsPerPage = 10;
 
-  // LocalStorage Persistence
+  // API + LocalStorage Persistence
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("master_whatsapp_masters");
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            setData(parsed);
-            return;
+    let mounted = true;
+    api
+      .getMasterList<WhatsappMasterEntry>("/whatsapp-masters")
+      .then((list) => {
+        if (!mounted) return;
+        if (Array.isArray(list) && list.length > 0) {
+          setData(list);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("master_whatsapp_masters", JSON.stringify(list));
           }
-        } catch (e) {
-          console.error("Error reading stored items:", e);
+          return;
         }
+        loadLocalFallback();
+      })
+      .catch(() => {
+        if (mounted) loadLocalFallback();
+      });
+
+    function loadLocalFallback() {
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("master_whatsapp_masters");
+        if (stored) {
+          try {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setData(parsed);
+              return;
+            }
+          } catch (e) {
+            console.error("Error reading stored items:", e);
+          }
+        }
+        setData(initialWhatsappMasterData);
+        localStorage.setItem(
+          "master_whatsapp_masters",
+          JSON.stringify(initialWhatsappMasterData)
+        );
       }
-      setData(initialWhatsappMasterData);
-      localStorage.setItem(
-        "master_whatsapp_masters",
-        JSON.stringify(initialWhatsappMasterData)
-      );
     }
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   const saveItems = (newList: WhatsappMasterEntry[]) => {
@@ -168,6 +193,19 @@ export default function WhatsappMastersListPage() {
           ? String(aVal).localeCompare(String(bVal))
           : String(bVal).localeCompare(String(aVal));
       });
+    } else {
+      result.sort((a, b) => {
+        const rawDateA = a.createdAt || (a as any).created_at || (a as any).createdDate;
+        const rawDateB = b.createdAt || (b as any).created_at || (b as any).createdDate;
+        const dateA = rawDateA ? new Date(rawDateA).getTime() : 0;
+        const dateB = rawDateB ? new Date(rawDateB).getTime() : 0;
+        if (dateA && dateB && dateA !== dateB) return dateB - dateA;
+
+        const idA = Number(a.id) || 0;
+        const idB = Number(b.id) || 0;
+        if (idA && idB && idA !== idB) return idB - idA;
+        return String(b.id || "").localeCompare(String(a.id || ""));
+      });
     }
 
     return result;
@@ -235,39 +273,45 @@ export default function WhatsappMastersListPage() {
   };
 
   // Delete Single
-  const handleDeleteConfirm = () => {
+  const handleDeleteConfirm = async () => {
     if (!deleteTarget) return;
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((d) => d.id !== deleteTarget.id);
-      saveItems(updated);
-      setSelectedIds((prev) => prev.filter((id) => id !== deleteTarget.id));
-      setIsDeleting(false);
-      setDeleteTarget(null);
-      showToast({
-        variant: "success",
-        message: `Template "${
-          deleteTarget.title || deleteTarget.whatsappIdentifier
-        }" has been removed.`,
-      });
-    }, 400);
+    try {
+      await api.deleteMasterItem("/whatsapp-masters", deleteTarget.id);
+    } catch {
+      // fallback to local
+    }
+    const updated = data.filter((d) => String(d.id) !== String(deleteTarget.id));
+    saveItems(updated);
+    setSelectedIds((prev) => prev.filter((id) => String(id) !== String(deleteTarget.id)));
+    setIsDeleting(false);
+    setDeleteTarget(null);
+    showToast({
+      variant: "success",
+      message: `Template "${
+        deleteTarget.title || deleteTarget.whatsappIdentifier
+      }" has been removed.`,
+    });
   };
 
   // Bulk Delete
-  const handleBulkDeleteConfirm = () => {
+  const handleBulkDeleteConfirm = async () => {
     setIsDeleting(true);
-    setTimeout(() => {
-      const updated = data.filter((d) => !selectedIds.includes(d.id));
-      saveItems(updated);
-      const count = selectedIds.length;
-      setSelectedIds([]);
-      setIsDeleting(false);
-      setBulkDeleteOpen(false);
-      showToast({
-        variant: "success",
-        message: `${count} templates deleted successfully.`,
-      });
-    }, 500);
+    try {
+      await api.bulkDeleteMasterItems("/whatsapp-masters", selectedIds);
+    } catch {
+      // fallback to local
+    }
+    const updated = data.filter((d) => !selectedIds.map(String).includes(String(d.id)));
+    saveItems(updated);
+    const count = selectedIds.length;
+    setSelectedIds([]);
+    setIsDeleting(false);
+    setBulkDeleteOpen(false);
+    showToast({
+      variant: "success",
+      message: `${count} templates deleted successfully.`,
+    });
   };
 
   // Exact AWB Table Headings mapping
