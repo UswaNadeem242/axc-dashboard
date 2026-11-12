@@ -488,7 +488,7 @@ export default function CustomerMasterPage() {
                   type="button"
                   onClick={() => setViewCustomer(row)}
                   title="View"
-                  className="p-1 rounded text-axc-gray hover:text-axc-navy hover:bg-gray-100 transition cursor-pointer"
+                  className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
                 >
                   <Eye size={15} />
                 </button>
@@ -496,7 +496,7 @@ export default function CustomerMasterPage() {
                   type="button"
                   onClick={() => router.push(`/master/customer/create?edit=${row.id}`)}
                   title="Edit"
-                  className="p-1 rounded text-axc-gray hover:text-axc-navy hover:bg-gray-100 transition cursor-pointer"
+                  className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30 p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10 cursor-pointer"
                 >
                   <Pencil size={15} />
                 </button>
@@ -504,7 +504,7 @@ export default function CustomerMasterPage() {
                   type="button"
                   onClick={() => setDeleteTarget(row)}
                   title="Delete"
-                  className="p-1 rounded text-axc-gray hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                  className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30 p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
                 >
                   <Trash2 size={15} />
                 </button>

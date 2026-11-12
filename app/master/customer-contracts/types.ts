@@ -98,7 +98,6 @@ export const CustomerContractsHeadings = [
   { label: "Service", key: "service", sortable: true },
   { label: "Product", key: "product", sortable: true },
   { label: "Origin Hub", key: "originHub", sortable: true },
-  { label: "Destination Hub", key: "destinationHub", sortable: true },
   { label: "Contract Type", key: "contractType", sortable: true },
   { label: "Calculation Method", key: "calculationMethod", sortable: true },
   { label: "Effective From", key: "effectiveFrom", sortable: true },

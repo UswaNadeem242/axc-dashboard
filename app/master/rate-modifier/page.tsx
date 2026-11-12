@@ -510,7 +510,7 @@ export default function RateModifierMasterPage() {
             <button
               type="button"
               onClick={() => router.push(`/master/rate-modifier/create?edit=${row.id}`)}
-              className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
+              className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30 p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10 cursor-pointer"
               title="Edit Rate Modifier"
             >
               <Pencil size={15} />
@@ -518,7 +518,7 @@ export default function RateModifierMasterPage() {
             <button
               type="button"
               onClick={() => setDeleteTarget(row)}
-              className="inline-flex items-center justify-center rounded-md border border-red-300 p-1.5 text-red-600 transition hover:bg-red-50 cursor-pointer"
+              className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30 p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
               title="Delete Rate Modifier"
             >
               <Trash2 size={15} />

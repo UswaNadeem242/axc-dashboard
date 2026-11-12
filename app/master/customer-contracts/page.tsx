@@ -310,7 +310,6 @@ export default function CustomerContractsMasterPage() {
       "Service",
       "Product",
       "Origin Hub",
-      "Destination Hub",
       "Contract Type",
       "Calculation Method",
       "Effective From",
@@ -324,7 +323,6 @@ export default function CustomerContractsMasterPage() {
       `"${c.service}"`,
       `"${c.product}"`,
       `"${c.originHub}"`,
-      `"${c.destinationHub}"`,
       `"${c.contractType}"`,
       `"${c.calculationMethod}"`,
       `"${c.effectiveFrom}"`,
@@ -443,7 +441,7 @@ export default function CustomerContractsMasterPage() {
             <button
               type="button"
               onClick={() => setViewContract(row)}
-              className="p-1 rounded text-axc-gray hover:text-axc-navy hover:bg-gray-100 transition cursor-pointer"
+              className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
               title="View Contract"
             >
               <Eye size={15} />
@@ -451,7 +449,7 @@ export default function CustomerContractsMasterPage() {
             <button
               type="button"
               onClick={() => router.push(`/master/customer-contracts/create?edit=${row.id}`)}
-              className="p-1 rounded text-axc-gray hover:text-axc-navy hover:bg-gray-100 transition cursor-pointer"
+              className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30 p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10 cursor-pointer"
               title="Edit Contract"
             >
               <Pencil size={15} />
@@ -459,7 +457,7 @@ export default function CustomerContractsMasterPage() {
             <button
               type="button"
               onClick={() => setDeleteTarget(row)}
-              className="p-1 rounded text-axc-red hover:text-red-700 hover:bg-red-50 transition cursor-pointer"
+              className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30 p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
               title="Delete Contract"
             >
               <Trash2 size={15} />
@@ -584,7 +582,7 @@ export default function CustomerContractsMasterPage() {
       </div>
 
       {/* ══════════════ VIEW CONTRACT DETAILS MODAL ══════════════ */}
-      {viewContract && (
+      {/* {viewContract && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4">
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden border border-gray-200 animate-in fade-in zoom-in-95 duration-150">
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-axc-navy/5">
@@ -609,8 +607,7 @@ export default function CustomerContractsMasterPage() {
             </div>
 
             <div className="flex-1 overflow-y-auto p-6 space-y-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {/* Primary Info Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 rounded-lg bg-gray-50/70 border border-gray-200 text-xs">
+               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 p-4 rounded-lg bg-gray-50/70 border border-gray-200 text-xs">
                 <div>
                   <span className="text-gray-400 block mb-0.5">Customer</span>
                   <span className="font-semibold text-gray-900">{viewContract.customer}</span>
@@ -626,10 +623,6 @@ export default function CustomerContractsMasterPage() {
                 <div>
                   <span className="text-gray-400 block mb-0.5">Origin Hub</span>
                   <span className="font-semibold text-blue-700">{viewContract.originHub || "-"}</span>
-                </div>
-                <div>
-                  <span className="text-gray-400 block mb-0.5">Destination Hub</span>
-                  <span className="font-semibold text-purple-700">{viewContract.destinationHub || "-"}</span>
                 </div>
                 <div>
                   <span className="text-gray-400 block mb-0.5">Contract Type</span>
@@ -675,8 +668,7 @@ export default function CustomerContractsMasterPage() {
                 </div>
               </div>
 
-              {/* Rate Items Table */}
-              {viewContract.rateItems && viewContract.rateItems.length > 0 && (
+               {viewContract.rateItems && viewContract.rateItems.length > 0 && (
                 <div>
                   <h4 className="text-xs font-bold text-gray-700 uppercase tracking-wide mb-2">
                     Contract Rate Slabs ({viewContract.rateItems.length})
@@ -714,8 +706,7 @@ export default function CustomerContractsMasterPage() {
                 </div>
               )}
 
-              {/* Remarks & Notes */}
-              {(viewContract.remarks || viewContract.notes) && (
+               {(viewContract.remarks || viewContract.notes) && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                   {viewContract.remarks && (
                     <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
@@ -756,7 +747,7 @@ export default function CustomerContractsMasterPage() {
             </div>
           </div>
         </div>
-      )}
+      )} */}
 
       {/* Delete Confirmation Dialog */}
       <DeleteConfirmationDialog

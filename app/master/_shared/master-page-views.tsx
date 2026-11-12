@@ -328,7 +328,46 @@ export function StandardMasterListPage<T extends Record<string, any>>({
     });
   };
 
-  const tableHeadings = config.columns.map((h) => {
+  const rawColumns = config.columns.some((c) => c.key === "action")
+    ? config.columns
+    : [...config.columns, { key: "action", label: "Action" }];
+
+  const tableHeadings = rawColumns.map((h) => {
+    if (h.key === "action") {
+      return {
+        ...h,
+        render: (row: T) => (
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setViewItem(row)}
+              title="View"
+              className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
+            >
+              <Eye size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                router.push(`${config.basePath}/create?edit=${row.id}`)
+              }
+              title="Edit"
+              className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30 p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10 cursor-pointer"
+            >
+              <Pencil size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setDeleteTarget(row)}
+              title="Delete"
+              className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30 p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
+            >
+              <Trash2 size={15} />
+            </button>
+          </div>
+        ),
+      };
+    }
     if (h.key === "srNo") {
       return {
         ...h,
@@ -541,7 +580,7 @@ export function StandardMasterListPage<T extends Record<string, any>>({
                   type="button"
                   onClick={() => setViewItem(row)}
                   title="View"
-                  className="p-1 rounded text-axc-gray hover:text-axc-navy hover:bg-gray-100 transition cursor-pointer"
+                  className="inline-flex items-center justify-center rounded-md border border-axc-navy/30 p-1.5 text-axc-navy transition hover:bg-axc-navy/10 cursor-pointer"
                 >
                   <Eye size={15} />
                 </button>
@@ -551,7 +590,7 @@ export function StandardMasterListPage<T extends Record<string, any>>({
                     router.push(`${config.basePath}/create?edit=${row.id}`)
                   }
                   title="Edit"
-                  className="p-1 rounded text-axc-gray hover:text-axc-navy hover:bg-gray-100 transition cursor-pointer"
+                  className="inline-flex items-center justify-center rounded-md border border-axc-dark-green/30 p-1.5 text-axc-dark-green transition hover:bg-axc-dark-green/10 cursor-pointer"
                 >
                   <Pencil size={15} />
                 </button>
@@ -559,7 +598,7 @@ export function StandardMasterListPage<T extends Record<string, any>>({
                   type="button"
                   onClick={() => setDeleteTarget(row)}
                   title="Delete"
-                  className="p-1 rounded text-axc-gray hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                  className="inline-flex items-center justify-center rounded-md border border-axc-red-dark/30 p-1.5 text-axc-red-dark transition hover:bg-axc-red-dark/10 cursor-pointer"
                 >
                   <Trash2 size={15} />
                 </button>
