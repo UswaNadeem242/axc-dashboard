@@ -26,7 +26,7 @@ export default function AllManifestPage() {
   const [deleteTarget, setDeleteTarget] = useState<ManifestEntry | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     let isMounted = true;
@@ -424,8 +424,13 @@ export default function AllManifestPage() {
         onPrint={(row) => window.open(api.getManifestPrintUrl(row.manifestNo), "_blank")}
         currentPage={page}
         totalPages={totalPages}
+        totalCount={filteredData.length}
         onPageChange={(p) => setPage(p)}
         itemsPerPage={itemsPerPage}
+        onItemsPerPageChange={(newSize) => {
+          setItemsPerPage(newSize);
+          setPage(1);
+        }}
         selectable
         rowKey="manifestNo"
         selectedIds={selectedIds}

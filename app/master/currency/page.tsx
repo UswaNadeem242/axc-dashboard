@@ -42,7 +42,7 @@ export default function CurrencyMasterPage() {
   const [sortKey, setSortKey] = useState<string>("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // API + LocalStorage Persistence
   useEffect(() => {
@@ -190,6 +190,7 @@ export default function CurrencyMasterPage() {
   }, [filteredData, sortKey, sortDirection]);
 
   // Pagination
+  const totalPages = Math.max(1, Math.ceil(sortedData.length / itemsPerPage));
   const paginatedData = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
     return sortedData.slice(start, start + itemsPerPage);
@@ -301,7 +302,7 @@ export default function CurrencyMasterPage() {
         ...h,
         render: (_: any, idx?: number) => (
           <span className="text-gray-500 font-medium text-xs">
-            {(page - 1) * itemsPerPage + (idx ?? 0) + 1}
+            {idx !== undefined ? idx + 1 : (page - 1) * itemsPerPage + 1}
           </span>
         ),
       };
@@ -501,8 +502,14 @@ export default function CurrencyMasterPage() {
             headings={tableHeadings}
             data={paginatedData}
             currentPage={page}
+            totalPages={totalPages}
+            totalCount={sortedData.length}
             onPageChange={setPage}
             itemsPerPage={itemsPerPage}
+            onItemsPerPageChange={(newSize) => {
+              setItemsPerPage(newSize);
+              setPage(1);
+            }}
             sortKey={sortKey}
             sortDirection={sortDirection}
             onSort={handleSort}

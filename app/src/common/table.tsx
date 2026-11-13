@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Eye, Pencil, Trash2, Package } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { Eye, Pencil, Trash2, Package, ChevronUp, ChevronDown } from "lucide-react";
 import CommonPagination from "./pagination";
 import CommonScroll from "./commonscroll";
 import Dropdown from "./dropdown";
@@ -30,6 +30,7 @@ interface CommonTableProps {
   onItemsPerPageChange?: (items: number) => void;
   currentPage?: number;
   totalPages?: number;
+  totalCount?: number;
   onPageChange?: (page: number) => void;
   renderActions?: (row: any) => React.ReactNode;
   sortKey?: string;
@@ -51,17 +52,17 @@ interface CommonTableProps {
 }
 
 const PRICE_KEY_PATTERNS = [
-  /price/i,
-  /amount/i,
-  /cost/i,
-  /total/i,
-  /fare/i,
-  /fee/i,
-  /charge/i,
-  /balance/i,
-  /debit/i,
-  /credit/i,
-  /tariff/i,
+  /\bprice\b/i,
+  /\bamount\b/i,
+  /\bcost\b/i,
+  /\btotal\b/i,
+  /\bfare\b/i,
+  /\bfee\b/i,
+  /\bbalance\b/i,
+  /\bdebit\b/i,
+  /\bcredit\b/i,
+  /\btariff\b/i,
+  /\brate\b/i,
 ];
 
 const NON_PRICE_EXCLUSIONS = [
@@ -73,6 +74,29 @@ const NON_PRICE_EXCLUSIONS = [
   /status/i,
   /date/i,
   /time/i,
+  /name/i,
+  /title/i,
+  /desc/i,
+  /description/i,
+  /type/i,
+  /item/i,
+  /head/i,
+  /group/i,
+  /category/i,
+  /method/i,
+  /customer/i,
+  /vendor/i,
+  /shipper/i,
+  /consignee/i,
+  /service/i,
+  /product/i,
+  /country/i,
+  /state/i,
+  /city/i,
+  /hub/i,
+  /zone/i,
+  /select/i,
+  /action/i,
 ];
 
 const CURRENCY_VALUE_REGEX = /^[\$€£₹¥]\s*-?[\d,]+(\.\d+)?$|^-?[\d,]+(\.\d+)?\s*[\$€£₹¥]$|^(PKR|USD|AED|EUR|GBP|INR|Rs\.?)\s*-?[\d,]+(\.\d+)?$|^-?[\d,]+(\.\d+)?\s*(PKR|USD|AED|EUR|GBP|INR|Rs\.?)$/i;
@@ -122,6 +146,36 @@ export const resolveColumnAlign = (
   return "left";
 };
 
+function defaultDescendingComparator(a: any, b: any): number {
+  if (!a || !b) return 0;
+  // 1. Date comparison (createdAt, created_at, createdDate, date, receiptDate, invoiceDate, manifestDate, etc.)
+  const rawDateA = a.createdAt || a.created_at || a.createdDate || a.date || a.receiptDate || a.invoiceDate || a.manifestDate || a.transferDate || a.noteDate;
+  const rawDateB = b.createdAt || b.created_at || b.createdDate || b.date || b.invoiceDate || b.manifestDate || b.receiptDate || b.transferDate || b.noteDate;
+  if (rawDateA && rawDateB) {
+    const timeA = new Date(rawDateA).getTime();
+    const timeB = new Date(rawDateB).getTime();
+    if (!isNaN(timeA) && !isNaN(timeB) && timeA !== timeB) {
+      return timeB - timeA;
+    }
+  }
+
+  // 2. Numeric / ID comparison
+  const numA = Number(a.id ?? a.srNo ?? a.sr_no ?? (typeof a.awbNumber === "number" ? a.awbNumber : String(a.awbNumber ?? "").replace(/\D/g, "")) ?? 0);
+  const numB = Number(b.id ?? b.srNo ?? b.sr_no ?? (typeof b.awbNumber === "number" ? b.awbNumber : String(b.awbNumber ?? "").replace(/\D/g, "")) ?? 0);
+  if (!isNaN(numA) && !isNaN(numB) && numA !== 0 && numB !== 0 && numA !== numB) {
+    return numB - numA;
+  }
+
+  // 3. Fallback string id or code comparison descending
+  const idA = String(a.id ?? a.code ?? a.number ?? "");
+  const idB = String(b.id ?? b.code ?? b.number ?? "");
+  if (idA && idB && idA !== idB) {
+    return idB.localeCompare(idA);
+  }
+
+  return 0;
+}
+
 const CommonTable = ({
   headings,
   data,
@@ -130,6 +184,7 @@ const CommonTable = ({
   onDelete,
   onBag,
   totalPages: propTotalPages,
+  totalCount,
   currentPage = 1,
   onPageChange,
   itemsPerPage = 10,
@@ -153,14 +208,56 @@ const CommonTable = ({
   headerPadding = "px-4 py-3",
 }: CommonTableProps) => {
   const [internalItemsPerPage, setInternalItemsPerPage] = useState(itemsPerPage);
+  const [internalSortKey, setInternalSortKey] = useState<string>("");
+  const [internalSortDirection, setInternalSortDirection] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
     setInternalItemsPerPage(itemsPerPage);
   }, [itemsPerPage]);
 
-  const computedTotalPages = propTotalPages ?? Math.max(1, Math.ceil(data.length / internalItemsPerPage));
+  const effectiveSortKey = sortKey !== undefined ? sortKey : internalSortKey;
+  const effectiveSortDirection = sortDirection !== undefined ? sortDirection : internalSortDirection;
+
+  const handleHeaderSort = (key: string) => {
+    if (onSort) {
+      onSort(key);
+      return;
+    }
+    if (internalSortKey === key) {
+      setInternalSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setInternalSortKey(key);
+      setInternalSortDirection("desc");
+    }
+  };
+
+  const processedData = useMemo(() => {
+    if (!Array.isArray(data)) return [];
+    if (effectiveSortKey) {
+      return [...data].sort((a, b) => {
+        const valA = a?.[effectiveSortKey] ?? "";
+        const valB = b?.[effectiveSortKey] ?? "";
+        if (typeof valA === "number" && typeof valB === "number") {
+          return effectiveSortDirection === "asc" ? valA - valB : valB - valA;
+        }
+        const strA = String(valA).toLowerCase();
+        const strB = String(valB).toLowerCase();
+        return effectiveSortDirection === "asc" ? strA.localeCompare(strB) : strB.localeCompare(strA);
+      });
+    }
+    return [...data].sort(defaultDescendingComparator);
+  }, [data, effectiveSortKey, effectiveSortDirection]);
+
+  const computedTotalPages =
+    propTotalPages ??
+    (totalCount !== undefined
+      ? Math.max(1, Math.ceil(totalCount / internalItemsPerPage))
+      : Math.max(1, Math.ceil(processedData.length / internalItemsPerPage)));
   const activePage = Math.min(Math.max(1, currentPage), computedTotalPages);
-  const paginatedData = data.slice((activePage - 1) * internalItemsPerPage, activePage * internalItemsPerPage);
+  const paginatedData =
+    (propTotalPages !== undefined || totalCount !== undefined) && data.length <= internalItemsPerPage
+      ? data
+      : processedData.slice((activePage - 1) * internalItemsPerPage, activePage * internalItemsPerPage);
   const colSpan = headings.length + (selectable ? 1 : 0);
   const isScrollEnabled = showScroll && !hideScroll;
 
@@ -228,11 +325,11 @@ const CommonTable = ({
           )}
           {headings.map((heading, index) => {
             const align = resolveColumnAlign(heading.align, heading.key, heading.label, paginatedData);
-            const isSorted = sortKey === heading.key;
+            const isSorted = effectiveSortKey === heading.key;
             return (
               <th
                 key={heading.key}
-                onClick={() => heading.sortable && onSort?.(heading.key)}
+                onClick={() => heading.sortable && handleHeaderSort(heading.key)}
                 className={`bg-axc-navy/10 ${headerPadding} text-xs font-bold text-axc-dark-gray align-top
                    whitespace-nowrap ${index === 0 && !selectable ? "rounded-tl-sm" : ""
                   } ${index === headings.length - 1 ? "rounded-tr-sm" : ""} ${heading.sortable ? "cursor-pointer select-none hover:bg-axc-navy/20 transition-colors" : ""
@@ -240,6 +337,17 @@ const CommonTable = ({
               >
                 <div className={`flex items-center whitespace-nowrap gap-1 pl-2 ${getJustify(align)}`}>
                   {heading.label}
+                  {heading.sortable && (
+                    <span className="inline-flex items-center ml-0.5 opacity-70">
+                      {isSorted ? (
+                        effectiveSortDirection === "asc" ? (
+                          <ChevronUp size={12} className="text-axc-blue" />
+                        ) : (
+                          <ChevronDown size={12} className="text-axc-blue" />
+                        )
+                      ) : null}
+                    </span>
+                  )}
                 </div>
               </th>
             );

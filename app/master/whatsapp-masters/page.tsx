@@ -46,7 +46,7 @@ export default function WhatsappMastersListPage() {
 
   // Pagination
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // API + LocalStorage Persistence
   useEffect(() => {
@@ -212,10 +212,11 @@ export default function WhatsappMastersListPage() {
   }, [data, searchQuery, activeTags, sortKey, sortDirection]);
 
   // Paginated Data
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
   const paginatedData = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
     return filteredData.slice(start, start + itemsPerPage);
-  }, [filteredData, page]);
+  }, [filteredData, page, itemsPerPage]);
 
   // Bulk Export
   const handleBulkExport = () => {
@@ -321,7 +322,7 @@ export default function WhatsappMastersListPage() {
         ...h,
         render: (_row: WhatsappMasterEntry, idx?: number) => (
           <span className="font-medium text-axc-dark-gray">
-            {idx !== undefined ? (page - 1) * itemsPerPage + idx + 1 : 1}
+            {idx !== undefined ? idx + 1 : 1}
           </span>
         ),
       };
@@ -563,8 +564,14 @@ export default function WhatsappMastersListPage() {
           headings={tableHeadings}
           data={paginatedData}
           currentPage={page}
+          totalPages={totalPages}
+          totalCount={filteredData.length}
           onPageChange={setPage}
           itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={(newSize) => {
+            setItemsPerPage(newSize);
+            setPage(1);
+          }}
           showScroll={true}
           sortKey={sortKey}
           sortDirection={sortDirection}

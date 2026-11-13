@@ -45,7 +45,7 @@ export default function StateMasterPage() {
 
   // Pagination
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Backend API + LocalStorage Persistence
   useEffect(() => {
@@ -196,10 +196,11 @@ export default function StateMasterPage() {
   }, [data, searchQuery, activeTags, sortKey, sortDirection]);
 
   // Paginated data
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
   const paginatedData = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
     return filteredData.slice(start, start + itemsPerPage);
-  }, [filteredData, page]);
+  }, [filteredData, page, itemsPerPage]);
 
   // Selection handlers
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -477,8 +478,14 @@ export default function StateMasterPage() {
           headings={tableHeadings}
           data={paginatedData}
           currentPage={page}
+          totalPages={totalPages}
+          totalCount={filteredData.length}
           onPageChange={setPage}
           itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={(newSize) => {
+            setItemsPerPage(newSize);
+            setPage(1);
+          }}
           showScroll={true}
           sortKey={sortKey}
           sortDirection={sortDirection}

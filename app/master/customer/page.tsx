@@ -45,7 +45,7 @@ export default function CustomerMasterPage() {
   const [sortKey, setSortKey] = useState<string>("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Backend API + LocalStorage Persistence
   useEffect(() => {
@@ -191,6 +191,7 @@ export default function CustomerMasterPage() {
   }, [filteredData, sortKey, sortDirection]);
 
   // Paginated Data
+  const totalPages = Math.max(1, Math.ceil(sortedData.length / itemsPerPage));
   const paginatedData = useMemo(() => {
     const startIndex = (page - 1) * itemsPerPage;
     return sortedData.slice(startIndex, startIndex + itemsPerPage);
@@ -471,8 +472,14 @@ export default function CustomerMasterPage() {
             headings={tableHeadings}
             data={paginatedData}
             currentPage={page}
+            totalPages={totalPages}
+            totalCount={sortedData.length}
             onPageChange={setPage}
             itemsPerPage={itemsPerPage}
+            onItemsPerPageChange={(newSize) => {
+              setItemsPerPage(newSize);
+              setPage(1);
+            }}
             sortKey={sortKey}
             sortDirection={sortDirection}
             onSort={handleSort}

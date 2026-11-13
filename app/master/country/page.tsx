@@ -46,7 +46,7 @@ export default function CountryMasterPage() {
 
   // Pagination
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Backend API + LocalStorage Persistence
   useEffect(() => {
@@ -206,7 +206,7 @@ export default function CountryMasterPage() {
   const paginatedData = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
     return sortedData.slice(start, start + itemsPerPage);
-  }, [sortedData, page]);
+  }, [sortedData, page, itemsPerPage]);
 
   // Actions
   const handleView = (country: CountryEntry) => {
@@ -311,7 +311,7 @@ export default function CountryMasterPage() {
         ...h,
         render: (_row: CountryEntry, idx?: number) => (
           <span className="font-medium text-axc-dark-gray text-xs">
-            {idx !== undefined ? (page - 1) * itemsPerPage + idx + 1 : _row.srNo || 1}
+            {idx !== undefined ? idx + 1 : _row.srNo || 1}
           </span>
         ),
       };
@@ -546,8 +546,14 @@ export default function CountryMasterPage() {
           headings={tableHeadings}
           data={paginatedData}
           currentPage={page}
+          totalPages={totalPages}
+          totalCount={sortedData.length}
           onPageChange={setPage}
           itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={(newSize) => {
+            setItemsPerPage(newSize);
+            setPage(1);
+          }}
           showScroll={true}
           sortKey={sortKey}
           sortDirection={sortDirection}

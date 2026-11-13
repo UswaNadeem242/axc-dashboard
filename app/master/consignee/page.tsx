@@ -44,7 +44,7 @@ export default function ConsigneeMasterPage() {
 
   // Pagination
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Backend API + LocalStorage Persistence
   useEffect(() => {
@@ -214,10 +214,11 @@ export default function ConsigneeMasterPage() {
   }, [filteredData]);
 
   // Paginated Data
+  const totalPages = Math.max(1, Math.ceil(sortedData.length / itemsPerPage));
   const paginatedData = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
     return sortedData.slice(start, start + itemsPerPage);
-  }, [sortedData, page]);
+  }, [sortedData, page, itemsPerPage]);
 
   // Row Action Handlers (Exact Shipper Pattern)
   const handleView = (row: ConsigneeEntry) => {
@@ -597,8 +598,14 @@ export default function ConsigneeMasterPage() {
           headings={tableHeadings}
           data={paginatedData}
           currentPage={page}
+          totalPages={totalPages}
+          totalCount={sortedData.length}
           onPageChange={setPage}
           itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={(newSize) => {
+            setItemsPerPage(newSize);
+            setPage(1);
+          }}
           showScroll={true}
           renderActions={(row: ConsigneeEntry) => (
             <div className="flex items-center gap-2">

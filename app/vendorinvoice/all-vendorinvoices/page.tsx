@@ -29,7 +29,7 @@ export default function VendorInvoicePage() {
   const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
 
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     setPage(1);
@@ -594,8 +594,13 @@ export default function VendorInvoicePage() {
           data={paginatedData}
           currentPage={page}
           totalPages={totalPages}
+          totalCount={filteredData.length}
           onPageChange={setPage}
           itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={(newSize) => {
+            setItemsPerPage(newSize);
+            setPage(1);
+          }}
           showScroll={true}
           selectable
           rowKey="invoiceNumber"

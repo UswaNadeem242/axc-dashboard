@@ -1,5 +1,5 @@
 export const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+  process.env.NEXT_PUBLIC_API_URL || "https://axc.barakedge.com/api";
 
 function toCamelCase(str: string): string {
   return str.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
@@ -211,6 +211,49 @@ export const api = {
     return list.map((item: any) => normalizeMasterRecord<T>(item));
   },
 
+  async getMasterPage<T = any>(
+    endpoint: string,
+    params?: Record<string, any>
+  ): Promise<{
+    data: T[];
+    meta: { current_page: number; last_page: number; per_page: number; total: number };
+  }> {
+    const cleanParams: Record<string, string> = {};
+    if (params) {
+      for (const [k, v] of Object.entries(params)) {
+        if (v !== undefined && v !== null && v !== "") {
+          cleanParams[k] = String(v);
+        }
+      }
+    }
+    const qs = Object.keys(cleanParams).length
+      ? "?" + new URLSearchParams(cleanParams).toString()
+      : "";
+    const res = await request<any>(`${endpoint}${qs}`);
+    const list = Array.isArray(res)
+      ? res
+      : Array.isArray(res?.data)
+      ? res.data
+      : Array.isArray(res?.data?.data)
+      ? res.data.data
+      : [];
+    const meta = res?.meta ?? {
+      current_page: Number(cleanParams.page || 1),
+      last_page: 1,
+      per_page: Number(cleanParams.per_page || list.length || 10),
+      total: list.length,
+    };
+    return {
+      data: list.map((item: any) => normalizeMasterRecord<T>(item)),
+      meta: {
+        current_page: Number(meta.current_page ?? 1),
+        last_page: Math.max(1, Number(meta.last_page ?? 1)),
+        per_page: Number(meta.per_page ?? 10),
+        total: Number(meta.total ?? list.length),
+      },
+    };
+  },
+
   async getMasterItem<T = any>(endpoint: string, id: string | number): Promise<T> {
     const res = await request<any>(`${endpoint}/${encodeURIComponent(String(id))}`);
     const item = res?.data && !Array.isArray(res.data) ? res.data : res;
@@ -258,6 +301,9 @@ export const api = {
   async getAwbs(params?: Record<string, any>) {
     const qs = params ? "?" + new URLSearchParams(params).toString() : "";
     return request(`/awb-entries${qs}`);
+  },
+  async getNextAwbNumber() {
+    return request("/awb-entries/next-number");
   },
   async getAwb(id: string | number) {
     return request(`/awb-entries/${id}`);
@@ -336,6 +382,24 @@ export const api = {
   async getManifests(params?: Record<string, any>) {
     const qs = params ? "?" + new URLSearchParams(params).toString() : "";
     return request(`/manifests${qs}`);
+  },
+  async getNextManifestNumber() {
+    return request("/manifests/next-number");
+  },
+  async uploadManifestFiles(manifestNo: string | number, files: File[], kind: "mawb_image" | "edi_excel") {
+    const formData = new FormData();
+    formData.append("kind", kind);
+    files.forEach((f) => formData.append("files[]", f));
+    return request(`/manifests/${encodeURIComponent(String(manifestNo))}/files`, {
+      method: "POST",
+      body: formData,
+    });
+  },
+  async deleteManifestFile(manifestNo: string | number, storedName: string) {
+    return request(
+      `/manifests/${encodeURIComponent(String(manifestNo))}/files/${encodeURIComponent(storedName)}`,
+      { method: "DELETE" },
+    );
   },
   async getManifest(id: string | number) {
     return request(`/manifests/${id}`);

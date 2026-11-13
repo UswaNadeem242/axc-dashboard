@@ -45,7 +45,7 @@ export default function CityMasterPage() {
 
   // Pagination
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Backend API + LocalStorage Persistence
   useEffect(() => {
@@ -195,10 +195,11 @@ export default function CityMasterPage() {
   }, [data, searchQuery, activeTags, sortKey, sortDirection]);
 
   // Paginated Data
+  const totalPages = Math.max(1, Math.ceil(filteredData.length / itemsPerPage));
   const paginatedData = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
     return filteredData.slice(start, start + itemsPerPage);
-  }, [filteredData, page]);
+  }, [filteredData, page, itemsPerPage]);
 
   // Bulk Export
   const handleBulkExport = () => {
@@ -480,8 +481,14 @@ export default function CityMasterPage() {
           headings={tableHeadings}
           data={paginatedData}
           currentPage={page}
+          totalPages={totalPages}
+          totalCount={filteredData.length}
           onPageChange={setPage}
           itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={(newSize) => {
+            setItemsPerPage(newSize);
+            setPage(1);
+          }}
           showScroll={true}
           sortKey={sortKey}
           sortDirection={sortDirection}

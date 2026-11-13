@@ -26,14 +26,59 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
 
   // Nested sub-dropdown open states keyed by sub-item id
   const [openSubDropdowns, setOpenSubDropdowns] = useState<Record<string, boolean>>({
-    customer: pathname.startsWith("/master/customer") || pathname.startsWith("/master"),
+    "customer-master":
+      pathname.startsWith("/master/customer") ||
+      pathname.startsWith("/master/shipper") ||
+      pathname.startsWith("/master/consignee") ||
+      pathname.startsWith("/master/vendor") ||
+      pathname.startsWith("/master/company") ||
+      pathname === "/master",
+    customer: pathname.startsWith("/master/customer") || pathname === "/master",
+    company: pathname.startsWith("/master/company"),
+    "service-master":
+      pathname.startsWith("/master/product") ||
+      pathname.startsWith("/master/service") ||
+      pathname.startsWith("/master/charge") ||
+      pathname.startsWith("/master/rate-modifier") ||
+      pathname.startsWith("/master/currency"),
+    service: pathname.startsWith("/master/service"),
   });
+
+  // helper: is a nested leaf path active?
+  const isLeafActive = (href?: string) =>
+    href
+      ? pathname === href || (href !== "/" && pathname.startsWith(href + "/"))
+      : false;
+
+  const isSubActive = (sub: SubMenuItem): boolean => {
+    if (isLeafActive(sub.href)) return true;
+    if (sub.id === "awb-entries" && pathname === "/create-entries") return true;
+    if (sub.subItems && sub.subItems.length > 0) {
+      return sub.subItems.some((child) => isSubActive(child));
+    }
+    return false;
+  };
 
   useEffect(() => {
     if (pathname.startsWith("/accounts")) setIsAccountsOpen(true);
     if (pathname.startsWith("/master")) {
       setIsMasterOpen(true);
-      setOpenSubDropdowns((prev) => ({ ...prev, customer: true }));
+    }
+    const toOpen: Record<string, boolean> = {};
+    const checkSubItems = (items?: SubMenuItem[]) => {
+      if (!items) return;
+      for (const item of items) {
+        if (item.hasSubDropdown && item.subItems) {
+          if (isSubActive(item)) {
+            toOpen[item.id] = true;
+          }
+          checkSubItems(item.subItems);
+        }
+      }
+    };
+    menuItems.forEach((m) => checkSubItems(m.subItems));
+    if (Object.keys(toOpen).length > 0) {
+      setOpenSubDropdowns((prev) => ({ ...prev, ...toOpen }));
     }
   }, [pathname]);
 
@@ -51,11 +96,114 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
     setOpenSubDropdowns((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // helper: is a nested leaf path active?
-  const isLeafActive = (href?: string) =>
-    href
-      ? pathname === href || (href !== "/" && pathname.startsWith(href + "/"))
-      : false;
+  const renderSubMenuItem = (sub: SubMenuItem, depth = 1) => {
+    if (sub.hasSubDropdown && sub.subItems && sub.subItems.length > 0) {
+      const isSubOpen = !!openSubDropdowns[sub.id];
+      const isItemActive = isSubActive(sub);
+      const isExactActive = isLeafActive(sub.href);
+      const isFolder = !sub.href;
+
+      const headerClasses = isFolder
+        ? `flex w-full items-center justify-between rounded-lg px-2.5 py-2 text-left text-sm font-semibold transition-all duration-150 cursor-pointer whitespace-nowrap ${
+            isItemActive
+              ? "text-axc-navy bg-axc-navy/5"
+              : "text-gray-700 hover:bg-gray-100/70 hover:text-axc-dark-gray"
+          }`
+        : `flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left text-[13px] font-medium transition-all duration-150 cursor-pointer whitespace-nowrap ${
+            isExactActive
+              ? "bg-axc-navy/10 text-axc-navy font-semibold shadow-xs"
+              : isItemActive
+              ? "text-axc-navy font-medium hover:bg-gray-50"
+              : "text-gray-600 hover:bg-gray-50 hover:text-axc-dark-gray"
+          }`;
+
+      return (
+        <div key={sub.id} className="w-full">
+          <div
+            onClick={() => {
+              if (sub.href) {
+                setOpenSubDropdowns((prev) => ({ ...prev, [sub.id]: true }));
+                router.push(sub.href);
+              } else {
+                toggleSubDropdown(sub.id);
+              }
+            }}
+            className={headerClasses}
+          >
+            {sub.href ? (
+              <Link
+                href={sub.href}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenSubDropdowns((prev) => ({ ...prev, [sub.id]: true }));
+                }}
+                className="flex-1 text-left truncate"
+              >
+                {sub.label}
+              </Link>
+            ) : (
+              <span className="flex-1 truncate">{sub.label}</span>
+            )}
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                toggleSubDropdown(sub.id);
+              }}
+              className="p-1 -mr-1 hover:bg-black/5 rounded cursor-pointer transition-colors"
+              title={isSubOpen ? "Collapse" : "Expand"}
+            >
+              {isSubOpen ? (
+                <ChevronDown
+                  size={13}
+                  className={isItemActive ? "text-axc-navy" : "text-gray-400"}
+                />
+              ) : (
+                <ChevronRight
+                  size={13}
+                  className={isItemActive ? "text-axc-navy" : "text-gray-400"}
+                />
+              )}
+            </button>
+          </div>
+
+          {isSubOpen && (
+            <div className="ml-2.5 mt-0.5 border-l border-axc-gray/30 pl-2 space-y-0.5">
+              {sub.subItems.map((child) => renderSubMenuItem(child, depth + 1))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    // Regular flat leaf item
+    const isLeafSelected =
+      isLeafActive(sub.href) ||
+      (sub.id === "awb-entries" && pathname === "/create-entries");
+
+    const leafClass = `block w-full rounded-lg px-2.5 ${
+      depth === 1
+        ? "py-2 text-sm font-medium"
+        : depth === 2
+        ? "py-1.5 text-[13px] font-medium"
+        : "py-1 text-xs font-normal"
+    } text-left transition-all duration-150 cursor-pointer whitespace-nowrap truncate ${
+      isLeafSelected
+        ? "bg-axc-navy/10 text-axc-navy font-semibold shadow-xs"
+        : "text-gray-500 hover:bg-gray-50 hover:text-axc-dark-gray"
+    }`;
+
+    return sub.href ? (
+      <Link key={sub.id} href={sub.href} className={leafClass}>
+        {sub.label}
+      </Link>
+    ) : (
+      <button key={sub.id} type="button" className={leafClass}>
+        {sub.label}
+      </button>
+    );
+  };
 
   return (
     <aside
@@ -102,18 +250,7 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
               (item.id === "awb-management" && pathname === "/create-entries")
             : false;
 
-          const hasActiveSubItem = item.subItems?.some((sub) => {
-            if (sub.hasSubDropdown && sub.subItems) {
-              return (
-                isLeafActive(sub.href) ||
-                sub.subItems.some((leaf) => isLeafActive(leaf.href))
-              );
-            }
-            return (
-              isLeafActive(sub.href) ||
-              (sub.id === "awb-entries" && pathname === "/create-entries")
-            );
-          });
+          const hasActiveSubItem = item.subItems?.some((sub) => isSubActive(sub));
 
           const isDropdownOpen =
             item.id === "awb-management" ? isAwbOpen
@@ -171,118 +308,10 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
                 </button>
               )}
 
-              {/* First-level sub-items */}
+              {/* Sub-items (supports multi-level nested dropdowns) */}
               {!isCollapsed && item.hasDropdown && isDropdownOpen && item.subItems && (
                 <div className="ml-6 mt-0.5 border-l border-axc-gray/30 pl-2 space-y-1.5">
-                  {item.subItems.map((sub) => {
-                    // ── Sub-item WITH its own nested dropdown ──
-                    if (sub.hasSubDropdown && sub.subItems) {
-                      const isSubOpen = !!openSubDropdowns[sub.id];
-                      const isSelfActive = isLeafActive(sub.href);
-                      const hasActiveLeaf = sub.subItems.some((leaf) => isLeafActive(leaf.href));
-                      const isCustomerActive = isSelfActive || hasActiveLeaf;
-
-                      return (
-                        <div key={sub.id}>
-                          {/* Sub-dropdown row: click navigates to sub.href AND opens dropdown */}
-                          <div
-                            onClick={() => {
-                              if (sub.href) {
-                                setOpenSubDropdowns((prev) => ({ ...prev, [sub.id]: true }));
-                                router.push(sub.href);
-                              } else {
-                                toggleSubDropdown(sub.id);
-                              }
-                            }}
-                            className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-all duration-150 cursor-pointer whitespace-nowrap ${
-                              isCustomerActive
-                                ? "bg-axc-navy/10 text-axc-navy"
-                                : "text-gray-500 hover:bg-gray-50 hover:text-axc-dark-gray"
-                            }`}
-                          >
-                            {sub.href ? (
-                              <Link
-                                href={sub.href}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setOpenSubDropdowns((prev) => ({ ...prev, [sub.id]: true }));
-                                }}
-                                className="flex-1 text-left"
-                              >
-                                {sub.label}
-                              </Link>
-                            ) : (
-                              <span className="flex-1">{sub.label}</span>
-                            )}
-                            <button
-                              type="button"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                toggleSubDropdown(sub.id);
-                              }}
-                              className="p-1 -mr-1 hover:bg-black/5 rounded cursor-pointer transition-colors"
-                              title={isSubOpen ? "Collapse" : "Expand"}
-                            >
-                              {isSubOpen ? (
-                                <ChevronDown
-                                  size={13}
-                                  className={isCustomerActive ? "text-axc-navy" : "text-gray-400"}
-                                />
-                              ) : (
-                                <ChevronRight
-                                  size={13}
-                                  className={isCustomerActive ? "text-axc-navy" : "text-gray-400"}
-                                />
-                              )}
-                            </button>
-                          </div>
-
-                          {/* Nested leaf items */}
-                          {isSubOpen && (
-                            <div className="ml-3 mt-0.5 border-l border-axc-gray/20 pl-2 space-y-1">
-                              {sub.subItems.map((leaf) => {
-                                const leafActive = isLeafActive(leaf.href);
-                                const leafClass = `block w-full rounded-lg px-3 py-2 text-left text-sm transition-all duration-150 cursor-pointer whitespace-nowrap ${
-                                  leafActive
-                                    ? "bg-axc-navy/10 text-axc-navy font-medium"
-                                    : "text-gray-500 hover:bg-gray-50 hover:text-axc-dark-gray"
-                                }`;
-                                return leaf.href ? (
-                                  <Link key={leaf.id} href={leaf.href} className={leafClass}>
-                                    {leaf.label}
-                                  </Link>
-                                ) : (
-                                  <button key={leaf.id} type="button" className={leafClass}>
-                                    {leaf.label}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      );
-                    }
-
-                    // ── Regular sub-item (flat link) ──
-                    const isSubActive =
-                      isLeafActive(sub.href) ||
-                      (sub.id === "awb-entries" && pathname === "/create-entries");
-                    const subClass = `block w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium transition-all duration-150 cursor-pointer whitespace-nowrap ${
-                      isSubActive
-                        ? "bg-axc-navy/10 text-axc-navy"
-                        : "text-gray-500 hover:bg-gray-50 hover:text-axc-dark-gray"
-                    }`;
-                    return sub.href ? (
-                      <Link key={sub.id} href={sub.href} className={subClass}>
-                        {sub.label}
-                      </Link>
-                    ) : (
-                      <button key={sub.id} type="button" className={subClass}>
-                        {sub.label}
-                      </button>
-                    );
-                  })}
+                  {item.subItems.map((sub) => renderSubMenuItem(sub, 1))}
                 </div>
               )}
             </div>

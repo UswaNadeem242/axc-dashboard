@@ -88,7 +88,7 @@ export function StandardMasterListPage<T extends Record<string, any>>({
   const [sortKey, setSortKey] = useState<string>("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     let mounted = true;
@@ -226,6 +226,7 @@ export function StandardMasterListPage<T extends Record<string, any>>({
     });
   }, [filteredData, sortKey, sortDirection]);
 
+  const totalPages = Math.max(1, Math.ceil(sortedData.length / itemsPerPage));
   const paginatedData = useMemo(() => {
     const startIndex = (page - 1) * itemsPerPage;
     return sortedData.slice(startIndex, startIndex + itemsPerPage);
@@ -373,7 +374,7 @@ export function StandardMasterListPage<T extends Record<string, any>>({
         ...h,
         render: (_: any, idx?: number) => (
           <span className="text-gray-500 font-medium">
-            {(page - 1) * itemsPerPage + (idx ?? 0) + 1}
+            {idx !== undefined ? idx + 1 : (page - 1) * itemsPerPage + 1}
           </span>
         ),
       };
@@ -563,8 +564,14 @@ export function StandardMasterListPage<T extends Record<string, any>>({
             headings={tableHeadings}
             data={paginatedData}
             currentPage={page}
+            totalPages={totalPages}
+            totalCount={sortedData.length}
             onPageChange={setPage}
             itemsPerPage={itemsPerPage}
+            onItemsPerPageChange={(newSize) => {
+              setItemsPerPage(newSize);
+              setPage(1);
+            }}
             sortKey={sortKey}
             sortDirection={sortDirection}
             onSort={handleSort}

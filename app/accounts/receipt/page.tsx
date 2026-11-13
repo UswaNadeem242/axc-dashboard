@@ -45,7 +45,7 @@ export default function ReceiptPage() {
   const [sortKey, setSortKey] = useState<string>("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // LocalStorage Persistence
   useEffect(() => {
@@ -472,9 +472,10 @@ export default function ReceiptPage() {
   }, [filteredData, sortKey, sortDirection]);
 
   // Pagination
+  const totalPages = Math.max(1, Math.ceil(sortedData.length / itemsPerPage));
   const paginatedData = useMemo(() => {
     return sortedData.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-  }, [sortedData, page]);
+  }, [sortedData, page, itemsPerPage]);
 
   // Search suggestions
   const searchSuggestions = useMemo(() => {
@@ -673,8 +674,14 @@ export default function ReceiptPage() {
           headings={tableHeadings}
           data={paginatedData}
           currentPage={page}
+          totalPages={totalPages}
+          totalCount={sortedData.length}
           onPageChange={setPage}
           itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={(newSize) => {
+            setItemsPerPage(newSize);
+            setPage(1);
+          }}
           showScroll={true}
           sortKey={sortKey}
           sortDirection={sortDirection}

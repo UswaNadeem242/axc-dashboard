@@ -41,7 +41,7 @@ export default function BankTransferPage() {
   const [sortKey, setSortKey] = useState<string>("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // LocalStorage Persistence
   useEffect(() => {
@@ -350,9 +350,10 @@ export default function BankTransferPage() {
   }, [filteredData, sortKey, sortDirection]);
 
   // Pagination
+  const totalPages = Math.max(1, Math.ceil(sortedData.length / itemsPerPage));
   const paginatedData = useMemo(() => {
     return sortedData.slice((page - 1) * itemsPerPage, page * itemsPerPage);
-  }, [sortedData, page]);
+  }, [sortedData, page, itemsPerPage]);
 
   // Autocomplete Suggestions (Including removed filters like Status, Company, CreatedBy, etc.)
   const searchSuggestions = useMemo(() => {
@@ -569,8 +570,14 @@ export default function BankTransferPage() {
           headings={tableHeadings}
           data={paginatedData}
           currentPage={page}
+          totalPages={totalPages}
+          totalCount={sortedData.length}
           onPageChange={setPage}
           itemsPerPage={itemsPerPage}
+          onItemsPerPageChange={(newSize) => {
+            setItemsPerPage(newSize);
+            setPage(1);
+          }}
           showScroll={true}
           sortKey={sortKey}
           sortDirection={sortDirection}

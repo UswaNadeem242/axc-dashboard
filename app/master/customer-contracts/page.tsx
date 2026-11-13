@@ -45,7 +45,7 @@ export default function CustomerContractsMasterPage() {
   const [sortKey, setSortKey] = useState<string>("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Backend API + LocalStorage Persistence
   useEffect(() => {
@@ -562,8 +562,14 @@ export default function CustomerContractsMasterPage() {
             headings={tableHeadings}
             data={paginatedData}
             currentPage={page}
+            totalPages={totalPages}
+            totalCount={sortedData.length}
             onPageChange={setPage}
             itemsPerPage={itemsPerPage}
+            onItemsPerPageChange={(newSize) => {
+              setItemsPerPage(newSize);
+              setPage(1);
+            }}
             sortKey={sortKey}
             sortDirection={sortDirection}
             onSort={handleSort}

@@ -123,7 +123,7 @@ export default function UserTab() {
   const [deleteUser, setDeleteUser] = useState<UserRow | null>(null);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     let mounted = true;
@@ -283,9 +283,10 @@ export default function UserTab() {
     setCurrentPage(1);
   }, [searchQuery, activeTags]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredUsers.length / itemsPerPage));
   const paginatedUsers = useMemo(() => {
     return filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  }, [filteredUsers, currentPage]);
+  }, [filteredUsers, currentPage, itemsPerPage]);
 
   const toggleStatus = async (id: number) => {
     const next = users.map((user) => (user.id === id ? { ...user, isActive: !user.isActive } : user));
@@ -552,8 +553,14 @@ export default function UserTab() {
         headings={headings}
         data={filteredUsers}
         currentPage={currentPage}
+        totalPages={totalPages}
+        totalCount={filteredUsers.length}
         onPageChange={setCurrentPage}
         itemsPerPage={itemsPerPage}
+        onItemsPerPageChange={(newSize) => {
+          setItemsPerPage(newSize);
+          setCurrentPage(1);
+        }}
         showScroll={false}
         renderActions={renderActions}
         rowKey="id"

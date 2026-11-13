@@ -147,7 +147,9 @@ export default function WebPortalTab({
       errs.email = "Please enter a valid email address.";
     }
     if (!data.password.trim()) {
-      errs.password = "Password is required.";
+      if (!(data as any).hasPassword) {
+        errs.password = "Password is required.";
+      }
     } else if (data.password.length < 6) {
       errs.password = "Password must be at least 6 characters.";
     }

@@ -42,7 +42,7 @@ export default function RateModifierMasterPage() {
   const [sortKey, setSortKey] = useState<string>("");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [page, setPage] = useState(1);
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Backend API + LocalStorage Persistence
   useEffect(() => {
@@ -189,6 +189,14 @@ export default function RateModifierMasterPage() {
   }, [filteredData, sortKey, sortDirection]);
 
   // Pagination
+  const totalPages = Math.max(1, Math.ceil(sortedData.length / itemsPerPage));
+
+  useEffect(() => {
+    if (page > totalPages && totalPages > 0) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
+
   const paginatedData = useMemo(() => {
     const start = (page - 1) * itemsPerPage;
     return sortedData.slice(start, start + itemsPerPage);
@@ -326,7 +334,7 @@ export default function RateModifierMasterPage() {
         ...h,
         render: (_: any, idx?: number) => (
           <span className="text-gray-500 font-medium text-xs">
-            {(page - 1) * itemsPerPage + (idx ?? 0) + 1}
+            {idx !== undefined ? idx + 1 : (page - 1) * itemsPerPage + 1}
           </span>
         ),
       };
@@ -336,7 +344,7 @@ export default function RateModifierMasterPage() {
         ...h,
         render: (row: RateModifierEntry) => (
           <span className="font-semibold text-gray-900 text-xs">
-            {row.charge}
+            {row.chargeMasterName}
           </span>
         ),
       };
@@ -351,16 +359,16 @@ export default function RateModifierMasterPage() {
         ),
       };
     }
-    if (h.key === "customer") {
-      return {
-        ...h,
-        render: (row: RateModifierEntry) => (
-          <span className="text-gray-900 font-medium text-xs">
-            {row.customer || "-"}
-          </span>
-        ),
-      };
-    }
+    // if (h.key === "customer") {
+    //   return {
+    //     ...h,
+    //     render: (row: RateModifierEntry) => (
+    //       <span className="text-gray-900 font-medium text-xs">
+    //         {row.customer || "-"}
+    //       </span>
+    //     ),
+    //   };
+    // }
     if (h.key === "vendor") {
       return {
         ...h,
@@ -421,16 +429,16 @@ export default function RateModifierMasterPage() {
         ),
       };
     }
-    if (h.key === "minAmount") {
-      return {
-        ...h,
-        render: (row: RateModifierEntry) => (
-          <span className="text-gray-700 text-xs font-medium">
-            {row.minAmount ? `$${row.minAmount}` : "-"}
-          </span>
-        ),
-      };
-    }
+    // if (h.key === "minAmount") {
+    //   return {
+    //     ...h,
+    //     render: (row: RateModifierEntry) => (
+    //       <span className="text-gray-700 text-xs font-medium">
+    //         {row.minAmount ? `$${row.minAmount}` : "-"}
+    //       </span>
+    //     ),
+    //   };
+    // }
     if (h.key === "effectivePeriod") {
       return {
         ...h,
@@ -626,8 +634,14 @@ export default function RateModifierMasterPage() {
             headings={tableHeadings}
             data={paginatedData}
             currentPage={page}
+            totalPages={totalPages}
+            totalCount={filteredData.length}
             onPageChange={setPage}
             itemsPerPage={itemsPerPage}
+            onItemsPerPageChange={(newLimit) => {
+              setItemsPerPage(newLimit);
+              setPage(1);
+            }}
             sortKey={sortKey}
             sortDirection={sortDirection}
             onSort={handleSort}

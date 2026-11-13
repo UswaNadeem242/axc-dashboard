@@ -53,7 +53,7 @@ export default function ActivityLogsTab() {
   const [selectedIds, setSelectedIds] = useState<(string | number)[]>([]);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
 
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   useEffect(() => {
     let mounted = true;
@@ -202,9 +202,10 @@ export default function ActivityLogsTab() {
     setCurrentPage(1);
   }, [searchQuery, activeTags]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredLogs.length / itemsPerPage));
   const paginatedLogs = useMemo(() => {
     return filteredLogs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  }, [filteredLogs, currentPage]);
+  }, [filteredLogs, currentPage, itemsPerPage]);
 
   const toggleStatus = async (id: number) => {
     const next = logs.map((log) => (log.id === id ? { ...log, isActive: !log.isActive } : log));
@@ -362,8 +363,14 @@ export default function ActivityLogsTab() {
         headings={headings}
         data={filteredLogs}
         currentPage={currentPage}
+        totalPages={totalPages}
+        totalCount={filteredLogs.length}
         onPageChange={setCurrentPage}
         itemsPerPage={itemsPerPage}
+        onItemsPerPageChange={(newSize) => {
+          setItemsPerPage(newSize);
+          setCurrentPage(1);
+        }}
         showScroll={false}
         rowKey="id"
         selectedIds={selectedIds}

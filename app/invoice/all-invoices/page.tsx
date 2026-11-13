@@ -40,7 +40,7 @@ export default function AllInvoicePage() {
   const [deleteTarget, setDeleteTarget] = useState<InvoiceEntry | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const itemsPerPage = 10;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   useEffect(() => {
     if (typeof window !== "undefined") {
       const stored = localStorage.getItem("invoice_entries");
@@ -702,8 +702,13 @@ export default function AllInvoicePage() {
         data={filteredData}
         currentPage={page}
         totalPages={totalPages}
+        totalCount={filteredData.length}
         onPageChange={(p) => setPage(p)}
         itemsPerPage={itemsPerPage}
+        onItemsPerPageChange={(newSize) => {
+          setItemsPerPage(newSize);
+          setPage(1);
+        }}
         selectable
         rowKey="invoiceNumber"
         selectedIds={selectedIds}

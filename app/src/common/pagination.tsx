@@ -87,11 +87,10 @@ const CommonPagination = ({
                             key={index}
                             type="button"
                             onClick={() => onPageChange(Number(page))}
-                            className={`${buttonBase} ${
-                                currentPage === page
+                            className={`${buttonBase} ${currentPage === page
                                     ? "border-axc-navy bg-axc-navy text-white shadow-xs"
                                     : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                            }`}
+                                }`}
                         >
                             {page}
                         </button>
