@@ -42,6 +42,17 @@ export default function Sidebar({ isCollapsed = false, onToggle }: SidebarProps)
       pathname.startsWith("/master/rate-modifier") ||
       pathname.startsWith("/master/currency"),
     service: pathname.startsWith("/master/service"),
+    "locality-master":
+      pathname.startsWith("/master/zone") ||
+      pathname.startsWith("/master/country") ||
+      pathname.startsWith("/master/state") ||
+      pathname.startsWith("/master/hub") ||
+      pathname.startsWith("/master/city"),
+    "invoice-master":
+      pathname.startsWith("/master/invoice-range") ||
+      pathname.startsWith("/master/awb-less-invoice") ||
+      pathname.startsWith("/master/awb-state") ||
+      pathname.startsWith("/master/awb-status"),
   });
 
   // helper: is a nested leaf path active?

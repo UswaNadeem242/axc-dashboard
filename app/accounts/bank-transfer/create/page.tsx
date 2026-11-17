@@ -338,14 +338,14 @@ function AddBankTransferContent() {
               <button
                 type="button"
                 onClick={() => router.push("/accounts/bank-transfer")}
-                className="px-6 py-2.5 rounded-md border border-gray-300 bg-gray-500 hover:bg-gray-600 text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer shadow-sm"
+                className="px-5 py-4 border border-axc-border bg-white text-axc-dark-gray rounded-lg text-xs font-semibold hover:bg-gray-50 transition cursor-pointer"
               >
-                BACK
+                Cancel
               </button>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-6 py-2.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold uppercase tracking-wider transition cursor-pointer shadow-sm disabled:opacity-50"
+                className="px-5 py-4 bg-axc-navy cursor-pointer text-white rounded-lg text-regular-small transition shadow-sm"
               >
                 {isSubmitting ? "Saving..." : isEdit ? "Update" : "Save"}
               </button>

@@ -188,90 +188,123 @@ export const menuItems: MenuItem[] = [
         href: "/master/cft-contracts",
       },
 
-      // {
-      //   label: "Zone",
-      //   id: "zone",
-      //   href: "/master/zone",
-      // },
-      // {
-      //   label: "Country",
-      //   id: "country",
-      //   href: "/master/country",
-      // },
-      // {
-      //   label: "State",
-      //   id: "state",
-      //   href: "/master/state",
-      // },
-      // {
-      //   label: "Hub",
-      //   id: "hub",
-      //   href: "/master/hub",
-      // },
-      // {
-      //   label: "City",
-      //   id: "city",
-      //   href: "/master/city",
-      // },
-      // {
-      //   label: "Invoice Range",
-      //   id: "invoice-range",
-      //   href: "/master/invoice-range",
-      // },
-      // {
-      //   label: "AWB Less Invoice",
-      //   id: "awb-less-invoice",
-      //   href: "/master/awb-less-invoice",
-      // },
-      // {
-      //   label: "AWB State",
-      //   id: "awb-state",
-      //   href: "/master/awb-state",
-      // },
-      // {
-      //   label: "AWB Status",
-      //   id: "awb-status",
-      //   href: "/master/awb-status",
-      // },
-      // {
-      //   label: "Whatsapp Masters",
-      //   id: "whatsapp-masters",
-      //   href: "/master/whatsapp-masters",
-      // },
+
+
+
+      // 3rd part: Locality Master dropdown
+      {
+        label: "Locality Master",
+        id: "locality-master",
+        hasSubDropdown: true,
+        subItems: [
+          {
+            label: "Zone",
+            id: "zone",
+            href: "/master/zone",
+          },
+          {
+            label: "Country",
+            id: "country",
+            href: "/master/country",
+          },
+          {
+            label: "State",
+            id: "state",
+            href: "/master/state",
+          },
+          {
+            label: "Hub",
+            id: "hub",
+            href: "/master/hub",
+          },
+          {
+            label: "City",
+            id: "city",
+            href: "/master/city",
+          },
+          {
+            label: "District",
+            id: "district",
+            href: "/master/district",
+          },
+          {
+            label: "Location",
+            id: "location",
+            href: "/master/location",
+          },
+        ],
+      },
+
+
+
+      // 4th part: Invoice Master dropdown
+      {
+        label: "Invoice Master",
+        id: "invoice-master",
+        hasSubDropdown: true,
+        subItems: [
+          {
+            label: "Invoice Range",
+            id: "invoice-range",
+            href: "/master/invoice-range",
+          },
+          {
+            label: "AWB Less Invoice",
+            id: "awb-less-invoice",
+            href: "/master/awb-less-invoice",
+          },
+          {
+            label: "AWB State",
+            id: "awb-state",
+            href: "/master/awb-state",
+          },
+          {
+            label: "AWB Status",
+            id: "awb-status",
+            href: "/master/awb-status",
+          },
+          {
+            label: "Custom Invoice",
+            id: "custom-invoice",
+            href: "/master/custom-invoice",
+          },
+          {
+            label: "Invoice Service Type",
+            id: "invoice-service-type",
+            href: "/master/invoice-service-type",
+          },
+          {
+            label: "Shipment Invoice Note",
+            id: "shipment-invoice-note",
+            href: "/master/shipment-invoice-note",
+          },
+          {
+            label: "Report Master",
+            id: "report-master",
+            href: "/master/report-master",
+          },
+        ],
+      },
+      {
+        label: "Other",
+        id: "other",
+        hasSubDropdown: true,
+        subItems: [
+          {
+            label: "Whatsapp Masters",
+            id: "whatsapp-masters",
+            href: "/master/whatsapp-masters",
+          },
+
+        ],
+      },
 
 
 
 
-      // {
-      //   label: "District",
-      //   id: "district",
-      //   href: "/master/district",
-      // },
-      // {
-      //   label: "Location",
-      //   id: "location",
-      //   href: "/master/location",
-      // },
-      // {
-      //   label: "Custom Invoice",
-      //   id: "custom-invoice",
-      //   href: "/master/custom-invoice",
-      // },
-      // {
-      //   label: "Invoice Service Type",
-      //   id: "invoice-service-type",
-      //   href: "/master/invoice-service-type",
-      // },
-      // {
-      //   label: "Shipment Invoice Note",
-      //   id: "shipment-invoice-note",
-      //   href: "/master/shipment-invoice-note",
-      // },
-      // {
-      //   label: "Report Master",
-      //   id: "report-master",
-      //   href: "/master/report-master",
-      // },
+
+
+
     ],
   },
   // { label: "Rate Calculation", icon: Calculator, id: "rate-calculation" },
